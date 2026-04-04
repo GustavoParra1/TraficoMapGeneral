@@ -1,0 +1,110 @@
+{
+  "app": {
+    "name": "TraficoMap General",
+    "version": "1.0.0",
+    "description": "Sistema de monitoreo y análisis de tráfico municipal"
+  },
+  "municipio": {
+    "nombre": "Mar del Plata",
+    "pais": "Argentina",
+    "provincia": "Buenos Aires",
+    "contacto": "info@municipio.gov.ar",
+    "telefono": "+54 223 XXXX-XXXX"
+  },
+  "map": {
+    "centro": {
+      "lat": -38.0,
+      "lng": -57.55,
+      "zoom": 12
+    },
+    "mapBase": "osm",
+    "mapBasesDisponibles": [
+      "osm",
+      "google-streets",
+      "google-satellite",
+      "google-hybrid"
+    ]
+  },
+  "zonas": [
+    {
+      "nombre": "Norte",
+      "color": "#0066FF",
+      "icono": "azul",
+      "barrios": []
+    },
+    {
+      "nombre": "Sur",
+      "color": "#FF0000",
+      "icono": "rojo",
+      "barrios": []
+    },
+    {
+      "nombre": "Centro",
+      "color": "#FF1493",
+      "icono": "rosa",
+      "barrios": []
+    },
+    {
+      "nombre": "Oeste",
+      "color": "#00AA00",
+      "icono": "verde",
+      "barrios": []
+    }
+  ],
+  "datos": {
+    "geoJsonPath": "data/",
+    "archivoBarrios": "barrios.geojson",
+    "archivoCameras": "cameras.geojson",
+    "archivoAlertasx": "alerts.geojson"
+  },
+  "firebase": {
+    "projectId": "trafico-map-general-v2",
+    "apiKey": "AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA",
+    "authDomain": "trafico-map-general-v2.firebaseapp.com",
+    "databaseURL": "https://trafico-map-general-v2-default-rtdb.firebaseio.com",
+    "storageBucket": "trafico-map-general-v2.firebasestorage.app",
+    "messagingSenderId": "540631719751",
+    "appId": "1:540631719751:web:bd410f1bbee18e9fabb662"
+  },
+  "features": {
+    "chat": true,
+    "video_hls": true,
+    "analytics": true,
+    "patrols": true,
+    "reports": true,
+    "analysis": true,
+    "multiLanguage": false
+  },
+  "auth": {
+    "roles": [
+      {
+        "nombre": "COM",
+        "label": "Centro de Operaciones",
+        "permisos": ["*"]
+      },
+      {
+        "nombre": "PATROL",
+        "label": "Patrulla",
+        "permisos": ["chat", "report", "location", "video"]
+      },
+      {
+        "nombre": "ADMIN",
+        "label": "Administrador",
+        "permisos": ["*"]
+      }
+    ]
+  },
+  "idioma": {
+    "idiomaPrincipal": "es",
+    "idiomosDisponibles": ["es", "en", "pt"]
+  },
+  "notificaciones": {
+    "habilitadas": true,
+    "servicios": ["firebase", "email", "sms"]
+  },
+  "desarrollo": {
+    "modo": "production",
+    "puerto": 3003,
+    "logLevel": "info"
+  }
+}

@@ -1,0 +1,245 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5677716,
+          -38.0146843
+        ]
+      },
+      "properties": {
+        "titulo": "Intentó huir en una Amarok sin patente y descubrieron que tenía prohibido manejar",
+        "direccion": "Independencia y Almafuerte",
+        "link": "https://ahoramardelplata.com.ar/ultimas-noticias/intento-huir-en-una-amarok-sin-patente-y-descubrieron-que-tenia-prohibido-manejar",
+        "timestamp": 1771419805154
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5724457,
+          -38.0189526
+        ]
+      },
+      "properties": {
+        "titulo": "Persecución policial, choque y vuelco en el barrio San José",
+        "direccion": "Diagonal Canosa y Solís",
+        "link": "https://www.lacapitalmdp.com/lo-persiguio-la-policia-por-sospechar-que-robaba-autos-y-volco/",
+        "timestamp": 1771450177936
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5480888,
+          -37.9974955
+        ]
+      },
+      "properties": {
+        "titulo": "Ciclistas cansados de los robos se manifestaron en el centro de Mar del Plata",
+        "direccion": "Luro y Mitre para exigir medidas",
+        "link": "https://loquepasa.net/ciclistas-cansados-de-los-robos-se-manifestaron-en-el-centro-de-mar-del-plata/",
+        "timestamp": 1771457141543
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.590759,
+          -37.990824
+        ]
+      },
+      "properties": {
+        "titulo": "Barrio Bernardino Rivadavia: un hombre murió carbonizado en un incendio",
+        "direccion": "Alvarado y Castelli",
+        "link": "https://www.lacapitalmdp.com/barrio-bernardino-rivadavia-un-hombre-murio-carbonizado-en-un-incendio/",
+        "timestamp": 1771505278763
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5795132,
+          -37.9976442
+        ]
+      },
+      "properties": {
+        "titulo": "Encontraron a un cuerpo carbonizado tras un incendio en una casa",
+        "direccion": "Jara y Alvarado",
+        "link": "https://quedigital.com.ar/policiales/encontraron-a-un-cuerpo-carbonizado-tras-un-incendio-en-una-casa/",
+        "timestamp": 1771507974062
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5795132,
+          -37.9976442
+        ]
+      },
+      "properties": {
+        "titulo": "Encontraron un cuerpo carbonizado tras un incendio en una casa",
+        "direccion": "Jara y Alvarado",
+        "link": "https://quedigital.com.ar/policiales/encontraron-un-cuerpo-carbonizado-tras-un-incendio-en-una-casa/",
+        "timestamp": 1771508871481
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5687344,
+          -38.0177738
+        ]
+      },
+      "properties": {
+        "titulo": "Robo, persecución, choque y vuelco: detuvieron a un joven",
+        "direccion": "Vieytes y Catamarca y terminó en",
+        "link": "https://quedigital.com.ar/policiales/robo-persecucion-y-vuelco-detuvieron-a-un-joven/",
+        "timestamp": 1771525073200
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5504,
+          -37.98962
+        ]
+      },
+      "properties": {
+        "titulo": "Choque entre un Audi y una bicicleta dejó a una mujer hospitalizada",
+        "direccion": "Libertad y Jujuy",
+        "link": "https://www.infobrisas.com/noticias/2026/03/10/91035-choque-entre-un-audi-y-una-bicicleta-dejo-a-una-mujer-hospitalizada",
+        "timestamp": 1773220722457
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5904048,
+          -37.9762537
+        ]
+      },
+      "properties": {
+        "titulo": "Bomberos combaten incendios forestales en Chapadmalal y en Sierra de los Difuntos",
+        "direccion": "Ruta 226",
+        "link": "https://quedigital.com.ar/policiales/bomberos-combaten-incendio-forestal-chapadmalal-y-en-sierra-de-los-difuntos/",
+        "timestamp": 1773220731007
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58043,
+          -37.988235
+        ]
+      },
+      "properties": {
+        "titulo": "Argenfer resurge de las cenizas: la emblemática ferretería marplatense reabre sus puertas este jueves",
+        "direccion": "Avenida Colón y Perú hace menos de",
+        "link": "https://noticiasmdq.com/argenfer-resurge-de-las-cenizas-la-emblematica-ferreteria-marplatense-reabre-sus-puertas-este-jueves/",
+        "timestamp": 1773221012510
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5588626,
+          -38.0125208
+        ]
+      },
+      "properties": {
+        "titulo": "El barrio Primera Junta, escenario de un nuevo siniestro vial grave en menos de un mes",
+        "direccion": "San Luis y Rodríguez Peña tras huir",
+        "link": "https://www.lacapitalmdp.com/el-barrio-primera-junta-escenario-de-un-nuevo-siniestro-vial-grave-en-menos-de-un-mes/",
+        "timestamp": 1773946992712
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6265499,
+          -37.9682608
+        ]
+      },
+      "properties": {
+        "titulo": "Se entregó el tercer implicado en el crimen de Gascón y Buenos Aires",
+        "direccion": "Gascón y Buenos Aires aparece primero",
+        "link": "https://quedigital.com.ar/policiales/se-entrego-el-tercer-implicado-en-el-crimen-de-gascon-y-buenos-aires/",
+        "timestamp": 1775305780684
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5843013,
+          -37.9827793
+        ]
+      },
+      "properties": {
+        "titulo": "Murió un hombre de 52 años tras ser atropellado en la Ruta 2",
+        "direccion": "Ruta 2",
+        "link": "https://quedigital.com.ar/policiales/murio-un-hombre-de-52-anos-tras-ser-atropellado-en-la-ruta-2/",
+        "timestamp": 1775305780941
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5843871,
+          -37.9827381
+        ]
+      },
+      "properties": {
+        "titulo": "Persiguieron y redujeron a golpes a un hombre por intentar robar en una casa",
+        "direccion": "Champagnat y Belgrano",
+        "link": "https://quedigital.com.ar/policiales/persiguieron-y-redujeron-a-golpes-a-un-hombre-por-intentar-robar-en-una-casa/",
+        "timestamp": 1775305781163
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6265499,
+          -37.9682608
+        ]
+      },
+      "properties": {
+        "titulo": "Homicidio en Gascón y Buenos Aires: detuvieron a dos de los tres agresores",
+        "direccion": "Homicidio en Gascón y Buenos Aires",
+        "link": "https://quedigital.com.ar/policiales/homicidio-en-gascon-y-buenos-aires-detuvieron-a-dos-de-los-tres-agresores/",
+        "timestamp": 1775305781443
+      }
+    }
+  ]
+}

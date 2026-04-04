@@ -1,0 +1,35 @@
+{
+  "name": "trafico-map-general",
+  "version": "1.0.0",
+  "description": "Sistema modular de monitoreo y análisis de tráfico para municipios. Escalable, comercializable y fácil de implementar en cualquier ciudad.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js --dev",
+    "test": "jest",
+    "build": "echo 'Build process here'",
+    "firebase:deploy": "firebase deploy --only hosting"
+  },
+  "keywords": [
+    "traffic",
+    "monitoring",
+    "accidents",
+    "geospatial",
+    "analyze",
+    "municipios"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "firebase-admin": "^11.10.0",
+    "dotenv": "^16.0.3",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "cypress": "^13.6.0"
+  }
+}
