@@ -154,10 +154,10 @@ const SiniestrosLayer = (() => {
     // Función auxiliar para normalizar propiedades
     const normalizeFilterProps = (props) => {
       const normalized = {};
-      normalized.causa = props.causa || props.Causa || props.tipo || props.Tipo;
-      normalized.fecha = props.fecha || props.Fecha;
-      normalized.hora = props.hora || props.Hora;
-      normalized.participantes = props.participantes_codigos || props.Participante;
+      normalized.causa = props.causa || props.Causa || props.tipo || props.Tipo || props['CÓDIGOS CAUSAS'] || props['C?DIGOS CAUSAS'];
+      normalized.fecha = props.fecha || props.Fecha || props['FECHA'];
+      normalized.hora = props.hora || props.Hora || props['HORA'];
+      normalized.participantes = props.participantes_codigos || props.Participante || props['CÓDIGO PARTICIPANTES'] || props['C?DIGO PARTICIPANTES'];
       return normalized;
     };
 
@@ -337,11 +337,11 @@ const SiniestrosLayer = (() => {
       const props = feature.properties || {};
 
       // Normalizar nombres de propiedades (soportar CSV con diferentes nombres de columnas)
-      const fecha = props.fecha || props.Fecha;
-      const hora = props.hora || props.Hora;
-      const causa = props.causa || props.Causa || props.tipo || props.Tipo;
-      const participantes = props.participantes_codigos || props.Participante;
-      const calle = props.direccion || props.Calle || props.calle;
+      const fecha = props.fecha || props.Fecha || props['FECHA'];
+      const hora = props.hora || props.Hora || props['HORA'];
+      const causa = props.causa || props.Causa || props.tipo || props.Tipo || props['CÓDIGOS CAUSAS'] || props['C?DIGOS CAUSAS'];
+      const participantes = props.participantes_codigos || props.Participante || props['CÓDIGO PARTICIPANTES'] || props['C?DIGO PARTICIPANTES'];
+      const calle = props.direccion || props.Calle || props.calle || props['DIRECCIÓN SINIESTRO'];
 
       // Filtro por año
       if (filters.year !== 'all') {
@@ -450,12 +450,14 @@ const SiniestrosLayer = (() => {
     const normalizeSiniestroProps = (props) => {
       const normalized = { ...props };
       
-      // Mapear causa (buscar: causa, Causa, tipo, Tipo, accident_type)
+      // Mapear causa (buscar: causa, Causa, tipo, Tipo, accident_type, CÓDIGOS CAUSAS)
       if (!normalized.causa) {
         if (normalized.tipo) normalized.causa = normalized.tipo;
         else if (normalized.Tipo) normalized.causa = normalized.Tipo;
         else if (normalized.Causa) normalized.causa = normalized.Causa;
         else if (normalized.accident_type) normalized.causa = normalized.accident_type;
+        else if (normalized['CÓDIGOS CAUSAS']) normalized.causa = normalized['CÓDIGOS CAUSAS'];
+        else if (normalized['C?DIGOS CAUSAS']) normalized.causa = normalized['C?DIGOS CAUSAS'];
       }
       
       // Mapear descripción (buscar: descripcion, description, nombre, observaciones)
@@ -467,21 +469,37 @@ const SiniestrosLayer = (() => {
       }
       
       // Mapear fecha
-      if (!normalized.fecha && normalized.Fecha) normalized.fecha = normalized.Fecha;
+      if (!normalized.fecha) {
+        if (normalized.Fecha) normalized.fecha = normalized.Fecha;
+        else if (normalized['FECHA']) normalized.fecha = normalized['FECHA'];
+      }
       
       // Mapear hora
-      if (!normalized.hora && normalized.Hora) normalized.hora = normalized.Hora;
+      if (!normalized.hora) {
+        if (normalized.Hora) normalized.hora = normalized.Hora;
+        else if (normalized['HORA']) normalized.hora = normalized['HORA'];
+      }
       
       // Mapear dirección
       if (!normalized.direccion) {
         if (normalized.Calle) normalized.direccion = normalized.Calle;
         else if (normalized.calle) normalized.direccion = normalized.calle;
+        else if (normalized['DIRECCIÓN SINIESTRO']) normalized.direccion = normalized['DIRECCIÓN SINIESTRO'];
+        else if (normalized['DIRECCI?N SINIESTRO']) normalized.direccion = normalized['DIRECCI?N SINIESTRO'];
       }
       
       // Mapear barrio
       if (!normalized.barrio) {
         if (normalized.Barrio) normalized.barrio = normalized.Barrio;
         else if (normalized['Barrio/Zona']) normalized.barrio = normalized['Barrio/Zona'];
+        else if (normalized['BARRIOS']) normalized.barrio = normalized['BARRIOS'];
+      }
+      
+      // Mapear participantes
+      if (!normalized.participantes_codigos) {
+        if (normalized.Participante) normalized.participantes_codigos = normalized.Participante;
+        else if (normalized['CÓDIGO PARTICIPANTES']) normalized.participantes_codigos = normalized['CÓDIGO PARTICIPANTES'];
+        else if (normalized['C?DIGO PARTICIPANTES']) normalized.participantes_codigos = normalized['C?DIGO PARTICIPANTES'];
       }
       
       return normalized;
