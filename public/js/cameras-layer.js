@@ -237,6 +237,40 @@ const CamerasLayer = (() => {
   }
 
   /**
+   * Normaliza propiedades de cámaras (mapea sinónimos de columnas)
+   */
+  function normalizeProperties(props) {
+    const normalized = { ...props };
+    
+    // Mapear camera_number (si no existe, buscar sinónimos)
+    if (!normalized.camera_number) {
+      if (normalized.id) normalized.camera_number = normalized.id;
+      else if (normalized.numero) normalized.camera_number = normalized.numero;
+      else if (normalized.num) normalized.camera_number = normalized.num;
+      else if (normalized.nombre) normalized.camera_number = normalized.nombre;
+    }
+    
+    // Mapear address (si no existe, buscar sinónimos)
+    if (!normalized.address) {
+      if (normalized.ubicacion) normalized.address = normalized.ubicacion;
+      else if (normalized.direccion) normalized.address = normalized.direccion;
+      else if (normalized.dir) normalized.address = normalized.dir;
+      else if (normalized.localidad) normalized.address = normalized.localidad;
+    }
+    
+    // Mapear type (si no existe, dejar como vacío)
+    if (!normalized.type) normalized.type = 'Pública (Municipal)';
+    
+    // Asegurar que domos, fixed, lpr sean números
+    normalized.domes = parseInt(normalized.domes) || 0;
+    normalized.fixed = parseInt(normalized.fixed) || 0;
+    normalized.lpr = parseInt(normalized.lpr) || 0;
+    normalized.total_cameras = normalized.domes + normalized.fixed + normalized.lpr || 1;
+    
+    return normalized;
+  }
+
+  /**
    * Renderiza las cámaras en el mapa
    */
   function renderCameras() {
@@ -293,7 +327,7 @@ const CamerasLayer = (() => {
 
     // Agregar marcadores
     filteredCameras.forEach(feature => {
-      const props = feature.properties;
+      const props = normalizeProperties(feature.properties);
       const coords = feature.geometry.coordinates;
       const lat = coords[1];
       const lon = coords[0];

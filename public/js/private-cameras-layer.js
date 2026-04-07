@@ -190,9 +190,20 @@ const PrivateCamerasLayer = (() => {
       });
     };
 
+    // Normalizar propiedades
+    const normalizeProps = (props) => {
+      const normalized = { ...props };
+      if (!normalized.address) {
+        if (normalized.ubicacion) normalized.address = normalized.ubicacion;
+        else if (normalized.direccion) normalized.address = normalized.direccion;
+      }
+      if (!normalized.nombre && normalized.name) normalized.nombre = normalized.name;
+      return normalized;
+    };
+
     // Agregar marcadores
     filteredPrivateCameras.forEach(feature => {
-      const props = feature.properties;
+      const props = normalizeProps(feature.properties);
       const coords = feature.geometry.coordinates;
       const lat = coords[1];
       const lon = coords[0];
