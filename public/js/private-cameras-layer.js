@@ -193,11 +193,35 @@ const PrivateCamerasLayer = (() => {
     // Normalizar propiedades
     const normalizeProps = (props) => {
       const normalized = { ...props };
+      
+      // Mapear nombre (buscar en: name, nombre, nombre_establecimiento, denominacion)
+      if (!normalized.name) {
+        if (normalized.nombre) normalized.name = normalized.nombre;
+        else if (normalized.nombre_establecimiento) normalized.name = normalized.nombre_establecimiento;
+        else if (normalized.denominacion) normalized.name = normalized.denominacion;
+        else if (normalized.establecimiento) normalized.name = normalized.establecimiento;
+      }
+      
+      // Mapear dirección (buscar en: address, ubicacion, direccion, dir, localidad)
       if (!normalized.address) {
         if (normalized.ubicacion) normalized.address = normalized.ubicacion;
         else if (normalized.direccion) normalized.address = normalized.direccion;
+        else if (normalized.dir) normalized.address = normalized.dir;
+        else if (normalized.localidad) normalized.address = normalized.localidad;
       }
-      if (!normalized.nombre && normalized.name) normalized.nombre = normalized.name;
+      
+      // Mapear tipo (buscar en: camera_type, tipo, tipo_camara)
+      if (!normalized.camera_type) {
+        if (normalized.tipo) normalized.camera_type = normalized.tipo;
+        else if (normalized.tipo_camara) normalized.camera_type = normalized.tipo_camara;
+      }
+      
+      // Mapear descripción
+      if (!normalized.description) {
+        if (normalized.descripcion) normalized.description = normalized.descripcion;
+        else if (normalized.obs) normalized.description = normalized.obs;
+      }
+      
       return normalized;
     };
 
@@ -217,6 +241,10 @@ const PrivateCamerasLayer = (() => {
           <strong>🔒 Cámara Privada</strong><br>
           <strong>📍 ${props.name || 'Sin nombre'}</strong><br>
       `;
+
+      if (props.address) {
+        popupContent += `<small>📍 ${props.address}</small><br>`;
+      }
 
       if (props.description) {
         popupContent += `<small>${props.description}</small><br>`;

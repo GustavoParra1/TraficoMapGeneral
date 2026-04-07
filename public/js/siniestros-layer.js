@@ -95,25 +95,39 @@ const SiniestrosLayer = (() => {
     const causes = new Set();
     const hours = new Set();
 
+    // Función auxiliar para normalizar propiedades
+    const normalizeFilterProps = (props) => {
+      const normalized = {};
+      normalized.causa = props.causa || props.Causa || props.tipo || props.Tipo;
+      normalized.fecha = props.fecha || props.Fecha;
+      normalized.hora = props.hora || props.Hora;
+      normalized.participantes = props.participantes_codigos || props.Participante;
+      return normalized;
+    };
+
     sinistrosData.forEach(feature => {
-      const props = feature.properties || {};
+      const props = normalizeFilterProps(feature.properties || {});
       
-      // Convertir nombres de propiedades a estándar
-      const fecha = props.fecha || props.Fecha;
-      const hora = props.hora || props.Hora;
-      const causa = props.causa || props.Causa;
-      const participantes = props.participantes_codigos || props.Participante;
+      const fecha = props.fecha;
+      const hora = props.hora;
+      const causa = props.causa;
+      const participantes = props.participantes;
       
       if (fecha) {
         try {
           // Parsear fecha en formato DD/MM/YY
-          const [d, m, y] = fecha.split('/');
-          const year = parseInt('20' + y);
-          years.add(year);
+          const parts = fecha.split('/');
+          if (parts.length === 3) {
+            const [d, m, y] = parts;
+            const year = parseInt('20' + y);
+            if (!isNaN(year)) years.add(year);
+          } else {
+            // Intentar parsear como ISO (YYYY-MM-DD)
+            const year = new Date(fecha).getFullYear();
+            if (!isNaN(year)) years.add(year);
+          }
         } catch (e) {
-          // Intentar parsear como ISO
-          const year = new Date(fecha).getFullYear();
-          if (!isNaN(year)) years.add(year);
+          // Silenciosamente ignorar si no se puede parsear
         }
       }
       
@@ -121,8 +135,12 @@ const SiniestrosLayer = (() => {
       if (causa) causes.add(causa);
       
       if (hora) {
-        const hour = parseInt(hora.split(':')[0]);
-        if (!isNaN(hour)) hours.add(hour);
+        try {
+          const hour = parseInt(hora.split(':')[0]);
+          if (!isNaN(hour)) hours.add(hour);
+        } catch (e) {
+          // Ignorar horas que no se pueden parsear
+        }
       }
     });
 
@@ -246,26 +264,29 @@ const SiniestrosLayer = (() => {
     filteredSiniestros = sinistrosData.filter(feature => {
       const props = feature.properties || {};
 
-      // Normalizar nombres de propiedades
+      // Normalizar nombres de propiedades (soportar CSV con diferentes nombres de columnas)
       const fecha = props.fecha || props.Fecha;
       const hora = props.hora || props.Hora;
-      const causa = props.causa || props.Causa;
+      const causa = props.causa || props.Causa || props.tipo || props.Tipo;
       const participantes = props.participantes_codigos || props.Participante;
-      const calle = props.direccion || props.Calle;
+      const calle = props.direccion || props.Calle || props.calle;
 
       // Filtro por año
       if (filters.year !== 'all') {
         try {
           let year;
-          if (fecha.includes('/')) {
+          if (fecha && fecha.includes('/')) {
             // Formato DD/MM/YY
-            const [d, m, y] = fecha.split('/');
-            year = parseInt('20' + y);
-          } else {
+            const parts = fecha.split('/');
+            if (parts.length === 3) {
+              const [d, m, y] = parts;
+              year = parseInt('20' + y);
+            }
+          } else if (fecha) {
             // Formato ISO
             year = new Date(fecha).getFullYear();
           }
-          if (year !== parseInt(filters.year)) return false;
+          if (!year || year !== parseInt(filters.year)) return false;
         } catch (e) {
           return false;
         }
@@ -297,7 +318,7 @@ const SiniestrosLayer = (() => {
       }
 
       // Filtro por hora
-      if (filters.startHour !== 'all' || filters.endHour !== 'all') {
+      if ((filters.startHour !== 'all' || filters.endHour !== 'all') && hora) {
         try {
           const hour = parseInt(hora.split(':')[0]);
           const startHour = filters.startHour !== 'all' ? parseInt(filters.startHour.split(':')[0]) : 0;
@@ -305,7 +326,7 @@ const SiniestrosLayer = (() => {
 
           if (hour < startHour || hour > endHour) return false;
         } catch (e) {
-          return false;
+          // Si no se puede parsear la hora, incluir el registro
         }
       }
 
@@ -346,21 +367,63 @@ const SiniestrosLayer = (() => {
       disableClusteringAtZoom: 16
     });
 
+    // Normalizar propiedades de siniestro
+    const normalizeSiniestroProps = (props) => {
+      const normalized = { ...props };
+      
+      // Mapear causa (buscar: causa, Causa, tipo, Tipo, accident_type)
+      if (!normalized.causa) {
+        if (normalized.tipo) normalized.causa = normalized.tipo;
+        else if (normalized.Tipo) normalized.causa = normalized.Tipo;
+        else if (normalized.Causa) normalized.causa = normalized.Causa;
+        else if (normalized.accident_type) normalized.causa = normalized.accident_type;
+      }
+      
+      // Mapear descripción (buscar: descripcion, description, nombre, observaciones)
+      if (!normalized.descripcion) {
+        if (normalized.description) normalized.descripcion = normalized.description;
+        else if (normalized.nombre) normalized.descripcion = normalized.nombre;
+        else if (normalized.Descripcion) normalized.descripcion = normalized.Descripcion;
+        else if (normalized.obs) normalized.descripcion = normalized.obs;
+      }
+      
+      // Mapear fecha
+      if (!normalized.fecha && normalized.Fecha) normalized.fecha = normalized.Fecha;
+      
+      // Mapear hora
+      if (!normalized.hora && normalized.Hora) normalized.hora = normalized.Hora;
+      
+      // Mapear dirección
+      if (!normalized.direccion) {
+        if (normalized.Calle) normalized.direccion = normalized.Calle;
+        else if (normalized.calle) normalized.direccion = normalized.calle;
+      }
+      
+      // Mapear barrio
+      if (!normalized.barrio) {
+        if (normalized.Barrio) normalized.barrio = normalized.Barrio;
+        else if (normalized['Barrio/Zona']) normalized.barrio = normalized['Barrio/Zona'];
+      }
+      
+      return normalized;
+    };
+
     filteredSiniestros.forEach(feature => {
-      const props = feature.properties || {};
+      const props = normalizeSiniestroProps(feature.properties || {});
       const coords = feature.geometry?.coordinates;
 
       if (coords && coords.length === 2) {
         const lat = coords[1];
         const lng = coords[0];
 
-        // Normalizar nombres de propiedades
-        const causa = props.causa || props.Causa || 'N/A';
-        const fecha = props.fecha || props.Fecha || 'N/A';
-        const hora = props.hora || props.Hora || 'N/A';
-        const direccion = props.direccion || props.Calle || 'N/A';
-        const barrio = props['Barrio/Zona'] || props.barrio || 'N/A';
+        // Usar propiedades normalizadas
+        const causa = props.causa || 'N/A';
+        const fecha = props.fecha || 'N/A';
+        const hora = props.hora || 'N/A';
+        const direccion = props.direccion || 'N/A';
+        const barrio = props.barrio || 'N/A';
         const participantes = props.participantes_codigos || props.Participante || 'N/A';
+        const descripcion = props.descripcion || 'N/A';
 
         // Seleccionar color según causa
         const color = causeColors[causa] || causeColors['OTHER'];
@@ -377,13 +440,13 @@ const SiniestrosLayer = (() => {
 
         // Popup
         const popupContent = `
-          <div style="font-size: 12px; max-width: 200px;">
-            <strong>${causa}</strong><br>
-            Fecha: ${fecha}<br>
-            Hora: ${hora}<br>
-            Dirección: ${direccion}<br>
-            Barrio: ${barrio}<br>
-            Participante: ${participantes}
+          <div style="font-size: 12px; max-width: 250px;">
+            <strong>⚠️ ${causa}</strong><br>
+            ${descripcion !== 'N/A' ? `<small>${descripcion}</small><br>` : ''}
+            📅 ${fecha}${hora !== 'N/A' ? ` ${hora}` : ''}<br>
+            ${direccion !== 'N/A' ? `📍 ${direccion}<br>` : ''}
+            ${barrio !== 'N/A' ? `Barrio: ${barrio}<br>` : ''}
+            ${participantes !== 'N/A' ? `Participante: ${participantes}` : ''}
           </div>
         `;
 
