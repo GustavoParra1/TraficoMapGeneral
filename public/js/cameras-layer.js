@@ -237,7 +237,13 @@ const CamerasLayer = (() => {
       };
       
       const color = colorMap[type] || '#CCCCCC';
-      const cameraNum = cameraNumber || '?';
+      
+      // Extraer solo números del código de cámara (eliminar prefijos como SMM, MAR, etc.)
+      let cameraNum = '?';
+      if (cameraNumber) {
+        const numMatch = cameraNumber.toString().match(/\d+/);
+        cameraNum = numMatch ? numMatch[0] : cameraNumber;
+      }
 
       return L.divIcon({
         html: `<div style="
