@@ -1,0 +1,100 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1,
+        "soc_fomen": "CENTRO HISTORICO",
+        "hectares": 125.5,
+        "colorb": "#FF1493"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-58.12, -29.80],
+          [-58.10, -29.80],
+          [-58.10, -29.82],
+          [-58.12, -29.82],
+          [-58.12, -29.80]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 2,
+        "soc_fomen": "PUERTO Y MALECÓN",
+        "hectares": 98.3,
+        "colorb": "#0066FF"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-58.14, -29.78],
+          [-58.12, -29.78],
+          [-58.12, -29.80],
+          [-58.14, -29.80],
+          [-58.14, -29.78]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 3,
+        "soc_fomen": "RESIDENCIAL NORTE",
+        "hectares": 156.2,
+        "colorb": "#00AA00"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-58.10, -29.78],
+          [-58.08, -29.78],
+          [-58.08, -29.80],
+          [-58.10, -29.80],
+          [-58.10, -29.78]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 4,
+        "soc_fomen": "ZONA INDUSTRIAL",
+        "hectares": 203.8,
+        "colorb": "#FF8C00"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-58.08, -29.80],
+          [-58.06, -29.80],
+          [-58.06, -29.83],
+          [-58.08, -29.83],
+          [-58.08, -29.80]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 5,
+        "soc_fomen": "BALNEARIO SUR",
+        "hectares": 87.6,
+        "colorb": "#FFD700"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-58.12, -29.82],
+          [-58.10, -29.82],
+          [-58.10, -29.85],
+          [-58.12, -29.85],
+          [-58.12, -29.82]
+        ]]
+      }
+    }
+  ]
+}

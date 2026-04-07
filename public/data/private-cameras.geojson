@@ -1,0 +1,7619 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5533386,
+          -38.01662940000001
+        ]
+      },
+      "properties": {
+        "id": "NOMBRE",
+        "name": "NOMBRE",
+        "description": "Primera Junta 2074",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.530377,
+          -38.0260293
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "La Normandina Salón de Eventos",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.53255830000001,
+          -38.0286333
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Bruto Playa Grande",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59746099999999,
+          -38.0408743
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Avenida Jacinto Peralta Ramos & Avenida Mario Bravo fundación PUPY",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57516,
+          -38.015867
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "COM",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59381070000001,
+          -37.9941462
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. M. Champagnat 3345",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54914050000001,
+          -38.0082528
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alberti 2251",
+        "type": "Privada",
+        "camera_type": "pc 1\tDAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58455120000001,
+          -38.0316972
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Florencio Sánchez 1754",
+        "type": "Privada",
+        "camera_type": "PC 2 - SMART PSS",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5903572,
+          -37.96962570000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Libertad 7598",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5857758,
+          -38.0312389
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Jacinto Peralta Ramos 1766",
+        "type": "Privada",
+        "camera_type": "PC 2 - SMART PSS",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5646668,
+          -38.0102592
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Independencia 3445",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55788200000001,
+          -37.9997472
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Colón 3350",
+        "type": "Privada",
+        "camera_type": "PC 1 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5899973,
+          -37.9810595
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Moreno 6698",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5575494,
+          -38.0003167
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Salta 2248",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5577361,
+          -38.0233141
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Vieytes 2000",
+        "type": "Privada",
+        "camera_type": "PC 1 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5474655,
+          -37.98577029999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Jujuy 523",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.77450089999999,
+          -37.94061369999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Arco de Sierra de los Padres",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5543249,
+          -37.9628503
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Aragon 5200",
+        "type": "Privada",
+        "camera_type": "PC 1 - IVMS4200",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54594900000001,
+          -38.0417293
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "El Cano 3355",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5644678,
+          -38.0206773
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Larrea 2649",
+        "type": "Privada",
+        "camera_type": "PC 2 - IVMS 4200",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5878178,
+          -38.0414605
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Gutemberg 5875",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5411787,
+          -38.028249
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Almafuerte 534",
+        "type": "Privada",
+        "camera_type": "PC 2 - IVMS 4200",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6146823,
+          -38.0106774
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Fortunato de la Plaza 9687",
+        "type": "Privada",
+        "camera_type": "PC 1 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.60060319999999,
+          -37.9642171
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Tandil & Avenida Libertad",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.7470143,
+          -37.9174512
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Delegación Sierra de los Padres y La Peregrina",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5923995,
+          -38.0029781
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Avenida Juan B. Justo & Reforma Universitaria",
+        "type": "Privada",
+        "camera_type": "dep municipal isla",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58185470000001,
+          -38.0144256
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Pehuajó 250",
+        "type": "Privada",
+        "camera_type": "dep municipal isla",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.53232610000001,
+          -38.0310964
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Quba",
+        "type": "Privada",
+        "camera_type": "café de mar",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56882330000001,
+          -38.01743639999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Catamarca 4256",
+        "type": "Privada",
+        "camera_type": "PC 2 -  DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5351872,
+          -38.0268834
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Saavedra 190",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5440696,
+          -38.0021968
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Rivadavia 2248",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54894789999999,
+          -37.9910362
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Independencia 1055",
+        "type": "Privada",
+        "camera_type": "PC 1 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56988709999999,
+          -38.0001073
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Garay 4187",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55649469999999,
+          -37.9879093
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Balcarce 3902",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5439152,
+          -38.00286880000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Entre Ríos 1864",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5807805,
+          -38.023395
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Hernandarias 6767 Y POR DOLORES",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55855619999999,
+          -37.980329
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Misiones 545",
+        "type": "Privada",
+        "camera_type": "PC 9 - HILVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.593843,
+          -37.9949817
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Champagnat 3418",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58563410000001,
+          -38.0135015
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "12 de Octubre 7778",
+        "type": "Privada",
+        "camera_type": "PC 2 - IVMS 4200",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56985619999999,
+          -38.0607011
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Acha 3121",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5766407,
+          -38.0529084
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alejandro Korn 2916",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59630660000001,
+          -38.03535919999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Dolores 2707",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5479706,
+          -38.0629256
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Fortunato de la Plaza 1928",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5865743,
+          -38.0387482
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Genova y Dellepiane",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5896285,
+          -37.9449987
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Los Eucaliptus 5353",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISON",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58404489999999,
+          -37.9784912
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Bahia Blanca 1525",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55697850000001,
+          -37.9569064
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Joaquina Acevedo 5731",
+        "type": "Privada",
+        "camera_type": "PC 2 - IVMS 4200",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5426867,
+          -37.9605895
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Esquiu 1943",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5669807,
+          -38.0409214
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Cerrito 1430",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56861749999999,
+          -38.03476690000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San Salvador 5195",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57194610000001,
+          -38.0072273
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Primera Junta 3908",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57321460000001,
+          -38.0496554
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alejandro Korn 2465",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5779915,
+          -37.9546228
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Valencia 7356",
+        "type": "Privada",
+        "camera_type": "PC 2  DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5941667,
+          -38.002699
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Peralta Ramos 85",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5722318,
+          -38.0223849
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "El Cano 6334",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5429983,
+          -38.0031897
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Buenos Aires 1863 - Loc 2",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5351566,
+          -38.0268294
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alem 3602 y 3614",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5479573,
+          -38.0096034
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Buenos Aires 2642",
+        "type": "Privada",
+        "camera_type": "PC 2 - IVMS 4200",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54386399999999,
+          -38.007682
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Arenales 2287",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5738476,
+          -37.9775648
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Libertad 5733",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5476936,
+          -37.9907937
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Libertad 3151",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5467807,
+          -38.0417078
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Acha 325",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6350457,
+          -37.970684
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Juan B Justo 1559",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5856326,
+          -38.0317156
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Arana y Goiri 6450",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6032488,
+          -38.1141864
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "C. 495 874",
+        "type": "Privada",
+        "camera_type": "PC 7 EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54586740000001,
+          -38.0037931
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Corrientes 2044",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.76856919999999,
+          -37.9591007
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Emilio 23",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.544141,
+          -38.0099464
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Gascón & Lamadrid",
+        "type": "Privada",
+        "camera_type": "PC 1 - IVMS4200",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5566433,
+          -38.0711328
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Mario Bravo 1865",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54834429999999,
+          -38.0060782
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Corrientes 2341",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5722318,
+          -38.0223849
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "El Cano 6334",
+        "type": "Privada",
+        "camera_type": "PC 1 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5709931,
+          -38.0182193
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Independencia 4443",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.664165,
+          -38.0067157
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "PARQUE INDUSTRIAL",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.549356,
+          -38.035558
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Juan B. Justo 700",
+        "type": "Privada",
+        "camera_type": "PC 2 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54785779999999,
+          -38.0002893
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Rivadavia 2602",
+        "type": "Privada",
+        "camera_type": "PC 2 - SMART PSS",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58259579999999,
+          -38.0025117
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Saavedra 4935",
+        "type": "Privada",
+        "camera_type": "PC1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54933399999999,
+          -37.9952074
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "La Rioja 1445",
+        "type": "Privada",
+        "camera_type": "PC 2 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55394279999999,
+          -37.9797248
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "French 4209 Y  SAN JUAN 299",
+        "type": "Privada",
+        "camera_type": "PC 1 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5963848,
+          -38.03110040000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Friuli 2381",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54757349999999,
+          -38.08322
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Navarra 450",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5815715,
+          -37.9809265
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Pedro Luro 6150",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.565394,
+          -37.9854684
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Neuquén y 3 de Febrero",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5767573,
+          -38.024135
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Irala 6472",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.577012,
+          -38.0239905
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "JACINTO PERALTA RAMOS 714",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57678479999999,
+          -38.02403069999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Irala 6478",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56632800000001,
+          -38.0169961
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "La Rioja 4168",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5434259,
+          -38.0086662
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Lamadrid 2351",
+        "type": "Privada",
+        "camera_type": "PC 2 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6253282,
+          -38.0017521
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Arana y Goiri 10956",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5579983,
+          -37.98222630000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Ayacucho 4365",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6057403,
+          -37.9436782
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Florisbelo Acosta 7741",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.555023,
+          -37.9976948
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Belgrano 3264",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.594115,
+          -38.0453417
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Talcahuano 3279",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57060800000001,
+          -37.9568972
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Torres de Vera y Aragon",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57704,
+          -37.9649212
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "TORRE DE VERA Y ARAGON 0",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55190349999999,
+          -37.9778465
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San Juan 2",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5460232,
+          -37.9699186
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Patagones 955",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5524049,
+          -38.0009628
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Bolívar 2903",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5555046,
+          -37.9666867
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Lopez de Gomara 5055",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5536578,
+          -38.0024368
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Hipolito Yrigoyen 2257",
+        "type": "Privada",
+        "camera_type": "PC 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5753287,
+          -38.0369147
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Tripulantes del Fournier 5450",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5939388,
+          -38.0020795
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Juan B. Justo 5758",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5942891,
+          -38.0027085
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Solis 9031",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6121746,
+          -37.9831781
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San Lorenzo 8141",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5518458,
+          -38.01169029999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alvarado 2240",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54819699999999,
+          -38.042024
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Edison 432",
+        "type": "Privada",
+        "camera_type": "CASA BLANCO",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54206139999999,
+          -38.0143307
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Olavarría & Garay",
+        "type": "Privada",
+        "camera_type": "DOMO DE NIKRO",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54259260000001,
+          -38.0101331
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Las Heras 2450",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.557589,
+          -38.0308137
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Solis 4850",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57925299999999,
+          -37.9762466
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Avenida M. Champagnat & Balcarce",
+        "type": "Privada",
+        "camera_type": "OPEN SPORT",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57275509999999,
+          -38.0032687
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San Juan & San Lorenzo",
+        "type": "Privada",
+        "camera_type": "PC 2 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5559287,
+          -38.04368540000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Padre Dutto 1003",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6119175,
+          -37.9833193
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San Lorenzo 8109",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55933950000001,
+          -37.9954235
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Belgrano y 14 de Julio",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.53153709999999,
+          -38.0265463
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Mr Jones",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6287888,
+          -38.0131758
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Flores 3702",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5589466,
+          -38.0042805
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Club 26",
+        "type": "Privada",
+        "camera_type": "Independencia y Rawson",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54808860000001,
+          -38.003418
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Bolívar 2450",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55543950000001,
+          -38.0787058
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Darragueira 3585",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6093606,
+          -38.109937
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle 495 & Calle 24",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5647528,
+          -38.00918529999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Anexo Facultad de ciencias de la Salud y trabajo social. UNMDP",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5713091,
+          -38.005743
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Universidad Nacional de Mar del Plata",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5715223,
+          -38.00575399999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "complejo universitario",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5371696,
+          -38.0288531
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alem 3863",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55210400000001,
+          -37.9833439
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Guido 516",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59039439999999,
+          -38.0173163
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Guanahani 7751",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56944589999999,
+          -38.0930695
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Atahualpa 4861",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5479241,
+          -37.9995492
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San Luis 1750",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5586691,
+          -37.9942534
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "14 de Julio 1775",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5954982,
+          -37.9822285
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Estado de Israel 2345",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59542990000001,
+          -37.957491
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Tandil 157",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59207199999998,
+          -37.97561399999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Pedro Luro 7146",
+        "type": "Privada",
+        "camera_type": "PC 1",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59267999999999,
+          -37.9763954
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San Martín 7146",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5769201,
+          -38.0336402
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Mateotti 1456",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5720202,
+          -38.0058839
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Deán Funes & Rodríguez Peña",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57032779999999,
+          -38.005619
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Tomás Guido & General Roca",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.570986,
+          -38.006424
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Tomás Guido & Rodríguez Peña",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5806601,
+          -37.97861779999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "CHAMPAGNAT 1382 - 9 DE JULIO 6191",
+        "type": "Privada",
+        "camera_type": "PA 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59267999999999,
+          -37.9763954
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San Martín 7146",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54918670000001,
+          -37.9970932
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Avenida Pedro Luro & Hipólito Yrigoyen",
+        "type": "Privada",
+        "camera_type": "DEP MUNI - ISLA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5936221,
+          -37.9871556
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Tres Arroyos & Rawson",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.7714566,
+          -37.9304984
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Villa Padre Luis Varetto",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.62567749999999,
+          -37.998635
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Tripulantes del Fournier 1112",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5561293,
+          -38.0325885
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alvear 171",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54524819999999,
+          -38.04013279999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Solis 3430",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56386630000001,
+          -37.9785112
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Ituzaingo 4998",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5413414,
+          -38.0080851
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Colón 1702",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5556869,
+          -38.03237790000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Solis 4630",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56738110000001,
+          -38.006727
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "20 de Septiembre 3265",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5652094,
+          -38.0532849
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Napoles 3669",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56546309999999,
+          -37.993623
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Moreno 4241",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59338570000001,
+          -37.9588574
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Beruti 8106",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5442103,
+          -38.0040101
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Moreno 2145",
+        "type": "Privada",
+        "camera_type": "PC 3 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5451698,
+          -37.9458425
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Godoy Cruz 5366",
+        "type": "Privada",
+        "camera_type": "PC 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5509436,
+          -37.98116890000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Tomás Guido 277",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5755065,
+          -38.00155389999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Misiones 3172",
+        "type": "Privada",
+        "camera_type": "PC 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5510671,
+          -38.00091339999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "DRS",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5534545,
+          -37.9362855
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Las Margaritas",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.551021,
+          -38.04359950000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Edison 701",
+        "type": "Privada",
+        "camera_type": "PC 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5522088,
+          -37.9416813
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Ciancheta 3120",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56429509999999,
+          -37.9771544
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Necochea 5098",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5531386,
+          -37.997267
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Rivadavia 3171",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.539985,
+          -38.0129575
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alberti 1343",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5361506,
+          -38.02822010000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alem 3790",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57056720000001,
+          -38.0278483
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Mateotti 637",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5665856,
+          -38.0401305
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Cerrito 1349",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5833648,
+          -37.97969570000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Mariano Acosta y Luro",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55206620000001,
+          -37.9742247
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Libres del Sud y Rejon",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54630969999999,
+          -37.9695325
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Constitucion 4254",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57422270000001,
+          -38.0363512
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Rosales 5418",
+        "type": "Privada",
+        "camera_type": "PC 9 -  HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59052559999999,
+          -38.00547359999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Los Sauces 96",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5966673,
+          -37.9905874
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Tres Arroyos 3149",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5347934,
+          -38.0119192
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "MENDOZA 2259",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5657627,
+          -38.0166019
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Laprida 2957",
+        "type": "Privada",
+        "camera_type": "PC 2 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56828340000001,
+          -37.96505090000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Padre Cardiel 6062",
+        "type": "Privada",
+        "camera_type": "PC 3 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5899145,
+          -38.0183912
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "República de Cuba 1034",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59254629999999,
+          -37.9140869
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle Gavazzi",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57496399999999,
+          -38.0451622
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Puán 4866",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5471292,
+          -38.0425815
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "12 de Octubre 3374",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5333582,
+          -37.9239013
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Mahatma Gandhi",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56210279999999,
+          -38.0029251
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Rawson 3469",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5996748,
+          -37.9782613
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Armenia 2191",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57221060000001,
+          -38.0520404
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Diagonal Canata 2581",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5476924,
+          -38.032019
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Lavalle 4626",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5481231,
+          -37.9934704
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "La Rioja 1223",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5878797,
+          -37.9529495
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Florisbelo Acosta 8144",
+        "type": "Privada",
+        "camera_type": "PC 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6642884,
+          -38.0022054
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle 6",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5538532,
+          -38.0002841
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Bolívar 3053",
+        "type": "Privada",
+        "camera_type": "PC 4 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5832871,
+          -38.0109296
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "De los Inmigrantes 81",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57018540000001,
+          -38.0158228
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "AVENIDA PASO 3302 - SALTA 4214",
+        "type": "Privada",
+        "camera_type": "PC 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6031735,
+          -38.0076625
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Guanahani 9209",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59819,
+          -38.0061373
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Ayolas 9019",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59381310000001,
+          -38.0360077
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Casildo Villar 2611",
+        "type": "Privada",
+        "camera_type": "PC 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5563322,
+          -38.0027607
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "falucho 3086",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISIONN",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5848766,
+          -38.0462963
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Güiraldes 5345",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.585356,
+          -37.985525
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Colón 6101",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5622918,
+          -37.99357940000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Funes 1873",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54821159999999,
+          -38.0674048
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Pérez Bulnes 2361",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55316560000001,
+          -38.0633369
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Giacobini 2331",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59216139999999,
+          -37.9153086
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Gavazzi 1033",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.61021840000001,
+          -38.0014782
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Hernandarias 10068",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5560152,
+          -38.078233
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Colombres 3572",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5854033,
+          -38.1081119
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle 457 nro 459  entre 6 y 8 - San Patricio",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5795829,
+          -38.01986
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Viña del Mar 624",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5832097,
+          -37.99878140000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Marconi 3278",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58539260000001,
+          -37.9771584
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Tres Arroyos 1468",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5759205,
+          -38.0144219
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Dorrego 4337",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6091408,
+          -37.8817517
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle S Guerrico",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.550777,
+          -37.9873504
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Chacabuco 3556",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57919020000001,
+          -38.0283719
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Juana Manso 1187",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.548466,
+          -38.003118
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Bolívar & Santiago del Estero",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57551729999999,
+          -37.9966446
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Don Bosco 2716",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5832674,
+          -38.0375497
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Talcahuano 2102",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5640502,
+          -38.101092
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Cnel. de Marina David Jewett 5021",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57900799999999,
+          -38.0023306
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Rodríguez Peña & Neuquén",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5442575,
+          -38.0013792
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Corrientes 1753",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5452473,
+          -38.009055
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Arenales 2477",
+        "type": "Privada",
+        "camera_type": "PC 6 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5495517,
+          -37.9985868
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "DIAGONAL PUEYRREDON 2936",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISON",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56487879999999,
+          -37.9799667
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Juan Héctor Jara 798",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5742628,
+          -37.9751047
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Malvinas 785",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5527015,
+          -37.9822361
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Deán Funes 440",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55539499999999,
+          -38.008145
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San Luis 2849",
+        "type": "Privada",
+        "camera_type": "PC 6 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5951144,
+          -37.9733456
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Armenia 1552",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59505609999999,
+          -37.9737989
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Pedro Luro 7479",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5661488,
+          -38.0224568
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Juan B. Justo 2655",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5478687,
+          -38.0091092
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alberti 2107",
+        "type": "Privada",
+        "camera_type": "PC 6 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5948304,
+          -37.9729123
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "25 de Mayo 7494",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56789269999999,
+          -37.99781179999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Gascón 4185",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5322027,
+          -38.014997
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Falucho 670",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5430858,
+          -38.0105434
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Gascón 1698",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5388419,
+          -38.0240267
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Gral. Paz 3535",
+        "type": "Privada",
+        "camera_type": "PC 6 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59070260000001,
+          -38.0404908
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Antonio Valentini 2767",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5581972,
+          -37.9908169
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Tomás Guido 1458",
+        "type": "Privada",
+        "camera_type": "PC 6 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56117709999999,
+          -38.0388737
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "José Hernández 942",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56247759999999,
+          -37.9878209
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "9 de Julio 4359",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5507967,
+          -37.9616255
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Carlos Tejedor 1491",
+        "type": "Privada",
+        "camera_type": "PC 5 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5594911,
+          -37.9828757
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Chaco 799",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56369360000001,
+          -38.0276156
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "ESTEBAN ETCHEVERRIA 223",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5622137,
+          -38.0782135
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Las Margaritas & Los Chañares",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5895647,
+          -38.0071362
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Los Olmos 8674 Y LOS EUCALIPTUS 2240",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5597436,
+          -37.9953081
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Belgrano 3740",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5589674,
+          -38.0737771
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Los olmos 1798",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5872749,
+          -38.0221942
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Vertiz 7225",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.61870509999999,
+          -37.95933410000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "9 de Julio 9949",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5454793,
+          -38.0105303
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alberti 1860",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5661514,
+          -38.0234332
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Talcahuano 46",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59163969999999,
+          -37.9430674
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Lijo López 8980",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5640326,
+          -38.0239272
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Sta. Fe 4637",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5436038,
+          -37.998849
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Santa Fe & Diagonal Alberdi Sur",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5447208,
+          -37.9846646
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Boulevard Maritimo Patricio Peralta Ramos - desconectada por el usuario",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5872529,
+          -37.9772579
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "República del Líbano 1551",
+        "type": "Privada",
+        "camera_type": "PC 3 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.60774139999999,
+          -37.9909653
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Juan B. Justo 7399",
+        "type": "Privada",
+        "camera_type": "PC 1",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56409179999999,
+          -37.9933115
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Belgrano 4150",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.585089,
+          -38.0062204
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Francia 4019",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57070280000001,
+          -38.0188051
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Independencia 4466",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.7082185,
+          -38.0068352
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Punto 315",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5442188,
+          -37.9977736
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Santiago del Estero 1447",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5868517,
+          -38.0164882
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Irala 7626",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57099039999999,
+          -38.1006646
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "C. 6 6343",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55760429999999,
+          -37.9961123
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "BELGRANO 3547 - 20 DE SEPTIEMBRE 1856",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5987274,
+          -38.1075188
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle 18 & Calle 475",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5955194,
+          -37.9464554
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "PASAJE Castagnino 816",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54259440000001,
+          -37.9982573
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "9 de Julio 2344",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55843840000001,
+          -37.9700387
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "José Ingenieros 382",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5719598,
+          -37.97893129999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Libertad 5526",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.572508,
+          -37.9788773
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Libertad 5564",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5537174,
+          -37.9955843
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Salta 1664",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5577858,
+          -37.9545422
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Olegario Andrade 1791",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54395099999999,
+          -38.00263119999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Entre rios 1839",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59468150000001,
+          -38.0174654
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Magnasco 1245",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55669330000001,
+          -38.0774815
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Castro Barros 3550",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5603177,
+          -38.0353658
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Cerrito 616",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56101719999999,
+          -37.9971881
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "14 de Julio 2143",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57576599999999,
+          -37.9837599
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "TIENDA LEÓN MDQ",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56830799999999,
+          -38.0190656
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Larrea 2998",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5268083,
+          -38.01829049999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Aristóbulo del Valle 2480",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5718641,
+          -37.9988634
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Chaco 2766",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6037363,
+          -38.1143618
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle 495 nro 874",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55961569999999,
+          -37.9707414
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Ingenieros 283",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55316560000001,
+          -38.0633369
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Giacobini 2331",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58405510000001,
+          -37.9840063
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Doctor Victoriano E. Montes",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5466706,
+          -38.0212312
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Saavedra 1330",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6084976,
+          -38.0213763
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Guerrico 2335",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5732635,
+          -38.0301944
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Mateotti 981",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5488335,
+          -37.987195
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Ayacucho 3424",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.60730989999999,
+          -38.0035912
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Hernandarias 9746",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55841710000001,
+          -37.99823850000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Bolívar 3478",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57825200000001,
+          -38.0427621
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Puan 5242",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5828585,
+          -38.0394036
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Rafael del Riego 2231",
+        "type": "Privada",
+        "camera_type": "Pc 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5975744,
+          -38.0577943
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Manzana 6 Casa 36 - Lomas del Golf",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56018189999999,
+          -37.971675
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Jose Ingenieros 157",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5992097,
+          -37.9810335
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Falucho entre 180 y 178",
+        "type": "Privada",
+        "camera_type": "Pc 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56630730000001,
+          -38.0278022
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "12 de Octubre 5575",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.60174799999999,
+          -37.978143
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Arrue 2270",
+        "type": "Privada",
+        "camera_type": "Pc 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5461949,
+          -38.00763999999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Falucho 2007 - BUENOS AIRES 2302",
+        "type": "Privada",
+        "camera_type": "PC 1",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59258469999999,
+          -37.9878026
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Complejo Edicilio Habit Uta Mar del Plat",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5508493,
+          -37.999793
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Belgrano 2864",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58088509999999,
+          -38.0032194
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Don Bosco 3568",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5619202,
+          -38.0022968
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "España 2612",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54982200000001,
+          -37.9993588
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Mitre 1817",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58389899999999,
+          -38.023351
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Lisandro de la Torre 1078",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5552383,
+          -38.0098686
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Córdoba 2992",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55213610000001,
+          -38.0308033
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Carlos Alvear 4726",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5496517,
+          -38.00947
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Rawson 2218",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54814080000001,
+          -37.9956364
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Hipólito Yrigoyen 1417",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5678574,
+          -38.0066833
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Gral. Roca 3655",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5701984,
+          -38.0064838
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Rodríguez Peña 3825",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5504355,
+          -38.0044141
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Almte. Brown 2575",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54919510000001,
+          -38.0073014
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Gascón 2308",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5780907,
+          -38.0072327
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Matheu & La Pampa",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5581894,
+          -37.9711139
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Carlos Tejedor 301",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.561726,
+          -38.003429
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Rawson 3404",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5896409,
+          -37.9694659
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Libertad 7331",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57576599999999,
+          -37.9837599
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "LURO Y MEXICO",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.7635499,
+          -37.9555983
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Adolfo y Olga",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.7784836,
+          -37.9409112
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Angela y Arturo",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.7843779,
+          -37.9432543
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Francisco y San Martin",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5635104,
+          -38.0066825
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "diagonal alberdi y santa fe",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5732896,
+          -38.0827327
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Los Mocoretas & Caupolican",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57346140000001,
+          -37.9952097
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Gascon 4785",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5475205,
+          -37.9967517
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Bartolomé Mitre & 25 de Mayo",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5832202,
+          -38.04100409999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Genova 5635",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5510671,
+          -38.00091339999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Mitre 2011",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5728214,
+          -38.0111853
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Formosa 3756",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5712209,
+          -38.0605842
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Mario Bravo y Edison",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5688585,
+          -38.0857189
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Los Araucanos",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5829277,
+          -38.0665682
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Jorge Hernandez 1066",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.60552200000001,
+          -37.9415241
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "López de Gomara 5055",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5763948,
+          -37.964138
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Torres de Vera y Aragon 100",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57750720000001,
+          -37.9646867
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Rio Negro 6750",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57770900000001,
+          -37.9640007
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Martinez Zuviría 50",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55363669999999,
+          -38.0019541
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Colón 2936",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57529359999999,
+          -37.9817339
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "9 de julio 5602",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5440109,
+          -37.9729361
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Ricardo Gutiérrez 781",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58645860000001,
+          -38.1016615
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle 445 & Calle 14",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57993609999999,
+          -38.02947
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Juana Manso 1320",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.605503,
+          -37.940399
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Valencia 10101",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.657222,
+          -37.941111
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "PROCOSUD Ruta 226 km7",
+        "type": "Privada",
+        "camera_type": "5",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59849399999999,
+          -37.9784738
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Bolívar 7499",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.53231719999999,
+          -38.02779219999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Playa Grande",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.710418,
+          -38.0069795
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Delegación Municipal Batán",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5757433,
+          -37.95928749999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San José de Calasanz 581",
+        "type": "Privada",
+        "camera_type": "PC 6 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5767238,
+          -37.9970016
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Garay 4842",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5576059,
+          -38.0010528
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "ALMIRANTE BROWN 3232",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5774145,
+          -37.9526354
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Dellapaolera 1050",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5711014,
+          -37.9907191
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Moreno 4832",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57311139999999,
+          -38.0927958
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Los Mapuches 1247",
+        "type": "Privada",
+        "camera_type": "Pc 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5650701,
+          -37.9991828
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "GUIDO 2492",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5752251,
+          -37.9866316
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Uruguay 1835",
+        "type": "Privada",
+        "camera_type": "Pc 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.599869,
+          -38.0234355
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Camusso",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5725109,
+          -37.9968791
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alberti 4550",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55612850000001,
+          -38.0478181
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Edison 1345",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5615957,
+          -38.0910967
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Diag. Estados Unidos Nte. 779",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55437860000001,
+          -38.00195430000001
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "LA RIOJA 2248",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58457569999999,
+          -38.0120611
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "De los Inmigrantes 237",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58875,
+          -38.114026
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "entrada del barrio san carlos",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.61933029999999,
+          -38.0131616
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Genova 9845",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57255199999999,
+          -37.9893113
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Juan Héctor Jara 1954",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5523913,
+          -38.0209535
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Formosa 1755",
+        "type": "Privada",
+        "camera_type": "PC 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55217030000001,
+          -38.0218752
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Las Heras 3950",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58324699999999,
+          -38.107467
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle 6 nro 1663 entre 451/453",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.67851079999999,
+          -38.011446
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Teru Teru 922",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5458332,
+          -38.025613
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Almafuerte 1021",
+        "type": "Privada",
+        "camera_type": "3 DAHUA DSS",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5455095,
+          -37.9952071
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "3 de Febrero 2751",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54417300000001,
+          -38.0163838
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Olavarría 3063",
+        "type": "Privada",
+        "camera_type": "PC 6 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5809276,
+          -37.98061939999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Luro 6099",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.58458570000001,
+          -38.0111679
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Camusso 180",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5424664,
+          -38.0176992
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Avellaneda 1244",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5698838,
+          -38.0000675
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San Juan 2790",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5874408,
+          -37.9775233
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Pedro Luro 6701",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5375082,
+          -38.02754669999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Matheu 307",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54785779999999,
+          -38.0002893
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Rivadavia 2602 - CORDOBA 1899",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5829538,
+          -38.0019572
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "JARA 3550",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5760861,
+          -38.0412549
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "AV. FORTUNATO DE LA PLAZA Y LUIS AGOTE",
+        "type": "Privada",
+        "camera_type": "PC 1 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5372352,
+          -38.0290937
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "ALEM 3913",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55542209999999,
+          -37.9861043
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Maipú 3960",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55663799999999,
+          -37.9857997
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Maipú 4020",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55456899999999,
+          -37.9985867
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "INDEPENDENCIA 1964",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5559447,
+          -37.9857466
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Funes 909",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5545117,
+          -37.9988804
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Punto 432",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5563869,
+          -37.9862945
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Funes 959",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5915822,
+          -37.9867047
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Bordabehere 2590",
+        "type": "Privada",
+        "camera_type": "PC 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5918486,
+          -37.9871099
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Alberti 6490",
+        "type": "Privada",
+        "camera_type": "PC 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5474761,
+          -37.968788
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Libres del Sud 990",
+        "type": "Privada",
+        "camera_type": "PC 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.547526,
+          -37.9691097
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Constitución 4386",
+        "type": "Privada",
+        "camera_type": "PC 8 - DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57275509999999,
+          -38.0032687
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San Juan & San Lorenzo",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5420085,
+          -37.9968779
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "SANTA FE 1247",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55758470000001,
+          -38.03082819999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "SOLIS 4850",
+        "type": "Privada",
+        "camera_type": "PC 2 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.7062095,
+          -38.0049301
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle 134",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.533107,
+          -38.0284902
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "BRUTO TUNEL",
+        "type": "Privada",
+        "camera_type": "PC 3 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.6074734,
+          -37.9487599
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Albert Schweitzer 32",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5702247,
+          -38.0277342
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Ayolas 5832",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5525439,
+          -38.0009395
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Hipolito Yrigoyen 2097",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57507389999999,
+          -38.011996
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Laprida 3867",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5623635,
+          -38.0735372
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Los Geranios 2210",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54786300000001,
+          -38.00389829999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "SANTA FE 2147",
+        "type": "Privada",
+        "camera_type": "PC 4 DAHUA",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5596222,
+          -38.0190383
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Almafuerte 2384",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56570159999999,
+          -38.0137851
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Catamarca 3823",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5445754,
+          -38.0051653
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Bolívar 2118",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.589996,
+          -38.0067619
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Los Eucaliptos 8408",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5458942,
+          -38.0436627
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Figueroa Alcorta 427",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISON",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5820931,
+          -38.0653435
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Jorge Hernandez 785",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5882167,
+          -37.9912106
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Juncal 2820",
+        "type": "Privada",
+        "camera_type": "PC 9 - HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5596222,
+          -38.0190383
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Almafuerte 2384",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.56038789999999,
+          -37.9914376
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Avenida Pedro Luro & Deán Funes",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5453467,
+          -37.9972915
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Córdoba 1441",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5724217,
+          -38.0100853
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Dorrego 3800",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5645688,
+          -38.0664307
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "El Hornero 37",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5584001,
+          -38.00339719999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Av. Independencia 2552",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55905240000001,
+          -37.9700762
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "José Ingenieros 359",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5480135,
+          -37.994026
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "La Rioja 1282",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5409824,
+          -38.0330073
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "LARREA 248",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5616379,
+          -37.991841
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "San Martín 4077",
+        "type": "Privada",
+        "camera_type": "PC 5 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5656421,
+          -38.0142405
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Catamarca 3854",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.55723649999999,
+          -37.995968
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "España 1853",
+        "type": "Privada",
+        "camera_type": "PC 8 HIKVISION",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.57630469999999,
+          -37.9936614
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Avenida Juan Héctor Jara & Gascón",
+        "type": "Privada",
+        "camera_type": "Privada",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5558617,
+          -37.9874753
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Guido 1045",
+        "type": "Privada",
+        "camera_type": "PC 8 - DSS EXPRESS",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.54979819999999,
+          -38.0050637
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Santiago del Estero 2306",
+        "type": "Privada",
+        "camera_type": "PC 8 - DSS EXPRESS",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5515176,
+          -37.9765584
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Tomás Falkner 4211",
+        "type": "Privada",
+        "camera_type": "PC 8 - DSS EXPRESS",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5960456,
+          -37.9065167
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle Alelies & Calle Los Geranios",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59922690000001,
+          -37.9078876
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle Los Tulipanes & Calle Azucena",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59445539999999,
+          -37.91148099999999
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Calle Las Rosas & Calle Los Geranios",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.5965921,
+          -37.9081013
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Lirios 2740",
+        "type": "Privada",
+        "camera_type": "PC 7 - EZVIZ - CONTRASEÑA: QWERTY",
+        "public": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -57.59980820000001,
+          -38.0356997
+        ]
+      },
+      "properties": {
+        "id": "Sin nombre",
+        "name": "Sin nombre",
+        "description": "Monseñor Enrique Rau 2967",
+        "type": "Privada",
+        "camera_type": "PC 7 EZVIZ",
+        "public": false
+      }
+    }
+  ]
+}

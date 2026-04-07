@@ -1,0 +1,38 @@
+{
+  "cities": [
+    {
+      "id": "mar-del-plata",
+      "name": "Mar del Plata",
+      "country": "Argentina",
+      "province": "Buenos Aires",
+      "coordinates": {
+        "lat": -38.0,
+        "lng": -57.55
+      },
+      "zoom": 12,
+      "files": {
+        "barrios": "data/barrios.json",
+        "siniestros": "data/siniestros_con_ubicacion.geojson",
+        "cameras": "data/cameras.geojson",
+        "private_cameras": "data/private-cameras.geojson"
+      }
+    },
+    {
+      "id": "san-martin-del-mar",
+      "name": "San Martín del Mar",
+      "country": "Argentina",
+      "province": "Corrientes",
+      "coordinates": {
+        "lat": -29.8,
+        "lng": -58.1
+      },
+      "zoom": 13,
+      "files": {
+        "barrios": "data/san-martin/barrios.json",
+        "siniestros": "data/san-martin/siniestros.geojson",
+        "cameras": "data/san-martin/cameras.geojson",
+        "private_cameras": "data/san-martin/private-cameras.geojson"
+      }
+    }
+  ]
+}

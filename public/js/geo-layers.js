@@ -2,6 +2,7 @@
 const GeoLayers = (() => {
   let map;
   let geoJsonLayers = {};
+  let highlightedBarrio = null; // Guardar barrio resaltado
 
   // Colores por zona (Norte, Sur, Centro, Oeste)
   const zoneColors = {
@@ -102,8 +103,13 @@ const GeoLayers = (() => {
       layer.bindPopup(getPopupContent(feature));
     }
 
-    // Highlight on hover - más visible
+    // Highlight on hover - DESHABILITADO si hay un barrio resaltado
     layer.on('mouseover', function() {
+      // NO hacer nada si hay un barrio resaltado
+      if (highlightedBarrio) {
+        return;
+      }
+      
       this.setStyle({
         weight: 4,
         opacity: 1,
@@ -113,6 +119,11 @@ const GeoLayers = (() => {
     });
 
     layer.on('mouseout', function() {
+      // NO hacer nada si hay un barrio resaltado
+      if (highlightedBarrio) {
+        return;
+      }
+      
       this.setStyle(styleFeature(feature));
     });
   }
@@ -177,6 +188,14 @@ const GeoLayers = (() => {
       }
     },
 
+    // Check if layer is visible
+    isLayerVisible: (name) => {
+      if (geoJsonLayers[name]) {
+        return map.hasLayer(geoJsonLayers[name]);
+      }
+      return false;
+    },
+
     // Get all layers
     getLayers: () => geoJsonLayers,
 
@@ -193,6 +212,77 @@ const GeoLayers = (() => {
       if (geoJsonLayers[name]) {
         map.fitBounds(geoJsonLayers[name].getBounds());
       }
+    },
+
+    // Resaltar un barrio específico
+    highlightBarrio: (barrioNombre) => {
+      const zonasLayer = geoJsonLayers['Zonas / Barrios'];
+      if (!zonasLayer) {
+        console.warn('⚠️ Capa de Zonas/Barrios no encontrada');
+        return;
+      }
+
+      // Guardar barrio resaltado
+      highlightedBarrio = barrioNombre;
+
+      let found = false;
+      zonasLayer.eachLayer(layer => {
+        if (layer.feature && layer.feature.properties) {
+          const propBarrio = layer.feature.properties.soc_fomen || '';
+          
+          if (propBarrio.toLowerCase() === barrioNombre.toLowerCase()) {
+            found = true;
+            // Resaltar este barrio - MUCHO MÁS VISIBLE
+            layer.setStyle({
+              weight: 4,
+              color: '#FFD700',      // Borde dorado BIEN VISIBLE
+              opacity: 1,
+              fillColor: '#FFFF00',  // Amarillo BRILLANTE
+              fillOpacity: 0.5       // MUCHO MÁS OPACO
+            });
+            layer.bringToFront();
+            console.log(`✅ Barrio resaltado: ${barrioNombre}`);
+          } else {
+            // Oscurecer otros barrios
+            layer.setStyle({
+              weight: 1,
+              color: '#999',
+              opacity: 0.3,
+              fillColor: '#CCC',
+              fillOpacity: 0.05
+            });
+          }
+        }
+      });
+      
+      if (!found) {
+        console.warn(`⚠️ No se encontró barrio: ${barrioNombre}`);
+      }
+    },
+
+    // Limpiar resaltado
+    clearHighlight: () => {
+      const zonasLayer = geoJsonLayers['Zonas / Barrios'];
+      if (!zonasLayer) return;
+
+      // Limpiar barrio resaltado
+      highlightedBarrio = null;
+
+      zonasLayer.eachLayer(layer => {
+        if (layer.feature && layer.feature.properties) {
+          const zone = getZoneForFeature(layer.feature);
+          const color = zoneColors[zone] || '#999';
+
+          layer.setStyle({
+            fillColor: color,
+            weight: 3,
+            opacity: 1,
+            color: color,
+            fillOpacity: 0.3
+          });
+        }
+      });
+      console.log('✅ Resaltado limpiado');
     }
   };
 })();

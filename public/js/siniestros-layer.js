@@ -25,8 +25,8 @@ const SiniestrosLayer = (() => {
 
   // Filtros activos
   const filters = {
+    globalBarrio: 'all',  // Filtro global de barrio (ÚNICO filtro de barrio)
     year: 'all',
-    barrio: 'all',
     participant: 'all',
     cause: 'all',
     startHour: 'all',
@@ -122,23 +122,14 @@ const SiniestrosLayer = (() => {
   }
 
   /**
-   * Carga la lista de barrios desde el archivo de barrios
+   * Carga los datos de barrios para filtrado geográfico
+   * (Nota: El selector de barrio se llena desde app.js en setupSinistrosFilters)
    */
   async function loadBarriosList() {
     try {
       const response = await fetch('data/barrios.json');
       barriosGeoJson = await response.json();
-      
-      const barrios = new Set();
-      barriosGeoJson.features?.forEach(feature => {
-        const nombre = feature.properties?.soc_fomen;
-        if (nombre) {
-          barrios.add(nombre);
-        }
-      });
-      
-      updateSelect('barrio-filter', Array.from(barrios).sort());
-      console.log(`✅ Cargados ${barrios.size} barrios`);
+      console.log(`✅ Datos de barrios cargados para filtrado geográfico`);
     } catch (error) {
       console.warn('⚠️ No se pudieron cargar los barrios:', error);
     }
@@ -261,18 +252,20 @@ const SiniestrosLayer = (() => {
         }
       }
 
-      // Filtro por barrio (geográfico)
-      if (filters.barrio !== 'all') {
+      // Filtro por barrio global (prioritario)
+      if (filters.globalBarrio !== 'all') {
         const coords = feature.geometry?.coordinates;
         if (coords && coords.length === 2) {
           const sinBarrio = getBarrioForPoint(coords);
-          if (sinBarrio !== filters.barrio) {
+          if (sinBarrio !== filters.globalBarrio) {
             return false;
           }
         } else {
-          return false; // Sin coordenadas válidas
+          return false;
         }
       }
+
+
 
       // Filtro por participante
       if (filters.participant !== 'all' && participantes !== filters.participant) {
@@ -442,15 +435,23 @@ const SiniestrosLayer = (() => {
     filters.startHour = 'all';
     filters.endHour = 'all';
     filters.street = '';
+    filters.globalBarrio = 'all';
 
-    // Reset selects
-    document.getElementById('year-filter').value = 'all';
-    document.getElementById('barrio-filter').value = 'all';
-    document.getElementById('participant-filter').value = 'all';
-    document.getElementById('cause-filter').value = 'all';
-    document.getElementById('start-hour-filter').value = 'all';
-    document.getElementById('end-hour-filter').value = 'all';
-    document.getElementById('street-filter').value = '';
+    // Reset selects - con verificación de existencia
+    const safeSetelement = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.value = value;
+      }
+    };
+    
+    safeSetelement('year-filter', 'all');
+    safeSetelement('barrio-filter', 'all');
+    safeSetelement('participant-filter', 'all');
+    safeSetelement('cause-filter', 'all');
+    safeSetelement('start-hour-filter', 'all');
+    safeSetelement('end-hour-filter', 'all');
+    safeSetelement('street-filter', '');
 
     applyFilters();
   }
