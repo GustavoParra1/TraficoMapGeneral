@@ -31,26 +31,23 @@ const SiniestrosLayer = (() => {
   };
 
   const causeMap = {
+    'DF': { name: 'Distancia de Frenado', code: 'DF' },
+    'AV': { name: 'Atropello Voluntario', code: 'AV' },
     'D': { name: 'Distracción', code: 'D' },
-    'NSD': { name: 'No Especificado', code: 'NSD' },
-    'VS': { name: 'Exceso de Velocidad', code: 'VS' },
+    'A': { name: 'Alcohol', code: 'A' },
     'EV': { name: 'Exceso de Velocidad', code: 'EV' },
-    'PI': { name: 'Peatón Imprudente', code: 'PI' },
-    'P': { name: 'Peatón', code: 'P' },
-    'NR': { name: 'No Respeto Prioridad', code: 'NR' },
-    'AV': { name: 'Cambio de Carril', code: 'AV' },
-    'A': { name: 'Aquaplaning', code: 'A' },
-    'GIRO': { name: 'Giro', code: 'GIRO' },
+    'FV': { name: 'Falla en la Vía', code: 'FV' },
     'G': { name: 'Giro', code: 'G' },
-    'MR': { name: 'No Respeto Norma', code: 'MR' },
-    'IC': { name: 'Imprudencia de Conductor', code: 'IC' },
+    'IC': { name: 'Invasión de Carril', code: 'IC' },
     'MI': { name: 'Maniobra Imprudente', code: 'MI' },
-    'NC': { name: 'No Permitido Circular', code: 'NC' },
-    'PC': { name: 'Pérdida de Control', code: 'PC' },
-    'FV': { name: 'Falta de Visibilidad', code: 'FV' },
-    'DF': { name: 'Defecto de Fabricación', code: 'DF' },
-    'DESCOMPENSAN': { name: 'Descompensación', code: 'DESCOMPENSAN' },
-    'PERSECUCIÓN': { name: 'Persecución', code: 'PERSECUCIÓN' }
+    'MR': { name: 'Maniobra Riesgosa', code: 'MR' },
+    'NR': { name: 'No Respeto prioridad de Paso', code: 'NR' },
+    'NSD': { name: 'No Se Puede Determinar', code: 'NSD' },
+    'P': { name: 'Perro', code: 'P' },
+    'PC': { name: 'Pierde Control', code: 'PC' },
+    'PERSECUCIÓN': { name: 'Persecución', code: 'PERSECUCIÓN' },
+    'PI': { name: 'Peatón Imprudente', code: 'PI' },
+    'VS': { name: 'Violación de Semáforo', code: 'VS' }
   };
 
   /**
