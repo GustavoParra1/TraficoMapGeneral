@@ -226,28 +226,39 @@ const CamerasLayer = (() => {
     // Crear grupo sin clustering
     camerasLayer = L.featureGroup();
 
-    // Crear un icono personalizado
-    const createCameraIcon = (type, domos, fixed, lpr) => {
-      const color = typeColors[type] || '#999';
+    // Crear un icono personalizado con número de cámara
+    const createCameraIcon = (type, cameraNumber, domos, fixed, lpr) => {
+      // Colores más claros para las cámaras públicas
+      const colorMap = {
+        'Pública (Municipal)': '#66CC99',  // Verde más claro
+        'Privada': '#FFB366',               // Naranja más claro
+        'Escolar': '#FFEB99',               // Amarillo más claro
+        'Seguimiento': '#99CCFF'            // Azul más claro
+      };
+      
+      const color = colorMap[type] || '#CCCCCC';
+      const cameraNum = cameraNumber || '?';
 
       return L.divIcon({
         html: `<div style="
-          background: ${color};
-          color: white;
+          background: linear-gradient(135deg, ${color}, ${color}dd);
+          color: #333;
           border-radius: 50%;
-          width: 24px;
-          height: 24px;
+          width: 32px;
+          height: 32px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 12px;
+          font-size: 13px;
           font-weight: bold;
           border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+          box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+          font-family: Arial, sans-serif;
+          line-height: 1;
         ">
-          🎥
+          ${cameraNum}
         </div>`,
-        iconSize: [24, 24],
+        iconSize: [32, 32],
         className: 'camera-icon'
       });
     };
@@ -259,7 +270,7 @@ const CamerasLayer = (() => {
       const lat = coords[1];
       const lon = coords[0];
 
-      const icon = createCameraIcon(props.type, props.domes, props.fixed, props.lpr);
+      const icon = createCameraIcon(props.type, props.camera_number, props.domes, props.fixed, props.lpr);
       const marker = L.marker([lat, lon], { icon });
 
       // Crear popup
