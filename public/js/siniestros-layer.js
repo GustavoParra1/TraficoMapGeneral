@@ -31,15 +31,26 @@ const SiniestrosLayer = (() => {
   };
 
   const causeMap = {
-    'D': 'Distracción',
-    'NSD': 'No Especificado',
-    'VS': 'Exceso de Velocidad',
-    'DISTRACCION': 'Distracción',
-    'EXCESO DE VELOCIDAD': 'Exceso de Velocidad',
-    'NO RESPETO SEMAFORO': 'No Respeto Semáforo',
-    'NO RESPETO PRIORIDAD': 'No Respeto Prioridad',
-    'PEATÓN IMPRUDENTE': 'Peatón Imprudente',
-    'OTRO': 'Otro'
+    'D': { name: 'Distracción', code: 'D' },
+    'NSD': { name: 'No Especificado', code: 'NSD' },
+    'VS': { name: 'Exceso de Velocidad', code: 'VS' },
+    'EV': { name: 'Exceso de Velocidad', code: 'EV' },
+    'PI': { name: 'Peatón Imprudente', code: 'PI' },
+    'P': { name: 'Peatón', code: 'P' },
+    'NR': { name: 'No Respeto Prioridad', code: 'NR' },
+    'AV': { name: 'Cambio de Carril', code: 'AV' },
+    'A': { name: 'Aquaplaning', code: 'A' },
+    'GIRO': { name: 'Giro', code: 'GIRO' },
+    'G': { name: 'Giro', code: 'G' },
+    'MR': { name: 'No Respeto Norma', code: 'MR' },
+    'IC': { name: 'Imprudencia de Conductor', code: 'IC' },
+    'MI': { name: 'Maniobra Imprudente', code: 'MI' },
+    'NC': { name: 'No Permitido Circular', code: 'NC' },
+    'PC': { name: 'Pérdida de Control', code: 'PC' },
+    'FV': { name: 'Falta de Visibilidad', code: 'FV' },
+    'DF': { name: 'Defecto de Fabricación', code: 'DF' },
+    'DESCOMPENSAN': { name: 'Descompensación', code: 'DESCOMPENSAN' },
+    'PERSECUCIÓN': { name: 'Persecución', code: 'PERSECUCIÓN' }
   };
 
   /**
@@ -62,9 +73,13 @@ const SiniestrosLayer = (() => {
    * Normaliza un código de causa a su categoría general
    */
   function normalizeCause(cause) {
-    if (!cause) return 'No Especificado';
-    const normalized = causeMap[cause] || cause;
-    return normalized;
+    if (!cause) return { name: 'No Especificado', code: 'N/A' };
+    const mapping = causeMap[cause];
+    if (mapping) {
+      return mapping;
+    }
+    // Si no está mapeado, retornar con el código original
+    return { name: cause, code: cause };
   }
 
   // Filtros activos
@@ -183,8 +198,8 @@ const SiniestrosLayer = (() => {
       
       // Normalizar y agregar causa
       if (causa) {
-        const normalizedCause = normalizeCause(causa);
-        causes.add(normalizedCause);
+        // Agregar el código original de causa para tracking
+        causes.add(causa);
       }
       
       if (hora) {
@@ -200,7 +215,14 @@ const SiniestrosLayer = (() => {
     // Actualizar selectores
     updateSelect('year-filter', Array.from(years).sort((a, b) => b - a));
     updateSelect('participant-filter', Array.from(participants).sort());
-    updateSelect('cause-filter', Array.from(causes).sort());
+    
+    // Formatear causas con código y descripción
+    const causesFormatted = Array.from(causes).map(causeCode => {
+      const mapping = causeMap[causeCode] || { name: causeCode, code: causeCode };
+      return `${mapping.code} - ${mapping.name}`;
+    }).sort();
+    
+    updateSelect('cause-filter', causesFormatted);
     
     // Para barrios, cargar desde el archivo de barrios si está disponible
     loadBarriosList();
@@ -368,10 +390,11 @@ const SiniestrosLayer = (() => {
         }
       }
 
-      // Filtro por causa (normalizado)
+      // Filtro por causa (por código)
       if (filters.cause !== 'all') {
-        const normalizedCause = normalizeCause(causa);
-        if (normalizedCause !== filters.cause) {
+        // El filtro está en formato "CÓDIGO - Descripción", extraer el código
+        const selectedCauseCode = filters.cause.split(' - ')[0].trim();
+        if (causa !== selectedCauseCode) {
           return false;
         }
       }
@@ -486,9 +509,10 @@ const SiniestrosLayer = (() => {
 
         // Seleccionar color según causa normalizada
         const normalizedCauseForColor = normalizeCause(causa);
-        const color = causeColors[normalizedCauseForColor] || 
+        const color = causeColors[normalizedCauseForColor.name] || 
+                     causeColors[normalizedCauseForColor.code] ||
                      causeColors[causa] || 
-                     '#9D84B7'; // Color por defecto
+                     '#CCCCCC'; // Color por defecto
 
         // Crear marcador
         const marker = L.circleMarker([lat, lng], {
@@ -504,13 +528,14 @@ const SiniestrosLayer = (() => {
         const participantCategories = extractParticipantCategories(participantes);
         const participantText = participantCategories.length > 0 ? participantCategories.join(', ') : participantes;
 
-        // Normalizar causa para mostrar
+        // Normalizar causa para mostrar como "CÓDIGO - Descripción"
         const normalizedCauseForDisplay = normalizeCause(causa);
+        const causeDisplayText = `${normalizedCauseForDisplay.code} - ${normalizedCauseForDisplay.name}`;
 
         // Popup
         const popupContent = `
           <div style="font-size: 12px; max-width: 250px;">
-            <strong>⚠️ ${normalizedCauseForDisplay}</strong><br>
+            <strong>⚠️ ${causeDisplayText}</strong><br>
             ${descripcion !== 'N/A' ? `<small>${descripcion}</small><br>` : ''}
             📅 ${fecha}${hora !== 'N/A' ? ` ${hora}` : ''}<br>
             ${direccion !== 'N/A' ? `📍 ${direccion}<br>` : ''}
