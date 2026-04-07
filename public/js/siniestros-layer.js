@@ -10,18 +10,62 @@ const SiniestrosLayer = (() => {
   let barriosGeoJson = null; // Para filtrado geográfico
   let isVisible = false; // Rastrear si la capa debe ser visible
 
-  // Colores por causa
-  const causeColors = {
-    'DISTRACCION': '#FF6B6B',
-    'EXCESO DE VELOCIDAD': '#FF8C42',
-    'NO RESPETO SEMAFORO': '#FFD93D',
-    'NO RESPETO PRIORIDAD': '#6BCB77',
-    'PEATÓN IMPRUDENTE': '#4D96FF',
-    'OTRO': '#9D84B7',
-    'D': '#FF6B6B', // Distracción
-    'NSD': '#9D84B7', // No Especificado
-    'OTHER': '#9D84B7'
+  // Mapeo de códigos a categorías generales
+  const participantMap = {
+    'A': 'Auto',
+    'M': 'Moto',
+    'P': 'Peatón',
+    'CAM': 'Camión',
+    'B': 'Bicicleta'
   };
+
+  // Colores por causa (normalizada)
+  const causeColors = {
+    'Distracción': '#FF6B6B',
+    'Exceso de Velocidad': '#FF8C42',
+    'No Respeto Semáforo': '#FFD93D',
+    'No Respeto Prioridad': '#6BCB77',
+    'Peatón Imprudente': '#4D96FF',
+    'Otro': '#9D84B7',
+    'No Especificado': '#CCCCCC'
+  };
+
+  const causeMap = {
+    'D': 'Distracción',
+    'NSD': 'No Especificado',
+    'VS': 'Exceso de Velocidad',
+    'DISTRACCION': 'Distracción',
+    'EXCESO DE VELOCIDAD': 'Exceso de Velocidad',
+    'NO RESPETO SEMAFORO': 'No Respeto Semáforo',
+    'NO RESPETO PRIORIDAD': 'No Respeto Prioridad',
+    'PEATÓN IMPRUDENTE': 'Peatón Imprudente',
+    'OTRO': 'Otro'
+  };
+
+  /**
+   * Extrae categorías generales de un código de participantes
+   * Ejemplo: "A/M" → ["Auto", "Moto"]
+   */
+  function extractParticipantCategories(code) {
+    if (!code) return [];
+    const codes = code.split('/').map(c => c.trim());
+    const categories = new Set();
+    codes.forEach(c => {
+      if (participantMap[c]) {
+        categories.add(participantMap[c]);
+      }
+    });
+    return Array.from(categories);
+  }
+
+  /**
+   * Normaliza un código de causa a su categoría general
+   */
+  function normalizeCause(cause) {
+    if (!cause) return 'No Especificado';
+    const normalized = causeMap[cause] || cause;
+    return normalized;
+  }
 
   // Filtros activos
   const filters = {
@@ -131,8 +175,17 @@ const SiniestrosLayer = (() => {
         }
       }
       
-      if (participantes) participants.add(participantes);
-      if (causa) causes.add(causa);
+      // Extraer categorías generales de participantes
+      if (participantes) {
+        const categories = extractParticipantCategories(participantes);
+        categories.forEach(cat => participants.add(cat));
+      }
+      
+      // Normalizar y agregar causa
+      if (causa) {
+        const normalizedCause = normalizeCause(causa);
+        causes.add(normalizedCause);
+      }
       
       if (hora) {
         try {
@@ -307,14 +360,20 @@ const SiniestrosLayer = (() => {
 
 
 
-      // Filtro por participante
-      if (filters.participant !== 'all' && participantes !== filters.participant) {
-        return false;
+      // Filtro por participante (por categoría general)
+      if (filters.participant !== 'all') {
+        const participantCategories = extractParticipantCategories(participantes);
+        if (!participantCategories.includes(filters.participant)) {
+          return false;
+        }
       }
 
-      // Filtro por causa
-      if (filters.cause !== 'all' && causa !== filters.cause) {
-        return false;
+      // Filtro por causa (normalizado)
+      if (filters.cause !== 'all') {
+        const normalizedCause = normalizeCause(causa);
+        if (normalizedCause !== filters.cause) {
+          return false;
+        }
       }
 
       // Filtro por hora
@@ -425,8 +484,11 @@ const SiniestrosLayer = (() => {
         const participantes = props.participantes_codigos || props.Participante || 'N/A';
         const descripcion = props.descripcion || 'N/A';
 
-        // Seleccionar color según causa
-        const color = causeColors[causa] || causeColors['OTHER'];
+        // Seleccionar color según causa normalizada
+        const normalizedCauseForColor = normalizeCause(causa);
+        const color = causeColors[normalizedCauseForColor] || 
+                     causeColors[causa] || 
+                     '#9D84B7'; // Color por defecto
 
         // Crear marcador
         const marker = L.circleMarker([lat, lng], {
@@ -438,15 +500,22 @@ const SiniestrosLayer = (() => {
           fillOpacity: 0.7
         });
 
+        // Extraer categorías generales de participantes
+        const participantCategories = extractParticipantCategories(participantes);
+        const participantText = participantCategories.length > 0 ? participantCategories.join(', ') : participantes;
+
+        // Normalizar causa para mostrar
+        const normalizedCauseForDisplay = normalizeCause(causa);
+
         // Popup
         const popupContent = `
           <div style="font-size: 12px; max-width: 250px;">
-            <strong>⚠️ ${causa}</strong><br>
+            <strong>⚠️ ${normalizedCauseForDisplay}</strong><br>
             ${descripcion !== 'N/A' ? `<small>${descripcion}</small><br>` : ''}
             📅 ${fecha}${hora !== 'N/A' ? ` ${hora}` : ''}<br>
             ${direccion !== 'N/A' ? `📍 ${direccion}<br>` : ''}
             ${barrio !== 'N/A' ? `Barrio: ${barrio}<br>` : ''}
-            ${participantes !== 'N/A' ? `Participante: ${participantes}` : ''}
+            ${participantText !== 'N/A' ? `Participantes: ${participantText}` : ''}
           </div>
         `;
 
