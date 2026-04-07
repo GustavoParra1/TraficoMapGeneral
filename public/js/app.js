@@ -764,11 +764,48 @@ auth.onAuthStateChanged((user) => {
         clearBtn.addEventListener('click', () => {
           console.log('🧹 Limpiando todos los filtros');
           
+          // Deseleccionar todas las checkboxes de capas
+          const sinCheckbox = document.getElementById('siniestros-checkbox');
+          const camCheckbox = document.getElementById('cameras-checkbox');
+          const privCamCheckbox = document.getElementById('private-cameras-checkbox');
+          const zonesCheckbox = document.getElementById('show-zones-checkbox');
+          
+          if (sinCheckbox) sinCheckbox.checked = false;
+          if (camCheckbox) camCheckbox.checked = false;
+          if (privCamCheckbox) privCamCheckbox.checked = false;
+          if (zonesCheckbox) zonesCheckbox.checked = false;
+          
           // Resetear filtro global de barrio
           const globalBarrioSelect = document.getElementById('global-barrio-filter');
           if (globalBarrioSelect) {
             globalBarrioSelect.value = 'all';
           }
+          
+          // Resetear todos los selectores de filtros
+          const filterSelects = [
+            'year-filter',
+            'barrio-filter',
+            'cause-filter',
+            'participant-filter',
+            'start-hour-filter',
+            'end-hour-filter',
+            'barrio-cameras-filter',
+            'type-cameras-filter',
+            'corridor-cameras-filter',
+            'camera-type-filter',
+            'street-filter'
+          ];
+          
+          filterSelects.forEach(selectId => {
+            const element = document.getElementById(selectId);
+            if (element) {
+              if (element.tagName === 'SELECT') {
+                element.value = 'all';
+              } else if (element.tagName === 'INPUT') {
+                element.value = '';
+              }
+            }
+          });
           
           // Limpiar resaltado de barrio
           GeoLayers.clearHighlight();
@@ -781,6 +818,14 @@ auth.onAuthStateChanged((user) => {
           
           // Limpiar filtros de cámaras privadas
           PrivateCamerasLayer.clearFilters();
+          
+          // Ocultar todas las capas
+          SiniestrosLayer.toggle(false);
+          CamerasLayer.toggle(false);
+          PrivateCamerasLayer.toggle(false);
+          GeoLayers.toggle('all', false);
+          
+          console.log('✅ Todos los filtros, checkboxes y capas han sido limpiados');
         });
       }
 
@@ -809,8 +854,34 @@ auth.onAuthStateChanged((user) => {
       const clearCamerasBtn = document.getElementById('clear-cameras-filters-btn');
       if (clearCamerasBtn) {
         clearCamerasBtn.addEventListener('click', () => {
-          console.log('Clearing camera filters');
+          console.log('🧹 Limpiando filtros de cámaras');
+          
+          // Deseleccionar checkbox de cámaras
+          const camCheckbox = document.getElementById('cameras-checkbox');
+          if (camCheckbox) camCheckbox.checked = false;
+          
+          // Resetear todos los selectores de filtros de cámaras
+          const cameraFilterSelects = [
+            'barrio-cameras-filter',
+            'type-cameras-filter',
+            'corridor-cameras-filter',
+            'camera-type-filter'
+          ];
+          
+          cameraFilterSelects.forEach(selectId => {
+            const element = document.getElementById(selectId);
+            if (element) {
+              element.value = 'all';
+            }
+          });
+          
+          // Limpiar filtros de cámaras
           CamerasLayer.clearFilters();
+          
+          // Ocultar capa de cámaras
+          CamerasLayer.toggle(false);
+          
+          console.log('✅ Filtros de cámaras limpiados');
         });
       }
 
