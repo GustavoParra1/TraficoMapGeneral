@@ -15,6 +15,16 @@
         "siniestros": "data/siniestros_con_ubicacion.geojson",
         "cameras": "data/cameras.geojson",
         "private_cameras": "data/private-cameras.geojson"
+      },
+      "optionalLayers": {
+        "semaforos": "data/semaforos.geojson",
+        "colegios": null,
+        "colectivos": null,
+        "corredores": null,
+        "flujo": null,
+        "robo": null,
+        "alertas": null,
+        "zonas": null
       }
     },
     {
@@ -32,6 +42,16 @@
         "siniestros": "data/san-martin/siniestros.geojson",
         "cameras": "data/san-martin/cameras.geojson",
         "private_cameras": "data/san-martin/private-cameras.geojson"
+      },
+      "optionalLayers": {
+        "semaforos": null,
+        "colegios": null,
+        "colectivos": null,
+        "corredores": null,
+        "flujo": null,
+        "robo": null,
+        "alertas": null,
+        "zonas": null
       }
     }
   ]
