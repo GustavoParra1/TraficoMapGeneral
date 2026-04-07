@@ -31,21 +31,17 @@ const SiniestrosLayer = (() => {
   };
 
   const causeMap = {
-    'DF': { name: 'Distancia de Frenado', code: 'DF' },
-    'AV': { name: 'Atropello Voluntario', code: 'AV' },
     'D': { name: 'Distracción', code: 'D' },
     'A': { name: 'Alcohol', code: 'A' },
     'EV': { name: 'Exceso de Velocidad', code: 'EV' },
     'FV': { name: 'Falla en la Vía', code: 'FV' },
     'G': { name: 'Giro', code: 'G' },
-    'IC': { name: 'Invasión de Carril', code: 'IC' },
     'MI': { name: 'Maniobra Imprudente', code: 'MI' },
     'MR': { name: 'Maniobra Riesgosa', code: 'MR' },
     'NR': { name: 'No Respeto prioridad de Paso', code: 'NR' },
     'NSD': { name: 'No Se Puede Determinar', code: 'NSD' },
     'P': { name: 'Perro', code: 'P' },
     'PC': { name: 'Pierde Control', code: 'PC' },
-    'PERSECUCIÓN': { name: 'Persecución', code: 'PERSECUCIÓN' },
     'PI': { name: 'Peatón Imprudente', code: 'PI' },
     'VS': { name: 'Violación de Semáforo', code: 'VS' }
   };
