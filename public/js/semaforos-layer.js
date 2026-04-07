@@ -53,6 +53,9 @@ const SemaforosLayer = (() => {
       
       console.log(`✅ Cargados ${semaforosData.length} semáforos`);
       
+      // Renderizar semáforos después de cargar
+      applyFilters();
+      
       return semaforosData;
     } catch (error) {
       console.error('❌ Error cargando semáforos:', error);
@@ -93,26 +96,16 @@ const SemaforosLayer = (() => {
     // Crear grupo sin clustering
     semaforosLayer = L.featureGroup();
 
-    // Crear icono para semáforos
+    // Crear icono para semáforos (SVG limpio y discreto)
     const createSemaforoIcon = () => {
       return L.divIcon({
-        html: `<div style="
-          background: ${semaforoColor};
-          color: #333;
-          border-radius: 50%;
-          width: 28px;
-          height: 28px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 14px;
-          font-weight: bold;
-          border: 2px solid #333;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        ">
-          🚦
-        </div>`,
-        iconSize: [28, 28],
+        html: `<svg width="14" height="22" viewBox="0 0 14 22" style="filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.3));">
+          <rect x="3" y="2" width="8" height="18" rx="4" fill="#444" stroke="none"/>
+          <circle cx="7" cy="6" r="3" fill="#ff4444"/>
+          <circle cx="7" cy="11" r="3" fill="#ffdd44"/>
+          <circle cx="7" cy="16" r="3" fill="#44ff44"/>
+        </svg>`,
+        iconSize: [14, 22],
         className: 'semaforo-icon'
       });
     };
@@ -156,7 +149,7 @@ const SemaforosLayer = (() => {
       // Crear popup
       let popupContent = `
         <div style="font-size: 12px; max-width: 250px;">
-          <strong>🚦 Semáforo</strong><br>
+          <strong>🚦 Semáforo #${feature.properties.id || 'N/A'}</strong><br>
           <strong>📍 ${props.name || 'Sin nombre'}</strong><br>
       `;
 
@@ -171,6 +164,14 @@ const SemaforosLayer = (() => {
       popupContent += '</div>';
 
       marker.bindPopup(popupContent);
+      
+      // Agregar tooltip con el número de semáforo
+      marker.bindTooltip(`Semáforo #${feature.properties.id || 'N/A'}`, {
+        permanent: false,
+        direction: 'top',
+        offset: [0, -10]
+      });
+      
       semaforosLayer.addLayer(marker);
     });
 

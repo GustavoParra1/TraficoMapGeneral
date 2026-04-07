@@ -315,6 +315,10 @@ auth.onAuthStateChanged((user) => {
             <input type="checkbox" id="private-cameras-checkbox">
             <span>Cámaras Privadas (<span id="total-private-cameras-count">0</span>)</span>
           </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px;">
+            <input type="checkbox" id="semaforos-checkbox">
+            <span>Mostrar Semáforos (<span id="total-semaforos-count">0</span>)</span>
+          </label>
         </div>
         <div style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #f0f0f0; border-radius: 4px;">
           📊 Haz clic en las zonas para ver detalles
