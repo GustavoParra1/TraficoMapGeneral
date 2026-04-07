@@ -37,6 +37,9 @@ function iniciarMapa() {
     // Inicializar módulo de cámaras privadas
     PrivateCamerasLayer.init(map);
     
+    // Inicializar módulo de semáforos
+    SemaforosLayer.init(map);
+    
     console.log("✅ Mapa inicializado");
   }
 }
@@ -177,6 +180,24 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
           PrivateCamerasLayer.setBarriosGeoJson(bariosGeoJson);
         }
         console.log(`      ✓ Cámaras privadas cargadas`);
+      }
+    }
+
+    // OPCIONAL: Cargar capas opcionales si están disponibles
+    if (cityConfig.optionalLayers) {
+      // Semáforos
+      if (cityConfig.optionalLayers.semaforos) {
+        console.log(`  [OPT] Cargando semáforos desde: ${cityConfig.optionalLayers.semaforos}`);
+        const semaforosGeoJson = await loadData(cityConfig.optionalLayers.semaforos);
+        if (semaforosGeoJson) {
+          if (cityConfig.optionalLayers.semaforos.startsWith('data:')) {
+            console.log(`       ℹ️ Cargando semáforos desde memoria (usuario)`);
+            SemaforosLayer.loadFromGeoJson(semaforosGeoJson);
+          } else {
+            await SemaforosLayer.load(cityConfig.optionalLayers.semaforos);
+          }
+          console.log(`       ✓ Semáforos cargados`);
+        }
       }
     }
     
@@ -587,6 +608,14 @@ auth.onAuthStateChanged((user) => {
         if (e.target.checked) {
           applyGlobalBarrioFilter();
         }
+      });
+    }
+
+    // Toggle de semáforos
+    const semaforosCheckbox = document.getElementById('semaforos-checkbox');
+    if (semaforosCheckbox) {
+      semaforosCheckbox.addEventListener('change', (e) => {
+        SemaforosLayer.toggle(e.target.checked);
       });
     }
     
