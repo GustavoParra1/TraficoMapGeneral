@@ -45,6 +45,25 @@ const SiniestrosLayer = (() => {
   /**
    * Carga los siniestros desde GeoJSON
    */
+  /**
+   * Carga los siniestros desde GeoJSON (para datos importados/data URLs)
+   */
+  function loadSinistrosFromGeoJson(geojson) {
+    try {
+      sinistrosData = geojson.features || [];
+      
+      console.log(`✅ Cargados ${sinistrosData.length} siniestros desde GeoJSON`);
+      
+      // Extraer valores únicos para filtros
+      updateFilterOptions();
+      
+      return sinistrosData;
+    } catch (error) {
+      console.error('❌ Error cargando siniestros desde GeoJSON:', error);
+      return [];
+    }
+  }
+
   async function loadSiniestros(geojsonPath) {
     try {
       const response = await fetch(geojsonPath);
@@ -460,6 +479,7 @@ const SiniestrosLayer = (() => {
   return {
     init,
     load: loadSiniestros,
+    loadFromGeoJson: loadSinistrosFromGeoJson,
     applyFilters,
     setFilter,
     getFilter,

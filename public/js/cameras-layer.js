@@ -36,6 +36,28 @@ const CamerasLayer = (() => {
   }
 
   /**
+   * Carga las cámaras desde GeoJSON (para datos importados/data URLs)
+   */
+  function loadCamerasFromGeoJson(geojson) {
+    try {
+      camerasData = geojson.features || [];
+      
+      console.log(`✅ Cargadas ${camerasData.length} cámaras desde GeoJSON`);
+      
+      // Extraer valores únicos para filtros
+      updateFilterOptions();
+      
+      // Renderizar cámaras
+      applyFilters();
+      
+      return camerasData;
+    } catch (error) {
+      console.error('❌ Error cargando cámaras desde GeoJSON:', error);
+      return [];
+    }
+  }
+
+  /**
    * Carga las cámaras desde GeoJSON
    */
   async function loadCameras(geojsonPath) {
@@ -399,6 +421,7 @@ const CamerasLayer = (() => {
   return {
     init,
     load: loadCameras,
+    loadFromGeoJson: loadCamerasFromGeoJson,
     applyFilters,
     setFilter,
     getFilter,

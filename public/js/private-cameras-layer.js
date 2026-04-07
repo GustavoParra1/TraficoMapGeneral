@@ -30,6 +30,25 @@ const PrivateCamerasLayer = (() => {
   /**
    * Carga las cámaras privadas desde GeoJSON
    */
+  /**
+   * Carga las cámaras privadas desde GeoJSON (para datos importados/data URLs)
+   */
+  function loadPrivateCamerasFromGeoJson(geojson) {
+    try {
+      privateCamerasData = geojson.features || [];
+      
+      console.log(`✅ Cargadas ${privateCamerasData.length} cámaras privadas desde GeoJSON`);
+      
+      // Renderizar cámaras
+      applyFilters();
+      
+      return privateCamerasData;
+    } catch (error) {
+      console.error('❌ Error cargando cámaras privadas desde GeoJSON:', error);
+      return [];
+    }
+  }
+
   async function loadPrivateCameras(geojsonPath) {
     try {
       const response = await fetch(geojsonPath);
@@ -286,6 +305,7 @@ const PrivateCamerasLayer = (() => {
   return {
     init,
     load: loadPrivateCameras,
+    loadFromGeoJson: loadPrivateCamerasFromGeoJson,
     applyFilters,
     setFilter,
     getFilter,

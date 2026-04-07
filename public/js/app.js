@@ -132,11 +132,10 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
     const sinGeoJson = await loadData(cityConfig.files.siniestros);
     if (sinGeoJson) {
       SiniestrosLayer.clearFilters();
-      // Si es data URL, necesitamos un método alternativo para cargar
       if (cityConfig.files.siniestros.startsWith('data:')) {
         console.log(`      ℹ️ Cargando siniestros desde memoria (usuario)`);
-        // La carga de data URLs requiere enviar el GeoJSON directamente
-        // Por ahora, log de que se cargó
+        // Cargar siniestros desde GeoJSON en memoria (importados)
+        SiniestrosLayer.loadFromGeoJson(sinGeoJson, true);
       } else {
         await SiniestrosLayer.load(cityConfig.files.siniestros);
       }
@@ -150,6 +149,8 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
       CamerasLayer.clearFilters();
       if (cityConfig.files.cameras.startsWith('data:')) {
         console.log(`      ℹ️ Cargando cámaras desde memoria (usuario)`);
+        // Cargar cámaras desde GeoJSON en memoria (importadas)
+        CamerasLayer.loadFromGeoJson(camGeoJson, true);
       } else {
         await CamerasLayer.load(cityConfig.files.cameras);
       }
@@ -167,6 +168,8 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
         PrivateCamerasLayer.clearFilters();
         if (cityConfig.files.private_cameras.startsWith('data:')) {
           console.log(`      ℹ️ Cargando cámaras privadas desde memoria (usuario)`);
+          // Cargar cámaras privadas desde GeoJSON en memoria (importadas)
+          PrivateCamerasLayer.loadFromGeoJson(privCamGeoJson, true);
         } else {
           await PrivateCamerasLayer.load(cityConfig.files.private_cameras);
         }
