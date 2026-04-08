@@ -284,9 +284,9 @@ const CamerasLayer = (() => {
 
     // Crear un icono personalizado con número de cámara
     const createCameraIcon = (type, cameraNumber, domos, fixed, lpr) => {
-      // Colores más claros para las cámaras públicas
+      // Colores para las cámaras
       const colorMap = {
-        'Pública (Municipal)': '#77DD99',  // Verde esmeralda más claro
+        'Pública (Municipal)': '#4DB8FF',  // Celeste
         'Privada': '#FFB366',               // Naranja más claro
         'Escolar': '#FFEB99',               // Amarillo más claro
         'Seguimiento': '#99CCFF'            // Azul más claro
@@ -304,7 +304,7 @@ const CamerasLayer = (() => {
       return L.divIcon({
         html: `<div style="
           background: linear-gradient(135deg, ${color}, ${color}dd);
-          color: #333;
+          color: #fff;
           border-radius: 50%;
           width: 24px;
           height: 24px;
