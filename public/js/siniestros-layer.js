@@ -329,14 +329,20 @@ const SiniestrosLayer = (() => {
    * Obtiene el barrio que contiene un punto
    */
   function getBarrioForPoint(point) {
-    if (!barriosGeoJson) return null;
+    if (!barriosGeoJson) {
+      console.warn('⚠️ barriosGeoJson no está disponible en SiniestrosLayer');
+      return null;
+    }
     
     for (const feature of barriosGeoJson.features) {
       if (pointInPolygon(point, feature.geometry)) {
-        return feature.properties?.soc_fomen;
+        // Soportar ambas propiedades: nombre (Córdoba) y soc_fomen (MDP)
+        const barrio = feature.properties?.nombre || feature.properties?.soc_fomen;
+        return barrio;
       }
     }
     
+    // Si no está en ningún polígono, retornar null
     return null;
   }
 
@@ -384,6 +390,17 @@ const SiniestrosLayer = (() => {
       return;
     }
     
+    // DEBUG: Mostrar estado de filtros
+    if (filters.globalBarrio !== 'all') {
+      console.log(`🔍 applyFilters() - Filtro de barrio activo:`, {
+        filtroGlobalBarrio: filters.globalBarrio,
+        barriosGeoJsonDisponible: !!barriosGeoJson,
+        barriosCount: barriosGeoJson?.features?.length || 0,
+        registrosTotales: sinistrosData.length
+      });
+    }
+    
+    let debugCount = 0;
     filteredSiniestros = sinistrosData.filter(feature => {
       const props = feature.properties || {};
 
@@ -436,7 +453,30 @@ const SiniestrosLayer = (() => {
         const coords = feature.geometry?.coordinates;
         if (coords && coords.length === 2) {
           const sinBarrio = getBarrioForPoint(coords);
+          
+          // DEBUG: Mostrar solo los primeros 3
+          if (debugCount++ < 3) {
+            console.log(`🔍 DEBUG Barrio Filter [${debugCount}]:`, {
+              selectedBarrio: filters.globalBarrio,
+              pointBarrio: sinBarrio,
+              coords: coords,
+              match: sinBarrio === filters.globalBarrio
+            });
+          }
+          
+          // Si el punto no está en ningún barrio, excluirlo
+          if (sinBarrio === null) {
+            if (debugCount <= 3) {
+              console.log(`  → RECHAZAD: punto fuera de todos los barrios`);
+            }
+            return false;
+          }
+          
+          // Si el barrio no coincide, excluirlo
           if (sinBarrio !== filters.globalBarrio) {
+            if (debugCount <= 3) {
+              console.log(`  → RECHAZADO: ${sinBarrio} !== ${filters.globalBarrio}`);
+            }
             return false;
           }
         } else {
@@ -757,6 +797,11 @@ const SiniestrosLayer = (() => {
     applyFilters();
   }
 
+  // Establecer barrios GeoJSON para filtrado geopolítico
+  function setBarriosGeoJson(barrios) {
+    barriosGeoJson = barrios;
+  }
+
   // API pública
   return {
     init,
@@ -767,6 +812,7 @@ const SiniestrosLayer = (() => {
     getFilter,
     toggle,
     clearFilters,
+    setBarriosGeoJson,
     getFiltered: () => filteredSiniestros,
     getAll: () => sinistrosData
   };
