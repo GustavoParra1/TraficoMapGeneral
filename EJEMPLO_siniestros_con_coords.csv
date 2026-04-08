@@ -1,0 +1,6 @@
+lat,lng,nombre,tipo,fecha,hora,barrio,descripcion
+-38.0055,-57.5521,Siniestro 1,choque,15/01/2024,14:30:00,Centro,Choque entre dos vehículos
+-38.0060,-57.5530,Siniestro 2,caida,16/01/2024,09:15:00,Zona Norte,Caída de motocicleta
+-38.0045,-57.5510,Siniestro 3,atropellamiento,17/01/2024,18:45:00,Centro,Atropellamiento de peatón
+-38.0070,-57.5540,Siniestro 4,choque,18/01/2024,11:20:00,Zona Sur,Choque múltiple
+-37.9950,-57.5600,Siniestro 5,caida,19/01/2024,16:00:00,Zona Este,Caída en intersección

@@ -1,0 +1,7 @@
+nombre,lat,lng,address,barrio,tipo,establecimiento
+Escuela José Hernández,-38.0070,-57.5540,Avenida 9 de Julio 1500,Centro,Escuela,Institución Educativa
+Comercio ABC,-38.0055,-57.5525,Mitre 950,Centro,Comercio,Local Comercial
+Centro de Salud Norte,-38.0060,-57.5530,Rivadavia 750,Zona Norte,Hospital,Centro Médico
+Banco Municipal,-38.0045,-57.5510,San Martín 600,Centro,Banco,Institución Financiera
+Estación de Buses,-38.0080,-57.5550,Av Luro 2000,Zona Sur,Terminal,Transporte Público
+Hotel Mar del Sur,-37.9950,-57.5600,Paseo Marítimo 3000,Playa,Hotel,Alojamiento Turístico

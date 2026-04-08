@@ -1,0 +1,7 @@
+nombre,lat,lng,estado,barrio,calle1,calle2
+Semáforo Mitre 1,-38.0055,-57.5521,activo,Centro,Mitre,Bolívar
+Semáforo Rivadavia,-38.0060,-57.5530,activo,Zona Norte,Rivadavia,San Martín
+Semáforo Avenida Luro,-38.0045,-57.5510,activo,Centro,Avenida Luro,Jujuy
+Semáforo Bv Marítimo,-38.0070,-57.5540,activo,Zona Sur,Bv Marítimo,Córdoba
+Semáforo Ruta 2,-37.9950,-57.5600,inactivo,Zona Este,Ruta 2,Siempre Viva
+Semáforo Avenida 9 de Julio,-38.0080,-57.5550,activo,Zona Oeste,Avenida 9 de Julio,Hipólito Yrigoyen

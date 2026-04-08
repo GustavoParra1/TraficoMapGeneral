@@ -1,0 +1,65 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-57.5500, -38.0000],
+            [-57.5600, -38.0000],
+            [-57.5600, -38.0100],
+            [-57.5500, -38.0100],
+            [-57.5500, -38.0000]
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Centro",
+        "zona": "Zona 1",
+        "color": "#FF0000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-57.5500, -37.9900],
+            [-57.5600, -37.9900],
+            [-57.5600, -38.0000],
+            [-57.5500, -38.0000],
+            [-57.5500, -37.9900]
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Zona Sur",
+        "zona": "Zona 2",
+        "color": "#00FF00"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-57.5600, -38.0000],
+            [-57.5700, -38.0000],
+            [-57.5700, -38.0100],
+            [-57.5600, -38.0100],
+            [-57.5600, -38.0000]
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Zona Este",
+        "zona": "Zona 3",
+        "color": "#0000FF"
+      }
+    }
+  ]
+}
