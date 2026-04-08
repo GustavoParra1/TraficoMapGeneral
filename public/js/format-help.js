@@ -26,14 +26,56 @@ const FormatHelp = (() => {
       title: '🚗 SINIESTROS',
       description: 'Puntos de accidentes/eventos viales',
       format: 'CSV o GeoJSON (Point)',
-      csvColumns: ['lat (obligatorio)', 'lng (obligatorio)', 'nombre', 'tipo', 'fecha', 'descripcion'],
-      csvExample: `lat,lng,nombre,tipo,fecha,descripcion
--38.0055,-57.5521,Siniestro 1,choque,2024-01-15,Choque doble
--38.0060,-57.5525,Siniestro 2,caída,2024-01-16,Caída de moto`,
-      geoJsonColumns: ['nombre', 'tipo', 'fecha', 'descripcion (opcionales)'],
+      csvColumns: ['lat (obligatorio)', 'lng (obligatorio)', 'causa', 'participantes', 'fecha', 'descripcion'],
+      csvExample: `lat,lng,causa,participantes,fecha,descripcion
+-38.0055,-57.5521,D,A/M,2024-01-15,Choque doble
+-38.0060,-57.5525,A,M/P,2024-01-16,Caída de moto`,
+      csvInfo: `
+        <p><strong>🔴 Códigos de Causas (obligatorio si tienes el dato):</strong></p>
+        <ul style="font-size: 12px; column-count: 2;">
+          <li><code>D</code> - Distracción</li>
+          <li><code>A</code> - Alcohol</li>
+          <li><code>AV</code> - Avería</li>
+          <li><code>EV</code> - Exceso de velocidad</li>
+          <li><code>FV</code> - Falta de visibilidad</li>
+          <li><code>G</code> - Giro prohibido</li>
+          <li><code>MI</code> - Maniobra indebida</li>
+          <li><code>MR</code> - Maniobra riesgosa</li>
+          <li><code>NR</code> - No respetar norma</li>
+          <li><code>NSD</code> - No se determinó</li>
+          <li><code>P</code> - Peatón</li>
+          <li><code>PC</code> - Parada confusa</li>
+          <li><code>PI</code> - Piso inseguro</li>
+          <li><code>VS</code> - Vía segura</li>
+          <li><code>DF</code> - Defecto fatal</li>
+          <li><code>DESCOMPENSAN</code> - Descompensación</li>
+          <li><code>IC</code> - Inexperiencia/Conducción</li>
+          <li><code>PERSECUCIÓN</code> - Persecución</li>
+          <li><code>?</code> - Desconocido</li>
+        </ul>
+        <p><strong>👥 Códigos de Participantes:</strong></p>
+        <ul style="font-size: 12px; column-count: 2;">
+          <li><code>A</code> - Auto</li>
+          <li><code>M</code> - Moto</li>
+          <li><code>P</code> - Peatón</li>
+          <li><code>CAM</code> - Camión</li>
+          <li><code>B</code> - Bicicleta</li>
+          <li><code>COL</code> - Colectivo</li>
+          <li><code>CTA</code> - Carreta</li>
+          <li><code>BOMBEROS</code> - Bomberos</li>
+          <li><code>PERRO</code> - Perro</li>
+          <li><code>POLICIA</code> - Policía</li>
+          <li><code>MONOPATIN</code> - Monopatín</li>
+          <li><code>AMB</code> - Ambulancia</li>
+          <li><code>PATRULLA</code> - Patrulla</li>
+          <li><code>CABALLO</code> - Caballo</li>
+        </ul>
+        <p><strong>⚠️ Nota:</strong> Los códigos se separan por "/" si hay múltiples (ej: A/M = Auto y Moto, P/CAM = Peatón y Camión)</p>
+      `,
+      geoJsonColumns: ['causa', 'participantes', 'fecha', 'descripcion (opcionales)'],
       geoJsonExample: `{
   "type": "Feature",
-  "properties": { "nombre": "Siniestro 1", "tipo": "choque", "fecha": "2024-01-15" },
+  "properties": { "causa": "D", "participantes": "A/M", "fecha": "2024-01-15" },
   "geometry": { "type": "Point", "coordinates": [-57.5521, -38.0055] }
 }`
     },
@@ -214,6 +256,7 @@ const FormatHelp = (() => {
           </ul>
           <p><strong>Ejemplo:</strong></p>
           <pre><code>${format.csvExample}</code></pre>
+          ${format.csvInfo ? format.csvInfo : ''}
           <p>💡 <strong>Cómo crear</strong></p>
           <ol>
             <li>Abre Excel o Google Sheets</li>
