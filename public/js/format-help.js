@@ -26,11 +26,15 @@ const FormatHelp = (() => {
       title: '🚗 SINIESTROS',
       description: 'Puntos de accidentes/eventos viales',
       format: 'CSV o GeoJSON (Point)',
-      csvColumns: ['lat (obligatorio)', 'lng (obligatorio)', 'causa', 'participantes', 'fecha', 'descripcion'],
+      csvColumns: ['lat (OBLIGATORIO)', 'lng (OBLIGATORIO)', 'causa', 'participantes', 'fecha', 'descripcion'],
       csvExample: `lat,lng,causa,participantes,fecha,descripcion
 -38.0055,-57.5521,D,A/M,2024-01-15,Choque doble
 -38.0060,-57.5525,A,M/P,2024-01-16,Caída de moto`,
       csvInfo: `
+        <p style="background: #ffe0e0; padding: 10px; border-radius: 4px; margin: 10px 0;">
+          <strong>⚠️ IMPORTANTE:</strong> Las columnas <code>lat</code> y <code>lng</code> son <strong>OBLIGATORIAS</strong>.
+          No se soporta lookup por cámara. Todos los siniestros deben tener coordenadas exactas.
+        </p>
         <p><strong>🔴 Códigos de Causas (obligatorio si tienes el dato):</strong></p>
         <ul style="font-size: 12px; column-count: 2;">
           <li><code>D</code> - Distracción</li>

@@ -78,27 +78,18 @@ Ejemplo: `A/M` = Auto y Moto, `P/CAM` = Peatón y Camión
 
 ---
 
-### Opción B: CSV CON CAMERA ID LOOKUP (Si tienes cámaras cargadas)
-```
-Columnas REQUERIDAS:
-- (Columna índice 1) Camera ID/Número (debe coincidir con tabla de cámaras)
+### ⚠️ IMPORTANTE: SIEMPRE INCLUIR LAT/LNG
 
-Columnas OPCIONALES:
-- nombre, tipo, fecha, descripcion (mismas que Opción A)
-```
+**NO se soporta lookup por cámara.** Todos los siniestros DEBEN incluir coordenadas lat/lng.
 
-**Ejemplo CSV:**
-```csv
-orden,camera_id,barrio,siniestro,tipo,fecha
-1,100,Centro,1,choque,2024-01-15
-2,105,Zona Norte,1,caida,2024-01-16
-```
-
-**Nota:** Script busca camera ID en columna índice [1] (2ª columna)
+Si no tienes coordenadas exactas:
+1. Usa Google Maps para buscar la dirección
+2. Obtén lat/lng de esa dirección
+3. Coloca esos valores en el CSV
 
 ---
 
-### Opción C: GeoJSON
+### Opción B: GeoJSON
 ```json
 {
   "type": "FeatureCollection",
