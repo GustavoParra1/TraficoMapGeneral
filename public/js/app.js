@@ -729,8 +729,10 @@ auth.onAuthStateChanged((user) => {
         const barrios = new Set();
         
         bariosGeoJson.features.forEach(feature => {
-          if (feature.properties?.soc_fomen) {
-            barrios.add(feature.properties.soc_fomen);
+          // Soportar ambas propiedades: soc_fomen (MDP) y nombre (Córdoba)
+          const barrioName = feature.properties?.nombre || feature.properties?.soc_fomen;
+          if (barrioName) {
+            barrios.add(barrioName);
           }
         });
         
