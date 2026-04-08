@@ -1,0 +1,21 @@
+camera_number,lat,lng,address,barrio,ubicacion,domes,fixed,lpr
+100,-31.4155,-64.1888,9 de Julio 250,Centro,Municipalidad,2,1,1
+101,-31.4201,-64.1921,Vélez Sársfield 1200,Centro,Banco,1,2,0
+102,-31.4089,-64.1805,Rivadavia 500,Centro,Comercio,1,1,1
+103,-31.4234,-64.1756,Colón 2100,San Vicente,Área peatonal,2,2,0
+104,-31.4122,-64.1934,Santa Rosa 890,Alta Córdoba,Parque,1,1,0
+105,-31.4178,-64.1867,Hipólito Yrigoyen 1450,Centro,Banco,2,1,1
+106,-31.4095,-64.1989,Chacabuco 2300,Alberdi,Comercio,1,2,0
+107,-31.4267,-64.1834,Sarmiento 1550,Nueva Córdoba,Biblioteca,1,1,1
+108,-31.4141,-64.1902,Álvarez 780,Centro,Tienda,2,1,0
+109,-31.4213,-64.1775,José María Paz 1800,Nueva Córdoba,Plaza,1,2,1
+110,-31.4052,-64.1856,Mayor Generals 900,Güemes,Escuela,1,1,0
+111,-31.4289,-64.1912,Belgrano 1100,San Alejo,Comercio,2,2,0
+112,-31.4166,-64.1945,La Paz 2500,Alta Córdoba,Hotel,1,1,1
+113,-31.4109,-64.1813,Deán Funes 1200,Centro,Banco,1,2,0
+114,-31.4245,-64.1889,General Roca 600,Centro Cívico,Gobierno,2,1,1
+115,-31.4173,-64.1758,Maipú 1900,Nueva Córdoba,Área comercial,1,1,0
+116,-31.4086,-64.1923,Olmos 750,Alberdi,Parque,2,2,1
+117,-31.4227,-64.1804,Artigas 1400,Nueva Córdoba,Plaza,1,1,0
+118,-31.4135,-64.1876,Leopoldo Lugones 2000,Centro,Comercio,1,2,1
+119,-31.4198,-64.1934,Jujuy 1600,Alta Córdoba,Hospital,2,1,0

@@ -1,0 +1,157 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Centro",
+        "codigo": "001",
+        "poblacion": 45000,
+        "area_km2": 2.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-64.1950, -31.4050],
+          [-64.1820, -31.4050],
+          [-64.1820, -31.4250],
+          [-64.1950, -31.4250],
+          [-64.1950, -31.4050]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Alta Córdoba",
+        "codigo": "002",
+        "poblacion": 32000,
+        "area_km2": 3.2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-64.2050, -31.4150],
+          [-64.1950, -31.4150],
+          [-64.1950, -31.4300],
+          [-64.2050, -31.4300],
+          [-64.2050, -31.4150]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Nueva Córdoba",
+        "codigo": "003",
+        "poblacion": 28000,
+        "area_km2": 2.8
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-64.1900, -31.4200],
+          [-64.1750, -31.4200],
+          [-64.1750, -31.4350],
+          [-64.1900, -31.4350],
+          [-64.1900, -31.4200]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Alberdi",
+        "codigo": "004",
+        "poblacion": 35000,
+        "area_km2": 3.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-64.2100, -31.4050],
+          [-64.1950, -31.4050],
+          [-64.1950, -31.4150],
+          [-64.2100, -31.4150],
+          [-64.2100, -31.4050]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "San Vicente",
+        "codigo": "005",
+        "poblacion": 26000,
+        "area_km2": 2.9
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-64.1850, -31.4050],
+          [-64.1700, -31.4050],
+          [-64.1700, -31.4200],
+          [-64.1850, -31.4200],
+          [-64.1850, -31.4050]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Güemes",
+        "codigo": "006",
+        "poblacion": 31000,
+        "area_km2": 3.1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-64.1950, -31.3950],
+          [-64.1750, -31.3950],
+          [-64.1750, -31.4100],
+          [-64.1950, -31.4100],
+          [-64.1950, -31.3950]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Centro Cívico",
+        "codigo": "007",
+        "poblacion": 15000,
+        "area_km2": 1.5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-64.1920, -31.4180],
+          [-64.1820, -31.4180],
+          [-64.1820, -31.4280],
+          [-64.1920, -31.4280],
+          [-64.1920, -31.4180]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "San Alejo",
+        "codigo": "008",
+        "poblacion": 22000,
+        "area_km2": 2.3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-64.1950, -31.4250],
+          [-64.1800, -31.4250],
+          [-64.1800, -31.4400],
+          [-64.1950, -31.4400],
+          [-64.1950, -31.4250]
+        ]]
+      }
+    }
+  ]
+}
