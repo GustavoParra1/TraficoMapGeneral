@@ -91,33 +91,65 @@ print(f"Columnas ({len(df.columns)}): {list(df.columns)[:10]}...")
 # Crear GeoJSON
 features = []
 missing_cameras = set()
+coords_from_csv = 0
+coords_from_camera_lookup = 0
+coords_fallback = 0
 
 for idx, row in df.iterrows():
     try:
-        # Obtener ID de cámara de la columna 1 (usando índice)
-        # El CSV tiene formato: N° ORDEN, Nº CÁMARA, BARRIOS, ...
-        try:
-            cam_id = int(float(row.iloc[1]) if not pd.isna(row.iloc[1]) else 0)
-        except:
-            cam_id = None
+        lat = None
+        lon = None
+        coord_source = 'fallback'  # Rastrear la fuente
         
-        # Obtener coordenadas: primero de mapeo de cámaras, luego del CSV
-        if cam_id and cam_id in cameras_dict:
-            lon = cameras_dict[cam_id]['lon']
-            lat = cameras_dict[cam_id]['lat']
+        # --- PASO 1: Intentar obtener coordenadas DIRECTAS del CSV ---
+        # Buscar variantes de columnas de latitud
+        for lat_col in ['Latitud', 'latitud', 'LATITUD', 'lat', 'LAT', 'latitude']:
+            if lat_col in df.columns and not pd.isna(row[lat_col]):
+                try:
+                    lat = float(str(row[lat_col]).replace(',', '.'))
+                    if lat != 0:  # Si encontramos valor válido, usarlo
+                        break
+                except:
+                    lat = None
+                    continue
+        
+        # Buscar variantes de columnas de longitud
+        for lon_col in ['Longitud', 'longitud', 'LONGITUD', 'lng', 'LNG', 'longitude']:
+            if lon_col in df.columns and not pd.isna(row[lon_col]):
+                try:
+                    lon = float(str(row[lon_col]).replace(',', '.'))
+                    if lon != 0:  # Si encontramos valor válido, usarlo
+                        break
+                except:
+                    lon = None
+                    continue
+        
+        # Si tenemos ambas coordenadas directas, usarlas
+        if lat is not None and lon is not None and lat != 0 and lon != 0:
+            coord_source = 'csv_direct'
+            coords_from_csv += 1
         else:
-            # Fallback: intentar leer directamente del CSV
+            # --- PASO 2: Si NO tenemos coordenadas directas, intentar CAMERA ID LOOKUP ---
             try:
-                lon = float(row.get('longitud', row.get('LONGITUD', row.get('Longitud', 0)) or 0) or 0)
+                cam_id = int(float(row.iloc[1]) if not pd.isna(row.iloc[1]) else 0)
             except:
-                lon = 0
-            try:
-                lat = float(row.get('latitud', row.get('LATITUD', row.get('Latitud', 0)) or 0) or 0)
-            except:
-                lat = 0
+                cam_id = None
             
-            if cam_id and cam_id not in cameras_dict and cam_id != 0:
-                missing_cameras.add(cam_id)
+            if cam_id and cam_id in cameras_dict:
+                lon = cameras_dict[cam_id]['lon']
+                lat = cameras_dict[cam_id]['lat']
+                coord_source = 'camera_lookup'
+                coords_from_camera_lookup += 1
+            else:
+                if cam_id and cam_id != 0:
+                    missing_cameras.add(cam_id)
+        
+        # --- PASO 3: Fallback a [0, 0] si no tenemos nada ---
+        if lat is None or lon is None or (lat == 0 and lon == 0):
+            if coord_source == 'fallback':
+                coords_fallback += 1
+            lat = lat if (lat is not None and lat != 0) else 0
+            lon = lon if (lon is not None and lon != 0) else 0
         
         # Convertir fila a diccionario preservando tipos
         props = {}
@@ -155,4 +187,10 @@ geojson = {
 with open(output_file, 'w', encoding='utf-8') as f:
     json.dump(geojson, f, ensure_ascii=False, indent=2)
 
-print(f"✅ GeoJSON convertido: {len(features)} siniestros")
+print(f"\n✅ GeoJSON convertido: {len(features)} siniestros")
+print(f"\n📊 Fuentes de coordenadas:")
+print(f"   📍 Desde CSV directo (Latitud/Longitud): {coords_from_csv}")
+print(f"   🎥 Desde Camera ID lookup: {coords_from_camera_lookup}")
+print(f"   ❌ Fallback [0,0]: {coords_fallback}")
+print(f"   ✅ Total: {coords_from_csv + coords_from_camera_lookup + coords_fallback}")
+print(f"\n📁 Guardado en: {output_file}")
