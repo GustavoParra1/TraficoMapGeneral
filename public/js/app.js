@@ -135,6 +135,8 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
     if (bariosGeoJson) {
       console.log(`      ✓ ${bariosGeoJson.features ? bariosGeoJson.features.length : 0} barrios cargados`);
       GeoLayers.loadEmbeddedGeoJson('Zonas / Barrios', bariosGeoJson, false);
+      // Pasar barrios a SiniestrosLayer para filtrado geopolítico
+      SiniestrosLayer.setBarriosGeoJson(bariosGeoJson);
     }
     
     // PASO 3: Cargar siniestros 

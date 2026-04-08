@@ -1,0 +1,1001 @@
+lat,lng,nombre,causa,participantes,fecha,descripcion
+-31.413,-64.2052,Belgrano 800,D,P,05/23/2024,Siniestro vial
+-31.4187,-64.2043,Condarco 300,NR,PERRO/CTA/B,09/18/2024,Siniestro vial
+-31.4074,-64.1378,Formosa 1000,AV,P/BOMBEROS,09/29/2024,Colisión por alcance
+-31.4132,-64.1725,Formosa 1400,MI,PATRULLA/CTA,04/03/2024,Falta de iluminación nocturna
+-31.4123,-64.144,Neuquén 850,FV,M,07/05/2024,Falta de visibilidad por polvareda
+-31.4014,-64.2017,San Juan 2350,G,BOMBEROS/MONOPATIN,11/19/2024,Giro en zona prohibida
+-31.3953,-64.1791,Caseros 1800,P,CABALLO/A,11/16/2024,Peatón distraído
+-31.3884,-64.1897,9 de Julio 400,A,CABALLO,07/07/2024,Atropello sin respeto de semáforo
+-31.4046,-64.1365,Av. Recorridas 1400,NSD,M,08/06/2024,No respeta paso de peatones
+-31.3856,-64.1817,Av. Leandro N. Alem y Belgrano,DF,AMB/A/MONOPATIN,07/10/2024,Siniestro vial
+-31.3988,-64.1831,Av. General Paz 950,EV,CAM,11/16/2024,Accidente por exceso de velocidad
+-31.3893,-64.1521,San Juan y Ituzaingó,NR,POLICIA,08/10/2024,Siniestro vial
+-31.4271,-64.1383,Corrientes 1000,G,BOMBEROS/MONOPATIN,07/08/2024,Giro en zona prohibida
+-31.4068,-64.1389,Belgrano y Junín,NR,A/POLICIA/PATRULLA,10/07/2024,Siniestro vial
+-31.4377,-64.1924,Av. Hipólito Yrigoyen 2000,MI,B,09/25/2024,Falta de iluminación nocturna
+-31.4013,-64.2119,Belgrano 300,P,CTA/A,04/27/2024,Peatón imprudente cruzando
+-31.3982,-64.1773,Belgrano y Junín,NR,M/A/B,08/23/2024,Siniestro vial
+-31.4122,-64.1785,Av. Colón y Entre Ríos,AV,B,06/26/2024,Choque lateral
+-31.3861,-64.2065,Calle 5 1250,IC,BOMBEROS/AMB/MONOPATIN,08/31/2024,Siniestro vial
+-31.3861,-64.1528,Calle 3 1050,EV,COL/MONOPATIN/A,06/13/2024,Accidente por exceso de velocidad
+-31.3928,-64.1868,Av. Hipólito Yrigoyen y La Rioja,P,M,09/18/2024,Peatón distraído
+-31.4365,-64.1801,Avenida Donato Álvarez 1550,?,A/PERRO/CABALLO,08/29/2024,Siniestro vial
+-31.4014,-64.1359,Pueyrredón y San Luis,G,MONOPATIN/COL,07/04/2024,Giro en zona prohibida
+-31.3894,-64.2141,Bv. Martín Rodríguez 1250,EV,PERRO,06/25/2024,Pérdida de control por velocidad
+-31.3991,-64.2124,Entre Ríos 500,D,BOMBEROS,04/09/2024,Siniestro vial
+-31.4231,-64.1597,Av. Leandro N. Alem 200,D,COL/AMB/POLICIA,04/13/2024,Siniestro vial
+-31.4017,-64.2117,27 de Abril 750,D,COL/CAM,08/22/2024,Siniestro vial
+-31.4239,-64.1796,Córdoba 1600,VS,P,06/24/2024,Siniestro vial
+-31.426,-64.1793,Av. Leandro N. Alem y Belgrano,P,COL/PERRO,07/08/2024,Cruce indebido de peatón
+-31.4249,-64.1385,Rivadavia 1650,MR,MONOPATIN,10/21/2024,Siniestro vial
+-31.4356,-64.1734,Bv. Martín Rodríguez 1750,IC,COL,05/17/2024,Siniestro vial
+-31.4247,-64.1843,Rivadavia y Duarte Quirós,?,COL/A,09/14/2024,Siniestro vial
+-31.3862,-64.2027,Pueyrredón y San Luis,DF,PATRULLA,09/09/2024,Siniestro vial
+-31.3915,-64.2173,Marcelo T. de Alvear 1750,DF,B/POLICIA,09/08/2024,Siniestro vial
+-31.4147,-64.2162,Formosa 1000,DESCOMPENSAN,M/COL/PERRO,05/04/2024,Siniestro vial
+-31.4147,-64.1505,Córdoba 1400,EV,MONOPATIN,09/03/2024,Accidente por exceso de velocidad
+-31.4209,-64.1763,Pueyrredón 1250,P,MONOPATIN,05/03/2024,Peatón imprudente cruzando
+-31.434,-64.1883,Rivadavia 1500,FV,CABALLO/PERRO,09/13/2024,Falta de visibilidad por polvareda
+-31.4249,-64.2122,Entre Ríos 1100,EV,PATRULLA/BOMBEROS/M,04/17/2024,Choque a alta velocidad
+-31.4003,-64.1775,Calle 2 2300,EV,B/CTA/BOMBEROS,10/20/2024,Accidente por exceso de velocidad
+-31.3975,-64.1813,Av. Colón y Entre Ríos,A,M/COL/AMB,04/04/2024,Atropello de peatón
+-31.4216,-64.1745,9 de Julio y Marcelo T. de Alvear,D,CAM,07/16/2024,Siniestro vial
+-31.4166,-64.2066,Rivadavia 600,MR,POLICIA/CAM,09/01/2024,Siniestro vial
+-31.4106,-64.1528,Av. Argentina y Corrientes,IC,AMB,12/18/2024,Siniestro vial
+-31.4089,-64.1932,Vélez Sársfield 1500,MI,PERRO,07/17/2024,Falta de iluminación nocturna
+-31.4343,-64.1946,Ituzaingó 1450,G,AMB,10/15/2024,Giro sin señalizar
+-31.4361,-64.2143,Caseros 2000,FV,PERRO/POLICIA,10/28/2024,Falta de visibilidad por niebla
+-31.4375,-64.1869,Av. Leandro N. Alem 1850,DESCOMPENSAN,CTA,12/08/2024,Siniestro vial
+-31.4095,-64.2199,Rivadavia 650,A,BOMBEROS,08/27/2024,Atropello fatal
+-31.4194,-64.1843,Presidente Roca 1350,PERSECUCIÓN,CTA/AMB/POLICIA,10/04/2024,Siniestro vial
+-31.4131,-64.1699,Belgrano y Junín,NR,CABALLO,08/27/2024,Siniestro vial
+-31.3943,-64.173,Río Negro 1450,PC,COL/B,07/17/2024,Conductor distraído
+-31.4187,-64.1503,Av. Circunvalación 2250,G,M/COL,04/02/2024,Giro sin señalizar
+-31.4144,-64.1726,San Juan y Ituzaingó,?,CTA,04/06/2024,Siniestro vial
+-31.3868,-64.1456,Marcelo T. de Alvear 1200,PC,PATRULLA/M,10/04/2024,Conductor cansado
+-31.4119,-64.1701,Mendoza 2150,NSD,POLICIA/PATRULLA,06/13/2024,No se detiene en ALTO
+-31.4037,-64.1756,Misiones 700,NR,P,10/25/2024,Siniestro vial
+-31.393,-64.2176,Caseros 1700,AV,B,07/06/2024,Choque en intersección
+-31.4307,-64.197,Junín 1950,MI,CABALLO/MONOPATIN,09/10/2024,Mala iluminación del vehículo
+-31.4128,-64.1976,Av. Colón y Entre Ríos,D,CTA,09/12/2024,Siniestro vial
+-31.4318,-64.1806,Avenida Donato Álvarez 2400,DESCOMPENSAN,COL/BOMBEROS/POLICIA,05/17/2024,Siniestro vial
+-31.4017,-64.2065,Río Negro 2000,P,AMB/CTA/PATRULLA,09/02/2024,Peatón distraído
+-31.3939,-64.1759,Av. Leandro N. Alem y Belgrano,PI,M,12/11/2024,Siniestro vial
+-31.4175,-64.1835,Junín 300,AV,CTA/CAM,12/25/2024,Colisión por alcance
+-31.409,-64.1718,Presidente Roca 650,DF,CTA,04/21/2024,Siniestro vial
+-31.4291,-64.1807,Av. Circunvalación 2400,PERSECUCIÓN,A/CAM/POLICIA,09/29/2024,Siniestro vial
+-31.4252,-64.136,Calle 4 2050,NR,CABALLO/COL/B,12/06/2024,Siniestro vial
+-31.4192,-64.213,Pueyrredón 1500,NR,CAM/PATRULLA/A,06/12/2024,Siniestro vial
+-31.39,-64.2115,Belgrano 600,AV,POLICIA/CTA/COL,04/15/2024,Choque frontal entre dos vehículos
+-31.42,-64.195,Av. Leandro N. Alem y Belgrano,P,PATRULLA/CABALLO/POLICIA,04/15/2024,Peatón imprudente cruzando
+-31.4224,-64.1837,Vélez Sársfield y Caseros,VS,PERRO/MONOPATIN/BOMBEROS,05/29/2024,Siniestro vial
+-31.4019,-64.1664,Av. Argentina y Corrientes,AV,M,06/12/2024,Colisión por alcance
+-31.4125,-64.1944,Entre Ríos 850,NSD,PATRULLA/CABALLO/CAM,10/10/2024,No se detiene en ALTO
+-31.4214,-64.1915,Rivadavia 700,MR,CTA/POLICIA,09/11/2024,Siniestro vial
+-31.4123,-64.1772,Vélez Sársfield 950,VS,AMB,06/21/2024,Siniestro vial
+-31.438,-64.1948,Av. Colón y Entre Ríos,A,M/PERRO/BOMBEROS,07/26/2024,Atropello con lesiones
+-31.4155,-64.2137,Calle 4 650,PI,M/CTA,11/14/2024,Siniestro vial
+-31.4271,-64.1526,9 de Julio y Marcelo T. de Alvear,IC,AMB/CTA,09/20/2024,Siniestro vial
+-31.4073,-64.2072,Mitre 250,MI,AMB/COL,07/01/2024,Mala iluminación del vehículo
+-31.4145,-64.2047,Fray Luis Beltrán 1650,?,COL/MONOPATIN/AMB,10/05/2024,Siniestro vial
+-31.3864,-64.207,Avenida Donato Álvarez 1450,VS,P/M,12/29/2024,Siniestro vial
+-31.3954,-64.1637,Caseros 800,NR,M/CAM,11/21/2024,Siniestro vial
+-31.3868,-64.1797,Avenida Donato Álvarez 2050,MI,P/COL,04/20/2024,Mala iluminación del vehículo
+-31.3965,-64.1738,Santa Fe 2200,EV,M/POLICIA/PERRO,04/12/2024,Accidente por exceso de velocidad
+-31.4275,-64.1796,Santa Fe 950,PERSECUCIÓN,POLICIA/MONOPATIN,11/20/2024,Siniestro vial
+-31.3865,-64.1451,Mitre 1200,FV,MONOPATIN/CAM,09/27/2024,Falta de visibilidad por niebla
+-31.4399,-64.1858,Avenida Donato Álvarez 300,G,POLICIA/CAM/CTA,08/04/2024,Giro sin señalizar
+-31.4386,-64.1917,Belgrano 1600,?,PERRO/P,07/16/2024,Siniestro vial
+-31.4114,-64.1677,Chubut 1550,PERSECUCIÓN,MONOPATIN/PATRULLA/POLICIA,07/24/2024,Siniestro vial
+-31.4314,-64.1507,Rivadavia y Duarte Quirós,NR,A/CABALLO/PERRO,12/23/2024,Siniestro vial
+-31.3873,-64.1505,Caseros 100,?,P/CTA,07/07/2024,Siniestro vial
+-31.4048,-64.176,9 de Julio y Marcelo T. de Alvear,IC,CABALLO/CAM/M,09/02/2024,Siniestro vial
+-31.3973,-64.2124,Bv. Martín Rodríguez 1350,FV,CABALLO/CTA/PATRULLA,10/22/2024,Falta de visibilidad por lluvia
+-31.3872,-64.1435,Av. Leandro N. Alem y Belgrano,PERSECUCIÓN,BOMBEROS/M,10/16/2024,Siniestro vial
+-31.394,-64.2145,Calle 2 2150,DESCOMPENSAN,B/A,11/02/2024,Siniestro vial
+-31.3909,-64.1874,Vélez Sársfield y Caseros,VS,PATRULLA,04/02/2024,Siniestro vial
+-31.3959,-64.1782,Mendoza 1850,PERSECUCIÓN,B/M,10/18/2024,Siniestro vial
+-31.3922,-64.2039,Av. Hipólito Yrigoyen y La Rioja,AV,CTA,09/14/2024,Vuelco de vehículo
+-31.4294,-64.1416,Av. Colón y Entre Ríos,EV,CTA/A/B,06/08/2024,Accidente por exceso de velocidad
+-31.4296,-64.169,Av. Argentina y Corrientes,?,PATRULLA/B/BOMBEROS,10/11/2024,Siniestro vial
+-31.4161,-64.1736,Av. Colón y Entre Ríos,PC,M/CTA,06/20/2024,Conductor cansado
+-31.3962,-64.1481,9 de Julio 100,PI,COL/POLICIA/PERRO,12/20/2024,Siniestro vial
+-31.4343,-64.2055,Duarte Quirós 300,PI,CAM/PERRO,09/07/2024,Siniestro vial
+-31.4214,-64.2196,Bv. Martín Rodríguez 1200,AV,BOMBEROS,07/06/2024,Choque en intersección
+-31.4251,-64.1774,Neuquén 2050,A,COL/MONOPATIN,10/01/2024,Atropello de peatón
+-31.4389,-64.1921,Av. Argentina y Corrientes,MI,PERRO/PATRULLA/AMB,06/22/2024,Mala iluminación de calle
+-31.4103,-64.1602,Rivadavia 1950,P,PERRO,05/05/2024,Peatón imprudente cruzando
+-31.4364,-64.1627,Belgrano y Junín,P,PERRO/AMB/CABALLO,05/13/2024,Cruce indebido de peatón
+-31.4325,-64.1723,Córdoba 1800,FV,CAM/CABALLO/BOMBEROS,06/15/2024,Falta de visibilidad por polvareda
+-31.4062,-64.197,Bv. Martín Rodríguez 300,PC,MONOPATIN,12/05/2024,Conductor cansado
+-31.4239,-64.2153,Calle 2 2050,A,CTA,06/24/2024,Atropello con lesiones
+-31.4155,-64.2176,Calle 3 2300,A,PERRO/CABALLO,05/08/2024,Atropello sin respeto de semáforo
+-31.3989,-64.1646,Belgrano y Junín,PC,AMB/CAM,09/25/2024,Poca concentración del conductor
+-31.4379,-64.2053,Calle 3 1800,IC,P/CAM/B,04/25/2024,Siniestro vial
+-31.4356,-64.2113,Av. Colón y Entre Ríos,IC,PERRO/AMB,07/24/2024,Siniestro vial
+-31.4399,-64.1765,Av. Sabattini 850,PI,CTA,08/15/2024,Siniestro vial
+-31.3963,-64.1982,La Rioja 1550,D,AMB/CABALLO,05/11/2024,Siniestro vial
+-31.4301,-64.1585,Santa Fe 1900,IC,B,11/18/2024,Siniestro vial
+-31.4288,-64.1758,Vélez Sársfield y Caseros,DESCOMPENSAN,MONOPATIN/P/COL,12/10/2024,Siniestro vial
+-31.4062,-64.1702,Belgrano y Junín,VS,MONOPATIN/M/B,05/12/2024,Siniestro vial
+-31.3897,-64.1734,Vélez Sársfield 100,?,A,10/18/2024,Siniestro vial
+-31.4196,-64.1962,Calle 3 1650,IC,A/PATRULLA,12/08/2024,Siniestro vial
+-31.4151,-64.1651,Rivadavia y Duarte Quirós,D,MONOPATIN/CAM/AMB,06/25/2024,Siniestro vial
+-31.43,-64.1629,San Juan y Ituzaingó,EV,CTA/BOMBEROS/A,04/12/2024,Choque a alta velocidad
+-31.3904,-64.153,Caseros 1950,DESCOMPENSAN,CTA/B,05/30/2024,Siniestro vial
+-31.3927,-64.1763,Misiones 700,?,B,05/05/2024,Siniestro vial
+-31.4208,-64.1778,Calle 3 900,NR,POLICIA/PERRO/CTA,05/28/2024,Siniestro vial
+-31.4083,-64.2176,27 de Abril 800,FV,AMB,11/14/2024,Falta de visibilidad por polvareda
+-31.3919,-64.1468,Av. Colón y Entre Ríos,IC,MONOPATIN,10/09/2024,Siniestro vial
+-31.4095,-64.1746,Río Negro 400,?,CTA/B,08/14/2024,Siniestro vial
+-31.386,-64.1561,Av. Maipú 2150,?,CABALLO,06/13/2024,Siniestro vial
+-31.4066,-64.2021,Condarco 1700,DESCOMPENSAN,M/AMB,10/30/2024,Siniestro vial
+-31.4176,-64.1585,Rivadavia y Duarte Quirós,DESCOMPENSAN,BOMBEROS/CAM/PATRULLA,09/09/2024,Siniestro vial
+-31.4226,-64.2084,Pinto 700,P,PATRULLA,06/06/2024,Peatón imprudente cruzando
+-31.401,-64.1646,Av. Leandro N. Alem 2200,DESCOMPENSAN,A/B,09/21/2024,Siniestro vial
+-31.4381,-64.2014,Av. Colón y Entre Ríos,VS,PERRO,04/28/2024,Siniestro vial
+-31.4127,-64.1402,9 de Julio 1650,IC,PERRO/COL,08/20/2024,Siniestro vial
+-31.4206,-64.1746,Av. Leandro N. Alem 1150,G,BOMBEROS/CTA/CAM,12/10/2024,Giro en zona prohibida
+-31.3888,-64.1643,Rivadavia 1350,FV,CTA/B/M,04/27/2024,Falta de visibilidad por lluvia
+-31.3999,-64.1895,Duarte Quirós 100,PC,COL/CAM,06/18/2024,Conductor distraído
+-31.3966,-64.2056,San Juan y Ituzaingó,PC,COL/PERRO,06/04/2024,Conductor distraído
+-31.4108,-64.2055,Calle 5 1750,PI,P,07/13/2024,Siniestro vial
+-31.3894,-64.1502,Av. Leandro N. Alem y Belgrano,P,MONOPATIN/A/CTA,07/28/2024,Peatón distraído
+-31.3957,-64.1521,Mitre 1900,AV,P/CTA,11/27/2024,Choque lateral
+-31.4032,-64.192,La Rioja 350,PC,PERRO/MONOPATIN,08/27/2024,Conductor cansado
+-31.4152,-64.1648,9 de Julio 1600,NR,P,09/18/2024,Siniestro vial
+-31.3876,-64.1778,Pueyrredón y San Luis,PI,COL/CAM/AMB,12/01/2024,Siniestro vial
+-31.4172,-64.1596,9 de Julio y Marcelo T. de Alvear,EV,CAM,11/18/2024,Choque a alta velocidad
+-31.39,-64.1518,9 de Julio y Marcelo T. de Alvear,AV,P,08/01/2024,Choque lateral
+-31.4048,-64.2115,Entre Ríos 200,D,BOMBEROS/AMB/PATRULLA,10/20/2024,Siniestro vial
+-31.4339,-64.1491,Tucumán 1100,PI,CTA/A/COL,06/18/2024,Siniestro vial
+-31.3904,-64.1528,Sarmiento 1600,DESCOMPENSAN,CAM,04/11/2024,Siniestro vial
+-31.4059,-64.1486,Río Negro 2150,MI,A/CABALLO,11/02/2024,Mala iluminación de calle
+-31.3912,-64.1666,Tucumán 300,PERSECUCIÓN,AMB,08/25/2024,Siniestro vial
+-31.424,-64.1627,San Juan y Ituzaingó,MI,BOMBEROS,06/12/2024,Falta de iluminación nocturna
+-31.4282,-64.2137,Chubut 900,PERSECUCIÓN,PATRULLA/POLICIA/MONOPATIN,12/09/2024,Siniestro vial
+-31.4393,-64.2181,Duarte Quirós 750,EV,PERRO,09/16/2024,Accidente por exceso de velocidad
+-31.4038,-64.15,San Luis 1550,AV,B,12/25/2024,Choque en intersección
+-31.4302,-64.1671,Rivadavia y Duarte Quirós,IC,CAM/PERRO/CABALLO,07/04/2024,Siniestro vial
+-31.4281,-64.1369,Av. Colón 1400,NSD,PATRULLA/POLICIA,12/11/2024,No respeta paso de peatones
+-31.4378,-64.1756,Av. Recorridas 250,DF,MONOPATIN/PATRULLA/CABALLO,07/05/2024,Siniestro vial
+-31.3987,-64.2086,Chubut 1600,VS,CABALLO,12/15/2024,Siniestro vial
+-31.4251,-64.2084,Pueyrredón y San Luis,D,P/POLICIA,05/22/2024,Siniestro vial
+-31.4161,-64.1878,Av. General Paz 1250,MR,P,09/21/2024,Siniestro vial
+-31.4264,-64.141,Marcelo T. de Alvear 2050,NSD,CTA/B/M,04/30/2024,No respeta paso de peatones
+-31.4212,-64.1679,Belgrano 1100,?,CAM/MONOPATIN/M,05/18/2024,Siniestro vial
+-31.3859,-64.1535,Vélez Sársfield y Caseros,NR,MONOPATIN/PATRULLA,05/29/2024,Siniestro vial
+-31.4348,-64.1495,9 de Julio 1050,?,BOMBEROS/CAM,08/10/2024,Siniestro vial
+-31.4256,-64.1398,Av. Hipólito Yrigoyen 150,NSD,CTA,04/23/2024,No se detiene en ALTO
+-31.4207,-64.2123,Belgrano y Junín,PI,PERRO,04/06/2024,Siniestro vial
+-31.4337,-64.217,Av. Argentina y Corrientes,DESCOMPENSAN,M/BOMBEROS/PATRULLA,10/09/2024,Siniestro vial
+-31.4294,-64.1586,Pueyrredón 200,IC,CABALLO/CAM/M,06/20/2024,Siniestro vial
+-31.4088,-64.1354,Av. Sabattini 1850,FV,COL/POLICIA/BOMBEROS,07/06/2024,Falta de visibilidad por polvareda
+-31.4135,-64.1938,Bv. Martín Rodríguez 200,PC,P,09/02/2024,Poca concentración del conductor
+-31.4353,-64.1965,Av. Leandro N. Alem y Belgrano,G,AMB,04/28/2024,Giro indebido
+-31.439,-64.1921,9 de Julio y Marcelo T. de Alvear,D,CAM/M/B,10/23/2024,Siniestro vial
+-31.4211,-64.1488,Av. Sabattini 2050,EV,CABALLO/M,08/05/2024,Choque a alta velocidad
+-31.3927,-64.1874,Av. General Paz 2100,MR,M/CAM,11/12/2024,Siniestro vial
+-31.3886,-64.2062,Calle 4 1050,NR,B/AMB/CAM,08/05/2024,Siniestro vial
+-31.4234,-64.1702,Rivadavia y Duarte Quirós,AV,AMB,11/24/2024,Choque lateral
+-31.4121,-64.135,Belgrano y Junín,DESCOMPENSAN,MONOPATIN/AMB/PERRO,05/03/2024,Siniestro vial
+-31.4218,-64.1707,Rivadavia y Duarte Quirós,PERSECUCIÓN,POLICIA,11/25/2024,Siniestro vial
+-31.4267,-64.1996,Chubut 1850,AV,CABALLO,08/21/2024,Vuelco de vehículo
+-31.4113,-64.1498,Pueyrredón 1300,DESCOMPENSAN,PERRO/P,11/13/2024,Siniestro vial
+-31.3926,-64.1371,Av. Recorridas 1250,PC,P,11/16/2024,Conductor distraído
+-31.4268,-64.2006,Av. Argentina 2300,PERSECUCIÓN,PATRULLA/A/CABALLO,10/17/2024,Siniestro vial
+-31.4048,-64.1632,Av. Hipólito Yrigoyen 1200,DF,CABALLO/POLICIA/M,06/28/2024,Siniestro vial
+-31.4261,-64.1398,Av. Sabattini 750,G,BOMBEROS,09/20/2024,Giro en zona prohibida
+-31.3907,-64.1413,27 de Abril 350,PI,P/M,06/29/2024,Siniestro vial
+-31.3927,-64.1526,Belgrano 1450,D,A,07/26/2024,Siniestro vial
+-31.3873,-64.1949,Presidente Roca 1100,DESCOMPENSAN,COL,08/23/2024,Siniestro vial
+-31.4297,-64.1766,Duarte Quirós 1450,NR,CABALLO/COL,12/27/2024,Siniestro vial
+-31.4079,-64.158,Av. Argentina y Corrientes,NR,A,04/30/2024,Siniestro vial
+-31.4212,-64.2007,Av. Argentina y Corrientes,PERSECUCIÓN,BOMBEROS,08/30/2024,Siniestro vial
+-31.4291,-64.2093,Av. Hipólito Yrigoyen y La Rioja,DF,CAM,09/26/2024,Siniestro vial
+-31.3867,-64.1695,Presidente Roca 750,MI,PERRO,06/21/2024,Mala iluminación de calle
+-31.4187,-64.1385,Av. General Paz 2200,DESCOMPENSAN,COL/CAM,04/02/2024,Siniestro vial
+-31.4293,-64.1598,Vélez Sársfield y Caseros,AV,MONOPATIN,08/27/2024,Choque en intersección
+-31.4336,-64.2069,Av. Argentina y Corrientes,AV,CABALLO/CAM/P,08/02/2024,Choque lateral
+-31.3993,-64.1642,Av. Maipú 2100,EV,M,07/22/2024,Accidente por exceso de velocidad
+-31.4245,-64.1657,Av. Hipólito Yrigoyen y La Rioja,PC,CABALLO/CAM,04/09/2024,Conductor cansado
+-31.4276,-64.1351,Pueyrredón y San Luis,A,PATRULLA/BOMBEROS/PERRO,09/24/2024,Atropello sin respeto de semáforo
+-31.4159,-64.1395,Av. Leandro N. Alem y Belgrano,NR,B,06/24/2024,Siniestro vial
+-31.4126,-64.2161,Calle 5 500,MI,CAM,11/24/2024,Mala iluminación del vehículo
+-31.3961,-64.1928,Neuquén 1600,PC,AMB,06/27/2024,Conductor cansado
+-31.412,-64.1483,Calle 3 2050,MR,COL/A/MONOPATIN,06/27/2024,Siniestro vial
+-31.4224,-64.1904,Duarte Quirós 250,PC,CABALLO,04/28/2024,Conductor distraído
+-31.4133,-64.2169,Avenida Donato Álvarez 200,P,A/MONOPATIN,07/21/2024,Peatón distraído
+-31.4354,-64.1889,Av. Argentina y Corrientes,?,P,05/31/2024,Siniestro vial
+-31.407,-64.1974,Av. Hipólito Yrigoyen y La Rioja,D,PATRULLA/PERRO/P,04/14/2024,Siniestro vial
+-31.4125,-64.1591,Av. Hipólito Yrigoyen y La Rioja,AV,CAM/POLICIA/M,10/13/2024,Vuelco de vehículo
+-31.4359,-64.205,Marcelo T. de Alvear 1650,DESCOMPENSAN,MONOPATIN,12/22/2024,Siniestro vial
+-31.4095,-64.2092,Junín 600,PC,CTA/M,06/09/2024,Conductor cansado
+-31.4288,-64.1575,Ituzaingó 1550,G,BOMBEROS,12/20/2024,Giro indebido
+-31.3936,-64.1559,Neuquén 1550,G,CAM,08/04/2024,Giro sin señalizar
+-31.4012,-64.1719,Av. Argentina y Corrientes,NSD,B/CAM/M,11/11/2024,No se detiene en ALTO
+-31.3959,-64.183,Caseros 700,PC,POLICIA,04/10/2024,Poca concentración del conductor
+-31.3949,-64.2059,Av. Argentina y Corrientes,MI,MONOPATIN/P,11/06/2024,Mala iluminación del vehículo
+-31.4338,-64.1983,Rivadavia y Duarte Quirós,FV,CTA/P/COL,05/07/2024,Falta de visibilidad por lluvia
+-31.4334,-64.143,Calle 5 1100,FV,PERRO/M,10/29/2024,Falta de visibilidad por lluvia
+-31.3933,-64.1744,Calle 5 300,PC,CABALLO/CTA/MONOPATIN,04/28/2024,Conductor distraído
+-31.4343,-64.1765,Av. Hipólito Yrigoyen y La Rioja,MR,CTA,08/26/2024,Siniestro vial
+-31.4093,-64.2039,San Luis 750,PERSECUCIÓN,CAM,12/21/2024,Siniestro vial
+-31.4292,-64.205,Av. General Paz 150,PC,M/CABALLO/COL,11/18/2024,Poca concentración del conductor
+-31.4256,-64.2189,Entre Ríos 1300,AV,BOMBEROS/B/PERRO,11/21/2024,Choque frontal entre dos vehículos
+-31.4146,-64.1531,Calle 3 1600,NR,COL/B,09/09/2024,Siniestro vial
+-31.3962,-64.2147,Pueyrredón y San Luis,EV,B/A/POLICIA,10/01/2024,Choque a alta velocidad
+-31.4297,-64.1513,Paso de los Andes 350,NSD,BOMBEROS/B,07/19/2024,No se detiene en ALTO
+-31.389,-64.1881,Av. Recorridas 700,PERSECUCIÓN,PERRO/A,05/20/2024,Siniestro vial
+-31.4277,-64.1903,Calle 2 2350,P,POLICIA/BOMBEROS/M,09/03/2024,Cruce indebido de peatón
+-31.3907,-64.1736,Avenida Donato Álvarez 150,D,A/BOMBEROS/PATRULLA,06/16/2024,Siniestro vial
+-31.3971,-64.1846,Av. Colón 2250,FV,CTA,06/13/2024,Falta de visibilidad por lluvia
+-31.4066,-64.192,Mitre 1500,NSD,M,12/27/2024,No se detiene en ALTO
+-31.4093,-64.2001,Av. Leandro N. Alem y Belgrano,PERSECUCIÓN,CABALLO/CAM/PERRO,09/03/2024,Siniestro vial
+-31.3881,-64.1679,Av. Hipólito Yrigoyen 2150,DESCOMPENSAN,MONOPATIN/CTA/PATRULLA,08/10/2024,Siniestro vial
+-31.3979,-64.1461,Ituzaingó 200,FV,CTA/AMB,08/19/2024,Falta de visibilidad por polvareda
+-31.4099,-64.1509,Av. General Paz 950,G,BOMBEROS/CAM/MONOPATIN,08/20/2024,Giro en zona prohibida
+-31.3989,-64.217,Av. Leandro N. Alem y Belgrano,NSD,CABALLO,11/23/2024,No respeta paso de peatones
+-31.404,-64.1427,Santa Cruz 200,IC,AMB,11/17/2024,Siniestro vial
+-31.4285,-64.1566,Fray Luis Beltrán 400,NSD,MONOPATIN/P,04/16/2024,No se detiene en ALTO
+-31.4144,-64.2042,San Juan y Ituzaingó,VS,PATRULLA/CAM,11/03/2024,Siniestro vial
+-31.4295,-64.1566,Av. Colón y Entre Ríos,IC,BOMBEROS/POLICIA/A,07/07/2024,Siniestro vial
+-31.4024,-64.1417,Mendoza 2000,FV,BOMBEROS/MONOPATIN,05/01/2024,Falta de visibilidad por polvareda
+-31.3956,-64.153,Avenida Poeta Lugones 1350,A,POLICIA/M/CTA,10/05/2024,Atropello con lesiones
+-31.4198,-64.1819,Rivadavia 2100,MI,CABALLO,07/14/2024,Mala iluminación del vehículo
+-31.4105,-64.1415,27 de Abril 1600,MR,B,04/07/2024,Siniestro vial
+-31.42,-64.1355,Av. Argentina 1500,MI,B/MONOPATIN/M,06/02/2024,Mala iluminación de calle
+-31.4106,-64.1844,Entre Ríos 200,PI,AMB,08/14/2024,Siniestro vial
+-31.3852,-64.199,Mendoza 1850,MR,CABALLO/COL,09/16/2024,Siniestro vial
+-31.4006,-64.1749,Avenida Donato Álvarez 1400,AV,CAM/POLICIA,09/14/2024,Choque en intersección
+-31.4009,-64.2095,Av. Leandro N. Alem y Belgrano,VS,A,06/26/2024,Siniestro vial
+-31.4223,-64.1481,San Juan y Ituzaingó,IC,A/PATRULLA/CAM,07/26/2024,Siniestro vial
+-31.4018,-64.1609,Junín 2450,?,M/PATRULLA/COL,04/12/2024,Siniestro vial
+-31.4094,-64.1879,Pinto 600,MR,PATRULLA,10/04/2024,Siniestro vial
+-31.3864,-64.185,Belgrano y Junín,G,CABALLO/P/M,11/24/2024,Giro en zona prohibida
+-31.4151,-64.1708,Rivadavia y Duarte Quirós,IC,COL,10/28/2024,Siniestro vial
+-31.387,-64.1646,Neuquén 100,EV,PERRO/POLICIA,06/25/2024,Accidente por exceso de velocidad
+-31.3912,-64.1808,Rivadavia y Duarte Quirós,VS,PERRO/B,10/31/2024,Siniestro vial
+-31.4098,-64.1712,Pueyrredón y San Luis,MR,AMB/BOMBEROS/COL,06/03/2024,Siniestro vial
+-31.4083,-64.1921,Paso de los Andes 1850,PI,CABALLO,06/11/2024,Siniestro vial
+-31.4385,-64.1726,San Luis 750,VS,P,10/05/2024,Siniestro vial
+-31.4206,-64.2068,Caseros 700,NSD,CAM/A,06/02/2024,No se detiene en ALTO
+-31.4112,-64.1666,9 de Julio 2150,VS,A/MONOPATIN,04/03/2024,Siniestro vial
+-31.4298,-64.153,Vélez Sársfield y Caseros,IC,PATRULLA/POLICIA/B,11/17/2024,Siniestro vial
+-31.4378,-64.2069,Av. Leandro N. Alem y Belgrano,A,PERRO/B,04/13/2024,Atropello fatal
+-31.4196,-64.2196,Av. Leandro N. Alem y Belgrano,D,A/COL,04/30/2024,Siniestro vial
+-31.3912,-64.2004,Calle 2 1900,PC,B/COL,08/04/2024,Poca concentración del conductor
+-31.4023,-64.1688,Av. General Paz 450,A,POLICIA/AMB/B,11/14/2024,Atropello con lesiones
+-31.3853,-64.1359,Condarco 1750,VS,BOMBEROS/MONOPATIN,08/01/2024,Siniestro vial
+-31.4265,-64.2015,Rivadavia y Duarte Quirós,AV,POLICIA/MONOPATIN,09/29/2024,Choque lateral
+-31.4294,-64.144,Santa Cruz 1100,G,M/P/PATRULLA,11/06/2024,Giro indebido
+-31.4121,-64.1897,Av. Argentina y Corrientes,VS,CTA,06/27/2024,Siniestro vial
+-31.398,-64.1776,Condarco 1100,PI,PERRO/P/CTA,04/22/2024,Siniestro vial
+-31.3958,-64.1361,9 de Julio y Marcelo T. de Alvear,A,CTA/MONOPATIN,10/16/2024,Atropello de peatón
+-31.4375,-64.2125,Mendoza 400,DF,M/PATRULLA,05/01/2024,Siniestro vial
+-31.4039,-64.1937,Av. General Paz 2400,P,B,10/10/2024,Peatón imprudente cruzando
+-31.4264,-64.1496,Av. Argentina y Corrientes,PI,PERRO,04/12/2024,Siniestro vial
+-31.4119,-64.1819,Rivadavia y Duarte Quirós,FV,AMB/CAM,05/15/2024,Falta de visibilidad por niebla
+-31.4181,-64.2041,Av. Hipólito Yrigoyen 250,IC,AMB,08/02/2024,Siniestro vial
+-31.4179,-64.2034,Chubut 750,VS,M/MONOPATIN/B,09/20/2024,Siniestro vial
+-31.4348,-64.1803,Vélez Sársfield y Caseros,G,M/POLICIA,07/08/2024,Giro indebido
+-31.39,-64.1751,Av. Circunvalación 2000,EV,CABALLO/MONOPATIN,06/07/2024,Choque a alta velocidad
+-31.4227,-64.2003,Av. Leandro N. Alem y Belgrano,DF,CTA/COL,11/07/2024,Siniestro vial
+-31.4344,-64.1901,Condarco 2300,D,BOMBEROS,05/13/2024,Siniestro vial
+-31.424,-64.1745,Belgrano y Junín,IC,B,07/14/2024,Siniestro vial
+-31.4048,-64.2056,Vélez Sársfield y Caseros,NR,BOMBEROS/PERRO,07/30/2024,Siniestro vial
+-31.403,-64.2171,Pueyrredón y San Luis,EV,POLICIA/M/PERRO,12/07/2024,Accidente por exceso de velocidad
+-31.4202,-64.1599,San Luis 150,?,M/MONOPATIN,06/01/2024,Siniestro vial
+-31.4249,-64.1969,San Juan y Ituzaingó,?,AMB/CTA/COL,11/28/2024,Siniestro vial
+-31.4374,-64.1382,Marcelo T. de Alvear 2450,MI,M/COL/MONOPATIN,07/30/2024,Falta de iluminación nocturna
+-31.4392,-64.2129,Santa Cruz 900,MR,B/BOMBEROS,09/22/2024,Siniestro vial
+-31.3893,-64.1422,La Rioja 1400,MR,CABALLO,12/03/2024,Siniestro vial
+-31.4026,-64.168,Calle 4 1800,EV,PATRULLA/M/MONOPATIN,12/26/2024,Pérdida de control por velocidad
+-31.4303,-64.1891,Av. Colón y Entre Ríos,MI,M/CTA/PATRULLA,11/05/2024,Mala iluminación del vehículo
+-31.4193,-64.1926,Belgrano y Junín,P,POLICIA/CTA/A,09/23/2024,Cruce indebido de peatón
+-31.4018,-64.206,Av. Circunvalación 950,DESCOMPENSAN,PATRULLA/CAM/PERRO,04/26/2024,Siniestro vial
+-31.4007,-64.1821,Av. Colón y Entre Ríos,P,MONOPATIN,10/28/2024,Peatón imprudente cruzando
+-31.3872,-64.1857,Caseros 1850,?,M/PATRULLA/COL,07/11/2024,Siniestro vial
+-31.386,-64.1561,Av. Hipólito Yrigoyen y La Rioja,NSD,PERRO/M,06/14/2024,No se detiene en semáforo en rojo
+-31.4398,-64.1718,Pueyrredón y San Luis,PI,M/A,12/08/2024,Siniestro vial
+-31.4045,-64.2061,Rivadavia 1700,PERSECUCIÓN,CAM/POLICIA,08/16/2024,Siniestro vial
+-31.3888,-64.2038,Corrientes 1100,?,A/M/PERRO,11/20/2024,Siniestro vial
+-31.4373,-64.1976,Neuquén 2150,PI,CTA/A,10/06/2024,Siniestro vial
+-31.4006,-64.1625,Rivadavia y Duarte Quirós,PI,CTA/BOMBEROS/CABALLO,06/12/2024,Siniestro vial
+-31.4336,-64.1488,Vélez Sársfield y Caseros,IC,BOMBEROS/CABALLO/CAM,08/06/2024,Siniestro vial
+-31.3988,-64.2102,Formosa 200,G,POLICIA/AMB,04/28/2024,Giro en zona prohibida
+-31.4371,-64.2149,Calle 2 1050,AV,CTA,04/14/2024,Choque lateral
+-31.3859,-64.1621,Av. Leandro N. Alem y Belgrano,?,PATRULLA,05/04/2024,Siniestro vial
+-31.4145,-64.2136,Belgrano y Junín,PERSECUCIÓN,MONOPATIN/B,06/30/2024,Siniestro vial
+-31.4159,-64.214,Av. Colón y Entre Ríos,NSD,CTA/POLICIA/PERRO,10/21/2024,No se detiene en ALTO
+-31.4173,-64.1417,Corrientes 2450,PERSECUCIÓN,CTA/PATRULLA,05/06/2024,Siniestro vial
+-31.4367,-64.1811,Vélez Sársfield y Caseros,EV,M/P/PERRO,07/11/2024,Accidente por exceso de velocidad
+-31.4184,-64.1904,Av. Leandro N. Alem y Belgrano,PI,B,07/25/2024,Siniestro vial
+-31.3883,-64.205,Belgrano y Junín,MR,POLICIA/AMB/CABALLO,05/21/2024,Siniestro vial
+-31.3909,-64.1445,Pueyrredón y San Luis,G,CTA,07/03/2024,Giro sin señalizar
+-31.4058,-64.1445,27 de Abril 2000,PERSECUCIÓN,PATRULLA,10/30/2024,Siniestro vial
+-31.4087,-64.1616,Paso de los Andes 1900,DF,PERRO,08/04/2024,Siniestro vial
+-31.41,-64.2097,Ituzaingó 1100,EV,AMB,12/18/2024,Accidente por exceso de velocidad
+-31.437,-64.1375,Misiones 2150,FV,AMB/PATRULLA,08/03/2024,Falta de visibilidad por polvareda
+-31.397,-64.2089,Vélez Sársfield y Caseros,MR,A,07/03/2024,Siniestro vial
+-31.3991,-64.2024,Av. Recorridas 1900,G,B/M/AMB,12/14/2024,Giro indebido
+-31.393,-64.2074,Pueyrredón y San Luis,DESCOMPENSAN,CAM/CTA,11/19/2024,Siniestro vial
+-31.3943,-64.144,Av. Argentina 950,G,B/PERRO/COL,07/28/2024,Giro indebido
+-31.3938,-64.2088,Sarmiento 200,A,COL,10/24/2024,Atropello de peatón
+-31.3897,-64.216,San Martín 650,P,CABALLO/B/PATRULLA,04/29/2024,Peatón distraído
+-31.4039,-64.1738,Calle 3 500,PERSECUCIÓN,CAM,11/27/2024,Siniestro vial
+-31.4347,-64.201,Sarmiento 1900,P,BOMBEROS,05/03/2024,Peatón imprudente cruzando
+-31.4115,-64.2197,Tucumán 500,VS,CAM/PATRULLA/BOMBEROS,08/04/2024,Siniestro vial
+-31.3952,-64.2073,Río Negro 2150,D,A/CABALLO/B,07/22/2024,Siniestro vial
+-31.4032,-64.2157,San Juan y Ituzaingó,AV,COL/M/CTA,05/13/2024,Choque frontal entre dos vehículos
+-31.3889,-64.1594,Vélez Sársfield y Caseros,A,B/PERRO/CABALLO,07/13/2024,Atropello con lesiones
+-31.3994,-64.169,Sarmiento 1650,MI,BOMBEROS/MONOPATIN,08/10/2024,Falta de iluminación nocturna
+-31.4102,-64.1556,Pinto 600,?,AMB/PERRO,08/13/2024,Siniestro vial
+-31.3866,-64.1866,Condarco 750,MI,AMB,04/01/2024,Mala iluminación de calle
+-31.4016,-64.2104,Neuquén 850,PI,P,10/11/2024,Siniestro vial
+-31.3955,-64.21,Calle 4 600,PERSECUCIÓN,CAM/BOMBEROS/AMB,06/12/2024,Siniestro vial
+-31.396,-64.1948,Rivadavia y Duarte Quirós,MI,B/COL/AMB,08/06/2024,Falta de iluminación nocturna
+-31.4189,-64.2066,Av. Argentina y Corrientes,?,POLICIA,07/07/2024,Siniestro vial
+-31.4073,-64.2158,Av. Recorridas 500,PI,PERRO,06/23/2024,Siniestro vial
+-31.4395,-64.2091,Corrientes 1050,P,POLICIA/PERRO/CABALLO,09/02/2024,Cruce indebido de peatón
+-31.4142,-64.1599,San Juan 350,VS,AMB/A,06/26/2024,Siniestro vial
+-31.398,-64.1652,San Martín 100,IC,PATRULLA/B/COL,04/13/2024,Siniestro vial
+-31.4202,-64.1924,Tucumán 1400,MR,P/M,10/23/2024,Siniestro vial
+-31.4202,-64.1812,Río Negro 750,G,PERRO,07/27/2024,Giro sin señalizar
+-31.4262,-64.2154,Pueyrredón y San Luis,PI,CTA/PERRO,04/21/2024,Siniestro vial
+-31.428,-64.1669,Chubut 1300,NSD,CABALLO,05/16/2024,No respeta paso de peatones
+-31.4247,-64.1439,9 de Julio y Marcelo T. de Alvear,PC,PATRULLA/B/BOMBEROS,08/11/2024,Poca concentración del conductor
+-31.3961,-64.2127,San Martín 200,D,CABALLO/CAM,10/18/2024,Siniestro vial
+-31.4146,-64.1427,Rivadavia y Duarte Quirós,AV,CTA/P,07/28/2024,Vuelco de vehículo
+-31.4266,-64.2162,Rivadavia y Duarte Quirós,VS,BOMBEROS/CAM/MONOPATIN,10/17/2024,Siniestro vial
+-31.4234,-64.1622,Av. Hipólito Yrigoyen y La Rioja,A,AMB/CABALLO/CTA,08/01/2024,Atropello sin respeto de semáforo
+-31.4243,-64.1912,Av. Recorridas 1000,A,POLICIA,08/18/2024,Atropello sin respeto de semáforo
+-31.3904,-64.1876,Presidente Roca 700,FV,COL/CAM,11/16/2024,Falta de visibilidad por lluvia
+-31.4058,-64.1721,Vélez Sársfield 1050,EV,PATRULLA/B/COL,05/14/2024,Accidente por exceso de velocidad
+-31.395,-64.1525,Bv. Martín Rodríguez 900,PI,A/PERRO,06/20/2024,Siniestro vial
+-31.4158,-64.1863,Av. Argentina y Corrientes,DF,POLICIA/COL/M,11/04/2024,Siniestro vial
+-31.4355,-64.2145,Mitre 300,EV,PERRO/CAM/A,04/12/2024,Accidente por exceso de velocidad
+-31.4045,-64.1357,Córdoba 600,PI,PERRO/CTA,04/05/2024,Siniestro vial
+-31.4056,-64.1419,Av. Recorridas 1100,VS,P/AMB,06/14/2024,Siniestro vial
+-31.438,-64.1798,Av. Colón 2100,NR,B/POLICIA,09/12/2024,Siniestro vial
+-31.4057,-64.2081,Mendoza 1600,PC,POLICIA/PERRO/A,05/18/2024,Conductor cansado
+-31.4345,-64.1415,San Juan y Ituzaingó,IC,P,06/27/2024,Siniestro vial
+-31.4117,-64.1573,Santa Cruz 1550,DF,M/A/PATRULLA,09/12/2024,Siniestro vial
+-31.4209,-64.1769,Av. Leandro N. Alem y Belgrano,VS,PERRO/BOMBEROS/MONOPATIN,06/24/2024,Siniestro vial
+-31.4019,-64.1575,Av. Leandro N. Alem y Belgrano,VS,PERRO/CABALLO,06/29/2024,Siniestro vial
+-31.4087,-64.1707,Río Negro 1500,PI,BOMBEROS,07/21/2024,Siniestro vial
+-31.3997,-64.1691,Av. Maipú 750,PC,A/BOMBEROS,11/26/2024,Conductor cansado
+-31.3894,-64.1634,Avenida Donato Álvarez 1650,NSD,PATRULLA/A/M,07/06/2024,No respeta paso de peatones
+-31.4117,-64.1498,Avenida Donato Álvarez 1950,P,CAM/MONOPATIN,12/24/2024,Cruce indebido de peatón
+-31.3854,-64.1539,Pueyrredón 1550,EV,COL,12/11/2024,Choque a alta velocidad
+-31.3888,-64.202,Pueyrredón y San Luis,IC,CABALLO/P,08/27/2024,Siniestro vial
+-31.4394,-64.2104,Av. Colón 400,NR,BOMBEROS/P,07/13/2024,Siniestro vial
+-31.4292,-64.2185,Rivadavia 1350,A,B,10/15/2024,Atropello de peatón
+-31.4206,-64.158,Calle 5 2250,NSD,CAM,04/28/2024,No se detiene en ALTO
+-31.4365,-64.1916,Av. Circunvalación 1150,G,POLICIA/M/COL,05/26/2024,Giro en zona prohibida
+-31.4033,-64.2136,Marcelo T. de Alvear 850,PC,CABALLO,11/13/2024,Conductor distraído
+-31.3856,-64.1802,Condarco 850,G,CABALLO,06/12/2024,Giro indebido
+-31.3876,-64.2018,Av. Leandro N. Alem y Belgrano,VS,CABALLO/M/CTA,12/21/2024,Siniestro vial
+-31.4262,-64.1801,Duarte Quirós 1400,D,P/PATRULLA/POLICIA,08/11/2024,Siniestro vial
+-31.4307,-64.2161,Av. Colón y Entre Ríos,VS,BOMBEROS/PATRULLA,05/17/2024,Siniestro vial
+-31.4166,-64.1813,Av. Hipólito Yrigoyen 1600,PC,A,10/20/2024,Conductor distraído
+-31.391,-64.1782,Av. Leandro N. Alem y Belgrano,DESCOMPENSAN,A,11/21/2024,Siniestro vial
+-31.4221,-64.2076,Pueyrredón y San Luis,PC,A/AMB,05/15/2024,Conductor cansado
+-31.4191,-64.2059,Avenida Poeta Lugones 1400,P,A/AMB/PATRULLA,10/12/2024,Peatón distraído
+-31.3907,-64.1477,Marcelo T. de Alvear 1350,DESCOMPENSAN,POLICIA/CAM/PERRO,12/02/2024,Siniestro vial
+-31.4225,-64.192,Santa Fe 300,DF,CAM/M,08/12/2024,Siniestro vial
+-31.4073,-64.2032,Presidente Roca 1350,FV,CABALLO/BOMBEROS/A,08/31/2024,Falta de visibilidad por lluvia
+-31.4307,-64.1448,Tucumán 1200,D,CTA/P,12/09/2024,Siniestro vial
+-31.3905,-64.1858,Calle 2 2200,IC,CABALLO/COL,05/21/2024,Siniestro vial
+-31.4175,-64.2121,Av. Argentina 1350,VS,MONOPATIN/POLICIA,04/09/2024,Siniestro vial
+-31.4153,-64.1674,Caseros 1300,P,A/P/CAM,08/21/2024,Cruce indebido de peatón
+-31.4256,-64.2077,Av. Recorridas 1700,NSD,PATRULLA,05/09/2024,No se detiene en ALTO
+-31.4127,-64.1461,San Luis 750,AV,P,06/08/2024,Colisión por alcance
+-31.3911,-64.2108,Rivadavia y Duarte Quirós,AV,CTA/MONOPATIN/CAM,04/14/2024,Choque frontal entre dos vehículos
+-31.4118,-64.1898,Av. Colón 1850,MI,PERRO/MONOPATIN/M,12/25/2024,Falta de iluminación nocturna
+-31.4227,-64.152,Pueyrredón y San Luis,P,PERRO/POLICIA/COL,09/15/2024,Peatón distraído
+-31.3903,-64.1575,Calle 2 2450,MR,B/MONOPATIN/BOMBEROS,04/17/2024,Siniestro vial
+-31.4265,-64.1443,Av. Hipólito Yrigoyen y La Rioja,FV,PATRULLA,10/21/2024,Falta de visibilidad por lluvia
+-31.4091,-64.2108,Vélez Sársfield 300,NR,AMB/CTA/P,08/24/2024,Siniestro vial
+-31.4332,-64.1666,San Martín 1150,DESCOMPENSAN,AMB/POLICIA,07/07/2024,Siniestro vial
+-31.394,-64.165,Rivadavia 2000,D,AMB/BOMBEROS/COL,06/11/2024,Siniestro vial
+-31.4218,-64.168,9 de Julio y Marcelo T. de Alvear,?,P/MONOPATIN/A,05/22/2024,Siniestro vial
+-31.4267,-64.2136,27 de Abril 2000,NR,P/CAM,04/02/2024,Siniestro vial
+-31.3878,-64.1657,Presidente Roca 1100,IC,PERRO/POLICIA/AMB,09/07/2024,Siniestro vial
+-31.4233,-64.1766,Calle 5 2300,A,AMB,10/20/2024,Atropello sin respeto de semáforo
+-31.4236,-64.2111,Av. Argentina y Corrientes,DESCOMPENSAN,POLICIA,08/24/2024,Siniestro vial
+-31.421,-64.1379,Vélez Sársfield 2400,IC,COL/P,11/24/2024,Siniestro vial
+-31.3911,-64.1598,Calle 3 1150,MR,CTA/BOMBEROS,07/03/2024,Siniestro vial
+-31.4148,-64.1892,Pinto 2150,AV,MONOPATIN,12/19/2024,Colisión por alcance
+-31.4072,-64.1628,Río Negro 1750,?,POLICIA/COL/AMB,05/06/2024,Siniestro vial
+-31.4021,-64.2045,9 de Julio y Marcelo T. de Alvear,MI,COL/P,06/11/2024,Falta de iluminación nocturna
+-31.4276,-64.1786,Vélez Sársfield y Caseros,PERSECUCIÓN,BOMBEROS,10/10/2024,Siniestro vial
+-31.4343,-64.2097,9 de Julio y Marcelo T. de Alvear,FV,CAM/POLICIA,04/21/2024,Falta de visibilidad por polvareda
+-31.4014,-64.1803,Av. Hipólito Yrigoyen y La Rioja,D,B,07/29/2024,Siniestro vial
+-31.4363,-64.1958,Av. Hipólito Yrigoyen y La Rioja,PERSECUCIÓN,PERRO,05/03/2024,Siniestro vial
+-31.4332,-64.1573,Entre Ríos 2100,P,MONOPATIN/AMB/PATRULLA,04/30/2024,Peatón imprudente cruzando
+-31.42,-64.1523,Paso de los Andes 450,NR,CAM/AMB,10/20/2024,Siniestro vial
+-31.3948,-64.2109,Calle 2 1350,A,A,04/26/2024,Atropello de peatón
+-31.3945,-64.1508,Av. Sabattini 1850,D,CTA/P/CABALLO,05/08/2024,Siniestro vial
+-31.396,-64.1515,Caseros 800,MR,PATRULLA/PERRO,07/06/2024,Siniestro vial
+-31.4133,-64.1978,Pinto 2000,?,A/B,11/24/2024,Siniestro vial
+-31.3976,-64.1538,Av. Leandro N. Alem y Belgrano,FV,PATRULLA/AMB/CAM,08/24/2024,Falta de visibilidad por lluvia
+-31.4183,-64.1963,Pueyrredón 2450,AV,P,05/29/2024,Choque en intersección
+-31.4391,-64.1519,Rivadavia 500,?,B/A,09/12/2024,Siniestro vial
+-31.4052,-64.138,Av. Circunvalación 1350,DESCOMPENSAN,CAM/COL/PATRULLA,11/29/2024,Siniestro vial
+-31.3861,-64.207,San Juan 2250,P,CTA,05/21/2024,Peatón distraído
+-31.4007,-64.1965,Calle 4 1400,MR,POLICIA/P/CAM,04/09/2024,Siniestro vial
+-31.4341,-64.1382,Misiones 500,MI,CTA/AMB/P,10/22/2024,Falta de iluminación nocturna
+-31.4098,-64.1932,San Juan y Ituzaingó,VS,PATRULLA/BOMBEROS/PERRO,07/22/2024,Siniestro vial
+-31.4116,-64.1519,Presidente Roca 1850,FV,B,06/16/2024,Falta de visibilidad por lluvia
+-31.4004,-64.2161,Rivadavia y Duarte Quirós,P,P/PATRULLA/M,04/17/2024,Cruce indebido de peatón
+-31.4395,-64.1814,Av. Colón 800,D,P/BOMBEROS/POLICIA,12/14/2024,Siniestro vial
+-31.4071,-64.1384,Av. Sabattini 700,PI,A/BOMBEROS,08/17/2024,Siniestro vial
+-31.4034,-64.1866,Condarco 2250,DF,MONOPATIN,06/13/2024,Siniestro vial
+-31.3968,-64.2052,Av. Colón 2050,NR,CTA,05/06/2024,Siniestro vial
+-31.4051,-64.1737,Tucumán 300,PC,B,08/25/2024,Conductor cansado
+-31.4121,-64.1906,Av. Leandro N. Alem y Belgrano,?,P/PATRULLA/CABALLO,11/04/2024,Siniestro vial
+-31.4317,-64.2012,San Juan y Ituzaingó,DF,B/MONOPATIN,10/19/2024,Siniestro vial
+-31.4391,-64.1359,Av. Sabattini 1450,DF,CTA/P,12/11/2024,Siniestro vial
+-31.4099,-64.2194,Rivadavia y Duarte Quirós,D,PATRULLA/P/MONOPATIN,08/20/2024,Siniestro vial
+-31.4113,-64.1793,Calle 3 1800,P,B/PERRO,06/18/2024,Peatón imprudente cruzando
+-31.4261,-64.1651,Belgrano y Junín,IC,A/CABALLO/PATRULLA,12/26/2024,Siniestro vial
+-31.4287,-64.2192,Pueyrredón 1050,NR,MONOPATIN/CTA,10/07/2024,Siniestro vial
+-31.3905,-64.1815,Av. Leandro N. Alem y Belgrano,?,PERRO,10/04/2024,Siniestro vial
+-31.3856,-64.1602,Bv. Martín Rodríguez 1350,?,PERRO,11/30/2024,Siniestro vial
+-31.4033,-64.1706,Calle 3 1000,PI,CABALLO,05/13/2024,Siniestro vial
+-31.3968,-64.1877,Belgrano 1150,EV,AMB/CAM,05/02/2024,Pérdida de control por velocidad
+-31.4271,-64.2079,La Rioja 2050,DESCOMPENSAN,COL,04/19/2024,Siniestro vial
+-31.4044,-64.1648,9 de Julio y Marcelo T. de Alvear,PC,PATRULLA/P/MONOPATIN,11/02/2024,Conductor cansado
+-31.4105,-64.1649,Av. Colón y Entre Ríos,MI,PERRO,07/17/2024,Mala iluminación de calle
+-31.4309,-64.2117,Av. Colón y Entre Ríos,PI,PERRO,11/14/2024,Siniestro vial
+-31.4008,-64.1955,Río Negro 1800,MI,CAM/A/P,12/03/2024,Mala iluminación de calle
+-31.4356,-64.2053,San Juan 750,?,M/COL,11/04/2024,Siniestro vial
+-31.3967,-64.2004,9 de Julio 1150,AV,COL/PATRULLA/CTA,05/22/2024,Choque frontal entre dos vehículos
+-31.433,-64.1606,Presidente Roca 550,FV,P/CABALLO/BOMBEROS,07/18/2024,Falta de visibilidad por polvareda
+-31.4305,-64.1585,Mitre 1650,D,CAM/P,08/02/2024,Siniestro vial
+-31.4143,-64.1959,Av. Colón y Entre Ríos,EV,PATRULLA/CTA,08/21/2024,Choque a alta velocidad
+-31.4223,-64.1944,Av. Circunvalación 900,PERSECUCIÓN,A/POLICIA,09/26/2024,Siniestro vial
+-31.4108,-64.1768,Av. Circunvalación 1800,P,PATRULLA,07/30/2024,Cruce indebido de peatón
+-31.4033,-64.1968,Av. Argentina 1400,PC,CABALLO,08/23/2024,Conductor distraído
+-31.3937,-64.1676,San Juan y Ituzaingó,DF,P,05/06/2024,Siniestro vial
+-31.4268,-64.1433,Av. Leandro N. Alem 2300,?,COL/POLICIA/P,10/28/2024,Siniestro vial
+-31.3996,-64.1858,Entre Ríos 200,?,CABALLO/BOMBEROS/COL,10/05/2024,Siniestro vial
+-31.4141,-64.2136,Av. Argentina y Corrientes,MI,POLICIA/P,12/16/2024,Falta de iluminación nocturna
+-31.429,-64.1695,Pueyrredón y San Luis,PI,PATRULLA,04/22/2024,Siniestro vial
+-31.4176,-64.2191,Av. Leandro N. Alem y Belgrano,NSD,CAM/CABALLO/AMB,06/06/2024,No se detiene en semáforo en rojo
+-31.4114,-64.1858,La Rioja 650,D,BOMBEROS/PATRULLA/CTA,05/03/2024,Siniestro vial
+-31.4064,-64.2172,San Juan y Ituzaingó,MI,COL/B/CAM,09/14/2024,Falta de iluminación nocturna
+-31.4331,-64.1785,Caseros 2050,DESCOMPENSAN,PERRO/CABALLO/M,09/28/2024,Siniestro vial
+-31.4031,-64.1884,9 de Julio 1650,DF,BOMBEROS/AMB,11/18/2024,Siniestro vial
+-31.4106,-64.1528,Av. Colón 600,FV,M/POLICIA,10/05/2024,Falta de visibilidad por lluvia
+-31.4118,-64.1991,San Juan y Ituzaingó,PERSECUCIÓN,M/MONOPATIN/PERRO,06/17/2024,Siniestro vial
+-31.408,-64.1689,Entre Ríos 1400,PI,BOMBEROS/AMB,07/17/2024,Siniestro vial
+-31.4142,-64.2057,Pueyrredón y San Luis,MR,COL/MONOPATIN,05/11/2024,Siniestro vial
+-31.4255,-64.1987,Vélez Sársfield y Caseros,AV,A/AMB/COL,09/25/2024,Choque lateral
+-31.4114,-64.1753,Vélez Sársfield 1200,EV,P/M/A,12/27/2024,Choque a alta velocidad
+-31.4348,-64.2197,Rivadavia y Duarte Quirós,?,A/PATRULLA/B,09/15/2024,Siniestro vial
+-31.4286,-64.1662,Chubut 1150,AV,B/P,12/08/2024,Vuelco de vehículo
+-31.3862,-64.2104,Junín 300,IC,PERRO,04/11/2024,Siniestro vial
+-31.3876,-64.168,Chubut 350,DESCOMPENSAN,COL,11/19/2024,Siniestro vial
+-31.4128,-64.1743,Vélez Sársfield y Caseros,MI,AMB/M,04/05/2024,Mala iluminación de calle
+-31.4371,-64.1828,Rivadavia 2150,IC,CABALLO,12/31/2024,Siniestro vial
+-31.4019,-64.2083,Mitre 850,D,CTA/CABALLO,10/01/2024,Siniestro vial
+-31.4154,-64.199,Avenida Donato Álvarez 450,D,CAM/PATRULLA,05/21/2024,Siniestro vial
+-31.437,-64.1827,Rivadavia 2300,PI,BOMBEROS/PATRULLA,10/01/2024,Siniestro vial
+-31.4026,-64.2123,Duarte Quirós 1400,AV,M/POLICIA/CABALLO,08/12/2024,Choque lateral
+-31.4011,-64.1617,Vélez Sársfield y Caseros,MR,BOMBEROS,11/12/2024,Siniestro vial
+-31.3971,-64.2042,Junín 1850,EV,A/M/B,06/20/2024,Choque a alta velocidad
+-31.395,-64.1779,Mitre 450,P,CAM/POLICIA/MONOPATIN,09/27/2024,Peatón distraído
+-31.4062,-64.216,Fray Luis Beltrán 1200,A,COL,10/08/2024,Atropello de peatón
+-31.4368,-64.1983,Calle 4 850,NR,BOMBEROS/PATRULLA,04/04/2024,Siniestro vial
+-31.4125,-64.1634,Av. Hipólito Yrigoyen 2400,IC,PATRULLA/POLICIA/MONOPATIN,12/19/2024,Siniestro vial
+-31.3917,-64.165,Pueyrredón y San Luis,EV,P/POLICIA,09/04/2024,Pérdida de control por velocidad
+-31.415,-64.219,Calle 4 2450,NSD,P/B/A,06/05/2024,No respeta paso de peatones
+-31.4357,-64.2077,Rivadavia y Duarte Quirós,PERSECUCIÓN,A/P/AMB,05/12/2024,Siniestro vial
+-31.4217,-64.14,La Rioja 1900,AV,BOMBEROS,11/18/2024,Choque en intersección
+-31.4383,-64.1671,Chubut 1000,PC,AMB/CTA,09/17/2024,Conductor cansado
+-31.4201,-64.1355,Marcelo T. de Alvear 700,D,CAM,12/25/2024,Siniestro vial
+-31.4053,-64.2038,Bv. Martín Rodríguez 800,MI,PATRULLA/COL/CABALLO,06/13/2024,Falta de iluminación nocturna
+-31.4098,-64.2157,Calle 5 600,D,PERRO,12/15/2024,Siniestro vial
+-31.3913,-64.1808,Calle 3 1900,NR,PATRULLA/PERRO,05/27/2024,Siniestro vial
+-31.4233,-64.2089,Formosa 600,IC,BOMBEROS,05/20/2024,Siniestro vial
+-31.3855,-64.1618,Pueyrredón y San Luis,NR,PATRULLA/MONOPATIN/POLICIA,09/11/2024,Siniestro vial
+-31.4,-64.2149,Av. Hipólito Yrigoyen y La Rioja,P,MONOPATIN/A,06/07/2024,Peatón distraído
+-31.4312,-64.1927,Belgrano y Junín,A,COL/POLICIA,05/15/2024,Atropello fatal
+-31.4183,-64.1962,Av. Argentina y Corrientes,VS,CABALLO/BOMBEROS/AMB,08/12/2024,Siniestro vial
+-31.4166,-64.1746,Ituzaingó 950,A,M/CAM/PERRO,07/24/2024,Atropello con lesiones
+-31.388,-64.2033,Pueyrredón y San Luis,?,PATRULLA/PERRO,11/25/2024,Siniestro vial
+-31.4057,-64.1716,Caseros 1600,MR,PERRO/A,09/14/2024,Siniestro vial
+-31.4194,-64.206,Pueyrredón y San Luis,A,AMB/CTA/P,07/07/2024,Atropello con lesiones
+-31.4187,-64.1564,Entre Ríos 1050,NSD,CTA,04/19/2024,No se detiene en ALTO
+-31.4365,-64.1976,San Luis 1650,D,COL/PERRO,11/07/2024,Siniestro vial
+-31.4049,-64.1985,Belgrano y Junín,PC,PATRULLA/P/COL,04/02/2024,Conductor distraído
+-31.399,-64.2032,Av. Colón y Entre Ríos,AV,CTA/PERRO,10/16/2024,Choque en intersección
+-31.4343,-64.1848,San Juan y Ituzaingó,DF,CABALLO,09/15/2024,Siniestro vial
+-31.4132,-64.2088,Av. Recorridas 1800,?,CABALLO/M/A,08/16/2024,Siniestro vial
+-31.4143,-64.1928,San Martín 750,MR,P/PATRULLA/A,09/15/2024,Siniestro vial
+-31.4323,-64.174,Av. Circunvalación 250,NSD,POLICIA/COL,11/16/2024,No respeta paso de peatones
+-31.4247,-64.1587,San Juan y Ituzaingó,MI,MONOPATIN/PERRO/BOMBEROS,06/09/2024,Falta de iluminación nocturna
+-31.3939,-64.1363,Av. Hipólito Yrigoyen y La Rioja,DESCOMPENSAN,P/MONOPATIN,11/06/2024,Siniestro vial
+-31.4132,-64.1616,Vélez Sársfield 1950,D,CABALLO/MONOPATIN,08/16/2024,Siniestro vial
+-31.4329,-64.1703,Av. Sabattini 1400,VS,COL/PERRO/A,06/26/2024,Siniestro vial
+-31.4254,-64.1994,Belgrano y Junín,A,A/CAM/B,12/26/2024,Atropello de peatón
+-31.4254,-64.1501,Rivadavia 1150,NSD,P/PERRO,08/24/2024,No se detiene en ALTO
+-31.4348,-64.1773,Mitre 350,VS,P/AMB,04/05/2024,Siniestro vial
+-31.4263,-64.1708,Santa Cruz 1900,PI,PATRULLA/CTA,07/01/2024,Siniestro vial
+-31.3884,-64.2072,Av. Colón y Entre Ríos,PC,AMB,06/30/2024,Conductor distraído
+-31.3858,-64.1499,Fray Luis Beltrán 1100,EV,BOMBEROS,08/10/2024,Accidente por exceso de velocidad
+-31.4346,-64.165,Av. Colón y Entre Ríos,D,COL/BOMBEROS,06/10/2024,Siniestro vial
+-31.4267,-64.1945,San Juan y Ituzaingó,A,P/A,04/12/2024,Atropello sin respeto de semáforo
+-31.3965,-64.2149,Tucumán 1550,?,P/CTA,10/07/2024,Siniestro vial
+-31.3873,-64.1903,Córdoba 2150,IC,BOMBEROS,08/31/2024,Siniestro vial
+-31.3944,-64.1412,Duarte Quirós 1350,NR,AMB,10/19/2024,Siniestro vial
+-31.4267,-64.2011,San Martín 1400,MR,CABALLO/AMB/MONOPATIN,07/25/2024,Siniestro vial
+-31.4221,-64.2031,Vélez Sársfield y Caseros,A,POLICIA/PERRO/CABALLO,09/17/2024,Atropello con lesiones
+-31.4371,-64.2148,Río Negro 1900,PI,P,04/09/2024,Siniestro vial
+-31.4088,-64.1617,Rivadavia 1350,PI,BOMBEROS/CABALLO/CAM,12/22/2024,Siniestro vial
+-31.4326,-64.16,San Luis 1500,MR,COL/P/A,05/11/2024,Siniestro vial
+-31.4139,-64.1725,Avenida Poeta Lugones 2100,VS,CAM/PATRULLA/A,12/17/2024,Siniestro vial
+-31.4369,-64.2199,Junín 1750,MR,POLICIA/BOMBEROS/M,08/11/2024,Siniestro vial
+-31.3859,-64.2164,Mitre 1900,AV,CAM/CTA/P,08/14/2024,Choque lateral
+-31.4139,-64.1477,Av. Argentina 1200,MR,BOMBEROS/PATRULLA/A,08/07/2024,Siniestro vial
+-31.4198,-64.1453,Av. Colón 150,?,POLICIA/P/CAM,06/22/2024,Siniestro vial
+-31.4103,-64.1404,Chubut 250,DF,BOMBEROS/B,06/27/2024,Siniestro vial
+-31.4196,-64.2189,27 de Abril 1100,DESCOMPENSAN,PERRO/POLICIA/BOMBEROS,11/01/2024,Siniestro vial
+-31.402,-64.143,San Juan 1300,D,BOMBEROS,08/02/2024,Siniestro vial
+-31.4364,-64.2038,Belgrano y Junín,G,CAM,12/15/2024,Giro indebido
+-31.3964,-64.1715,Ituzaingó 1250,PC,A/PERRO,04/10/2024,Poca concentración del conductor
+-31.4202,-64.1946,San Luis 550,G,CTA/CABALLO,04/22/2024,Giro sin señalizar
+-31.4162,-64.17,Av. Hipólito Yrigoyen y La Rioja,PC,AMB,07/17/2024,Poca concentración del conductor
+-31.4199,-64.2056,Av. Maipú 2450,NSD,CTA/M,06/09/2024,No se detiene en semáforo en rojo
+-31.4083,-64.1654,Condarco 1450,PERSECUCIÓN,AMB,06/21/2024,Siniestro vial
+-31.4241,-64.1437,San Juan 300,G,MONOPATIN/M/CAM,04/17/2024,Giro en zona prohibida
+-31.3949,-64.2058,Presidente Roca 1650,PERSECUCIÓN,CAM,09/27/2024,Siniestro vial
+-31.3953,-64.1421,Junín 1850,PI,AMB/CABALLO/BOMBEROS,11/09/2024,Siniestro vial
+-31.4035,-64.1402,Pueyrredón y San Luis,FV,AMB,05/09/2024,Falta de visibilidad por polvareda
+-31.391,-64.156,Av. Argentina y Corrientes,VS,P/MONOPATIN,11/08/2024,Siniestro vial
+-31.3866,-64.148,Vélez Sársfield y Caseros,D,PATRULLA/M,05/25/2024,Siniestro vial
+-31.4076,-64.2041,Av. Leandro N. Alem y Belgrano,D,A/MONOPATIN,11/26/2024,Siniestro vial
+-31.4019,-64.2093,Av. Colón 1850,VS,P/POLICIA/B,12/05/2024,Siniestro vial
+-31.39,-64.2053,Av. Colón y Entre Ríos,P,PERRO,06/14/2024,Cruce indebido de peatón
+-31.4043,-64.1403,Belgrano 1600,P,CAM/AMB/MONOPATIN,10/31/2024,Cruce indebido de peatón
+-31.3902,-64.2075,9 de Julio y Marcelo T. de Alvear,PI,MONOPATIN/POLICIA/PATRULLA,06/24/2024,Siniestro vial
+-31.4074,-64.2107,Av. Sabattini 1850,P,PATRULLA/BOMBEROS,04/17/2024,Peatón distraído
+-31.4311,-64.1643,Ituzaingó 2250,AV,POLICIA/A/CABALLO,09/23/2024,Choque en intersección
+-31.3935,-64.2031,Bv. Martín Rodríguez 2450,DESCOMPENSAN,POLICIA/CAM,04/22/2024,Siniestro vial
+-31.4329,-64.1686,Fray Luis Beltrán 2050,DF,PERRO/A/P,04/08/2024,Siniestro vial
+-31.4174,-64.1585,9 de Julio y Marcelo T. de Alvear,G,CAM/MONOPATIN,10/19/2024,Giro indebido
+-31.4322,-64.2079,Bv. Martín Rodríguez 1100,PI,MONOPATIN,08/31/2024,Siniestro vial
+-31.4048,-64.1404,Mendoza 2100,PC,COL/P,07/02/2024,Poca concentración del conductor
+-31.3947,-64.2071,9 de Julio 100,NSD,CTA/PERRO/M,06/11/2024,No se detiene en ALTO
+-31.4105,-64.151,Belgrano y Junín,PI,POLICIA,12/30/2024,Siniestro vial
+-31.4123,-64.1917,Presidente Roca 1900,NSD,POLICIA,09/08/2024,No se detiene en semáforo en rojo
+-31.4207,-64.1656,Caseros 2450,NR,CAM/CTA/P,12/29/2024,Siniestro vial
+-31.3924,-64.1759,San Juan y Ituzaingó,IC,CTA/PERRO,08/19/2024,Siniestro vial
+-31.4141,-64.1958,9 de Julio y Marcelo T. de Alvear,MI,B,08/22/2024,Mala iluminación de calle
+-31.3901,-64.18,27 de Abril 650,PC,POLICIA/B/CABALLO,09/15/2024,Conductor cansado
+-31.4318,-64.2093,Calle 5 1300,FV,CABALLO,07/14/2024,Falta de visibilidad por polvareda
+-31.4088,-64.181,Neuquén 200,P,P/CABALLO/PERRO,10/04/2024,Cruce indebido de peatón
+-31.4344,-64.1851,Avenida Donato Álvarez 150,FV,CAM/A,08/21/2024,Falta de visibilidad por niebla
+-31.4287,-64.1737,9 de Julio y Marcelo T. de Alvear,DF,P/AMB,08/09/2024,Siniestro vial
+-31.4233,-64.1712,Rivadavia y Duarte Quirós,G,M,11/30/2024,Giro indebido
+-31.4132,-64.179,Av. Hipólito Yrigoyen 350,PI,A/MONOPATIN,08/05/2024,Siniestro vial
+-31.3997,-64.1384,9 de Julio y Marcelo T. de Alvear,MI,AMB/CABALLO/CAM,09/23/2024,Mala iluminación del vehículo
+-31.3957,-64.1865,Belgrano y Junín,?,POLICIA/AMB/M,10/16/2024,Siniestro vial
+-31.4324,-64.1814,Junín 1200,VS,BOMBEROS/PERRO,11/12/2024,Siniestro vial
+-31.4129,-64.1875,Bv. Martín Rodríguez 700,MI,B/PERRO/PATRULLA,09/05/2024,Falta de iluminación nocturna
+-31.4157,-64.2076,Duarte Quirós 1100,PC,A/MONOPATIN,10/17/2024,Conductor distraído
+-31.3962,-64.1445,San Juan y Ituzaingó,DF,AMB/CAM,05/09/2024,Siniestro vial
+-31.3915,-64.1927,Av. Argentina 100,NSD,B,11/29/2024,No respeta paso de peatones
+-31.4187,-64.1496,Pueyrredón y San Luis,PERSECUCIÓN,AMB/PERRO/P,09/08/2024,Siniestro vial
+-31.3981,-64.2152,Av. Recorridas 1950,FV,CTA/COL,09/17/2024,Falta de visibilidad por polvareda
+-31.4192,-64.2011,Avenida Poeta Lugones 2050,EV,CAM/AMB/BOMBEROS,12/26/2024,Pérdida de control por velocidad
+-31.3953,-64.2036,Duarte Quirós 1850,DF,CAM/M,12/17/2024,Siniestro vial
+-31.3968,-64.1524,Belgrano y Junín,IC,MONOPATIN/PERRO/P,10/15/2024,Siniestro vial
+-31.4316,-64.2066,Calle 2 2200,MI,MONOPATIN/PATRULLA/CABALLO,10/15/2024,Mala iluminación del vehículo
+-31.4007,-64.1394,Av. Sabattini 250,?,P/M,10/30/2024,Siniestro vial
+-31.402,-64.2125,Fray Luis Beltrán 1800,DESCOMPENSAN,CABALLO,08/27/2024,Siniestro vial
+-31.4307,-64.1592,Vélez Sársfield y Caseros,MI,B/COL/CTA,04/25/2024,Falta de iluminación nocturna
+-31.424,-64.1667,Rivadavia y Duarte Quirós,EV,AMB/A,07/17/2024,Accidente por exceso de velocidad
+-31.4032,-64.1765,San Martín 500,DF,AMB,09/24/2024,Siniestro vial
+-31.4368,-64.2104,Mendoza 700,MR,CAM,07/21/2024,Siniestro vial
+-31.412,-64.1967,Av. Hipólito Yrigoyen y La Rioja,G,AMB,12/27/2024,Giro en zona prohibida
+-31.4285,-64.1767,Av. Argentina 1300,?,COL,07/13/2024,Siniestro vial
+-31.4202,-64.2063,San Juan y Ituzaingó,MI,CABALLO/B/COL,05/03/2024,Mala iluminación del vehículo
+-31.4145,-64.1825,San Juan 150,DF,MONOPATIN/CTA,07/26/2024,Siniestro vial
+-31.428,-64.1719,Santa Fe 500,AV,BOMBEROS,06/24/2024,Colisión por alcance
+-31.3865,-64.1906,Calle 4 1200,P,MONOPATIN/B,07/12/2024,Peatón distraído
+-31.4153,-64.1779,Av. Sabattini 1900,DESCOMPENSAN,PERRO/PATRULLA/P,05/07/2024,Siniestro vial
+-31.392,-64.1536,San Juan 800,PI,AMB/PATRULLA/CAM,06/13/2024,Siniestro vial
+-31.3878,-64.2165,Condarco 1850,NR,PATRULLA,11/12/2024,Siniestro vial
+-31.3928,-64.136,Calle 5 1900,VS,POLICIA/BOMBEROS/P,04/10/2024,Siniestro vial
+-31.395,-64.1523,San Juan y Ituzaingó,PERSECUCIÓN,P/MONOPATIN,12/14/2024,Siniestro vial
+-31.4033,-64.195,Sarmiento 500,NSD,CTA/PATRULLA,09/02/2024,No se detiene en semáforo en rojo
+-31.3897,-64.2114,Duarte Quirós 300,VS,PERRO/BOMBEROS/PATRULLA,11/28/2024,Siniestro vial
+-31.4134,-64.1653,9 de Julio 1350,NR,POLICIA/BOMBEROS/PATRULLA,12/26/2024,Siniestro vial
+-31.3855,-64.1805,San Juan y Ituzaingó,MI,PATRULLA/MONOPATIN,12/04/2024,Mala iluminación del vehículo
+-31.3997,-64.1609,Belgrano y Junín,A,CABALLO,05/05/2024,Atropello sin respeto de semáforo
+-31.3952,-64.1791,Av. Sabattini 750,NSD,BOMBEROS,06/30/2024,No se detiene en semáforo en rojo
+-31.4191,-64.1543,Calle 3 100,MR,A/AMB/M,08/10/2024,Siniestro vial
+-31.4095,-64.2058,Av. Recorridas 1300,VS,BOMBEROS/M,12/06/2024,Siniestro vial
+-31.412,-64.157,Pueyrredón y San Luis,AV,POLICIA/BOMBEROS,08/14/2024,Choque en intersección
+-31.4266,-64.1663,Junín 450,EV,POLICIA/CABALLO,12/15/2024,Choque a alta velocidad
+-31.3976,-64.2105,Tucumán 350,FV,AMB/A/CABALLO,06/29/2024,Falta de visibilidad por niebla
+-31.4313,-64.1392,Pueyrredón 1550,P,PERRO,08/03/2024,Cruce indebido de peatón
+-31.3868,-64.1664,San Juan y Ituzaingó,NR,CABALLO,07/02/2024,Siniestro vial
+-31.4194,-64.1682,Av. Circunvalación 1450,G,PATRULLA/CAM/PERRO,08/22/2024,Giro en zona prohibida
+-31.3855,-64.1615,San Juan y Ituzaingó,?,M/A,09/16/2024,Siniestro vial
+-31.3886,-64.1754,Av. Argentina y Corrientes,MR,PATRULLA/MONOPATIN/POLICIA,06/20/2024,Siniestro vial
+-31.4353,-64.1709,Presidente Roca 2400,A,A,09/10/2024,Atropello de peatón
+-31.4099,-64.2044,Av. Hipólito Yrigoyen y La Rioja,AV,A/B,10/26/2024,Colisión por alcance
+-31.4076,-64.2187,Calle 3 1050,IC,MONOPATIN/AMB,08/16/2024,Siniestro vial
+-31.3897,-64.209,Av. Maipú 1500,PI,PATRULLA,07/16/2024,Siniestro vial
+-31.432,-64.1913,Av. Colón y Entre Ríos,NR,PERRO,12/15/2024,Siniestro vial
+-31.4262,-64.1522,Calle 4 450,MR,POLICIA/PERRO/CABALLO,09/30/2024,Siniestro vial
+-31.4327,-64.1856,Belgrano y Junín,A,B/PATRULLA,09/01/2024,Atropello con lesiones
+-31.4243,-64.2195,Pinto 150,MI,COL/AMB,05/29/2024,Falta de iluminación nocturna
+-31.3875,-64.2081,Santa Fe 300,VS,A/POLICIA,08/24/2024,Siniestro vial
+-31.4167,-64.1703,Entre Ríos 1700,P,AMB/PATRULLA,09/19/2024,Peatón distraído
+-31.4372,-64.1985,Ituzaingó 250,P,B,06/08/2024,Peatón distraído
+-31.4262,-64.147,Río Negro 2300,D,P,12/29/2024,Siniestro vial
+-31.4302,-64.1582,Marcelo T. de Alvear 1250,NSD,AMB/P/A,09/03/2024,No se detiene en ALTO
+-31.416,-64.1537,Av. Argentina 100,IC,M,12/17/2024,Siniestro vial
+-31.4062,-64.1965,9 de Julio 350,AV,A,06/03/2024,Choque en intersección
+-31.4353,-64.1863,Tucumán 2450,NR,CAM/PATRULLA,06/07/2024,Siniestro vial
+-31.4256,-64.1555,Av. Hipólito Yrigoyen y La Rioja,DESCOMPENSAN,PATRULLA,08/30/2024,Siniestro vial
+-31.423,-64.2004,Junín 2150,PC,A/AMB,09/16/2024,Conductor distraído
+-31.3951,-64.181,San Juan 2000,NSD,M,04/30/2024,No se detiene en ALTO
+-31.4144,-64.2143,Belgrano 2000,?,P,09/01/2024,Siniestro vial
+-31.4294,-64.1589,Pueyrredón y San Luis,D,CTA,05/14/2024,Siniestro vial
+-31.3987,-64.1597,Duarte Quirós 700,NR,POLICIA/COL,07/23/2024,Siniestro vial
+-31.3932,-64.1755,Misiones 400,PERSECUCIÓN,PATRULLA/COL/P,04/15/2024,Siniestro vial
+-31.4347,-64.2052,Caseros 1450,?,CAM,09/21/2024,Siniestro vial
+-31.395,-64.219,Av. Colón y Entre Ríos,IC,CAM,07/07/2024,Siniestro vial
+-31.4109,-64.1659,9 de Julio y Marcelo T. de Alvear,MR,CAM/PATRULLA,05/12/2024,Siniestro vial
+-31.4391,-64.1821,San Juan y Ituzaingó,MI,CAM/A/MONOPATIN,10/18/2024,Falta de iluminación nocturna
+-31.4091,-64.2035,Ituzaingó 900,PERSECUCIÓN,AMB/POLICIA/PERRO,08/03/2024,Siniestro vial
+-31.4308,-64.1516,Calle 5 1550,MR,BOMBEROS/P,07/18/2024,Siniestro vial
+-31.4029,-64.1734,Av. Leandro N. Alem 1900,DF,CTA,10/20/2024,Siniestro vial
+-31.4298,-64.1722,Paso de los Andes 2300,IC,BOMBEROS/P,04/23/2024,Siniestro vial
+-31.4092,-64.1987,Av. Colón 650,PERSECUCIÓN,CTA/B,12/09/2024,Siniestro vial
+-31.4271,-64.2166,Av. Recorridas 1750,EV,M/CTA,06/03/2024,Choque a alta velocidad
+-31.3984,-64.1698,Junín 1300,PI,CABALLO/AMB,09/08/2024,Siniestro vial
+-31.3936,-64.1999,San Martín 2100,VS,MONOPATIN/AMB,11/16/2024,Siniestro vial
+-31.3872,-64.1783,Vélez Sársfield y Caseros,?,A,09/14/2024,Siniestro vial
+-31.4398,-64.1473,Caseros 750,PERSECUCIÓN,COL,08/07/2024,Siniestro vial
+-31.4334,-64.152,Fray Luis Beltrán 1550,IC,AMB/COL/CABALLO,07/04/2024,Siniestro vial
+-31.4385,-64.1728,Rivadavia 1050,IC,CAM/M/PATRULLA,10/28/2024,Siniestro vial
+-31.4197,-64.1811,Calle 2 150,?,CTA/COL/B,08/12/2024,Siniestro vial
+-31.4042,-64.1785,Rivadavia y Duarte Quirós,?,PATRULLA,06/22/2024,Siniestro vial
+-31.4117,-64.2014,Belgrano 1200,PC,PERRO/BOMBEROS,04/14/2024,Conductor distraído
+-31.4311,-64.2155,Belgrano y Junín,MR,MONOPATIN/CABALLO,09/15/2024,Siniestro vial
+-31.4115,-64.141,9 de Julio y Marcelo T. de Alvear,NR,CTA/BOMBEROS/B,09/03/2024,Siniestro vial
+-31.4312,-64.1362,Calle 2 1000,NSD,COL/B/A,09/06/2024,No se detiene en ALTO
+-31.3992,-64.1705,Av. Leandro N. Alem 1250,MR,POLICIA/MONOPATIN/CABALLO,08/18/2024,Siniestro vial
+-31.3976,-64.1723,La Rioja 1550,A,CTA,12/05/2024,Atropello de peatón
+-31.4299,-64.1746,Av. Recorridas 200,?,BOMBEROS/M,07/23/2024,Siniestro vial
+-31.4214,-64.214,La Rioja 550,VS,CTA,06/06/2024,Siniestro vial
+-31.3915,-64.2178,Calle 2 450,PERSECUCIÓN,BOMBEROS/COL,05/25/2024,Siniestro vial
+-31.3928,-64.1576,Santa Cruz 750,G,MONOPATIN/M/PATRULLA,04/12/2024,Giro sin señalizar
+-31.3953,-64.2043,Mendoza 700,P,CAM,11/05/2024,Peatón imprudente cruzando
+-31.4145,-64.1552,Av. Hipólito Yrigoyen y La Rioja,A,AMB/CAM/M,07/12/2024,Atropello fatal
+-31.3862,-64.1921,Av. Argentina y Corrientes,FV,M,08/20/2024,Falta de visibilidad por polvareda
+-31.4363,-64.1936,Av. Argentina 150,IC,MONOPATIN/COL/CAM,12/08/2024,Siniestro vial
+-31.3852,-64.1941,Misiones 2100,NR,PATRULLA/MONOPATIN/M,08/06/2024,Siniestro vial
+-31.4171,-64.1362,Calle 5 150,VS,COL/CAM,11/22/2024,Siniestro vial
+-31.4237,-64.2111,Vélez Sársfield y Caseros,DESCOMPENSAN,AMB/COL,04/16/2024,Siniestro vial
+-31.418,-64.1386,San Juan 800,PERSECUCIÓN,POLICIA,11/25/2024,Siniestro vial
+-31.4154,-64.1758,Av. Leandro N. Alem y Belgrano,G,A,09/12/2024,Giro indebido
+-31.4051,-64.1371,Condarco 300,DF,P,08/13/2024,Siniestro vial
+-31.4219,-64.2165,Calle 3 350,PERSECUCIÓN,PERRO/P,06/05/2024,Siniestro vial
+-31.3901,-64.1529,Av. Argentina y Corrientes,NSD,POLICIA/PERRO,05/04/2024,No se detiene en ALTO
+-31.407,-64.1498,Vélez Sársfield y Caseros,MR,P/BOMBEROS/AMB,06/24/2024,Siniestro vial
+-31.3981,-64.1665,Córdoba 1950,NR,CABALLO/COL/A,10/27/2024,Siniestro vial
+-31.4309,-64.1854,Fray Luis Beltrán 2100,DF,CABALLO/BOMBEROS/POLICIA,06/06/2024,Siniestro vial
+-31.3887,-64.1821,Neuquén 900,MI,BOMBEROS,06/15/2024,Mala iluminación del vehículo
+-31.4226,-64.146,Paso de los Andes 1950,IC,COL/P,04/10/2024,Siniestro vial
+-31.4069,-64.1916,Calle 5 1400,D,CTA,05/19/2024,Siniestro vial
+-31.3948,-64.2164,9 de Julio 1750,EV,PERRO/MONOPATIN/BOMBEROS,04/23/2024,Pérdida de control por velocidad
+-31.392,-64.1706,Tucumán 250,FV,CAM,06/01/2024,Falta de visibilidad por lluvia
+-31.4175,-64.1373,Av. Argentina 2300,NR,M/CABALLO,04/20/2024,Siniestro vial
+-31.3851,-64.2013,Corrientes 1950,PI,P/CTA/PERRO,10/06/2024,Siniestro vial
+-31.4161,-64.1962,Calle 5 500,P,CABALLO/COL,04/25/2024,Peatón distraído
+-31.4095,-64.1888,9 de Julio 1750,A,P/BOMBEROS/B,11/12/2024,Atropello sin respeto de semáforo
+-31.4212,-64.1552,Fray Luis Beltrán 1950,P,PATRULLA,04/27/2024,Peatón imprudente cruzando
+-31.4036,-64.1543,Tucumán 1400,DF,BOMBEROS/PERRO/POLICIA,09/28/2024,Siniestro vial
+-31.3974,-64.1556,Formosa 1200,D,PATRULLA/PERRO/M,05/27/2024,Siniestro vial
+-31.433,-64.1453,9 de Julio y Marcelo T. de Alvear,DESCOMPENSAN,CABALLO,06/03/2024,Siniestro vial
+-31.3896,-64.1813,Av. Maipú 1450,MR,AMB,04/16/2024,Siniestro vial
+-31.4123,-64.2057,Av. Recorridas 1100,VS,BOMBEROS/COL/POLICIA,07/05/2024,Siniestro vial
+-31.4027,-64.1431,Duarte Quirós 300,?,PERRO,07/29/2024,Siniestro vial
+-31.41,-64.1934,Vélez Sársfield y Caseros,AV,PATRULLA/A,05/04/2024,Colisión por alcance
+-31.4256,-64.1681,Pinto 250,AV,POLICIA/B/COL,10/22/2024,Vuelco de vehículo
+-31.3982,-64.1737,San Juan y Ituzaingó,DF,M,10/23/2024,Siniestro vial
+-31.3923,-64.2038,Entre Ríos 300,G,PATRULLA/M,06/25/2024,Giro en zona prohibida
+-31.3887,-64.1606,Av. Circunvalación 900,A,PERRO,09/11/2024,Atropello con lesiones
+-31.4094,-64.1524,La Rioja 2400,P,A/PERRO/CAM,10/17/2024,Peatón distraído
+-31.4299,-64.198,Vélez Sársfield y Caseros,NR,CABALLO/B,10/19/2024,Siniestro vial
+-31.4374,-64.1644,San Juan y Ituzaingó,MI,AMB/PERRO,05/27/2024,Mala iluminación de calle
+-31.3922,-64.1355,Ituzaingó 850,NR,BOMBEROS/CABALLO,08/15/2024,Siniestro vial
+-31.4335,-64.1744,La Rioja 2450,G,CABALLO/CTA,09/04/2024,Giro indebido
+-31.4038,-64.168,Calle 2 2150,PC,CTA,10/12/2024,Conductor cansado
+-31.4348,-64.1486,San Juan y Ituzaingó,PERSECUCIÓN,BOMBEROS/POLICIA,09/15/2024,Siniestro vial
+-31.408,-64.1856,Duarte Quirós 1300,D,M,10/11/2024,Siniestro vial
+-31.3913,-64.1953,Vélez Sársfield y Caseros,MI,M/AMB/A,09/30/2024,Mala iluminación del vehículo
+-31.4161,-64.1424,Duarte Quirós 1500,PI,B/POLICIA,05/23/2024,Siniestro vial
+-31.4207,-64.1759,Córdoba 1900,PC,PATRULLA/CAM/P,08/12/2024,Conductor cansado
+-31.3983,-64.1979,Calle 2 2350,MI,B,11/05/2024,Mala iluminación de calle
+-31.4091,-64.1362,27 de Abril 1800,EV,CTA,11/04/2024,Choque a alta velocidad
+-31.402,-64.1903,Córdoba 1450,PC,PERRO/PATRULLA,12/30/2024,Conductor cansado
+-31.4209,-64.1757,Córdoba 1350,?,CTA/MONOPATIN/POLICIA,11/06/2024,Siniestro vial
+-31.4057,-64.1814,Avenida Poeta Lugones 300,G,BOMBEROS/CABALLO/POLICIA,04/01/2024,Giro indebido
+-31.4011,-64.1622,Entre Ríos 800,NR,COL/B/POLICIA,04/20/2024,Siniestro vial
+-31.4122,-64.1427,Calle 4 950,FV,PATRULLA,04/04/2024,Falta de visibilidad por polvareda
+-31.4292,-64.1731,Av. Colón y Entre Ríos,MI,POLICIA,07/05/2024,Mala iluminación de calle
+-31.4329,-64.1773,Belgrano y Junín,VS,COL,12/08/2024,Siniestro vial
+-31.3903,-64.2028,Av. Circunvalación 1400,PERSECUCIÓN,B,04/15/2024,Siniestro vial
+-31.4369,-64.1626,Av. Colón y Entre Ríos,DF,COL/A,04/25/2024,Siniestro vial
+-31.4333,-64.1601,Av. Leandro N. Alem 950,MR,PATRULLA/CABALLO,04/01/2024,Siniestro vial
+-31.4008,-64.1874,27 de Abril 1200,A,B/MONOPATIN/CABALLO,04/16/2024,Atropello fatal
+-31.4242,-64.2189,Rivadavia y Duarte Quirós,EV,CTA,05/28/2024,Choque a alta velocidad
+-31.3853,-64.1703,Pueyrredón y San Luis,FV,B,09/12/2024,Falta de visibilidad por niebla
+-31.436,-64.1758,27 de Abril 1700,?,PERRO,09/21/2024,Siniestro vial
+-31.4088,-64.1602,Presidente Roca 1650,PERSECUCIÓN,PERRO,05/09/2024,Siniestro vial
+-31.423,-64.1992,Ituzaingó 750,AV,COL/PERRO,05/05/2024,Choque en intersección
+-31.406,-64.1618,Avenida Poeta Lugones 1750,AV,POLICIA/P/AMB,10/06/2024,Choque lateral
+-31.408,-64.2116,Av. Leandro N. Alem 1150,P,CABALLO/POLICIA,08/16/2024,Peatón imprudente cruzando
+-31.4253,-64.1893,Rivadavia 750,PI,BOMBEROS/PATRULLA,10/09/2024,Siniestro vial
+-31.4054,-64.1789,Pueyrredón 100,FV,M/PATRULLA/AMB,12/12/2024,Falta de visibilidad por polvareda
+-31.395,-64.1655,Rivadavia y Duarte Quirós,DESCOMPENSAN,B/CAM,12/25/2024,Siniestro vial
+-31.4398,-64.1965,Av. Leandro N. Alem y Belgrano,P,PERRO,08/19/2024,Peatón imprudente cruzando
+-31.3882,-64.1351,Av. Argentina y Corrientes,AV,BOMBEROS/PERRO,07/14/2024,Choque lateral
+-31.3977,-64.1825,Duarte Quirós 450,A,BOMBEROS,07/21/2024,Atropello de peatón
+-31.4326,-64.1961,Belgrano y Junín,P,PERRO/PATRULLA/P,12/17/2024,Peatón distraído
+-31.4232,-64.1907,Formosa 2450,IC,MONOPATIN/CAM,09/05/2024,Siniestro vial
+-31.3964,-64.1601,Av. Argentina 2200,?,B/BOMBEROS/COL,10/20/2024,Siniestro vial
+-31.4077,-64.1368,Mendoza 1900,FV,PERRO,06/06/2024,Falta de visibilidad por lluvia
+-31.4038,-64.1431,Misiones 750,G,A/CABALLO/PERRO,12/14/2024,Giro en zona prohibida
+-31.4065,-64.1799,Calle 5 1100,AV,COL,08/01/2024,Vuelco de vehículo
+-31.4113,-64.1442,Av. Colón 2050,MI,M/CABALLO,11/08/2024,Mala iluminación de calle
+-31.3858,-64.1922,Pueyrredón 1050,DESCOMPENSAN,A,12/19/2024,Siniestro vial
+-31.427,-64.1992,San Juan y Ituzaingó,PI,MONOPATIN/POLICIA/A,09/19/2024,Siniestro vial
+-31.4048,-64.1817,Av. Argentina y Corrientes,PERSECUCIÓN,AMB/POLICIA,06/20/2024,Siniestro vial
+-31.4209,-64.1858,Presidente Roca 1650,AV,CTA/MONOPATIN/PATRULLA,08/01/2024,Choque frontal entre dos vehículos
+-31.4326,-64.2193,Belgrano y Junín,PI,MONOPATIN/PERRO,05/10/2024,Siniestro vial
+-31.4333,-64.1778,San Martín 2250,DESCOMPENSAN,M,11/24/2024,Siniestro vial
+-31.4394,-64.1885,Calle 3 800,VS,P/PERRO,09/10/2024,Siniestro vial
+-31.4124,-64.1614,Paso de los Andes 1850,G,PATRULLA/COL,04/13/2024,Giro indebido
+-31.4292,-64.1666,Presidente Roca 100,D,A,09/15/2024,Siniestro vial
+-31.4031,-64.171,Av. Leandro N. Alem y Belgrano,IC,CTA/POLICIA/AMB,09/23/2024,Siniestro vial
+-31.3938,-64.1535,Calle 4 850,DF,MONOPATIN/AMB/CABALLO,04/23/2024,Siniestro vial
+-31.4259,-64.1539,Río Negro 800,G,CTA/AMB,06/23/2024,Giro indebido
+-31.4388,-64.2016,Tucumán 1150,PERSECUCIÓN,BOMBEROS,09/04/2024,Siniestro vial
+-31.4315,-64.2077,Avenida Poeta Lugones 1950,VS,AMB/POLICIA/B,06/10/2024,Siniestro vial
+-31.4034,-64.1909,Belgrano y Junín,MR,M/AMB,06/04/2024,Siniestro vial
+-31.4079,-64.1982,Av. Colón 1050,MR,CABALLO/M/AMB,09/06/2024,Siniestro vial
+-31.4361,-64.2102,Calle 2 1150,MI,POLICIA,09/27/2024,Mala iluminación de calle
+-31.3982,-64.1759,Pueyrredón 1050,DESCOMPENSAN,CAM/B,12/30/2024,Siniestro vial
+-31.4382,-64.1946,Ituzaingó 600,D,P,11/06/2024,Siniestro vial
+-31.3952,-64.1922,Vélez Sársfield y Caseros,EV,AMB/POLICIA/PERRO,12/17/2024,Pérdida de control por velocidad
+-31.4327,-64.1625,Av. Circunvalación 1150,IC,P,12/14/2024,Siniestro vial
+-31.4244,-64.1623,Av. Sabattini 1550,VS,PERRO/CAM,06/18/2024,Siniestro vial
+-31.4305,-64.1527,Santa Cruz 700,D,AMB,12/28/2024,Siniestro vial
+-31.3939,-64.164,Entre Ríos 550,MI,CAM/PERRO,05/09/2024,Mala iluminación del vehículo
+-31.4203,-64.1729,Corrientes 2100,MR,CAM/PERRO/CABALLO,04/05/2024,Siniestro vial
+-31.4242,-64.2094,Belgrano 1600,VS,CABALLO/POLICIA,08/25/2024,Siniestro vial
+-31.3867,-64.1482,9 de Julio 1850,AV,B,08/15/2024,Choque frontal entre dos vehículos
+-31.4117,-64.1402,Chubut 1300,NR,PERRO/B,10/15/2024,Siniestro vial
+-31.3906,-64.1811,Av. General Paz 1350,PI,BOMBEROS,12/01/2024,Siniestro vial
+-31.4121,-64.1835,Santa Fe 1300,PC,PATRULLA,05/27/2024,Poca concentración del conductor
+-31.3899,-64.1538,Rivadavia 1350,G,CAM,10/20/2024,Giro sin señalizar
+-31.4096,-64.2039,Avenida Poeta Lugones 1200,MR,BOMBEROS/POLICIA,04/24/2024,Siniestro vial
+-31.3926,-64.209,Av. Hipólito Yrigoyen y La Rioja,P,P,09/03/2024,Peatón imprudente cruzando
+-31.4101,-64.145,Av. Hipólito Yrigoyen 1500,PERSECUCIÓN,BOMBEROS/CAM/M,10/27/2024,Siniestro vial
+-31.3941,-64.1629,San Juan 600,PC,A/BOMBEROS,11/08/2024,Poca concentración del conductor
+-31.4271,-64.1765,Av. Colón y Entre Ríos,P,A/PERRO/CABALLO,04/24/2024,Peatón distraído
+-31.3965,-64.21,Av. Maipú 1750,DF,M/MONOPATIN/AMB,07/04/2024,Siniestro vial
+-31.4085,-64.1742,Junín 400,DF,PERRO/M,09/19/2024,Siniestro vial
+-31.4012,-64.1764,Av. Circunvalación 2000,MI,P/M/COL,05/10/2024,Mala iluminación de calle
+-31.4221,-64.1904,Marcelo T. de Alvear 1850,VS,M/AMB/PERRO,11/02/2024,Siniestro vial
+-31.4123,-64.1467,Calle 2 200,FV,CTA/PATRULLA,09/16/2024,Falta de visibilidad por lluvia
+-31.4344,-64.1642,Av. Leandro N. Alem y Belgrano,G,AMB/PATRULLA,12/06/2024,Giro sin señalizar
+-31.4281,-64.174,Corrientes 2350,P,CABALLO/PERRO,10/05/2024,Peatón imprudente cruzando
+-31.4031,-64.1745,Chubut 2400,NR,BOMBEROS/B,08/12/2024,Siniestro vial
+-31.4007,-64.1507,Calle 2 750,NR,A,10/01/2024,Siniestro vial
+-31.4043,-64.17,Ituzaingó 1500,EV,CABALLO/MONOPATIN,11/14/2024,Pérdida de control por velocidad
+-31.4261,-64.2135,Rivadavia y Duarte Quirós,FV,CABALLO,11/20/2024,Falta de visibilidad por niebla
+-31.3997,-64.2064,Junín 1050,DF,P,04/01/2024,Siniestro vial
+-31.423,-64.1948,Belgrano y Junín,D,A/PERRO/CTA,05/08/2024,Siniestro vial
+-31.4169,-64.1557,Av. Argentina y Corrientes,VS,P,06/25/2024,Siniestro vial
+-31.4394,-64.1556,Vélez Sársfield y Caseros,FV,PERRO/CAM/POLICIA,06/18/2024,Falta de visibilidad por polvareda
+-31.4179,-64.2152,Av. Colón y Entre Ríos,A,CAM/B,09/18/2024,Atropello con lesiones
+-31.4232,-64.1594,Duarte Quirós 2300,FV,CAM/A,09/22/2024,Falta de visibilidad por polvareda
+-31.4127,-64.2135,Rivadavia y Duarte Quirós,AV,COL,07/11/2024,Colisión por alcance
+-31.4254,-64.1562,Presidente Roca 1950,D,CABALLO/PATRULLA,06/23/2024,Siniestro vial
+-31.4223,-64.208,Av. Colón y Entre Ríos,VS,MONOPATIN,06/23/2024,Siniestro vial
+-31.403,-64.1437,Santa Fe 2100,MR,P/POLICIA,10/02/2024,Siniestro vial
+-31.394,-64.1648,Av. Maipú 1100,NR,CAM/MONOPATIN/B,07/15/2024,Siniestro vial
+-31.4116,-64.2062,Pueyrredón y San Luis,PC,B/A/COL,08/05/2024,Conductor cansado
+-31.3919,-64.1703,Santa Cruz 1050,D,POLICIA/AMB/PERRO,08/21/2024,Siniestro vial
+-31.4261,-64.2104,Av. Colón y Entre Ríos,DF,POLICIA/B,04/11/2024,Siniestro vial
+-31.4243,-64.1654,Ituzaingó 2400,?,B/P/AMB,11/14/2024,Siniestro vial
+-31.4018,-64.2134,Avenida Donato Álvarez 900,?,POLICIA/P,04/10/2024,Siniestro vial
+-31.4263,-64.1722,Belgrano y Junín,NR,P/CTA,05/10/2024,Siniestro vial
+-31.4023,-64.1941,Av. Maipú 1700,DF,AMB/CABALLO/CTA,12/31/2024,Siniestro vial
+-31.3942,-64.1749,Formosa 1900,DESCOMPENSAN,BOMBEROS/MONOPATIN/CABALLO,05/31/2024,Siniestro vial
+-31.405,-64.1641,Pueyrredón 2250,MR,CABALLO,04/09/2024,Siniestro vial
+-31.406,-64.1659,Presidente Roca 2200,AV,P/A/M,04/27/2024,Choque en intersección
+-31.4143,-64.1842,Av. Maipú 950,MI,B/POLICIA,07/31/2024,Mala iluminación del vehículo
+-31.4257,-64.2001,San Juan 2450,P,B/PERRO,11/21/2024,Peatón imprudente cruzando
+-31.3943,-64.1776,Rivadavia y Duarte Quirós,?,MONOPATIN/PATRULLA/COL,07/02/2024,Siniestro vial
+-31.4307,-64.203,9 de Julio y Marcelo T. de Alvear,NSD,CTA/M/PATRULLA,07/27/2024,No se detiene en ALTO
+-31.4064,-64.1398,Junín 1800,P,POLICIA,04/07/2024,Peatón imprudente cruzando
+-31.3895,-64.183,9 de Julio 1450,DF,POLICIA/B/CTA,11/22/2024,Siniestro vial
+-31.4296,-64.216,Calle 3 150,MR,POLICIA/BOMBEROS/P,08/02/2024,Siniestro vial
+-31.4195,-64.2097,Av. Colón 1350,EV,AMB/CAM/CTA,10/31/2024,Pérdida de control por velocidad
+-31.3969,-64.2198,San Martín 1750,PERSECUCIÓN,CAM/B/PATRULLA,06/08/2024,Siniestro vial
+-31.4289,-64.147,San Martín 650,EV,CTA/M/A,06/10/2024,Accidente por exceso de velocidad
+-31.396,-64.1796,Pinto 1600,NSD,MONOPATIN/PERRO,12/26/2024,No respeta paso de peatones
+-31.403,-64.1759,Pueyrredón 1700,G,A,05/23/2024,Giro indebido
+-31.4241,-64.1711,Entre Ríos 100,D,P,05/29/2024,Siniestro vial
+-31.4066,-64.2035,Av. Hipólito Yrigoyen y La Rioja,EV,CAM/BOMBEROS,09/06/2024,Choque a alta velocidad
+-31.4382,-64.2031,Av. Argentina y Corrientes,?,P/CAM,08/21/2024,Siniestro vial
+-31.4198,-64.2055,Av. Sabattini 2350,NSD,POLICIA/B/MONOPATIN,11/11/2024,No se detiene en ALTO
+-31.4066,-64.2152,Av. Argentina 300,NR,BOMBEROS,11/27/2024,Siniestro vial
+-31.4283,-64.1399,Av. Maipú 1450,AV,CAM/M/B,07/28/2024,Choque en intersección
+-31.4034,-64.1496,Corrientes 350,PI,A/BOMBEROS,07/04/2024,Siniestro vial
+-31.3935,-64.1463,Caseros 2300,P,COL/POLICIA,05/22/2024,Peatón imprudente cruzando
+-31.4305,-64.1865,Córdoba 2150,G,CAM/MONOPATIN,11/21/2024,Giro en zona prohibida
+-31.4181,-64.2078,La Rioja 1450,MR,M/CAM/MONOPATIN,05/30/2024,Siniestro vial
+-31.4214,-64.186,Junín 800,D,MONOPATIN,04/26/2024,Siniestro vial
+-31.4348,-64.159,Av. Hipólito Yrigoyen y La Rioja,FV,M/PERRO/BOMBEROS,10/11/2024,Falta de visibilidad por polvareda
+-31.402,-64.1482,Av. Argentina 150,IC,M,10/06/2024,Siniestro vial
+-31.4254,-64.1763,Calle 2 650,VS,B/PATRULLA,12/09/2024,Siniestro vial
+-31.3868,-64.1857,Av. Sabattini 2050,A,B,11/15/2024,Atropello de peatón
+-31.385,-64.1653,Av. Sabattini 1700,DF,M/AMB/CAM,04/13/2024,Siniestro vial
+-31.3983,-64.2108,Belgrano y Junín,EV,CAM/A,07/14/2024,Accidente por exceso de velocidad
+-31.4334,-64.2124,Condarco 400,IC,A/CTA/CAM,09/24/2024,Siniestro vial
+-31.4144,-64.1374,Condarco 1400,NR,COL/BOMBEROS/A,05/05/2024,Siniestro vial
+-31.4118,-64.2166,Pinto 1600,P,P/POLICIA,04/28/2024,Peatón distraído
+-31.423,-64.1711,Avenida Donato Álvarez 2200,?,COL/CAM,09/06/2024,Siniestro vial
+-31.4195,-64.1986,Formosa 1150,PC,P,12/15/2024,Conductor distraído
+-31.3887,-64.2088,Av. Recorridas 2200,PI,CTA,12/01/2024,Siniestro vial
+-31.3986,-64.1571,San Martín 2200,IC,PERRO/M/POLICIA,08/19/2024,Siniestro vial
+-31.392,-64.1793,Pinto 2450,MR,PATRULLA,07/28/2024,Siniestro vial
+-31.4267,-64.1976,San Juan y Ituzaingó,PI,A/PERRO,10/23/2024,Siniestro vial
+-31.434,-64.175,Condarco 1550,PERSECUCIÓN,B/BOMBEROS/P,07/27/2024,Siniestro vial
+-31.4179,-64.1551,Av. Leandro N. Alem 300,G,A,09/25/2024,Giro sin señalizar
+-31.4232,-64.1984,Vélez Sársfield 850,NR,COL,07/25/2024,Siniestro vial
+-31.3909,-64.1563,San Juan y Ituzaingó,MR,AMB/POLICIA,08/25/2024,Siniestro vial
+-31.4252,-64.1508,9 de Julio 200,DF,CAM/A,05/12/2024,Siniestro vial
+-31.398,-64.1628,Sarmiento 1900,NR,CTA/POLICIA,10/14/2024,Siniestro vial
+-31.4381,-64.2045,Pinto 850,PI,CABALLO/PATRULLA/M,08/24/2024,Siniestro vial
+-31.4015,-64.1737,San Juan 500,D,MONOPATIN/M/BOMBEROS,10/31/2024,Siniestro vial
+-31.4154,-64.143,Corrientes 2200,MI,M/BOMBEROS/AMB,10/15/2024,Falta de iluminación nocturna
+-31.4293,-64.1352,Presidente Roca 500,DF,COL,06/03/2024,Siniestro vial
+-31.3933,-64.17,Av. Colón y Entre Ríos,FV,MONOPATIN/PERRO/BOMBEROS,09/21/2024,Falta de visibilidad por polvareda
+-31.4016,-64.1923,Av. Circunvalación 2100,A,P,06/19/2024,Atropello de peatón
+-31.4378,-64.2049,Av. Leandro N. Alem y Belgrano,A,A,07/18/2024,Atropello con lesiones
+-31.4042,-64.151,Rivadavia y Duarte Quirós,NR,CAM/CABALLO/PATRULLA,04/06/2024,Siniestro vial
+-31.4162,-64.1694,San Luis 1350,DESCOMPENSAN,AMB/M/CABALLO,11/16/2024,Siniestro vial
+-31.399,-64.1779,Paso de los Andes 2300,NR,POLICIA/PERRO/A,10/29/2024,Siniestro vial
+-31.405,-64.1658,San Juan 150,IC,MONOPATIN,12/24/2024,Siniestro vial
+-31.3995,-64.1693,Mitre 1600,FV,MONOPATIN/AMB/P,06/09/2024,Falta de visibilidad por polvareda
+-31.4073,-64.1457,Av. Colón y Entre Ríos,PI,CAM/PERRO,04/11/2024,Siniestro vial
+-31.4359,-64.1621,Rivadavia y Duarte Quirós,FV,CABALLO/MONOPATIN/AMB,11/06/2024,Falta de visibilidad por niebla
+-31.4041,-64.2144,La Rioja 350,DESCOMPENSAN,PERRO/CAM,12/05/2024,Siniestro vial
+-31.4397,-64.2197,Avenida Donato Álvarez 2350,DF,COL/B/CTA,05/14/2024,Siniestro vial
+-31.4232,-64.1803,Caseros 150,?,POLICIA,06/11/2024,Siniestro vial
+-31.439,-64.1357,Vélez Sársfield 1350,NR,M/P,10/22/2024,Siniestro vial
+-31.438,-64.1657,Fray Luis Beltrán 1400,?,CTA/M/PERRO,08/15/2024,Siniestro vial
+-31.4272,-64.1542,Av. Hipólito Yrigoyen 850,VS,PERRO,10/07/2024,Siniestro vial
+-31.4278,-64.207,Rivadavia 300,NR,PATRULLA,08/17/2024,Siniestro vial
+-31.4026,-64.1639,San Juan 1850,VS,BOMBEROS/MONOPATIN,05/15/2024,Siniestro vial
+-31.4033,-64.1556,San Juan y Ituzaingó,VS,AMB,05/15/2024,Siniestro vial
+-31.4187,-64.1936,Rivadavia y Duarte Quirós,A,PERRO/PATRULLA,10/28/2024,Atropello con lesiones
+-31.4142,-64.1949,Rivadavia 850,PERSECUCIÓN,PATRULLA/CTA,10/14/2024,Siniestro vial
+-31.3972,-64.1558,Belgrano y Junín,VS,B/MONOPATIN,09/28/2024,Siniestro vial
+-31.4012,-64.1374,Junín 1750,FV,B/CTA,06/15/2024,Falta de visibilidad por polvareda
+-31.4352,-64.1942,Pueyrredón 1200,D,P,06/27/2024,Siniestro vial
+-31.4022,-64.1849,Pinto 1750,IC,POLICIA,05/20/2024,Siniestro vial
+-31.3999,-64.1757,Av. Leandro N. Alem y Belgrano,PC,AMB/PERRO,06/03/2024,Conductor cansado
+-31.4166,-64.2044,Calle 4 900,FV,COL/PATRULLA/B,12/12/2024,Falta de visibilidad por niebla
+-31.3958,-64.1573,Av. Leandro N. Alem y Belgrano,D,M/PERRO/AMB,05/29/2024,Siniestro vial
+-31.4118,-64.2,Rivadavia y Duarte Quirós,MI,A,05/26/2024,Mala iluminación del vehículo
+-31.4217,-64.2088,Duarte Quirós 100,PC,CAM/A,05/11/2024,Conductor distraído
+-31.401,-64.2022,Bv. Martín Rodríguez 650,AV,PERRO,06/22/2024,Colisión por alcance
+-31.4059,-64.1911,Belgrano 1550,NSD,BOMBEROS,06/29/2024,No se detiene en semáforo en rojo
+-31.432,-64.167,Condarco 2350,FV,A/PERRO/CAM,05/14/2024,Falta de visibilidad por niebla
+-31.386,-64.1929,Caseros 1700,NR,BOMBEROS,04/26/2024,Siniestro vial
+-31.4045,-64.2186,Vélez Sársfield y Caseros,IC,P,08/31/2024,Siniestro vial
+-31.3982,-64.2132,Av. Hipólito Yrigoyen y La Rioja,MR,PATRULLA,09/12/2024,Siniestro vial
+-31.4251,-64.1882,Fray Luis Beltrán 1550,?,CTA/PERRO/AMB,12/06/2024,Siniestro vial
+-31.422,-64.142,Av. Circunvalación 1000,VS,CTA/COL,10/24/2024,Siniestro vial
+-31.4139,-64.153,Av. Colón y Entre Ríos,EV,PERRO,11/15/2024,Accidente por exceso de velocidad
+-31.4224,-64.142,Av. Maipú 2200,PERSECUCIÓN,MONOPATIN,10/13/2024,Siniestro vial
+-31.4318,-64.1666,San Juan y Ituzaingó,?,AMB,11/02/2024,Siniestro vial
+-31.4268,-64.1763,Vélez Sársfield y Caseros,MR,AMB/CABALLO/CTA,06/04/2024,Siniestro vial
+-31.4111,-64.162,Sarmiento 450,A,PATRULLA,11/04/2024,Atropello de peatón
+-31.4293,-64.14,Av. Recorridas 550,P,P/CTA/POLICIA,05/04/2024,Cruce indebido de peatón
+-31.4137,-64.1942,Calle 2 250,A,CTA,10/19/2024,Atropello sin respeto de semáforo
+-31.4262,-64.2079,San Juan y Ituzaingó,IC,A/POLICIA,04/04/2024,Siniestro vial
+-31.431,-64.1676,Calle 5 200,PI,P/M/BOMBEROS,08/28/2024,Siniestro vial
+-31.407,-64.1449,Calle 5 2450,MI,BOMBEROS,06/02/2024,Mala iluminación de calle
+-31.4159,-64.1895,Duarte Quirós 1850,DESCOMPENSAN,COL/M,04/08/2024,Siniestro vial
+-31.4155,-64.2183,Chubut 650,G,CABALLO/COL/A,05/14/2024,Giro indebido
+-31.4333,-64.1873,Formosa 850,PC,POLICIA/M,04/14/2024,Poca concentración del conductor
+-31.4222,-64.1405,La Rioja 1000,PI,POLICIA/CTA,10/01/2024,Siniestro vial
+-31.4312,-64.1514,Neuquén 2250,MI,M/BOMBEROS,07/25/2024,Mala iluminación de calle
+-31.3937,-64.1739,Calle 3 2050,FV,COL/PATRULLA/A,08/31/2024,Falta de visibilidad por niebla
+-31.387,-64.179,Rivadavia y Duarte Quirós,?,PATRULLA,07/23/2024,Siniestro vial
+-31.3923,-64.1885,Junín 2200,?,M,11/02/2024,Siniestro vial
+-31.4062,-64.2056,Avenida Poeta Lugones 800,VS,M,12/31/2024,Siniestro vial
+-31.4281,-64.1778,Rivadavia y Duarte Quirós,FV,PERRO/M/BOMBEROS,04/12/2024,Falta de visibilidad por niebla
+-31.4194,-64.1483,Vélez Sársfield 300,NR,B/PERRO,05/31/2024,Siniestro vial
+-31.4065,-64.1921,Córdoba 1250,PERSECUCIÓN,PERRO/A/MONOPATIN,06/22/2024,Siniestro vial
+-31.4054,-64.159,Paso de los Andes 100,EV,PATRULLA/BOMBEROS,10/18/2024,Pérdida de control por velocidad
+-31.4361,-64.2118,Río Negro 750,G,M,07/17/2024,Giro indebido
+-31.4082,-64.169,Fray Luis Beltrán 800,DESCOMPENSAN,P,12/12/2024,Siniestro vial
+-31.4321,-64.1551,Vélez Sársfield y Caseros,D,PERRO,07/16/2024,Siniestro vial
+-31.421,-64.2193,Calle 2 1650,PC,A/BOMBEROS/PATRULLA,04/24/2024,Conductor distraído
+-31.3941,-64.1667,San Juan y Ituzaingó,VS,POLICIA,10/20/2024,Siniestro vial
+-31.3964,-64.1974,Tucumán 1550,FV,PERRO,10/15/2024,Falta de visibilidad por niebla
+-31.3999,-64.1987,Av. Argentina y Corrientes,G,AMB,06/03/2024,Giro en zona prohibida
+-31.4263,-64.1756,San Juan 350,NR,COL/PATRULLA,07/15/2024,Siniestro vial
+-31.4164,-64.1556,Av. General Paz 2150,PERSECUCIÓN,M,08/14/2024,Siniestro vial
+-31.4129,-64.2035,San Juan 2400,PERSECUCIÓN,MONOPATIN/POLICIA/M,09/17/2024,Siniestro vial
+-31.4394,-64.1541,San Juan y Ituzaingó,NR,CTA,07/10/2024,Siniestro vial
+-31.3986,-64.19,Belgrano y Junín,AV,A/BOMBEROS/POLICIA,08/22/2024,Choque lateral
+-31.4099,-64.1493,Pueyrredón 1150,G,P/BOMBEROS/A,04/28/2024,Giro en zona prohibida
+-31.3935,-64.2068,Calle 5 1050,MR,P,08/26/2024,Siniestro vial
+-31.4173,-64.1631,Av. Maipú 850,MR,COL,08/20/2024,Siniestro vial
+-31.4016,-64.1809,Av. Circunvalación 800,NSD,POLICIA/M,04/25/2024,No se detiene en ALTO
+-31.4034,-64.1624,Av. Hipólito Yrigoyen 1700,PC,B/POLICIA/CAM,06/22/2024,Conductor cansado
+-31.4204,-64.1956,Belgrano y Junín,FV,B,10/31/2024,Falta de visibilidad por polvareda
+-31.4095,-64.2077,Mitre 2150,MR,A/BOMBEROS/POLICIA,12/01/2024,Siniestro vial
+-31.4071,-64.1672,Tucumán 1450,MI,AMB/PERRO/CABALLO,10/27/2024,Mala iluminación de calle
+-31.4356,-64.1976,Rivadavia 900,MI,A/CAM/POLICIA,09/11/2024,Mala iluminación de calle
+-31.4065,-64.2138,9 de Julio 2250,MI,COL,12/04/2024,Mala iluminación del vehículo
+-31.4253,-64.1972,Entre Ríos 650,IC,AMB/PATRULLA/CAM,07/17/2024,Siniestro vial
+-31.4325,-64.1428,Avenida Donato Álvarez 200,MI,A,09/11/2024,Falta de iluminación nocturna
+-31.4083,-64.1456,San Juan y Ituzaingó,NR,POLICIA/CTA,12/10/2024,Siniestro vial
+-31.3927,-64.1569,Río Negro 1300,DF,POLICIA,06/22/2024,Siniestro vial
+-31.3958,-64.1877,Sarmiento 650,PERSECUCIÓN,PERRO/MONOPATIN,05/09/2024,Siniestro vial
+-31.4091,-64.1388,Av. General Paz 650,G,CAM/COL/PATRULLA,04/16/2024,Giro en zona prohibida
+-31.4019,-64.2145,Santa Fe 650,PI,COL,07/08/2024,Siniestro vial
+-31.3852,-64.2002,Pueyrredón y San Luis,PERSECUCIÓN,MONOPATIN/CTA,10/14/2024,Siniestro vial
+-31.4283,-64.1839,Pinto 1800,?,P/AMB,09/14/2024,Siniestro vial
+-31.4098,-64.1363,9 de Julio y Marcelo T. de Alvear,AV,AMB,04/19/2024,Vuelco de vehículo
+-31.434,-64.1483,Av. Hipólito Yrigoyen y La Rioja,IC,CAM/PERRO,04/28/2024,Siniestro vial
+-31.4023,-64.1452,Caseros 450,EV,CTA/CAM/MONOPATIN,06/11/2024,Pérdida de control por velocidad
+-31.4246,-64.2008,Av. Argentina y Corrientes,MR,POLICIA/CAM,05/26/2024,Siniestro vial
+-31.427,-64.1657,Calle 5 250,FV,AMB/CABALLO/BOMBEROS,06/20/2024,Falta de visibilidad por polvareda
+-31.3957,-64.1963,Santa Cruz 2400,D,MONOPATIN/PATRULLA/M,10/05/2024,Siniestro vial
+-31.406,-64.1601,9 de Julio y Marcelo T. de Alvear,P,M/B/POLICIA,06/23/2024,Peatón imprudente cruzando
+-31.4107,-64.1409,San Martín 400,MI,CABALLO/COL/B,05/23/2024,Mala iluminación del vehículo
+-31.4019,-64.1973,San Juan y Ituzaingó,?,PATRULLA,09/17/2024,Siniestro vial
+-31.4176,-64.1882,Vélez Sársfield y Caseros,NR,PATRULLA,12/17/2024,Siniestro vial
+-31.4038,-64.1677,Córdoba 2100,MR,CTA/B/A,04/04/2024,Siniestro vial
+-31.386,-64.1566,Av. Leandro N. Alem 650,?,MONOPATIN/B/PATRULLA,06/10/2024,Siniestro vial
+-31.4045,-64.19,Misiones 2350,DESCOMPENSAN,POLICIA,06/14/2024,Siniestro vial
+-31.3977,-64.1586,Condarco 2450,MR,MONOPATIN/PATRULLA/B,07/19/2024,Siniestro vial
+-31.4146,-64.1653,Fray Luis Beltrán 2450,?,CAM/PATRULLA,12/08/2024,Siniestro vial
+-31.4204,-64.1687,Marcelo T. de Alvear 2000,IC,MONOPATIN/A/B,12/05/2024,Siniestro vial
+-31.4135,-64.1915,Tucumán 300,NR,B/COL,06/25/2024,Siniestro vial
+-31.4008,-64.2148,Av. Argentina y Corrientes,A,PERRO/P/COL,04/29/2024,Atropello sin respeto de semáforo
+-31.3912,-64.2101,Av. Hipólito Yrigoyen y La Rioja,AV,CTA/POLICIA/P,11/01/2024,Colisión por alcance
+-31.4394,-64.1563,Rivadavia y Duarte Quirós,G,PATRULLA/PERRO/MONOPATIN,06/09/2024,Giro sin señalizar
+-31.4279,-64.1427,Neuquén 1350,VS,A/CABALLO,04/28/2024,Siniestro vial
+-31.415,-64.1359,Neuquén 1550,MI,PERRO,09/22/2024,Falta de iluminación nocturna
+-31.3964,-64.2056,Belgrano y Junín,A,BOMBEROS/P,10/29/2024,Atropello con lesiones
+-31.4382,-64.2144,San Martín 850,PI,P/AMB,07/25/2024,Siniestro vial
+-31.4284,-64.1507,Pueyrredón 2100,PC,POLICIA/M/P,12/10/2024,Conductor distraído
+-31.4355,-64.138,Av. Circunvalación 1250,D,A/M,05/20/2024,Siniestro vial
+-31.4145,-64.1616,Vélez Sársfield 1900,PERSECUCIÓN,POLICIA/MONOPATIN,05/18/2024,Siniestro vial
+-31.4167,-64.1998,Av. General Paz 1400,?,POLICIA/PERRO/AMB,06/16/2024,Siniestro vial
+-31.4347,-64.1885,Pinto 1600,PERSECUCIÓN,PERRO/POLICIA/CABALLO,11/25/2024,Siniestro vial
+-31.4068,-64.1473,Condarco 800,G,M,12/08/2024,Giro sin señalizar
+-31.3866,-64.1485,Pueyrredón y San Luis,NSD,MONOPATIN/PERRO,04/25/2024,No se detiene en ALTO
+-31.3929,-64.2154,Vélez Sársfield y Caseros,?,CAM/AMB/MONOPATIN,04/28/2024,Siniestro vial

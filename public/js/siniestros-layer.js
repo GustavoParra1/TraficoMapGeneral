@@ -334,7 +334,10 @@ const SiniestrosLayer = (() => {
       return null;
     }
     
-    for (const feature of barriosGeoJson.features) {
+    const totalBarrios = barriosGeoJson.features?.length || 0;
+    
+    for (let i = 0; i < totalBarrios; i++) {
+      const feature = barriosGeoJson.features[i];
       if (pointInPolygon(point, feature.geometry)) {
         // Soportar ambas propiedades: nombre (Córdoba) y soc_fomen (MDP)
         const barrio = feature.properties?.nombre || feature.properties?.soc_fomen;
@@ -454,29 +457,36 @@ const SiniestrosLayer = (() => {
         if (coords && coords.length === 2) {
           const sinBarrio = getBarrioForPoint(coords);
           
-          // DEBUG: Mostrar solo los primeros 3
-          if (debugCount++ < 3) {
-            console.log(`🔍 DEBUG Barrio Filter [${debugCount}]:`, {
-              selectedBarrio: filters.globalBarrio,
-              pointBarrio: sinBarrio,
-              coords: coords,
-              match: sinBarrio === filters.globalBarrio
+          // DEBUG: Mostrar solo los primeros 3, con detalles
+          if (debugCount < 3) {
+            // Test manualmente los primeros 3 barrios
+            let testedBarrios = [];
+            for (let i = 0; i < Math.min(3, barriosGeoJson?.features?.length || 0); i++) {
+              const barrio = barriosGeoJson.features[i];
+              const match = pointInPolygon(coords, barrio.geometry);
+              testedBarrios.push({
+                nombre: barrio.properties?.nombre || 'sin-nombre',
+                type: barrio.geometry.type,
+                match
+              });
+            }
+            
+            console.log(`🔍 Siniestro [${debugCount}] ${coords}:`, {
+              sinBarrio,
+              filtroBarrio: filters.globalBarrio,
+              barriosDisponibles: barriosGeoJson?.features?.length || 0,
+              primerTres: testedBarrios
             });
           }
+          debugCount++;
           
           // Si el punto no está en ningún barrio, excluirlo
           if (sinBarrio === null) {
-            if (debugCount <= 3) {
-              console.log(`  → RECHAZAD: punto fuera de todos los barrios`);
-            }
             return false;
           }
           
           // Si el barrio no coincide, excluirlo
           if (sinBarrio !== filters.globalBarrio) {
-            if (debugCount <= 3) {
-              console.log(`  → RECHAZADO: ${sinBarrio} !== ${filters.globalBarrio}`);
-            }
             return false;
           }
         } else {
