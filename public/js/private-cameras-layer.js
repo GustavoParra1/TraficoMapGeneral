@@ -113,7 +113,8 @@ const PrivateCamerasLayer = (() => {
     
     for (const feature of barriosGeoJson.features) {
       if (pointInPolygon(point, feature.geometry)) {
-        return feature.properties?.soc_fomen;
+        // Soportar ambas propiedades: nombre (Córdoba) y soc_fomen (MDP)
+        return feature.properties?.nombre || feature.properties?.soc_fomen;
       }
     }
     
