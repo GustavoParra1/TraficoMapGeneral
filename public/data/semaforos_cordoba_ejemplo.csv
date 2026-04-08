@@ -1,21 +1,21 @@
 lat,lng,nombre,tipo,estado,esquina
--31.4155,-64.1888,Semáforo 01,vehicular,activo,9 de Julio y Marcelo T. de Alvear
--31.4201,-64.1921,Semáforo 02,vehicular,activo,Vélez Sársfield y Bolívar
--31.4089,-64.1805,Semáforo 03,peatonal,activo,Rivadavia y General Paz
--31.4234,-64.1756,Semáforo 04,vehicular,activo,Colón y Chile
--31.4122,-64.1934,Semáforo 05,peatonal,activo,Santa Rosa y Illia
--31.4178,-64.1867,Semáforo 06,vehicular,activo,Hipólito Yrigoyen y Duarte Quirós
--31.4095,-64.1989,Semáforo 07,vehicular,inactivo,Chacabuco y Obispo Trejo
--31.4267,-64.1834,Semáforo 08,peatonal,activo,Sarmiento y Mayor Generals
--31.4141,-64.1902,Semáforo 09,vehicular,activo,Álvarez y Corrientes
--31.4213,-64.1775,Semáforo 10,vehicular,activo,José María Paz y Ambrosio Olmos
--31.4052,-64.1856,Semáforo 11,peatonal,activo,Mayor Generals y Quintana
--31.4289,-64.1912,Semáforo 12,vehicular,activo,Belgrano y San Martín
--31.4166,-64.1945,Semáforo 13,vehicular,activo,Avenida La Paz y Obispo Mercadillo
--31.4109,-64.1813,Semáforo 14,peatonal,activo,Deán Funes y Quintana
--31.4245,-64.1889,Semáforo 15,vehicular,activo,General Roca y 9 de Julio
--31.4173,-64.1758,Semáforo 16,peatonal,inactivo,Maipú y Acoyte
--31.4086,-64.1923,Semáforo 17,vehicular,activo,Olmos y Corrientes
--31.4227,-64.1804,Semáforo 18,vehicular,activo,Artigas y Rondeau
--31.4135,-64.1876,Semáforo 19,peatonal,activo,Leopoldo Lugones y Duarte Quirós
--31.4198,-64.1934,Semáforo 20,vehicular,activo,Jujuy y Juan Manuel de Rosas
+-31.4158,-64.1881,Semáforo 01,vehicular,activo,9 de Julio y Marcelo T. de Alvear
+-31.4136,-64.1929,Semáforo 02,vehicular,activo,Vélez Sársfield y Caseros
+-31.4178,-64.1863,Semáforo 03,peatonal,activo,Rivadavia y Hipólito Yrigoyen
+-31.4215,-64.1802,Semáforo 04,vehicular,activo,Avenida Colón y Rioja
+-31.4112,-64.1915,Semáforo 05,peatonal,activo,Belgrano y Deán Funes
+-31.4199,-64.1841,Semáforo 06,vehicular,activo,Duarte Quirós y Rivadavia
+-31.4160,-64.1972,Semáforo 07,vehicular,inactivo,Avenida Chacabuco y Juan Manuel de Rosas
+-31.4241,-64.1819,Semáforo 08,peatonal,activo,Sarmiento y Rioja
+-31.4145,-64.1875,Semáforo 09,vehicular,activo,Avenida Vélez Sársfield y Corrientes
+-31.4208,-64.1758,Semáforo 10,vehicular,activo,Calle 27 de Abril y Laprida
+-31.4085,-64.1925,Semáforo 11,peatonal,activo,Avenida General Paz y Ambrosio Olmos
+-31.4269,-64.1888,Semáforo 12,vehicular,activo,Belgrano y 25 de Mayo
+-31.4171,-64.1938,Semáforo 13,vehicular,activo,Avenida La Paz y Ambrosio Olmos
+-31.4120,-64.1809,Semáforo 14,peatonal,activo,Deán Funes y Laprida
+-31.4243,-64.1872,Semáforo 15,vehicular,activo,Avenida General Roca y San Martín
+-31.4185,-64.1746,Semáforo 16,peatonal,inactivo,Maipú y Laprida
+-31.4095,-64.1940,Semáforo 17,vehicular,activo,Avenida Chacabuco y Caseros
+-31.4225,-64.1785,Semáforo 18,vehicular,activo,Calle 27 de Abril y San Martín
+-31.4142,-64.1857,Semáforo 19,peatonal,activo,Avenida Hipólito Yrigoyen y Rioja
+-31.4195,-64.1920,Semáforo 20,vehicular,activo,Jujuy y Belgrano

@@ -1,21 +1,22 @@
 lat,lng,nombre,causa,participantes,fecha,descripcion
--31.4155,-64.1888,Calle 9 de Julio y Marcelo T. de Alvear,D,A/M,08/04/2024,Choque frontal entre auto y moto por distracción
--31.4201,-64.1921,Avenida Vélez Sársfield y Bolívar,EV,A/A,07/04/2024,Colisión múltiple por exceso de velocidad
--31.4089,-64.1805,Calle Rivadavia y General Paz,P,A/P,09/04/2024,Atropello de peatón en esquina
--31.4234,-64.1756,Avenida Colón y Chile,NSD,M,06/04/2024,Choque de moto sin causas aclaradas
--31.4122,-64.1934,Calle Santa Rosa y Illia,A,A/M,10/04/2024,Choque por conducción de conductor alcoholizado
--31.4178,-64.1867,Calle Hipólito Yrigoyen y Duarte Quirós,MI,CAM/A,05/04/2024,Colisión por maniobra imprudente de camión
--31.4095,-64.1989,Avenida Chacabuco y Obispo Trejo,G,B/A,04/04/2024,Accidente por giro prohibido en intersección
--31.4267,-64.1834,Calle Sarmiento y Mayor Generals,PC,M,08/04/2024,Moto pierde control en curva
--31.4141,-64.1902,Avenida Álvarez y Corrientes,FV,A/P,03/04/2024,Choque por falla en visibilidad (niebla)
--31.4213,-64.1775,Calle José María Paz y Ambrosio Olmos,VS,CAM/M,09/04/2024,Violación de semáforo en hora pico
--31.4052,-64.1856,Avenida Mayor Generals y Quintana,NR,A/B,07/04/2024,No respeto de prioridad de paso
--31.4289,-64.1912,Calle Belgrano y San Martín,D,COL,02/04/2024,Colectivo distracción del conductor
--31.4166,-64.1945,Avenida La Paz y Obispo Mercadillo,EV,A/A/M,10/04/2024,Carambola por exceso de velocidad
--31.4109,-64.1813,Calle Deán Funes y Quintana,AV,P/CAM,05/04/2024,Atropello de peatón por camión
--31.4245,-64.1889,Avenida General Roca y 9 de Julio,MI,A/CTA,06/04/2024,Colisión por maniobra indebida con camioneta
--31.4173,-64.1758,Calle Maipú y Acoyte,PC,M,04/04/2024,Motociclista pierde control del vehículo
--31.4086,-64.1923,Avenida Olmos y Corrientes,D,A/B,08/04/2024,Ciclista distracción durante circulación
--31.4227,-64.1804,Calle Artigas y Rondeau,NSD,P/POLICIA,09/04/2024,Accidente con móvil policial sin causas claras
--31.4135,-64.1876,Avenida Leopoldo Lugones y Duarte Quirós,G,A,03/04/2024,Auto realiza giro no permitido
--31.4198,-64.1934,Calle Jujuy y Juan Manuel de Rosas,VS,CAM/B,07/04/2024,Violación de semáforo en rojo
+-31.4158,-64.1881,9 de Julio y Marcelo T. de Alvear,D,A/M,08/04/2024,Choque frontal entre auto y moto
+-31.4136,-64.1929,Vélez Sársfield y Caseros,EV,A/A,07/04/2024,Colisión múltiple por exceso de velocidad
+-31.4178,-64.1863,Rivadavia y Hipólito Yrigoyen,P,A/P,09/04/2024,Atropello de peatón
+-31.4215,-64.1802,Avenida Colón y Rioja,NSD,M,06/04/2024,Choque de moto sin causas aclaradas
+-31.4112,-64.1915,Calle Belgrano y Deán Funes,A,A/M,10/04/2024,Choque por conductor alcoholizado
+-31.4199,-64.1841,Calle Duarte Quirós y Rivadavia,MI,CAM/A,05/04/2024,Colisión por maniobra imprudente de camión
+-31.4160,-64.1972,Avenida Chacabuco y Juan Manuel de Rosas,G,B/A,04/04/2024,Accidente por giro prohibido
+-31.4241,-64.1819,Calle Sarmiento y Rioja,PC,M,08/04/2024,Moto pierde control en curva
+-31.4145,-64.1875,Avenida Vélez Sársfield y Corrientes,FV,A/P,03/04/2024,Choque por falla en visibilidad
+-31.4208,-64.1758,Calle 27 de Abril y Laprida,VS,CAM/M,09/04/2024,Violación de semáforo en hora pico
+-31.4085,-64.1925,Avenida General Paz y Ambrosio Olmos,NR,A/B,07/04/2024,No respeto de prioridad de paso
+-31.4269,-64.1888,Calle Belgrano y 25 de Mayo,D,COL,02/04/2024,Colectivo distracción del conductor
+-31.4171,-64.1938,Avenida La Paz y Ambrosio Olmos,EV,A/A/M,10/04/2024,Carambola por exceso de velocidad
+-31.4120,-64.1809,Calle Deán Funes y Laprida,AV,P/CAM,05/04/2024,Atropello de peatón por camión
+-31.4243,-64.1872,Avenida General Roca y San Martín,MI,A/CTA,06/04/2024,Colisión por maniobra indebida
+-31.4185,-64.1746,Calle Maipú y Laprida,PC,M,04/04/2024,Motociclista pierde control
+-31.4095,-64.1940,Avenida Chacabuco y Caseros,D,A/B,08/04/2024,Accidente por distracción
+-31.4225,-64.1785,Calle 27 de Abril y San Martín,NSD,P/POLICIA,09/04/2024,Accidente con móvil policial
+-31.4142,-64.1857,Avenida Hipólito Yrigoyen y Rioja,G,A,03/04/2024,Auto realiza giro no permitido
+-31.4195,-64.1920,Calle Jujuy y Belgrano,VS,CAM/B,07/04/2024,Violación de semáforo en rojo
+-31.4268,-64.1920,Calle San Martín y Belgrano,D,A/M,08/04/2024,Choque en intersección principal
