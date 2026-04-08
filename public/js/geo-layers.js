@@ -47,9 +47,14 @@ const GeoLayers = (() => {
     ]
   };
 
+  // Obtener nombre del barrio (flexible para diferentes fuentes)
+  function getBarrioName(feature) {
+    return feature.properties?.nombre || feature.properties?.soc_fomen || 'Sin nombre';
+  }
+
   // Determinar zona según nombre del barrio
   function getZoneForFeature(feature) {
-    const barrioName = feature.properties?.soc_fomen || '';
+    const barrioName = getBarrioName(feature);
     if (!barrioName) return 'Oeste';
     
     const lower = barrioName.toLowerCase()
@@ -86,9 +91,10 @@ const GeoLayers = (() => {
   function getPopupContent(feature) {
     const props = feature.properties;
     const zone = getZoneForFeature(feature);
+    const barrioName = getBarrioName(feature);
     return `
       <div class="geo-popup">
-        <h4>${props.soc_fomen || 'Sin nombre'}</h4>
+        <h4>${barrioName}</h4>
         <p><strong>Zona:</strong> ${zone}</p>
         <p><strong>Área:</strong> ${props.hectares?.toFixed(2) || 'N/A'} hectáreas</p>
         <p><strong>ID:</strong> ${props.id || 'N/A'}</p>
@@ -99,7 +105,8 @@ const GeoLayers = (() => {
   // Handlers for interaction
   function onEachFeature(feature, layer) {
     // Popup
-    if (feature.properties.soc_fomen) {
+    const barrioName = getBarrioName(feature);
+    if (barrioName && barrioName !== 'Sin nombre') {
       layer.bindPopup(getPopupContent(feature));
     }
 
@@ -228,7 +235,7 @@ const GeoLayers = (() => {
       let found = false;
       zonasLayer.eachLayer(layer => {
         if (layer.feature && layer.feature.properties) {
-          const propBarrio = layer.feature.properties.soc_fomen || '';
+          const propBarrio = getBarrioName(layer.feature);
           
           if (propBarrio.toLowerCase() === barrioNombre.toLowerCase()) {
             found = true;
