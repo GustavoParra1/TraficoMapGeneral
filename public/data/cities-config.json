@@ -53,6 +53,33 @@
         "alertas": null,
         "zonas": null
       }
+    },
+    {
+      "id": "cordoba",
+      "name": "Córdoba",
+      "country": "Argentina",
+      "province": "Córdoba",
+      "coordinates": {
+        "lat": -31.415,
+        "lng": -64.189
+      },
+      "zoom": 12,
+      "files": {
+        "barrios": "data/barrios_cordoba_ejemplo.geojson",
+        "siniestros": "data/siniestros_cordoba.geojson",
+        "cameras": "data/cameras_cordoba.geojson",
+        "private_cameras": "data/private_cameras_cordoba.geojson"
+      },
+      "optionalLayers": {
+        "semaforos": "data/semaforos_cordoba_ejemplo.csv",
+        "colegios": null,
+        "colectivos": null,
+        "corredores": null,
+        "flujo": null,
+        "robo": null,
+        "alertas": null,
+        "zonas": null
+      }
     }
   ]
 }
