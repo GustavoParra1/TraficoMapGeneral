@@ -17,14 +17,62 @@ Columnas OPCIONALES:
 - tipo (tipo de siniestro: choque, caída, etc.)
 - fecha (formato: DD/MM/YYYY)
 - descripcion (detalles adicionales)
+- causa (código de causa - ver códigos válidos abajo)
+- participantes (códigos separados por / - ver códigos válidos abajo)
 ```
 
 **Ejemplo CSV:**
 ```csv
-lat,lng,nombre,tipo,fecha,descripcion
--38.0055,-57.5521,Siniestro 1,choque,2024-01-15,Choque doble
--38.0060,-57.5535,Siniestro 2,caida,2024-01-16,Caída de moto
+lat,lng,nombre,tipo,fecha,causa,participantes,descripcion
+-38.0055,-57.5521,Siniestro 1,choque,15/01/2024,D,A/M,Choque entre auto y moto
+-38.0060,-57.5535,Siniestro 2,caida,16/01/2024,P,M,Caída de motocicleta por peatón
 ```
+
+### 📋 CÓDIGOS VÁLIDOS DE CAUSAS
+
+| Código | Descripción |
+|--------|-------------|
+| **D** | Distracción |
+| **A** | Alcohol |
+| **AV** | Atropello Voluntario |
+| **EV** | Exceso de Velocidad |
+| **FV** | Falla en la Vía |
+| **G** | Giro |
+| **MI** | Maniobra Imprudente |
+| **MR** | Maniobra Riesgosa |
+| **NR** | No Respeto prioridad de Paso |
+| **NSD** | No Se Puede Determinar |
+| **P** | Perro |
+| **PC** | Pierde Control |
+| **PI** | Peatón Imprudente |
+| **VS** | Violación de Semáforo |
+| **DF** | Distancia de Frenado |
+| **DESCOMPENSAN** | Descompensación |
+| **IC** | Invasión de Carril |
+| **PERSECUCIÓN** | Persecución |
+| **?** | No Especificado |
+
+### 👥 CÓDIGOS VÁLIDOS DE PARTICIPANTES
+
+| Código | Descripción |
+|--------|-------------|
+| **A** | Auto |
+| **M** | Moto/Motocicleta |
+| **P** | Peatón |
+| **CAM** | Camión |
+| **B** | Bicicleta |
+| **COL** | Colectivo |
+| **CTA** | Camioneta |
+| **BOMBEROS** | Bomberos |
+| **PERRO** | Perro |
+| **POLICIA** | Policía |
+| **MONOPATIN** | Monopatín |
+| **AMB** | Ambulancia |
+| **PATRULLA** | Patrulla |
+| **CABALLO** | Caballo |
+
+**Uso:** Separar múltiples participantes con `/`  
+Ejemplo: `A/M` = Auto y Moto, `P/CAM` = Peatón y Camión
 
 **Ubicación:** `public/data/siniestros_cordoba.csv`
 
