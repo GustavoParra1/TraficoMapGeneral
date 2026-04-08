@@ -335,17 +335,54 @@ const SiniestrosLayer = (() => {
     }
     
     const totalBarrios = barriosGeoJson.features?.length || 0;
+    let testCounter = 0;
     
     for (let i = 0; i < totalBarrios; i++) {
       const feature = barriosGeoJson.features[i];
-      if (pointInPolygon(point, feature.geometry)) {
-        // Soportar ambas propiedades: nombre (Córdoba) y soc_fomen (MDP)
+      
+      // Log solo los primeros 5 tests para cada punto
+      if (testCounter < 5) {
+        const geomType = feature.geometry?.type;
+        const hasCoords = !!feature.geometry?.coordinates;
+        const barName = feature.properties?.nombre || feature.properties?.soc_fomen || `barrio-${i}`;
+        
+        console.log(`   → Test ${testCounter} [${i}] "${barName}" (${geomType}):`, {
+          point,
+          hasGeometry: !!feature.geometry,
+          geomType,
+          hasCoords,
+          coordLength: feature.geometry?.coordinates?.[0]?.length,
+          coordSample: feature.geometry?.coordinates?.[0]?.[0]
+        });
+      }
+      
+      // Verificar estructura del geometry antes de pasar a pointInPolygon
+      if (!feature.geometry || !feature.geometry.coordinates) {
+        if (testCounter < 5) {
+          console.log(`   ⚠️ geometry inválido en barrio ${i}`);
+        }
+        testCounter++;
+        continue;
+      }
+      
+      const match = pointInPolygon(point, feature.geometry);
+      
+      if (testCounter < 5) {
+        console.log(`   ✓ pointInPolygon result:`, match);
+      }
+      
+      if (match) {
         const barrio = feature.properties?.nombre || feature.properties?.soc_fomen;
+        if (testCounter < 5) {
+          console.log(`   ✅ COINCIDENCIA ENCONTRADA: ${barrio}`);
+        }
         return barrio;
       }
+      
+      testCounter++;
     }
     
-    // Si no está en ningún polígono, retornar null
+    console.log(`❌ Punto ${point} NO ENCONTRADO en ${totalBarrios} barrios`);
     return null;
   }
 
@@ -455,28 +492,19 @@ const SiniestrosLayer = (() => {
       if (filters.globalBarrio !== 'all') {
         const coords = feature.geometry?.coordinates;
         if (coords && coords.length === 2) {
+          // DEBUG: Solo para los primeros 2 siniestros, log muy detallado
+          if (debugCount < 2) {
+            console.log(`\n🔍🔍🔍 SINIESTRO [${debugCount}] coords: [${coords[0]}, ${coords[1]}]`);
+            console.log(`   Filtro activo: "${filters.globalBarrio}"`);
+            console.log(`   Buscando en ${barriosGeoJson?.features?.length || 0} barrios...`);
+          }
+          
           const sinBarrio = getBarrioForPoint(coords);
           
-          // DEBUG: Mostrar solo los primeros 3, con detalles
-          if (debugCount < 3) {
-            // Test manualmente los primeros 3 barrios
-            let testedBarrios = [];
-            for (let i = 0; i < Math.min(3, barriosGeoJson?.features?.length || 0); i++) {
-              const barrio = barriosGeoJson.features[i];
-              const match = pointInPolygon(coords, barrio.geometry);
-              testedBarrios.push({
-                nombre: barrio.properties?.nombre || 'sin-nombre',
-                type: barrio.geometry.type,
-                match
-              });
-            }
-            
-            console.log(`🔍 Siniestro [${debugCount}] ${coords}:`, {
-              sinBarrio,
-              filtroBarrio: filters.globalBarrio,
-              barriosDisponibles: barriosGeoJson?.features?.length || 0,
-              primerTres: testedBarrios
-            });
+          if (debugCount < 2) {
+            console.log(`   RESULTADO FINAL: sinBarrio = "${sinBarrio}"`);
+            console.log(`   ¿Coincide con filtro? ${sinBarrio === filters.globalBarrio}`);
+            console.log(`🔍🔍🔍\n`);
           }
           debugCount++;
           
