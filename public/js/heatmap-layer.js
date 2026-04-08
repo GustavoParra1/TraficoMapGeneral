@@ -7,12 +7,14 @@ const heatmapLayer = (() => {
   let heatmapInstance = null;
   let visible = false;
   let sinistrosData = [];
+  let currentSiniestrosPath = null;
 
   /**
-   * Cargar datos GeoJSON de siniestros
+   * Cargar datos de siniestros (puede ser GeoJSON o CSV)
    */
   const loadSiniestros = async (geojsonPath) => {
     try {
+      currentSiniestrosPath = geojsonPath;
       const cacheBustUrl = geojsonPath + '?t=' + Date.now();
       const response = await fetch(cacheBustUrl);
       const geojson = await response.json();
@@ -96,10 +98,7 @@ const heatmapLayer = (() => {
     if (shouldShow) {
       // Solo renderizar si hay datos
       if (sinistrosData.length === 0) {
-        console.log('🔥 Heatmap: Cargando datos de siniestros...');
-        loadSiniestros('data/siniestros_con_ubicacion.geojson').then(() => {
-          render();
-        });
+        console.log('🔥 Heatmap: Esperando datos de siniestros...');
       } else {
         console.log(`🔥 Heatmap: Usando ${sinistrosData.length} siniestros ya cargados`);
         render();
@@ -118,13 +117,30 @@ const heatmapLayer = (() => {
    * Inicializar
    */
   const init = () => {
-    console.log('🔥 Heatmap Layer inicializado - precargando datos de siniestros...');
-    // Precargar datos en background
-    loadSiniestros('data/siniestros_con_ubicacion.geojson');
+    console.log('🔥 Heatmap Layer inicializado');
   };
 
   /**
-   * Adjuntar event listener al checkbox (llamar después de que el checkbox se crea en el DOM)
+   * Actualizar datos de siniestros (llamado cuando se carga una ciudad)
+   */
+  const setData = (geojsonData) => {
+    if (geojsonData && geojsonData.features) {
+      sinistrosData = geojsonData.features.map(feature => ({
+        coords: feature.geometry?.coordinates || [0, 0],
+        properties: feature.properties || {}
+      }));
+      
+      console.log(`🔥 Heatmap: ${sinistrosData.length} siniestros desde setData`);
+      
+      // Si ya está visible, renderizar
+      if (visible) {
+        render();
+      }
+    }
+  };
+
+  /**
+   * Adjuntar event listener al checkbox
    */
   const attachCheckboxListener = () => {
     const checkbox = document.getElementById('heatmap-checkbox');
@@ -144,6 +160,7 @@ const heatmapLayer = (() => {
     init,
     toggle,
     loadSiniestros,
+    setData,
     render,
     attachCheckboxListener,
     isVisible: () => visible

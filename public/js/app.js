@@ -105,6 +105,9 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
     console.log(`  ✓ Mapa centrado exitosamente`);
   }
   
+  // Resetear heatmap cuando se carga una nueva ciudad
+  heatmapLayer.toggle(false);
+  
   let bariosGeoJson = null;
   
   try {
@@ -139,6 +142,8 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
     const sinGeoJson = await loadData(cityConfig.files.siniestros);
     if (sinGeoJson) {
       SiniestrosLayer.clearFilters();
+      // Actualizar también el heatmap con los nuevos datos
+      heatmapLayer.setData(sinGeoJson);
       if (cityConfig.files.siniestros.startsWith('data:')) {
         console.log(`      ℹ️ Cargando siniestros desde memoria (usuario)`);
         // Cargar siniestros desde GeoJSON en memoria (importados)
