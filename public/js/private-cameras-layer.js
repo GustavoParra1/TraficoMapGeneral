@@ -173,19 +173,19 @@ const PrivateCamerasLayer = (() => {
           background: ${privateColor};
           color: white;
           border-radius: 50%;
-          width: 24px;
-          height: 24px;
+          width: 20px;
+          height: 20px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 12px;
-          font-weight: bold;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+          font-size: 10px;
+          font-weight: 300;
+          border: 1px solid rgba(0,0,0,0.2);
+          box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         ">
           🔒
         </div>`,
-        iconSize: [24, 24],
+        iconSize: [20, 20],
         className: 'private-camera-icon'
       });
     };

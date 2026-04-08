@@ -404,144 +404,9 @@
       🗺️ TraficoMap
     </div>
     
-    <div class="sidebar-section">
-      <div class="sidebar-title">Usuario</div>
-      <div id="user-email" style="font-size: 12px; margin-bottom: 10px;">
-        <span class="loading-spinner"></span> Cargando...
-      </div>
-      <div class="button-group">
-        <button id="logout-btn" data-auth-required style="display:none;">
-          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-        </button>
-        <button id="login-btn" class="secondary">
-          <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-        </button>
-      </div>
-    </div>
-    
-    <div class="sidebar-section">
-      <div class="sidebar-title">Mapa Base</div>
-      <select id="base-map-selector">
-        <option value="osm">OpenStreetMap</option>
-        <option value="google-streets">Google Streets</option>
-        <option value="google-satellite">Google Satellite</option>
-        <option value="google-hybrid">Google Hybrid</option>
-      </select>
-    </div>
-    
-    <div class="sidebar-section">
-      <div class="sidebar-title">Capas</div>
-      <label>
-        <input type="checkbox" id="show-zones-checkbox" checked>
-        Mostrar Zonas Geográficas
-      </label>
-      <label style="display:block; margin-top:8px;">
-        <input type="checkbox" id="siniestros-checkbox">
-        Mostrar Siniestros (<span id="total-siniestros-count">0</span>)
-      </label>
-      <label style="display:block; margin-top:8px;">
-        <input type="checkbox" id="cameras-checkbox">
-        Mostrar Cámaras (<span id="total-cameras-count">0</span>)
-      </label>
-      <label style="display:block; margin-top:8px;">
-        <input type="checkbox" id="semaforos-checkbox">
-        Mostrar Semáforos (<span id="total-semaforos-count">0</span>)
-      </label>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-title">Filtrar Siniestros</div>
-      <div style="font-size: 12px;">
-        <label style="display: block; margin-bottom: 8px;">
-          Año:
-          <select id="year-filter" style="width: 100%;"><option value="all">Todos</option></select>
-        </label>
-        
-        <label style="display: block; margin-bottom: 8px;">
-          Barrio:
-          <select id="barrio-filter" style="width: 100%;"><option value="all">Todos</option></select>
-        </label>
-        
-        <label style="display: block; margin-bottom: 8px;">
-          Causa:
-          <select id="cause-filter" style="width: 100%;"><option value="all">Todas</option></select>
-        </label>
-        
-        <label style="display: block; margin-bottom: 8px;">
-          Participante:
-          <select id="participant-filter" style="width: 100%;"><option value="all">Todos</option></select>
-        </label>
-
-        <label style="display: block; margin-bottom: 8px;">
-          Desde Hora:
-          <select id="start-hour-filter" style="width: 100%;"><option value="all">Todas</option></select>
-        </label>
-
-        <label style="display: block; margin-bottom: 8px;">
-          Hasta Hora:
-          <select id="end-hour-filter" style="width: 100%;"><option value="all">Todas</option></select>
-        </label>
-
-        <label style="display: block; margin-bottom: 8px;">
-          Calle:
-          <input type="text" id="street-filter" placeholder="Nombre de la calle...">
-        </label>
-
-        <button id="clear-filters-btn" class="secondary" style="width: 100%; margin-top: 8px;">
-          Limpiar Filtros
-        </button>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-title">Filtrar Cámaras</div>
-      <div style="font-size: 12px;">
-        <label style="display: block; margin-bottom: 8px;">
-          Barrio:
-          <select id="barrio-cameras-filter" style="width: 100%;"><option value="all">Todos</option></select>
-        </label>
-        
-        <label style="display: block; margin-bottom: 8px;">
-          Tipo:
-          <select id="type-cameras-filter" style="width: 100%;"><option value="all">Todos</option></select>
-        </label>
-        
-        <label style="display: block; margin-bottom: 8px;">
-          Corredor:
-          <select id="corridor-cameras-filter" style="width: 100%;"><option value="all">Todos</option></select>
-        </label>
-
-        <label style="display: block; margin-bottom: 8px;">
-          Tipo de Cámara:
-          <select id="camera-type-filter" style="width: 100%;">
-            <option value="all">Todas</option>
-            <option value="dome">Domos</option>
-            <option value="fixed">Fijas</option>
-            <option value="lpr">LPR</option>
-          </select>
-        </label>
-
-        <button id="clear-cameras-filters-btn" class="secondary" style="width: 100%; margin-top: 8px;">
-          Limpiar Filtros
-        </button>
-      </div>
-    </div>
-    
-    <div class="sidebar-section">
-      <div class="sidebar-title">Controles</div>
-      <div class="button-group">
-        <button id="center-map-btn" class="secondary">
-          <i class="fas fa-crosshairs"></i> Centrar Mapa
-        </button>
-        <button id="reset-view-btn" class="secondary">
-          <i class="fas fa-redo"></i> Resetear Vista
-        </button>
-      </div>
-    </div>
-    
-    <div class="sidebar-section">
-      <div class="sidebar-title">Información</div>
-      <div id="municipio-info" style="font-size: 12px; line-height: 1.6;"></div>
+    <!-- El contenido se carga dinámicamente desde app.js -->
+    <div style="font-size: 12px; color: #aaa; padding: 20px; text-align: center;">
+      <span class="loading-spinner"></span> Cargando...
     </div>
   </div>
   
@@ -554,6 +419,9 @@
 
 <!-- Leaflet MarkerCluster JS -->
 <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+<!-- Leaflet Heat JS -->
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
 <!-- Firebase JS (v8 Compat) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -588,6 +456,7 @@ const db = firebase.database();
 <script src="js/cameras-layer.js"></script>
 <script src="js/private-cameras-layer.js"></script>
 <script src="js/semaforos-layer.js"></script>
+<script src="js/heatmap-layer.js"></script>
 <script src="js/app.js"></script>
 
 </body>

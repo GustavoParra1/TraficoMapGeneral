@@ -40,6 +40,9 @@ function iniciarMapa() {
     // Inicializar módulo de semáforos
     SemaforosLayer.init(map);
     
+    // Inicializar módulo de heatmap
+    heatmapLayer.init();
+    
     console.log("✅ Mapa inicializado");
   }
 }
@@ -113,8 +116,9 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
         // Es una data URL, decodificar
         return ImportCities.loadGeoJsonFromDataUrl(filePath);
       } else {
-        // Es una URL normal, hacer fetch
-        const response = await fetch(filePath);
+        // Es una URL normal, hacer fetch con cache busting
+        const cacheBustUrl = filePath + '?t=' + Date.now();
+        const response = await fetch(cacheBustUrl);
         if (response.ok) {
           return await response.json();
         }
@@ -319,6 +323,10 @@ auth.onAuthStateChanged((user) => {
             <input type="checkbox" id="semaforos-checkbox">
             <span>Mostrar Semáforos (<span id="total-semaforos-count">0</span>)</span>
           </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px;">
+            <input type="checkbox" id="heatmap-checkbox">
+            <span>🔥 Mapa de Calor de Siniestros</span>
+          </label>
         </div>
         <div style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #f0f0f0; border-radius: 4px;">
           📊 Haz clic en las zonas para ver detalles
@@ -386,6 +394,9 @@ auth.onAuthStateChanged((user) => {
         </div>
       </div>
     `;
+    
+    // Adjuntar listener al checkbox de heatmap
+    heatmapLayer.attachCheckboxListener();
     
     // CARGAR CIUDADES DEL USUARIO AL INICIAR SIDEBAR
     console.log('🔄 Cargando ciudades almacenadas del usuario...');

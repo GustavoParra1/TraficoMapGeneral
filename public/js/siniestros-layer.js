@@ -24,15 +24,29 @@ const SiniestrosLayer = (() => {
     'Distracción': '#FF6B6B',
     'Exceso de Velocidad': '#FF8C42',
     'No Respeto Semáforo': '#FFD93D',
-    'No Respeto Prioridad': '#6BCB77',
+    'Violación de Semáforo': '#FFD93D',
+    'No Respeto prioridad de Paso': '#6BCB77',
     'Peatón Imprudente': '#4D96FF',
     'Otro': '#9D84B7',
-    'No Especificado': '#CCCCCC'
+    'No Especificado': '#CCCCCC',
+    'Alcohol': '#FF0000',
+    'Atropello Voluntario': '#FFA500',
+    'Falla en la Vía': '#FFB6C1',
+    'Giro': '#DDA0DD',
+    'Maniobra Imprudente': '#FF4500',
+    'Maniobra Riesgosa': '#FF1493',
+    'Perro': '#8B4513',
+    'Pierde Control': '#DC143C',
+    'Distancia de Frenado': '#9932CC',
+    'Descompensación': '#8B0000',
+    'Invasión de Carril': '#FF00FF',
+    'Persecución': '#FF69B4'
   };
 
   const causeMap = {
     'D': { name: 'Distracción', code: 'D' },
     'A': { name: 'Alcohol', code: 'A' },
+    'AV': { name: 'Atropello Voluntario', code: 'AV' },
     'EV': { name: 'Exceso de Velocidad', code: 'EV' },
     'FV': { name: 'Falla en la Vía', code: 'FV' },
     'G': { name: 'Giro', code: 'G' },
@@ -43,7 +57,12 @@ const SiniestrosLayer = (() => {
     'P': { name: 'Perro', code: 'P' },
     'PC': { name: 'Pierde Control', code: 'PC' },
     'PI': { name: 'Peatón Imprudente', code: 'PI' },
-    'VS': { name: 'Violación de Semáforo', code: 'VS' }
+    'VS': { name: 'Violación de Semáforo', code: 'VS' },
+    'DF': { name: 'Distancia de Frenado', code: 'DF' },
+    'DESCOMPENSAN': { name: 'Descompensación', code: 'DESCOMPENSAN' },
+    'IC': { name: 'Invasión de Carril', code: 'IC' },
+    'PERSECUCIàN': { name: 'Persecución', code: 'PERSECUCIàN' },
+    '?': { name: 'No Especificado', code: '?' }
   };
 
   /**
@@ -118,17 +137,25 @@ const SiniestrosLayer = (() => {
 
   async function loadSiniestros(geojsonPath) {
     try {
-      const response = await fetch(geojsonPath);
+      // Cache busting para evitar cache del navegador
+      const cacheBustUrl = geojsonPath + '?t=' + Date.now();
+  
+      const response = await fetch(cacheBustUrl);
       const geojson = await response.json();
       sinistrosData = geojson.features || [];
       
       console.log(`✅ Cargados ${sinistrosData.length} siniestros`);
       
+
+      
       // Extraer valores únicos para filtros
       updateFilterOptions();
       
-      // NO renderizar hasta que el usuario marque el checkbox
-      // applyFilters() se llamará en toggle() cuando el usuario lo active
+      // Si el layer ya está visible, renderizar ahora que los datos están listos
+      if (isVisible) {
+        console.log('🔄 Renderizando siniestros ahora que están cargados...');
+        applyFilters();
+      }
       
       return sinistrosData;
     } catch (error) {
@@ -147,13 +174,28 @@ const SiniestrosLayer = (() => {
     const causes = new Set();
     const hours = new Set();
 
+    // Helper para buscar propiedades flexiblemente (sin importar encoding)
+    const getProp = (props, keys) => {
+      for (const key of keys) {
+        if (props[key]) return props[key];
+      }
+      // Si no encuentra, buscar por coincidencia parcial (case-insensitive)
+      const searchKeys = keys.map(k => k.toLowerCase());
+      for (const [propKey, propVal] of Object.entries(props)) {
+        if (searchKeys.some(sk => propKey.toLowerCase().includes(sk))) {
+          return propVal;
+        }
+      }
+      return null;
+    };
+
     // Función auxiliar para normalizar propiedades
     const normalizeFilterProps = (props) => {
       const normalized = {};
-      normalized.causa = props.causa || props.Causa || props.tipo || props.Tipo || props['CÓDIGOS CAUSAS'] || props['C?DIGOS CAUSAS'];
-      normalized.fecha = props.fecha || props.Fecha || props['FECHA'];
-      normalized.hora = props.hora || props.Hora || props['HORA'];
-      normalized.participantes = props.participantes_codigos || props.Participante || props['CÓDIGO PARTICIPANTES'] || props['C?DIGO PARTICIPANTES'];
+      normalized.causa = getProp(props, ['causa', 'Causa', 'tipo', 'Tipo', 'CÓDIGOS CAUSAS', 'CàDIGOS CAUSAS', 'C?DIGOS CAUSAS', 'CODIGOS CAUSAS']);
+      normalized.fecha = getProp(props, ['fecha', 'Fecha', 'FECHA', 'FECHA_SINIESTRO']);
+      normalized.hora = getProp(props, ['hora', 'Hora', 'HORA']);
+      normalized.participantes = getProp(props, ['participantes_codigos', 'Participante', 'CÓDIGO PARTICIPANTES', 'C?DIGO PARTICIPANTES', 'participantes']);
       return normalized;
     };
 
@@ -167,11 +209,12 @@ const SiniestrosLayer = (() => {
       
       if (fecha) {
         try {
-          // Parsear fecha en formato DD/MM/YY
+          // Parsear fecha en formato DD/MM/YY o DD/MM/YYYY
           const parts = fecha.split('/');
           if (parts.length === 3) {
             const [d, m, y] = parts;
-            const year = parseInt('20' + y);
+            // Si y tiene 4 dígitos (YYYY), usar directamente; si tiene 2 (YY), agregar '20'
+            const year = y.length === 4 ? parseInt(y) : parseInt('20' + y);
             if (!isNaN(year)) years.add(year);
           } else {
             // Intentar parsear como ISO (YYYY-MM-DD)
@@ -206,6 +249,7 @@ const SiniestrosLayer = (() => {
     });
 
     // Actualizar selectores
+    
     updateSelect('year-filter', Array.from(years).sort((a, b) => b - a));
     updateSelect('participant-filter', Array.from(participants).sort());
     
@@ -301,7 +345,10 @@ const SiniestrosLayer = (() => {
    */
   function updateSelect(id, options) {
     const select = document.getElementById(id);
-    if (!select) return;
+    if (!select) {
+      console.warn(`⚠️ No se encontró select #${id}`);
+      return;
+    }
 
     const selectedValue = select.value;
     const defaultOption = select.options[0];
@@ -312,12 +359,14 @@ const SiniestrosLayer = (() => {
     }
 
     // Agregar nuevas opciones
-    options.forEach(option => {
-      const opt = document.createElement('option');
-      opt.value = option;
-      opt.textContent = option;
-      select.appendChild(opt);
-    });
+    if (Array.isArray(options)) {
+      options.forEach(option => {
+        const opt = document.createElement('option');
+        opt.value = String(option);
+        opt.textContent = String(option);
+        select.appendChild(opt);
+      });
+    }
 
     // Restaurar selección si existe
     if (selectedValue !== 'all' && Array.from(select.options).some(o => o.value === selectedValue)) {
@@ -329,26 +378,48 @@ const SiniestrosLayer = (() => {
    * Aplica los filtros actuales
    */
   function applyFilters() {
+    // No hacer nada si la capa no está visible
+    if (!isVisible) {
+      console.log('⏭️ Saltando applyFilters: capa no visible');
+      return;
+    }
+    
     filteredSiniestros = sinistrosData.filter(feature => {
       const props = feature.properties || {};
 
+      // Helper para buscar propiedades flexiblemente (sin importar encoding)
+      const getProp = (keys) => {
+        for (const key of keys) {
+          if (props[key]) return props[key];
+        }
+        // Si no encuentra, buscar por coincidencia parcial (case-insensitive)
+        const searchKeys = keys.map(k => k.toLowerCase());
+        for (const [propKey, propVal] of Object.entries(props)) {
+          if (searchKeys.some(sk => propKey.toLowerCase().includes(sk))) {
+            return propVal;
+          }
+        }
+        return null;
+      };
+
       // Normalizar nombres de propiedades (soportar CSV con diferentes nombres de columnas)
-      const fecha = props.fecha || props.Fecha || props['FECHA'];
-      const hora = props.hora || props.Hora || props['HORA'];
-      const causa = props.causa || props.Causa || props.tipo || props.Tipo || props['CÓDIGOS CAUSAS'] || props['C?DIGOS CAUSAS'];
-      const participantes = props.participantes_codigos || props.Participante || props['CÓDIGO PARTICIPANTES'] || props['C?DIGO PARTICIPANTES'];
-      const calle = props.direccion || props.Calle || props.calle || props['DIRECCIÓN SINIESTRO'];
+      const fecha = getProp(['fecha', 'Fecha', 'FECHA', 'FECHA_SINIESTRO']);
+      const hora = getProp(['hora', 'Hora', 'HORA']);
+      const causa = getProp(['causa', 'Causa', 'tipo', 'Tipo', 'CÓDIGOS CAUSAS', 'CàDIGOS CAUSAS', 'C?DIGOS CAUSAS', 'CODIGOS CAUSAS']);
+      const participantes = getProp(['participantes_codigos', 'Participante', 'CÓDIGO PARTICIPANTES', 'C?DIGO PARTICIPANTES']);
+      const calle = getProp(['direccion', 'Calle', 'calle', 'DIRECCIÓN SINIESTRO', 'DIRECCION SINIESTRO']);
 
       // Filtro por año
       if (filters.year !== 'all') {
         try {
           let year;
           if (fecha && fecha.includes('/')) {
-            // Formato DD/MM/YY
+            // Formato DD/MM/YY o DD/MM/YYYY
             const parts = fecha.split('/');
             if (parts.length === 3) {
               const [d, m, y] = parts;
-              year = parseInt('20' + y);
+              // Si y tiene 4 dígitos, usar directamente; si tiene 2, agregar '20'
+              year = y.length === 4 ? parseInt(y) : parseInt('20' + y);
             }
           } else if (fecha) {
             // Formato ISO
@@ -415,6 +486,16 @@ const SiniestrosLayer = (() => {
 
     console.log(`📍 ${filteredSiniestros.length} siniestros tras filtrado`);
     
+    // DEBUG: Mostrar estructura del primer siniestro filtrado
+    if (filteredSiniestros.length > 0) {
+      const first = filteredSiniestros[0];
+      console.log(`🔍 Primer filtrado:`, {
+        hasGeometry: !!first.geometry,
+        coordinates: first.geometry?.coordinates,
+        propertiesKeys: Object.keys(first.properties || {}).slice(0, 5)
+      });
+    }
+    
     // Actualizar visualización
     renderSiniestros();
     updateCount();
@@ -424,10 +505,16 @@ const SiniestrosLayer = (() => {
    * Renderiza los siniestros en el mapa
    */
   function renderSiniestros() {
-    if (!map) return;
+    if (!map) {
+      console.error('❌ NO HAY MAPA - No se puede renderizar siniestros');
+      return;
+    }
+
+    console.log('🎨 Iniciando renderSiniestros()...');
 
     // Remover capa anterior si existe
     if (sinistrosLayer) {
+      console.log('🗑️ Removiendo capa anterior');
       map.removeLayer(sinistrosLayer);
     }
 
@@ -435,6 +522,8 @@ const SiniestrosLayer = (() => {
       console.log('⚠️ Sin siniestros para mostrar');
       return;
     }
+
+    console.log(`🔄 Creando markerClusterGroup con ${filteredSiniestros.length} siniestros...`);
 
     // Crear FeatureGroup con clustering
     sinistrosLayer = L.markerClusterGroup({
@@ -446,64 +535,73 @@ const SiniestrosLayer = (() => {
     const normalizeSiniestroProps = (props) => {
       const normalized = { ...props };
       
-      // Mapear causa (buscar: causa, Causa, tipo, Tipo, accident_type, CÓDIGOS CAUSAS)
-      if (!normalized.causa) {
-        if (normalized.tipo) normalized.causa = normalized.tipo;
-        else if (normalized.Tipo) normalized.causa = normalized.Tipo;
-        else if (normalized.Causa) normalized.causa = normalized.Causa;
-        else if (normalized.accident_type) normalized.causa = normalized.accident_type;
-        else if (normalized['CÓDIGOS CAUSAS']) normalized.causa = normalized['CÓDIGOS CAUSAS'];
-        else if (normalized['C?DIGOS CAUSAS']) normalized.causa = normalized['C?DIGOS CAUSAS'];
+      // Helper para buscar propiedades flexiblemente
+      const getProp = (keys) => {
+        for (const key of keys) {
+          if (normalized[key]) return normalized[key];
+        }
+        // Si no encuentra, buscar por coincidencia parcial
+        const searchKeys = keys.map(k => k.toLowerCase());
+        for (const [propKey, propVal] of Object.entries(normalized)) {
+          if (searchKeys.some(sk => propKey.toLowerCase().includes(sk))) {
+            return propVal;
+          }
+        }
+        return null;
+      };
+      
+      // Mapear causa (búsqueda flexible)
+      const causa = getProp(['causa', 'Causa', 'tipo', 'Tipo', 'accident_type', 'CÓDIGOS CAUSAS', 'CàDIGOS CAUSAS', 'C?DIGOS CAUSAS', 'CODIGOS CAUSAS']);
+      if (causa && !normalized.causa) {
+        normalized.causa = causa;
       }
       
-      // Mapear descripción (buscar: descripcion, description, nombre, observaciones)
-      if (!normalized.descripcion) {
-        if (normalized.description) normalized.descripcion = normalized.description;
-        else if (normalized.nombre) normalized.descripcion = normalized.nombre;
-        else if (normalized.Descripcion) normalized.descripcion = normalized.Descripcion;
-        else if (normalized.obs) normalized.descripcion = normalized.obs;
+      // Mapear descripción
+      const descripcion = getProp(['descripcion', 'Descripcion', 'description', 'nombre', 'obs']);
+      if (descripcion && !normalized.descripcion) {
+        normalized.descripcion = descripcion;
       }
       
       // Mapear fecha
-      if (!normalized.fecha) {
-        if (normalized.Fecha) normalized.fecha = normalized.Fecha;
-        else if (normalized['FECHA']) normalized.fecha = normalized['FECHA'];
+      const fecha = getProp(['fecha', 'Fecha', 'FECHA', 'FECHA_SINIESTRO']);
+      if (fecha && !normalized.fecha) {
+        normalized.fecha = fecha;
       }
       
       // Mapear hora
-      if (!normalized.hora) {
-        if (normalized.Hora) normalized.hora = normalized.Hora;
-        else if (normalized['HORA']) normalized.hora = normalized['HORA'];
+      const hora = getProp(['hora', 'Hora', 'HORA']);
+      if (hora && !normalized.hora) {
+        normalized.hora = hora;
       }
       
-      // Mapear dirección
-      if (!normalized.direccion) {
-        if (normalized.Calle) normalized.direccion = normalized.Calle;
-        else if (normalized.calle) normalized.direccion = normalized.calle;
-        else if (normalized['DIRECCIÓN SINIESTRO']) normalized.direccion = normalized['DIRECCIÓN SINIESTRO'];
-        else if (normalized['DIRECCI?N SINIESTRO']) normalized.direccion = normalized['DIRECCI?N SINIESTRO'];
+      // Mapear dirección (con variantes de encoding)
+      const direccion = getProp(['direccion', 'Calle', 'calle', 'DIRECCIÓN SINIESTRO', 'DIRECCION SINIESTRO', 'DIRECCIàN SINIESTRO', 'DIRECCIøN SINIESTRO']);
+      if (direccion && !normalized.direccion) {
+        normalized.direccion = direccion;
       }
       
       // Mapear barrio
-      if (!normalized.barrio) {
-        if (normalized.Barrio) normalized.barrio = normalized.Barrio;
-        else if (normalized['Barrio/Zona']) normalized.barrio = normalized['Barrio/Zona'];
-        else if (normalized['BARRIOS']) normalized.barrio = normalized['BARRIOS'];
+      const barrio = getProp(['barrio', 'Barrio', 'Barrio/Zona', 'BARRIOS', 'barrios']);
+      if (barrio && !normalized.barrio) {
+        normalized.barrio = barrio;
       }
       
       // Mapear participantes
-      if (!normalized.participantes_codigos) {
-        if (normalized.Participante) normalized.participantes_codigos = normalized.Participante;
-        else if (normalized['CÓDIGO PARTICIPANTES']) normalized.participantes_codigos = normalized['CÓDIGO PARTICIPANTES'];
-        else if (normalized['C?DIGO PARTICIPANTES']) normalized.participantes_codigos = normalized['C?DIGO PARTICIPANTES'];
+      const participantes = getProp(['participantes_codigos', 'Participante', 'CÓDIGO PARTICIPANTES', 'C?DIGO PARTICIPANTES', 'participantes']);
+      if (participantes && !normalized.participantes_codigos) {
+        normalized.participantes_codigos = participantes;
       }
       
       return normalized;
     };
 
-    filteredSiniestros.forEach(feature => {
+    filteredSiniestros.forEach((feature, idx) => {
       const props = normalizeSiniestroProps(feature.properties || {});
       const coords = feature.geometry?.coordinates;
+
+      if (idx < 3) {
+        console.log(`  [${idx}] coords="${JSON.stringify(coords)}"`);
+      }
 
       if (coords && coords.length === 2) {
         const lat = coords[1];
@@ -524,6 +622,8 @@ const SiniestrosLayer = (() => {
                      causeColors[normalizedCauseForColor.code] ||
                      causeColors[causa] || 
                      '#CCCCCC'; // Color por defecto
+
+
 
         // Crear marcador
         const marker = L.circleMarker([lat, lng], {
@@ -560,7 +660,16 @@ const SiniestrosLayer = (() => {
       }
     });
 
-    map.addLayer(sinistrosLayer);
+    console.log(`📍 Agregando ${sinistrosLayer.getLayers().length} markers al mapa...`);
+    
+    if (!map.hasLayer(sinistrosLayer)) {
+      console.log('🎯 Viewport actual:', map.getBounds());
+      console.log('🎯 Zoom level:', map.getZoom());
+      map.addLayer(sinistrosLayer);
+      console.log('✅ SiniestrosLayer agregada al mapa');
+    } else {
+      console.log('✅ SiniestrosLayer ya estaba en el mapa');
+    }
   }
 
   /**
@@ -594,19 +703,24 @@ const SiniestrosLayer = (() => {
    * Toggle de visibilidad
    */
   function toggle(visible) {
+    console.log(`🔀 toggle(${visible}) llamado`);
     isVisible = visible;
 
     if (visible) {
       // Renderizar siniestros cuando se activa
+      console.log('✨ Activando capa - llamando applyFilters()...');
       applyFilters();
       
       if (!sinistrosLayer || !map.hasLayer(sinistrosLayer)) {
+        console.log('⚠️ Layer no está en el mapa, renderizando de nuevo...');
         applyFilters(); // Asegurar que se renderizó
       }
     } else {
       // Ocultar siniestros
+      console.log('🙈 Desactivando capa...');
       if (sinistrosLayer && map.hasLayer(sinistrosLayer)) {
         map.removeLayer(sinistrosLayer);
+        console.log('✅ SiniestrosLayer removida del mapa');
       }
     }
   }

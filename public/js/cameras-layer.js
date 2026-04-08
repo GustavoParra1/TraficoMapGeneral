@@ -286,7 +286,7 @@ const CamerasLayer = (() => {
     const createCameraIcon = (type, cameraNumber, domos, fixed, lpr) => {
       // Colores más claros para las cámaras públicas
       const colorMap = {
-        'Pública (Municipal)': '#66CC99',  // Verde más claro
+        'Pública (Municipal)': '#77DD99',  // Verde esmeralda más claro
         'Privada': '#FFB366',               // Naranja más claro
         'Escolar': '#FFEB99',               // Amarillo más claro
         'Seguimiento': '#99CCFF'            // Azul más claro
@@ -306,21 +306,21 @@ const CamerasLayer = (() => {
           background: linear-gradient(135deg, ${color}, ${color}dd);
           color: #333;
           border-radius: 50%;
-          width: 32px;
-          height: 32px;
+          width: 24px;
+          height: 24px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 13px;
-          font-weight: bold;
-          border: 2px solid white;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-          font-family: Arial, sans-serif;
+          font-size: 11px;
+          font-weight: 300;
+          border: 1px solid rgba(0,0,0,0.2);
+          box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+          font-family: 'Segoe UI', Arial, sans-serif;
           line-height: 1;
         ">
           ${cameraNum}
         </div>`,
-        iconSize: [32, 32],
+        iconSize: [24, 24],
         className: 'camera-icon'
       });
     };
