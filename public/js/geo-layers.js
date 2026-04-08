@@ -52,8 +52,18 @@ const GeoLayers = (() => {
     return feature.properties?.nombre || feature.properties?.soc_fomen || 'Sin nombre';
   }
 
-  // Determinar zona según nombre del barrio
+  // Detectar si es un barrio de Mar del Plata (tiene propiedad soc_fomen)
+  function isMarDelPlata(feature) {
+    return feature.properties?.soc_fomen !== undefined;
+  }
+
+  // Determinar zona según nombre del barrio (SOLO para Mar del Plata)
   function getZoneForFeature(feature) {
+    // Si no es Mar del Plata, no tiene zona
+    if (!isMarDelPlata(feature)) {
+      return null;
+    }
+
     const barrioName = getBarrioName(feature);
     if (!barrioName) return 'Oeste';
     
@@ -72,6 +82,10 @@ const GeoLayers = (() => {
   // Obtener color de una feature según su zona
   function getColor(feature) {
     const zone = getZoneForFeature(feature);
+    // Si no tiene zona (ej: Córdoba), usar color gris neutral
+    if (!zone) {
+      return '#6B8E23';  // Olive green para Córdoba
+    }
     return zoneColors[zone] || zoneColors['Oeste'];
   }
 
@@ -90,16 +104,25 @@ const GeoLayers = (() => {
   // Popup content
   function getPopupContent(feature) {
     const props = feature.properties;
-    const zone = getZoneForFeature(feature);
     const barrioName = getBarrioName(feature);
-    return `
-      <div class="geo-popup">
-        <h4>${barrioName}</h4>
-        <p><strong>Zona:</strong> ${zone}</p>
-        <p><strong>Área:</strong> ${props.hectares?.toFixed(2) || 'N/A'} hectáreas</p>
-        <p><strong>ID:</strong> ${props.id || 'N/A'}</p>
-      </div>
-    `;
+    const zone = getZoneForFeature(feature);
+    const isMDP = isMarDelPlata(feature);
+    
+    let content = `<div class="geo-popup"><h4>${barrioName}</h4>`;
+    
+    if (isMDP) {
+      // Mar del Plata: mostrar zona, area, id
+      if (zone) content += `<p><strong>Zona:</strong> ${zone}</p>`;
+      if (props.hectares) content += `<p><strong>Área:</strong> ${props.hectares.toFixed(2)} hectáreas</p>`;
+      if (props.id) content += `<p><strong>ID:</strong> ${props.id}</p>`;
+    } else {
+      // Córdoba: mostrar tipo y antecedentes
+      if (props.tipo) content += `<p><strong>Tipo:</strong> ${props.tipo}</p>`;
+      if (props.antecedentes) content += `<p><strong>Antecedentes:</strong> ${props.antecedentes}</p>`;
+    }
+    
+    content += `</div>`;
+    return content;
   }
 
   // Handlers for interaction
@@ -277,16 +300,7 @@ const GeoLayers = (() => {
 
       zonasLayer.eachLayer(layer => {
         if (layer.feature && layer.feature.properties) {
-          const zone = getZoneForFeature(layer.feature);
-          const color = zoneColors[zone] || '#999';
-
-          layer.setStyle({
-            fillColor: color,
-            weight: 3,
-            opacity: 1,
-            color: color,
-            fillOpacity: 0.3
-          });
+          layer.setStyle(styleFeature(layer.feature));
         }
       });
       console.log('✅ Resaltado limpiado');
