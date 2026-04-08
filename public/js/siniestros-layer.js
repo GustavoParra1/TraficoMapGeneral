@@ -304,9 +304,20 @@ const SiniestrosLayer = (() => {
         if (intersect) inside = !inside;
       }
     } else if (polygon.type === 'MultiPolygon') {
-      for (const poly of polygon.coordinates) {
+      // MultiPolygon: coordinates is array of polygons
+      // Each polygon has array of rings
+      for (let polyIdx = 0; polyIdx < polygon.coordinates.length; polyIdx++) {
+        const poly = polygon.coordinates[polyIdx];
+        
+        // poly is array of rings, poly[0] is outer ring
+        if (!poly || !poly[0]) {
+          console.warn(`   ⚠️ MultiPolygon poly ${polyIdx} tiene estructura inválida`);
+          continue;
+        }
+        
         const coords = poly[0];
         let insideCurrent = false;
+        
         for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
           const xi = coords[i][0], yi = coords[i][1];
           const xj = coords[j][0], yj = coords[j][1];
@@ -315,6 +326,7 @@ const SiniestrosLayer = (() => {
             && (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
           if (intersect) insideCurrent = !insideCurrent;
         }
+        
         if (insideCurrent) {
           inside = true;
           break;
@@ -340,49 +352,49 @@ const SiniestrosLayer = (() => {
     for (let i = 0; i < totalBarrios; i++) {
       const feature = barriosGeoJson.features[i];
       
-      // Log solo los primeros 5 tests para cada punto
-      if (testCounter < 5) {
-        const geomType = feature.geometry?.type;
-        const hasCoords = !!feature.geometry?.coordinates;
+      // Log solo los primeros 2 tests para cada punto
+      if (testCounter < 2 && i < 3) {
         const barName = feature.properties?.nombre || feature.properties?.soc_fomen || `barrio-${i}`;
+        const geom = feature.geometry;
         
-        console.log(`   → Test ${testCounter} [${i}] "${barName}" (${geomType}):`, {
-          point,
-          hasGeometry: !!feature.geometry,
-          geomType,
-          hasCoords,
-          coordLength: feature.geometry?.coordinates?.[0]?.length,
-          coordSample: feature.geometry?.coordinates?.[0]?.[0]
-        });
+        console.log(`\n   🔬 Analizando barrio [${i}] "${barName}"`);
+        console.log(`      - Tipo: ${geom?.type}`);
+        console.log(`      - coordinates length: ${geom?.coordinates?.length}`);
+        
+        if (geom?.type === 'MultiPolygon') {
+          console.log(`      - MultiPolygon con ${geom.coordinates.length} polígonos`);
+          if (geom.coordinates[0]) {
+            console.log(`      - Primer polígono: ${geom.coordinates[0].length} anillos`);
+            if (geom.coordinates[0][0]) {
+              console.log(`      - Primer anillo: ${geom.coordinates[0][0].length} puntos`);
+              console.log(`      - Primeros 3 puntos: ${JSON.stringify(geom.coordinates[0][0].slice(0, 3))}`);
+              console.log(`      - Punto a buscar: [${point[0]}, ${point[1]}]`);
+            }
+          }
+        }
       }
       
       // Verificar estructura del geometry antes de pasar a pointInPolygon
       if (!feature.geometry || !feature.geometry.coordinates) {
-        if (testCounter < 5) {
-          console.log(`   ⚠️ geometry inválido en barrio ${i}`);
-        }
         testCounter++;
         continue;
       }
       
       const match = pointInPolygon(point, feature.geometry);
       
-      if (testCounter < 5) {
-        console.log(`   ✓ pointInPolygon result:`, match);
+      if (testCounter < 2 && i < 3) {
+        console.log(`      - RESULTADO: ${match ? '✅ DENTRO' : '❌ FUERA'}\n`);
       }
       
       if (match) {
         const barrio = feature.properties?.nombre || feature.properties?.soc_fomen;
-        if (testCounter < 5) {
-          console.log(`   ✅ COINCIDENCIA ENCONTRADA: ${barrio}`);
-        }
         return barrio;
       }
       
       testCounter++;
     }
     
-    console.log(`❌ Punto ${point} NO ENCONTRADO en ${totalBarrios} barrios`);
+    console.log(`❌ Punto [${point[0]}, ${point[1]}] NO ENCONTRADO en ${totalBarrios} barrios`);
     return null;
   }
 
