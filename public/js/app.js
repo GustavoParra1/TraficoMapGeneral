@@ -513,9 +513,17 @@ auth.onAuthStateChanged((user) => {
           console.log(`✓ bariosGeoJson cargado (${bariosGeoJson.features?.length || 0} features)`);
         }
         
-        // 5. Pasar datos de barrios a módulos de cámaras
-        console.log('5️⃣ Actualizando módulos de cámaras...');
+        // 5. Pasar datos de barrios a todos los módulos
+        console.log('5️⃣ Actualizando módulos de cámaras y siniestros...');
         if (bariosGeoJson) {
+          // Actualizar SiniestrosLayer
+          if (SiniestrosLayer && SiniestrosLayer.setBarriosGeoJson) {
+            SiniestrosLayer.setBarriosGeoJson(bariosGeoJson);
+            console.log('  ✓ SiniestrosLayer actualizado');
+          } else {
+            console.error('  ⚠️ SiniestrosLayer.setBarriosGeoJson no existe!');
+          }
+          
           if (CamerasLayer && CamerasLayer.setBarriosGeoJson) {
             CamerasLayer.setBarriosGeoJson(bariosGeoJson);
             console.log('  ✓ CamerasLayer actualizado');
