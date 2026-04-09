@@ -1,19 +1,21 @@
-# TraficoMap General - Sistema de Monitoreo Municipal
+# TraficoMap General - Sistema de Monitoreo Municipal SaaS
 
-**Sistema de monitoreo de tráfico con visualización de cámaras, siniestros, semáforos y análisis geográfico.**
+**Plataforma de monitoreo de tráfico para municipios. Búsqueda de direcciones con Google Maps, análisis geográfico y visualización interactiva.**
 
 ---
 
 ## 🎯 Características
 
-- 📍 **Mapeo interactivo** con Leaflet.js
+- 📍 **Mapeo interactivo** con Leaflet.js + Google Maps Geocoding
+- 🔍 **Búsqueda inteligente** - Encuentra calles e intersecciones con precisión
 - 🔥 **Mapa de calor** de siniestros (densidad visualization)
-- 🎥 **Iconos refinados** de cámaras (24px, bordes tenues)
+- 🎥 **Cámaras** públicas y privadas en tiempo real
 - 📊 **Filtros avanzados** por año, causa, participantes, horarios
-- 🌍 **Multi-ciudad** - soporte para múltiples municipios
+- 🌍 **Multi-municipio** - Cada municipio con su propia cuenta y datos
 - 🎨 **Interfaz moderna** y responsive
 - ⚡ **Performance** optimizado con clustering
-- 🔐 **Autenticación** Firebase
+- 🔐 **Autenticación** Firebase por municipio
+- 💰 **Monitoreo de costos** Google Maps API
 
 ---
 

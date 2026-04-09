@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"nombre": "Línea 8", "numero": "8", "tipo": "recorrido", "ciudad": "Córdoba"}, "geometry": {"type": "LineString", "coordinates": [[-64.210, -31.420], [-64.205, -31.422], [-64.200, -31.424], [-64.195, -31.426], [-64.190, -31.427]]}},
+    {"type": "Feature", "properties": {"nombre": "Parada San Vicente", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.210, -31.420]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Zona Oeste", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.202, -31.424]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio Alberbi", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.190, -31.427]}}
+  ]
+}

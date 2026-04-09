@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"nombre": "Línea 13", "numero": "13", "tipo": "recorrido", "ciudad": "Córdoba"}, "geometry": {"type": "LineString", "coordinates": [[-64.189, -31.416], [-64.193, -31.414], [-64.198, -31.412], [-64.203, -31.410], [-64.208, -31.408]]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Centro", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.189, -31.416]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Ruta 9", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.198, -31.412]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio Obispo Trejo", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.208, -31.408]}}
+  ]
+}

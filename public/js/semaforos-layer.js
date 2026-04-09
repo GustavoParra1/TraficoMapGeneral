@@ -8,6 +8,7 @@ const SemaforosLayer = (() => {
   let semaforosLayer = null;
   let map = null;
   let isVisible = false;
+  let barriosGeoJson = null; // Para filtrado geográfico por barrio
 
   // Color para semáforos
   const semaforoColor = '#FFD700'; // Dorado/Amarillo
@@ -33,7 +34,7 @@ const SemaforosLayer = (() => {
     try {
       semaforosData = geojson.features || [];
       
-      console.log(`✅ Cargados ${semaforosData.length} semáforos desde GeoJSON`);
+      console.log(`✅ Cargados ${semaforosData.length} semáforos`);
       
       // Renderizar semáforos
       applyFilters();
@@ -45,10 +46,95 @@ const SemaforosLayer = (() => {
     }
   }
 
+  // Helper: Parsear CSV respetando comillas
+  const parseCSVLine = (line) => {
+    const result = [];
+    let current = '';
+    let insideQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      
+      if (char === '"') {
+        insideQuotes = !insideQuotes;
+      } else if (char === ',' && !insideQuotes) {
+        result.push(current.trim().replace(/^"|"$/g, ''));
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    
+    result.push(current.trim().replace(/^"|"$/g, ''));
+    return result;
+  };
+
+  // Helper: Convertir CSV a GeoJSON
+  const parseCSVtoGeoJSON = (csvText) => {
+    const lines = csvText.trim().split('\n');
+    if (lines.length < 2) return { type: 'FeatureCollection', features: [] };
+    
+    const headerLine = parseCSVLine(lines[0]);
+    const headers = headerLine.map(h => h.toLowerCase());
+    const features = [];
+    
+    // Encontrar índices de lat/lng
+    const latIdx = headers.indexOf('lat');
+    const lngIdx = headers.indexOf('lng');
+    
+    if (latIdx < 0 || lngIdx < 0) {
+      console.warn('⚠️ CSV no tiene columnas lat/lng válidas');
+      return { type: 'FeatureCollection', features: [] };
+    }
+    
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue; // Saltar líneas vacías
+      
+      const values = parseCSVLine(lines[i]);
+      const properties = {};
+      
+      // Construir propiedades
+      for (let j = 0; j < headerLine.length; j++) {
+        const header = headerLine[j];
+        if (header.toLowerCase() !== 'lat' && header.toLowerCase() !== 'lng') {
+          properties[header] = values[j] || '';
+        }
+      }
+      
+      // Extraer coordenadas
+      const lat = parseFloat(values[latIdx]);
+      const lng = parseFloat(values[lngIdx]);
+      
+      if (!isNaN(lat) && !isNaN(lng)) {
+        features.push({
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [lng, lat]  // GeoJSON format: [lng, lat]
+          },
+          properties: properties
+        });
+      }
+    }
+    
+    return {
+      type: 'FeatureCollection',
+      features: features
+    };
+  };
+
   async function loadSemaforos(geojsonPath) {
     try {
       const response = await fetch(geojsonPath);
-      const geojson = await response.json();
+      
+      let geojson;
+      if (geojsonPath.endsWith('.csv')) {
+        const csvText = await response.text();
+        geojson = parseCSVtoGeoJSON(csvText);
+      } else {
+        geojson = await response.json();
+      }
+      
       semaforosData = geojson.features || [];
       
       console.log(`✅ Cargados ${semaforosData.length} semáforos`);
@@ -67,12 +153,21 @@ const SemaforosLayer = (() => {
    * Aplica los filtros y renderiza los semáforos
    */
   function applyFilters() {
-    filteredSemaforos = semaforosData.filter(feature => {
+    filteredSemaforos = semaforosData.filter((feature, idx) => {
       const props = feature.properties;
+      const coords = feature.geometry?.coordinates;
 
       // Filtro por nombre
       if (filters.name && !props.name?.toLowerCase().includes(filters.name.toLowerCase())) {
         return false;
+      }
+
+      // Filtro por barrio (si está seteado)
+      if (filters.globalBarrio !== 'all' && barriosGeoJson) {
+        const barrio = getBarrioForPoint(coords);
+        if (barrio !== filters.globalBarrio) {
+          return false;
+        }
       }
 
       return true;
@@ -139,7 +234,13 @@ const SemaforosLayer = (() => {
     // Agregar marcadores
     filteredSemaforos.forEach(feature => {
       const props = normalizeSemaforoProps(feature.properties);
-      const coords = feature.geometry.coordinates;
+      const coords = feature.geometry?.coordinates;
+      
+      if (!coords || coords.length < 2) {
+        console.warn('⚠️ Semáforo sin coordenadas válidas:', feature);
+        return;
+      }
+      
       const lat = coords[1];
       const lon = coords[0];
 
@@ -216,6 +317,88 @@ const SemaforosLayer = (() => {
   }
 
   /**
+   * Verifica si un punto [lng, lat] está dentro de un polígono
+   */
+  function pointInPolygon(point, polygon) {
+    if (!polygon) return false;
+    
+    const [lng, lat] = point;
+    let inside = false;
+
+    if (polygon.type === 'Polygon') {
+      const coords = polygon.coordinates[0];
+      for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
+        const xi = coords[i][0], yi = coords[i][1];
+        const xj = coords[j][0], yj = coords[j][1];
+        
+        const intersect = ((yi > lat) !== (yj > lat))
+          && (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+      }
+    } else if (polygon.type === 'MultiPolygon') {
+      for (let polyIdx = 0; polyIdx < polygon.coordinates.length; polyIdx++) {
+        const poly = polygon.coordinates[polyIdx];
+        if (!poly || !poly[0]) continue;
+        
+        const coords = poly[0];
+        let insideCurrent = false;
+        
+        for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
+          const xi = coords[i][0], yi = coords[i][1];
+          const xj = coords[j][0], yj = coords[j][1];
+          
+          const intersect = ((yi > lat) !== (yj > lat))
+            && (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+          if (intersect) insideCurrent = !insideCurrent;
+        }
+        
+        if (insideCurrent) {
+          inside = true;
+          break;
+        }
+      }
+    }
+    
+    return inside;
+  }
+
+  /**
+   * Obtiene el barrio que contiene un punto [lng, lat]
+   */
+  function getBarrioForPoint(point) {
+    if (!barriosGeoJson || !point) {
+      return null;
+    }
+    
+    for (const feature of barriosGeoJson.features) {
+      const geometry = feature.geometry;
+      if (pointInPolygon(point, geometry)) {
+        return feature.properties?.nombre || feature.properties?.soc_fomen || null;
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Setter para filtro
+   */
+  function setFilter(filterName, value) {
+    if (filters.hasOwnProperty(filterName)) {
+      filters[filterName] = value;
+      applyFilters();
+    }
+  }
+
+  /**
+   * Setter para barrios GeoJSON
+   */
+  function setBarriosGeoJson(barrios) {
+    barriosGeoJson = barrios;
+    console.log(`✅ SemaforosLayer: ${barrios?.features?.length || 0} barrios cargados`);
+  }
+
+  /**
    * Hace públicas las funciones
    */
   return {
@@ -225,6 +408,8 @@ const SemaforosLayer = (() => {
     applyFilters,
     toggle,
     clearFilters,
+    setFilter,
+    setBarriosGeoJson,
     getSemaforosData: () => semaforosData,
     getFilteredSemaforos: () => filteredSemaforos
   };

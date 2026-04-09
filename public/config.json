@@ -5,16 +5,16 @@
     "description": "Sistema de monitoreo y análisis de tráfico municipal"
   },
   "municipio": {
-    "nombre": "Mar del Plata",
+    "nombre": "Córdoba",
     "pais": "Argentina",
-    "provincia": "Buenos Aires",
+    "provincia": "Córdoba",
     "contacto": "info@municipio.gov.ar",
-    "telefono": "+54 223 XXXX-XXXX"
+    "telefono": "+54 351 XXXX-XXXX"
   },
   "map": {
     "centro": {
-      "lat": -38.0,
-      "lng": -57.55,
+      "lat": -31.416,
+      "lng": -64.189,
       "zoom": 12
     },
     "mapBase": "osm",

@@ -1,0 +1,19 @@
+{
+  "ciudad": "Mar del Plata",
+  "lineas": [
+    {
+      "numero": "501",
+      "linea": "501",
+      "archivo": "linea501.geojson",
+      "nombre": "Línea 501",
+      "color": "#FF6B6B"
+    },
+    {
+      "numero": "511",
+      "linea": "511",
+      "archivo": "linea511.geojson",
+      "nombre": "Línea 511",
+      "color": "#4ECDC4"
+    }
+  ]
+}

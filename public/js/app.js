@@ -40,8 +40,16 @@ function iniciarMapa() {
     // Inicializar módulo de semáforos
     SemaforosLayer.init(map);
     
+    // Inicializar módulo de colectivos
+    ColectivosLayer.init(map);
+    
     // Inicializar módulo de heatmap
     heatmapLayer.init();
+    
+    // Inicializar módulo de búsqueda de direcciones
+    if (typeof GeoLocator !== 'undefined') {
+      GeoLocator.init(map);
+    }
     
     console.log("✅ Mapa inicializado");
   }
@@ -50,7 +58,7 @@ function iniciarMapa() {
 // ============================
 // CONFIGURACIÓN DE CIUDADES
 // ============================
-let currentCity = 'mar-del-plata';
+let currentCity = 'cordoba';
 let citiesConfig = null;
 
 async function loadCitiesConfig() {
@@ -66,7 +74,7 @@ async function loadCitiesConfig() {
 }
 
 // Cargar datos geográficos dinámicamente según ciudad
-async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
+async function cargarDatosGeograficos(cityId = 'cordoba') {
   console.log(`📍 INICIO: Cargando datos para ciudad: ${cityId}`);
   
   if (!citiesConfig) {
@@ -112,6 +120,84 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
   
   try {
     // Helper para cargar datos (soporta fetch URLs y data URLs)
+    // Helper: Parsear CSV respetando comillas
+    const parseCSVLine = (line) => {
+      const result = [];
+      let current = '';
+      let insideQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+          insideQuotes = !insideQuotes;
+        } else if (char === ',' && !insideQuotes) {
+          result.push(current.trim().replace(/^"|"$/g, ''));
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      
+      result.push(current.trim().replace(/^"|"$/g, ''));
+      return result;
+    };
+
+    // Helper: Convertir CSV a GeoJSON
+    const parseCSVtoGeoJSON = (csvText) => {
+      const lines = csvText.trim().split('\n');
+      if (lines.length < 2) return { type: 'FeatureCollection', features: [] };
+      
+      const headerLine = parseCSVLine(lines[0]);
+      const headers = headerLine.map(h => h.toLowerCase());
+      const features = [];
+      
+      // Encontrar índices de lat/lng
+      const latIdx = headers.indexOf('lat');
+      const lngIdx = headers.indexOf('lng');
+      
+      if (latIdx < 0 || lngIdx < 0) {
+        console.warn('⚠️ CSV no tiene columnas lat/lng válidas');
+        return { type: 'FeatureCollection', features: [] };
+      }
+      
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue; // Saltar líneas vacías
+        
+        const values = parseCSVLine(lines[i]);
+        const properties = {};
+        
+        // Construir propiedades
+        for (let j = 0; j < headerLine.length; j++) {
+          const header = headerLine[j];
+          if (header.toLowerCase() !== 'lat' && header.toLowerCase() !== 'lng') {
+            properties[header] = values[j] || '';
+          }
+        }
+        
+        // Extraer coordenadas
+        const lat = parseFloat(values[latIdx]);
+        const lng = parseFloat(values[lngIdx]);
+        
+        if (!isNaN(lat) && !isNaN(lng)) {
+          features.push({
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lng, lat]  // GeoJSON format: [lng, lat]
+            },
+            properties: properties
+          });
+        }
+      }
+      
+      console.log(`✅ Convertidos ${features.length} registros de CSV a GeoJSON`);
+      return {
+        type: 'FeatureCollection',
+        features: features
+      };
+    };
+
     const loadData = async (filePath) => {
       if (!filePath) return null;
       
@@ -123,7 +209,13 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
         const cacheBustUrl = filePath + '?t=' + Date.now();
         const response = await fetch(cacheBustUrl);
         if (response.ok) {
-          return await response.json();
+          // Detectar si es CSV o JSON
+          if (filePath.endsWith('.csv')) {
+            const csvText = await response.text();
+            return parseCSVtoGeoJSON(csvText);
+          } else {
+            return await response.json();
+          }
         }
         return null;
       }
@@ -146,6 +238,10 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
       SiniestrosLayer.clearFilters();
       // Actualizar también el heatmap con los nuevos datos
       heatmapLayer.setData(sinGeoJson);
+      // Pasar barrios al heatmap para filtrado geopolítico
+      if (bariosGeoJson) {
+        heatmapLayer.setBarriosGeoJson(bariosGeoJson);
+      }
       if (cityConfig.files.siniestros.startsWith('data:')) {
         console.log(`      ℹ️ Cargando siniestros desde memoria (usuario)`);
         // Cargar siniestros desde GeoJSON en memoria (importados)
@@ -154,6 +250,12 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
         await SiniestrosLayer.load(cityConfig.files.siniestros);
       }
       console.log(`      ✓ Siniestros cargados`);
+      
+      // Cargar direcciones en GeoLocator para búsqueda
+      if (typeof GeoLocator !== 'undefined') {
+        GeoLocator.loadAddresses(sinGeoJson, cityId);
+        console.log(`      ✓ Índice de direcciones cargado para búsqueda`);
+      }
     }
     
     // PASO 4: Cargar cámaras públicas
@@ -170,6 +272,10 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
       }
       if (bariosGeoJson) {
         CamerasLayer.setBarriosGeoJson(bariosGeoJson);
+      }
+      // Pasar cámaras a ColectivosLayer
+      if (typeof ColectivosLayer !== 'undefined' && ColectivosLayer.setCamerasData) {
+        ColectivosLayer.setCamerasData(CamerasLayer.getAll());
       }
       console.log(`      ✓ Cámaras públicas cargadas`);
     }
@@ -201,14 +307,25 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
         console.log(`  [OPT] Cargando semáforos desde: ${cityConfig.optionalLayers.semaforos}`);
         const semaforosGeoJson = await loadData(cityConfig.optionalLayers.semaforos);
         if (semaforosGeoJson) {
-          if (cityConfig.optionalLayers.semaforos.startsWith('data:')) {
-            console.log(`       ℹ️ Cargando semáforos desde memoria (usuario)`);
-            SemaforosLayer.loadFromGeoJson(semaforosGeoJson);
-          } else {
-            await SemaforosLayer.load(cityConfig.optionalLayers.semaforos);
+          SemaforosLayer.loadFromGeoJson(semaforosGeoJson);
+          
+          // Pasar barrios a SemaforosLayer para filtrado geopolítico
+          if (bariosGeoJson) {
+            SemaforosLayer.setBarriosGeoJson(bariosGeoJson);
           }
           console.log(`       ✓ Semáforos cargados`);
         }
+      }
+
+      // Colectivos (múltiples líneas) - ESCALABLE POR CIUDAD
+      console.log(`  [OPT] Cargando líneas de colectivos...`);
+      const colectivosLoaded = await ColectivosLayer.loadLineas(`data`, cityId);
+      if (colectivosLoaded && Object.keys(colectivosLoaded).length > 0) {
+        // Mostrar panel de colectivos cuando hay datos
+        setTimeout(() => {
+          ColectivosUI.refresh();
+          console.log(`       ✓ ${Object.keys(colectivosLoaded).length} líneas de colectivos cargadas`);
+        }, 500);
       }
     }
     
@@ -287,6 +404,7 @@ auth.onAuthStateChanged((user) => {
       <div class="sidebar-section">
         <div class="sidebar-title">Ciudad</div>
         <select id="city-selector" style="width: 100%; padding: 10px; border: 2px solid #0066ff; border-radius: 4px; background-color: #fff; color: #333; font-size: 13px; font-weight: 500;">
+          <option value="cordoba">Córdoba</option>
           <option value="mar-del-plata">Mar del Plata</option>
           <option value="san-martin-del-mar">San Martín del Mar</option>
         </select>
@@ -301,38 +419,55 @@ auth.onAuthStateChanged((user) => {
       </div>
       
       <div class="sidebar-section">
+        <div class="sidebar-title">🗺️ Buscar Dirección</div>
+        <div style="display: flex; gap: 8px;">
+          <input 
+            type="text" 
+            id="address-search-input" 
+            placeholder="Ej: Colón y Entre Ríos"
+            style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px;"
+          >
+          <button id="address-search-btn" style="padding: 8px 12px; background-color: #0066ff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500;">🔍</button>
+        </div>
+        <div id="address-results" style="margin-top: 8px; max-height: 150px; overflow-y: auto; display: none;">
+          <!-- Resultados de búsqueda aquí -->
+        </div>
+        <button id="address-clear-btn" style="width: 100%; margin-top: 8px; padding: 6px; background-color: #666; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; display: none;">✕ Limpiar Marcador</button>
+      </div>
+      
+      <div class="sidebar-section">
         <div class="sidebar-title">Filtro Global por Barrio</div>
         <select id="global-barrio-filter" style="width: 100%; padding: 8px; border: none; border-radius: 4px;">
           <option value="all">Todos los Barrios</option>
         </select>
       </div>
 
-      <div class="sidebar-section">
+      <div class="sidebar-section" style="position: relative; z-index: 100;">
         <div class="sidebar-title">Capas Geográficas</div>
-        <div class="button-group">
-          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
-            <input type="checkbox" id="toggle-barrios">
-            <span>Zonas / Barrios</span>
+        <div class="button-group" style="position: relative; z-index: 100;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; position: relative; z-index: 100;">
+            <input type="checkbox" id="toggle-barrios" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">Zonas / Barrios</span>
           </label>
-          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px;">
-            <input type="checkbox" id="siniestros-checkbox">
-            <span>Mostrar Siniestros (<span id="total-siniestros-count">0</span>)</span>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="siniestros-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">Mostrar Siniestros (<span id="total-siniestros-count">0</span>)</span>
           </label>
-          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px;">
-            <input type="checkbox" id="cameras-checkbox">
-            <span>Mostrar Cámaras (<span id="total-cameras-count">0</span>)</span>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="cameras-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">Mostrar Cámaras (<span id="total-cameras-count">0</span>)</span>
           </label>
-          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px;">
-            <input type="checkbox" id="private-cameras-checkbox">
-            <span>Cámaras Privadas (<span id="total-private-cameras-count">0</span>)</span>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="private-cameras-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">Cámaras Privadas (<span id="total-private-cameras-count">0</span>)</span>
           </label>
-          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px;">
-            <input type="checkbox" id="semaforos-checkbox">
-            <span>Mostrar Semáforos (<span id="total-semaforos-count">0</span>)</span>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="semaforos-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">Mostrar Semáforos (<span id="total-semaforos-count">0</span>)</span>
           </label>
-          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px;">
-            <input type="checkbox" id="heatmap-checkbox">
-            <span>🔥 Mapa de Calor de Siniestros</span>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="heatmap-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">🔥 Mapa de Calor de Siniestros</span>
           </label>
         </div>
         <div style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #f0f0f0; border-radius: 4px;">
@@ -379,7 +514,15 @@ auth.onAuthStateChanged((user) => {
         </div>
       </div>
 
-      
+      <div class="sidebar-section">
+        <div class="sidebar-title">Centro de Control</div>
+        <div class="button-group">
+          <button id="btn-show-colectivos" style="width: 100%; padding: 10px; background-color: #ff9500; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 12px; text-align: left;">
+            🚌 Líneas de Colectivos (Control)
+          </button>
+        </div>
+      </div>
+
       <div class="sidebar-section">
         <div class="sidebar-title">Controles</div>
         <div class="button-group">
@@ -407,9 +550,31 @@ auth.onAuthStateChanged((user) => {
     
     // CARGAR CIUDADES DEL USUARIO AL INICIAR SIDEBAR
     console.log('🔄 Cargando ciudades almacenadas del usuario...');
+    
+    const citySelector = document.getElementById('city-selector');
+    
+    // VERIFICACIÓN: Asegurar que ciudades predefinidas existan
+    const predefinedCities = [
+      { id: 'cordoba', name: 'Córdoba' },
+      { id: 'mar-del-plata', name: 'Mar del Plata' },
+      { id: 'san-martin-del-mar', name: 'San Martín del Mar' }
+    ];
+    
+    if (citySelector) {
+      predefinedCities.forEach(city => {
+        const existingOption = Array.from(citySelector.options).find(o => o.value === city.id);
+        if (!existingOption) {
+          const option = document.createElement('option');
+          option.value = city.id;
+          option.textContent = city.name;
+          citySelector.insertBefore(option, citySelector.firstChild);
+          console.log(`🔧 Re-agregada ciudad predefinida: ${city.name}`);
+        }
+      });
+    }
+    
     ImportCities.loadUserCities();
     const userCities = ImportCities.getUserCities();
-    const citySelector = document.getElementById('city-selector');
     
     if (citySelector && Object.keys(userCities).length > 0) {
       console.log(`📍 Encontradas ${Object.keys(userCities).length} ciudades del usuario`);
@@ -484,12 +649,18 @@ auth.onAuthStateChanged((user) => {
         }
         
         // 2. Limpiar capas
-        console.log('2️⃣ Limpiando capas de GeoLayers...');
+        console.log('2️⃣ Limpiando capas de GeoLayers y Colectivos...');
         if (GeoLayers) {
           GeoLayers.clearLayers();
           console.log('  ✓ GeoLayers limpiado');
         } else {
           console.error('  ⚠️ GeoLayers no existe!');
+        }
+        
+        // Resetear caché de colectivos
+        if (ColectivosLayer && ColectivosLayer.resetCache) {
+          ColectivosLayer.resetCache();
+          console.log('  ✓ ColectivosLayer caché reseteado');
         }
         
         // 3. Resetear filtro global de barrio
@@ -537,6 +708,13 @@ auth.onAuthStateChanged((user) => {
           } else {
             console.error('  ⚠️ PrivateCamerasLayer.setBarriosGeoJson no existe!');
           }
+          
+          if (SemaforosLayer && SemaforosLayer.setBarriosGeoJson) {
+            SemaforosLayer.setBarriosGeoJson(bariosGeoJson);
+            console.log('  ✓ SemaforosLayer actualizado');
+          } else {
+            console.error('  ⚠️ SemaforosLayer.setBarriosGeoJson no existe!');
+          }
         }
         
         // 6. Configurar filtros para la nueva ciudad
@@ -579,7 +757,10 @@ auth.onAuthStateChanged((user) => {
     if (toggleBarrios) {
       toggleBarrios.addEventListener('change', (e) => {
         const isVisible = GeoLayers.toggleLayer('Zonas / Barrios');
-        toggleBarrios.checked = isVisible;
+        // Solo actualizar el checked si cambió (evitar ciclo infinito)
+        if (e.target.checked !== isVisible) {
+          e.target.checked = isVisible;
+        }
       });
     }
     
@@ -593,16 +774,24 @@ auth.onAuthStateChanged((user) => {
       const sinCheckbox = document.getElementById('siniestros-checkbox');
       const camCheckbox = document.getElementById('cameras-checkbox');
       const privCamCheckbox = document.getElementById('private-cameras-checkbox');
+      const semaforosCheckbox = document.getElementById('semaforos-checkbox');
       
-      if (sinCheckbox && sinCheckbox.checked && barrio !== 'all') {
-        SiniestrosLayer.setFilter('globalBarrio', barrio);
+      // Aplicar filtro a las capas que están visibles, incluso si barrio es 'all'
+      if (sinCheckbox && sinCheckbox.checked) {
+        SiniestrosLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
       }
-      if (camCheckbox && camCheckbox.checked && barrio !== 'all') {
-        CamerasLayer.setFilter('globalBarrio', barrio);
+      if (camCheckbox && camCheckbox.checked) {
+        CamerasLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
       }
-      if (privCamCheckbox && privCamCheckbox.checked && barrio !== 'all') {
-        PrivateCamerasLayer.setFilter('globalBarrio', barrio);
+      if (privCamCheckbox && privCamCheckbox.checked) {
+        PrivateCamerasLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
       }
+      if (semaforosCheckbox && semaforosCheckbox.checked) {
+        SemaforosLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
+      }
+      
+      // Aplicar filtro al heatmap (siempre, aunque no esté visible en checkboxes)
+      heatmapLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
     };
     
     // Toggle de siniestros
@@ -613,6 +802,9 @@ auth.onAuthStateChanged((user) => {
         // Aplicar filtro global si se activa
         if (e.target.checked) {
           applyGlobalBarrioFilter();
+        } else {
+          // RESETEAR el filtro de barrio cuando se desactiva
+          SiniestrosLayer.setFilter('globalBarrio', 'all');
         }
       });
     }
@@ -625,6 +817,9 @@ auth.onAuthStateChanged((user) => {
         // Aplicar filtro global si se activa
         if (e.target.checked) {
           applyGlobalBarrioFilter();
+        } else {
+          // RESETEAR el filtro de barrio cuando se desactiva
+          CamerasLayer.setFilter('globalBarrio', 'all');
         }
       });
     }
@@ -637,6 +832,9 @@ auth.onAuthStateChanged((user) => {
         // Aplicar filtro global si se activa
         if (e.target.checked) {
           applyGlobalBarrioFilter();
+        } else {
+          // RESETEAR el filtro de barrio cuando se desactiva
+          PrivateCamerasLayer.setFilter('globalBarrio', 'all');
         }
       });
     }
@@ -646,7 +844,36 @@ auth.onAuthStateChanged((user) => {
     if (semaforosCheckbox) {
       semaforosCheckbox.addEventListener('change', (e) => {
         SemaforosLayer.toggle(e.target.checked);
+        // Aplicar filtro global si se activa
+        if (e.target.checked) {
+          applyGlobalBarrioFilter();
+        } else {
+          // RESETEAR el filtro de barrio cuando se desactiva
+          SemaforosLayer.setFilter('globalBarrio', 'all');
+        }
       });
+    }
+
+    // Botón para mostrar panel de colectivos
+    const btnShowColectivos = document.getElementById('btn-show-colectivos');
+    console.log('🚌 btnShowColectivos:', btnShowColectivos ? 'ENCONTRADO' : 'NO ENCONTRADO');
+    if (btnShowColectivos) {
+      btnShowColectivos.addEventListener('click', async () => {
+        console.log('🚌 Click en botón de colectivos');
+        if (typeof ColectivosUI !== 'undefined' && ColectivosUI.show) {
+          try {
+            await ColectivosUI.show();
+            console.log('✅ Panel de colectivos mostrado');
+          } catch (e) {
+            console.error('❌ Error mostrando panel de colectivos:', e);
+          }
+        } else {
+          console.warn('⚠️ ColectivosUI no está disponible');
+        }
+      });
+      console.log('✅ Event listener asignado a btnShowColectivos');
+    } else {
+      console.error('❌ NO SE ENCONTRÓ btnShowColectivos - el HTML puede no estar listo');
     }
     
     document.getElementById('center-map-btn').addEventListener('click', () => {
@@ -662,6 +889,164 @@ auth.onAuthStateChanged((user) => {
         console.log('✅ Vista reseteada');
       }
     });
+
+    // ============= BUSCADOR DE DIRECCIONES =============
+    const addressSearchInput = document.getElementById('address-search-input');
+    const addressSearchBtn = document.getElementById('address-search-btn');
+    const addressResults = document.getElementById('address-results');
+    const addressClearBtn = document.getElementById('address-clear-btn');
+
+    if (addressSearchBtn) {
+      addressSearchBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const query = addressSearchInput.value.trim();
+        if (query.length === 0) {
+          addressResults.style.display = 'none';
+          return;
+        }
+
+        if (typeof GeoLocator === 'undefined') {
+          console.warn('⚠️ GeoLocator no cargado');
+          return;
+        }
+
+        const results = await GeoLocator.search(query);
+        console.log(`🔍 Búsqueda de "${query}": ${results.length} resultados`);
+
+        if (results.length === 0) {
+          // Mostrar sugerencias de direcciones disponibles
+          const allAddresses = GeoLocator.getIndex();
+          const suggestions = allAddresses.slice(0, 10); // Top 10 direcciones
+          
+          let html = `<div style="padding: 10px; color: #c33; font-size: 12px; border-bottom: 1px solid #ddd;">
+            ❌ No se encontraron resultados para "${query}"<br>
+            <span style="color: #666; font-size: 11px;">Algunas direcciones disponibles:</span>
+          </div>`;
+          
+          suggestions.forEach((address, idx) => {
+            html += `
+              <div class="address-suggestion" data-address-idx="${idx}" style="padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; background: #f0f0f0; margin: 2px 0; border-radius: 3px; font-size: 11px;">
+                <div style="color: #0066ff; font-weight: 500;">${address.original}</div>
+              </div>
+            `;
+          });
+          
+          addressResults.innerHTML = html;
+          addressResults.style.display = 'block';
+
+          // Agregar event listeners a sugerencias
+          document.querySelectorAll('.address-suggestion').forEach(item => {
+            item.addEventListener('click', () => {
+              const idx = parseInt(item.getAttribute('data-address-idx'));
+              const address = GeoLocator.getIndex()[idx];
+              console.log(`✅ Seleccionado (sugerencia): ${address.original}`);
+              GeoLocator.showLocation(address);
+              addressResults.style.display = 'none';
+              addressClearBtn.style.display = 'block';
+              addressSearchInput.value = address.original;
+            });
+          });
+          return;
+        }
+
+        // Mostrar resultados
+        let html = '<div style="padding: 8px; border-top: 1px solid #ddd;">';
+        results.forEach((result, idx) => {
+          const lat = result.lat || (result.coordinates ? result.coordinates[1] : '?');
+          const lng = result.lng || (result.coordinates ? result.coordinates[0] : '?');
+          
+          // Determinar icono y etiqueta según fuente
+          let badge = '📎';
+          let bgColor = '#f9f9f9';
+          if (result.source === 'nominatim') {
+            badge = '🌐';
+            bgColor = '#e8f4fd';
+          }
+          if (result.matchType && result.matchType.includes('nominatim')) {
+            badge = '🌐';
+            bgColor = '#e8f4fd';
+          }
+          
+          const matchTypeLabel = {
+            'exacta': 'coincidencia exacta',
+            'parcial': 'coincidencia parcial',
+            'cruce': 'cruce local',
+            'cruce_fuzzy': 'cruce similar',
+            'nominatim_cruce': 'cruce (OpenStreetMap)',
+            'nominatim_address': 'dirección (OpenStreetMap)',
+            'palabra_clave': 'por palabra clave',
+            'similar': 'similar'
+          };
+          
+          const label = matchTypeLabel[result.matchType] || result.matchType || 'resultado';
+          
+          html += `
+            <div style="padding: 10px; border-bottom: 1px solid #ddd; cursor: pointer; background: ${bgColor}; margin: 0; border-radius: 0; transition: background 0.2s;"
+              data-idx="${idx}"
+              onmouseover="this.style.background='#d4e8f5';"
+              onmouseout="this.style.background='${bgColor}';">
+              <div style="color: #0066ff; font-size: 13px; font-weight: 500;">${badge} ${result.original}</div>
+              <div style="color: #666; font-size: 11px; margin-top: 3px;">📍 ${typeof lat === 'number' ? lat.toFixed(4) : lat}, ${typeof lng === 'number' ? lng.toFixed(4) : lng} <span style="color: #999; margin-left: 8px;">${label}</span></div>
+            </div>
+          `;
+        });
+        html += '</div>';
+        addressResults.innerHTML = html;
+        addressResults.style.display = 'block';
+        
+        console.log(`📊 HTML generado con ${results.length} resultados`);
+
+        // Event listeners para resultados - usar delegación de eventos más robusta
+        setTimeout(() => {
+          const resultItems = document.querySelectorAll('[data-idx]');
+          console.log(`🔗 Encontrados ${resultItems.length} items con data-idx`);
+          
+          resultItems.forEach((item) => {
+            item.addEventListener('click', () => {
+              const idx = parseInt(item.getAttribute('data-idx'));
+              const selected = results[idx];
+              console.log(`✅ CLICK en resultado[${idx}]:`, selected);
+              
+              if (!selected) {
+                console.error('❌ Resultado undefined en índice', idx);
+                return;
+              }
+              
+              if (typeof GeoLocator === 'undefined') {
+                console.error('❌ GeoLocator no disponible');
+                return;
+              }
+              
+              console.log('📍 Llamando a GeoLocator.showLocation()...');
+              GeoLocator.showLocation(selected);
+              addressResults.style.display = 'none';
+              addressClearBtn.style.display = 'block';
+              addressSearchInput.value = selected.original || 'Ubicación';
+            });
+          });
+        }, 100);
+      });
+    }
+
+    if (addressSearchInput) {
+      addressSearchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          addressSearchBtn.click();
+        }
+      });
+    }
+
+    if (addressClearBtn) {
+      addressClearBtn.addEventListener('click', () => {
+        if (typeof GeoLocator !== 'undefined') {
+          GeoLocator.clearMarker();
+        }
+        addressClearBtn.style.display = 'none';
+        addressResults.style.display = 'none';
+        addressSearchInput.value = '';
+        console.log('🧹 Búsqueda y marcador limpiados');
+      });
+    }
     
     // Mostrar mapa
     document.getElementById('map').style.opacity = '1';
@@ -670,8 +1055,8 @@ auth.onAuthStateChanged((user) => {
     iniciarMapa();
     
     // Cargar datos geográficos Y siniestros PRIMERO
-    console.log('📍 INICIALIZANDO CARGA DE DATOS DE MAR DEL PLATA');
-    cargarDatosGeograficos().then((bariosGeoJson) => {
+    console.log(`📍 INICIALIZANDO CARGA DE DATOS DE ${currentCity.toUpperCase()}`);
+    cargarDatosGeograficos(currentCity).then((bariosGeoJson) => {
       console.log('✅ PROMESA cargarDatosGeograficos() RESUELTA');
       console.log('   - bariosGeoJson:', bariosGeoJson ? `${bariosGeoJson.features?.length} features` : 'NULL');
       
@@ -687,6 +1072,19 @@ auth.onAuthStateChanged((user) => {
       console.log('📍 Configurando filtros de siniestros...');
       setupSinistrosFilters(bariosGeoJson);
       console.log('✓ Filtros configurados');
+
+      // Cargar líneas de colectivos (se inicializará cuando el usuario haga click)
+      console.log('📍 Precargando líneas de colectivos...');
+      const currentCityId = document.getElementById('city-selector')?.value || 'cordoba';
+      ColectivosLayer.loadLineas(`data`, currentCityId)
+        .then(lineas => {
+          if (lineas && Object.keys(lineas).length > 0) {
+            console.log(`✓ ${Object.keys(lineas).length} líneas de colectivos cargadas`);
+          } else {
+            console.log('ℹ️ No hay líneas de colectivos disponibles');
+          }
+        })
+        .catch(e => console.warn('⚠️ Error cargando colectivos:', e));
       
       // WAIT UN POCO Y LUEGO ASEGURAR QUE TODO ESTÁ APAGADO
       setTimeout(() => {
@@ -774,16 +1172,28 @@ auth.onAuthStateChanged((user) => {
           const sinCheckbox = document.getElementById('siniestros-checkbox');
           const camCheckbox = document.getElementById('cameras-checkbox');
           const privCamCheckbox = document.getElementById('private-cameras-checkbox');
+          const semaforosCheckbox = document.getElementById('semaforos-checkbox');
           
           if (sinCheckbox && sinCheckbox.checked) {
-            SiniestrosLayer.setFilter('globalBarrio', barrio);
+            SiniestrosLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
+            console.log(`  ✓ Filtro de siniestros actualizado: ${barrio}`);
           }
           if (camCheckbox && camCheckbox.checked) {
-            CamerasLayer.setFilter('globalBarrio', barrio);
+            CamerasLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
+            console.log(`  ✓ Filtro de cámaras actualizado: ${barrio}`);
           }
           if (privCamCheckbox && privCamCheckbox.checked) {
-            PrivateCamerasLayer.setFilter('globalBarrio', barrio);
+            PrivateCamerasLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
+            console.log(`  ✓ Filtro de cámaras privadas actualizado: ${barrio}`);
           }
+          if (semaforosCheckbox && semaforosCheckbox.checked) {
+            SemaforosLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
+            console.log(`  ✓ Filtro de semáforos actualizado: ${barrio}`);
+          }
+          
+          // Aplicar filtro al heatmap (siempre, aunque no esté visible)
+          heatmapLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
+          console.log(`  ✓ Filtro de mapa de calor actualizado: ${barrio}`);
           
           // Solo resaltar visualmente - sin depender del checkbox
           if (barrio !== 'all') {
@@ -832,17 +1242,26 @@ auth.onAuthStateChanged((user) => {
           const sinCheckbox = document.getElementById('siniestros-checkbox');
           const camCheckbox = document.getElementById('cameras-checkbox');
           const privCamCheckbox = document.getElementById('private-cameras-checkbox');
-          const zonesCheckbox = document.getElementById('show-zones-checkbox');
+          const semaforosCheckbox = document.getElementById('semaforos-checkbox');
+          const heatmapCheckbox = document.getElementById('heatmap-checkbox');
+          const zonesCheckbox = document.getElementById('toggle-barrios');
           
           if (sinCheckbox) sinCheckbox.checked = false;
           if (camCheckbox) camCheckbox.checked = false;
           if (privCamCheckbox) privCamCheckbox.checked = false;
+          if (semaforosCheckbox) semaforosCheckbox.checked = false;
+          if (heatmapCheckbox) heatmapCheckbox.checked = false;
           if (zonesCheckbox) zonesCheckbox.checked = false;
           
           // Resetear filtro global de barrio
           const globalBarrioSelect = document.getElementById('global-barrio-filter');
           if (globalBarrioSelect) {
             globalBarrioSelect.value = 'all';
+          }
+          
+          // Ocultar explícitamente la capa de Zonas/Barrios si está visible
+          if (GeoLayers.isLayerVisible('Zonas / Barrios')) {
+            GeoLayers.toggleLayer('Zonas / Barrios');
           }
           
           // Resetear todos los selectores de filtros
@@ -883,10 +1302,18 @@ auth.onAuthStateChanged((user) => {
           // Limpiar filtros de cámaras privadas
           PrivateCamerasLayer.clearFilters();
           
+          // Limpiar filtros de semáforos
+          SemaforosLayer.clearFilters();
+          
+          // Limpiar filtro de heatmap
+          heatmapLayer.setFilter('globalBarrio', 'all');
+          
           // Ocultar todas las capas
           SiniestrosLayer.toggle(false);
           CamerasLayer.toggle(false);
           PrivateCamerasLayer.toggle(false);
+          SemaforosLayer.toggle(false);
+          heatmapLayer.toggle(false);
           GeoLayers.toggle('all', false);
           
           console.log('✅ Todos los filtros, checkboxes y capas han sido limpiados');
@@ -977,7 +1404,7 @@ const setupImportCities = () => {
               <input type="file" id="import-file-barrios" accept=".json,.geojson,.csv" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
               <div style="font-size: 11px; color: #666; margin-top: 5px;">Debe tener geometría de polígonos</div>
             </div>
-            <button type="button" class="help-button" onclick="FormatHelp.showHelp('barrios')" style="margin-top: 24px;">?</button>
+            <button type="button" class="help-button" data-help="barrios" style="margin-top: 24px;">?</button>
           </div>
         </div>
         
@@ -988,7 +1415,7 @@ const setupImportCities = () => {
               <input type="file" id="import-file-siniestros" accept=".json,.geojson,.csv" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
               <div style="font-size: 11px; color: #666; margin-top: 5px;">CSV: lat, lng, fecha, causa, participante</div>
             </div>
-            <button type="button" class="help-button" onclick="FormatHelp.showHelp('siniestros')" style="margin-top: 24px;">?</button>
+            <button type="button" class="help-button" data-help="siniestros" style="margin-top: 24px;">?</button>
           </div>
         </div>
         
@@ -999,7 +1426,7 @@ const setupImportCities = () => {
               <input type="file" id="import-file-cameras" accept=".json,.geojson,.csv" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
               <div style="font-size: 11px; color: #666; margin-top: 5px;">CSV: lat, lng, nombre, tipo</div>
             </div>
-            <button type="button" class="help-button" onclick="FormatHelp.showHelp('cameras')" style="margin-top: 24px;">?</button>
+            <button type="button" class="help-button" data-help="cameras" style="margin-top: 24px;">?</button>
           </div>
         </div>
         
@@ -1010,7 +1437,7 @@ const setupImportCities = () => {
               <input type="file" id="import-file-private-cameras" accept=".json,.geojson,.csv" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
               <div style="font-size: 11px; color: #666; margin-top: 5px;">CSV: lat, lng, nombre</div>
             </div>
-            <button type="button" class="help-button" onclick="FormatHelp.showHelp('private_cameras')" style="margin-top: 24px;">?</button>
+            <button type="button" class="help-button" data-help="private_cameras" style="margin-top: 24px;">?</button>
           </div>
         </div>
         
@@ -1021,7 +1448,7 @@ const setupImportCities = () => {
           <div style="margin-bottom: 10px;">
             <div style="display: flex; gap: 8px; align-items: center;">
               <label style="display: block; font-size: 11px; margin-bottom: 0; flex: 1;">🚦 Semáforos:</label>
-              <button type="button" class="help-button" onclick="FormatHelp.showHelp('semaforos')" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
+              <button type="button" class="help-button" data-help="semaforos" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
             </div>
             <input type="file" id="import-file-semaforos" accept=".json,.geojson,.csv" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; margin-top: 3px;">
           </div>
@@ -1029,23 +1456,16 @@ const setupImportCities = () => {
           <div style="margin-bottom: 10px;">
             <div style="display: flex; gap: 8px; align-items: center;">
               <label style="display: block; font-size: 11px; margin-bottom: 0; flex: 1;">🏫 Colegios/Escuelas:</label>
-              <button type="button" class="help-button" onclick="FormatHelp.showHelp('colegios')" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
+              <button type="button" class="help-button" data-help="colegios" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
             </div>
             <input type="file" id="import-file-colegios" accept=".json,.geojson,.csv" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; margin-top: 3px;">
           </div>
           
-          <div style="margin-bottom: 10px;">
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <label style="display: block; font-size: 11px; margin-bottom: 0; flex: 1;">🚌 Colectivos:</label>
-              <button type="button" class="help-button" onclick="FormatHelp.showHelp('colectivos')" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
-            </div>
-            <input type="file" id="import-file-colectivos" accept=".json,.geojson,.csv" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; margin-top: 3px;">
-          </div>
-          
+
           <div style="margin-bottom: 10px;">
             <div style="display: flex; gap: 8px; align-items: center;">
               <label style="display: block; font-size: 11px; margin-bottom: 0; flex: 1;">🛣️ Corredores Escolares:</label>
-              <button type="button" class="help-button" onclick="FormatHelp.showHelp('corredores')" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
+              <button type="button" class="help-button" data-help="corredores" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
             </div>
             <input type="file" id="import-file-corredores" accept=".json,.geojson,.csv" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; margin-top: 3px;">
           </div>
@@ -1053,7 +1473,7 @@ const setupImportCities = () => {
           <div style="margin-bottom: 10px;">
             <div style="display: flex; gap: 8px; align-items: center;">
               <label style="display: block; font-size: 11px; margin-bottom: 0; flex: 1;">📊 Flujo Vehicular:</label>
-              <button type="button" class="help-button" onclick="FormatHelp.showHelp('flujo')" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
+              <button type="button" class="help-button" data-help="flujo" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
             </div>
             <input type="file" id="import-file-flujo" accept=".json,.geojson,.csv" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; margin-top: 3px;">
           </div>
@@ -1061,26 +1481,21 @@ const setupImportCities = () => {
           <div style="margin-bottom: 10px;">
             <div style="display: flex; gap: 8px; align-items: center;">
               <label style="display: block; font-size: 11px; margin-bottom: 0; flex: 1;">🚗 Robo Automotor:</label>
-              <button type="button" class="help-button" onclick="FormatHelp.showHelp('robo')" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
+              <button type="button" class="help-button" data-help="robo" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
             </div>
             <input type="file" id="import-file-robo" accept=".json,.geojson,.csv" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; margin-top: 3px;">
           </div>
-          
-          <div style="margin-bottom: 10px;">
+
+          <div style="margin-bottom: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
             <div style="display: flex; gap: 8px; align-items: center;">
-              <label style="display: block; font-size: 11px; margin-bottom: 0; flex: 1;">🚨 Alertas:</label>
-              <button type="button" class="help-button" onclick="FormatHelp.showHelp('alertas')" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
+              <label style="display: block; font-size: 11px; margin-bottom: 0; flex: 1;">🚌 Líneas de Colectivos (múltiples):</label>
+              <button type="button" class="help-button" data-help="lineas-colectivos" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
             </div>
-            <input type="file" id="import-file-alertas" accept=".json,.geojson,.csv" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; margin-top: 3px;">
+            <input type="file" id="import-file-lineas" accept=".json,.geojson" multiple style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; margin-top: 3px;">
+            <div style="font-size: 10px; color: #666; margin-top: 3px;">Selecciona múltiples archivos linea*.geojson. Ej: linea1.geojson, linea2.geojson, etc.</div>
           </div>
           
-          <div>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <label style="display: block; font-size: 11px; margin-bottom: 0; flex: 1;">⛔ Zonas sin Cobertura:</label>
-              <button type="button" class="help-button" onclick="FormatHelp.showHelp('zonas')" style="padding: 4px 8px !important; margin: 0 !important; font-size: 11px !important;">?</button>
-            </div>
-            <input type="file" id="import-file-zonas" accept=".json,.geojson,.csv" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; margin-top: 3px;">
-          </div>
+
         </div>
         
         <div style="display: flex; gap: 10px;">
@@ -1106,6 +1521,21 @@ const setupImportCities = () => {
     return;
   }
 
+  // Agregar event listeners para los botones de ayuda dentro del modal
+  modal.addEventListener('click', (e) => {
+    // Buscar el botón más cercano clickeado
+    const helpBtn = e.target.closest('button.help-button[data-help]');
+    if (helpBtn) {
+      e.stopPropagation();
+      e.preventDefault();
+      const layerType = helpBtn.getAttribute('data-help');
+      if (layerType && typeof FormatHelp !== 'undefined') {
+        console.log('📞 Abriendo ayuda para:', layerType);
+        FormatHelp.showHelp(layerType);
+      }
+    }
+  });
+
   // Cargar ciudades guardadas del usuario
   ImportCities.loadUserCities();
 
@@ -1114,12 +1544,34 @@ const setupImportCities = () => {
     const userCities = ImportCities.getUserCities();
     const currentOptions = Array.from(citySelector.options).map(o => o.value);
     
+    // ASEGURAR que ciudades predefinidas siempre existan
+    const predefinedCities = [
+      { id: 'cordoba', name: 'Córdoba' },
+      { id: 'mar-del-plata', name: 'Mar del Plata' },
+      { id: 'san-martin-del-mar', name: 'San Martín del Mar' }
+    ];
+    
+    // Verificar que todas las ciudades predefinidas existan como opciones
+    predefinedCities.forEach(city => {
+      const existingOption = Array.from(citySelector.options).find(o => o.value === city.id);
+      if (!existingOption) {
+        const option = document.createElement('option');
+        option.value = city.id;
+        option.textContent = city.name;
+        // Insertar al principio
+        citySelector.insertBefore(option, citySelector.firstChild);
+        console.log(`🔧 Re-agregada ciudad predefinida: ${city.name}`);
+      }
+    });
+    
+    // Agregar ciudades del usuario
     Object.values(userCities).forEach(city => {
       if (!currentOptions.includes(city.id)) {
         const option = document.createElement('option');
         option.value = city.id;
         option.textContent = `⭐ ${city.name} (Usuario)`;
         citySelector.appendChild(option);
+        console.log(`✅ Agregada ciudad del usuario: ${city.name}`);
       }
     });
   };
@@ -1142,12 +1594,10 @@ const setupImportCities = () => {
     // Limpiar capas opcionales
     document.getElementById('import-file-semaforos').value = '';
     document.getElementById('import-file-colegios').value = '';
-    document.getElementById('import-file-colectivos').value = '';
     document.getElementById('import-file-corredores').value = '';
     document.getElementById('import-file-flujo').value = '';
     document.getElementById('import-file-robo').value = '';
-    document.getElementById('import-file-alertas').value = '';
-    document.getElementById('import-file-zonas').value = '';
+    document.getElementById('import-file-lineas').value = '';
   });
 
   // Cerrar modal al hacer clic fuera
@@ -1179,13 +1629,13 @@ const setupImportCities = () => {
       // Capas opcionales
       semaforos: document.getElementById('import-file-semaforos').files[0],
       colegios: document.getElementById('import-file-colegios').files[0],
-      colectivos: document.getElementById('import-file-colectivos').files[0],
       corredores: document.getElementById('import-file-corredores').files[0],
       flujo: document.getElementById('import-file-flujo').files[0],
-      robo: document.getElementById('import-file-robo').files[0],
-      alertas: document.getElementById('import-file-alertas').files[0],
-      zonas: document.getElementById('import-file-zonas').files[0]
+      robo: document.getElementById('import-file-robo').files[0]
     };
+
+    // Recopilar múltiples líneas de colectivos
+    const lineasFiles = Array.from(document.getElementById('import-file-lineas').files);
 
     if (!files.barrios) {
       status.style.display = 'block';
@@ -1204,6 +1654,60 @@ const setupImportCities = () => {
       const cityData = await ImportCities.createCityFromFiles(cityName, files);
       
       console.log('✅ Ciudad importada exitosamente:', cityData);
+
+      // ===== PROCESAR LÍNEAS DE COLECTIVOS =====
+      if (lineasFiles.length > 0) {
+        console.log(`📥 Procesando ${lineasFiles.length} líneas de colectivos...`);
+        const lineasManifest = [];
+        const cityId = cityData.id;
+
+        // Procesar cada archivo de línea
+        for (const file of lineasFiles) {
+          try {
+            const fileContent = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = (e) => resolve(e.target.result);
+              reader.onerror = (e) => reject(e);
+              reader.readAsText(file);
+            });
+
+            const geoJsonData = JSON.parse(fileContent);
+            
+            // Extraer número de la línea del archivo o de las propiedades
+            let numeroLinea = file.name.match(/linea(\d+[A-Za-z]*)/)?.[1] || file.name.replace(/\.geojson?$/i, '');
+            
+            // Si hay propiedades en features, intentar obtener el número de ahí
+            if (geoJsonData.features && geoJsonData.features.length > 0) {
+              const props = geoJsonData.features[0].properties;
+              if (props && props.numero) {
+                numeroLinea = props.numero;
+              }
+            }
+
+            console.log(`  ✓ Línea ${numeroLinea} cargada (${file.name})`);
+            
+            // Guardar archivo en localStorage con clave única
+            const storageKey = `colectivos_${cityId}_linea${numeroLinea}`;
+            localStorage.setItem(storageKey, fileContent);
+
+            // Agregar al manifest de líneas para esta ciudad
+            lineasManifest.push({
+              numero: numeroLinea,
+              archivo: file.name,
+              storageKey: storageKey
+            });
+          } catch (err) {
+            console.warn(`  ⚠️ Error procesando ${file.name}:`, err.message);
+          }
+        }
+
+        // Guardar manifest de líneas para la ciudad
+        if (lineasManifest.length > 0) {
+          const lineasStorageKey = `colectivos_${cityId}_manifest`;
+          localStorage.setItem(lineasStorageKey, JSON.stringify(lineasManifest));
+          console.log(`✅ ${lineasManifest.length} líneas de colectivos guardadas para ${cityName}`);
+        }
+      }
 
       // Agregar al selector
       const option = document.createElement('option');

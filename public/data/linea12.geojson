@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"nombre": "Línea 12", "numero": "12", "tipo": "recorrido", "ciudad": "Córdoba"}, "geometry": {"type": "LineString", "coordinates": [[-64.195, -31.425], [-64.188, -31.428], [-64.180, -31.431], [-64.172, -31.433], [-64.165, -31.436]]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio Alberbi", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.195, -31.425]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Av. de los Trabajadores", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.182, -31.431]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Poeta Lugones", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.165, -31.436]}}
+  ]
+}

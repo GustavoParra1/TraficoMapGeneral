@@ -1,0 +1,10 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"nombre": "Línea 3", "numero": "3", "tipo": "recorrido", "ciudad": "Córdoba"}, "geometry": {"type": "LineString", "coordinates": [[-64.189, -31.416], [-64.180, -31.416], [-64.175, -31.416], [-64.170, -31.416], [-64.165, -31.416]]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Centro", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.189, -31.416]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Ruta 9", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.180, -31.416]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio Maipú", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.172, -31.416]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Terminal Maipú", "número": 4, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.165, -31.416]}}
+  ]
+}

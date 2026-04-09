@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"nombre": "Línea 6", "numero": "6", "tipo": "recorrido", "ciudad": "Córdoba"}, "geometry": {"type": "LineString", "coordinates": [[-64.192, -31.410], [-64.185, -31.412], [-64.178, -31.413], [-64.172, -31.415], [-64.170, -31.416]]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Nueva Córdoba", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.192, -31.410]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Ruta 9", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.178, -31.413]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Terminal Maipú", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.170, -31.416]}}
+  ]
+}

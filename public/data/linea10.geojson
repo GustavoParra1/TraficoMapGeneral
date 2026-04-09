@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"nombre": "Línea 10", "numero": "10", "tipo": "recorrido", "ciudad": "Córdoba"}, "geometry": {"type": "LineString", "coordinates": [[-64.189, -31.416], [-64.182, -31.414], [-64.175, -31.412], [-64.172, -31.410]]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Centro", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.189, -31.416]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Ruta 9", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.182, -31.414]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio Lourdes", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.172, -31.410]}}
+  ]
+}

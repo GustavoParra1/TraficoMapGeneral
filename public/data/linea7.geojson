@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"nombre": "Línea 7", "numero": "7", "tipo": "recorrido", "ciudad": "Córdoba"}, "geometry": {"type": "LineString", "coordinates": [[-64.170, -31.416], [-64.170, -31.420], [-64.170, -31.425], [-64.170, -31.430], [-64.170, -31.435]]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio Maipú", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.170, -31.416]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Zona Centro", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.170, -31.422]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio Güemes", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.170, -31.435]}}
+  ]
+}

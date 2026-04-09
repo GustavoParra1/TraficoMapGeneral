@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"nombre": "Línea 4", "numero": "4", "tipo": "recorrido", "ciudad": "Córdoba"}, "geometry": {"type": "LineString", "coordinates": [[-64.189, -31.416], [-64.198, -31.418], [-64.205, -31.420], [-64.210, -31.420]]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Centro", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.189, -31.416]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Av. Yrigollen", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.200, -31.419]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio San Vicente", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.207, -31.420]}}
+  ]
+}

@@ -7,7 +7,12 @@ const heatmapLayer = (() => {
   let heatmapInstance = null;
   let visible = false;
   let sinistrosData = [];
+  let filteredSinistrosData = [];
   let currentSiniestrosPath = null;
+  let barriosGeoJson = null;
+  let filters = {
+    globalBarrio: 'all'
+  };
 
   /**
    * Cargar datos de siniestros (puede ser GeoJSON o CSV)
@@ -41,11 +46,13 @@ const heatmapLayer = (() => {
    * Generar datos para el heatmap (coordenadas con intensidad)
    */
   const generateHeatmapData = () => {
-    if (sinistrosData.length === 0) return [];
+    const dataToUse = (filters.globalBarrio !== 'all') ? filteredSinistrosData : sinistrosData;
+    
+    if (dataToUse.length === 0) return [];
     
     // Convertir features a formato [lat, lng, intensity]
     // intensity es 0.5 por defecto (todas las ubicaciones tienen igual peso)
-    return sinistrosData.map(item => {
+    return dataToUse.map(item => {
       const [lng, lat] = item.coords;
       return [lat, lng, 0.5]; // Formato: [lat, lng, intensidad]
     });
@@ -95,6 +102,11 @@ const heatmapLayer = (() => {
     console.log(`🔥 Heatmap toggle: shouldShow=${shouldShow}, visible=${visible}`);
     visible = shouldShow;
     
+    // Inicializar datos filtrados si no lo están
+    if (filteredSinistrosData.length === 0 && sinistrosData.length > 0) {
+      filteredSinistrosData = sinistrosData;
+    }
+    
     if (shouldShow) {
       // Solo renderizar si hay datos
       if (sinistrosData.length === 0) {
@@ -130,6 +142,12 @@ const heatmapLayer = (() => {
         properties: feature.properties || {}
       }));
       
+      // Inicializar datos filtrados igual a los datos originales
+      filteredSinistrosData = sinistrosData;
+      
+      // Resetear filtros cuando se cargan nuevos datos
+      filters.globalBarrio = 'all';
+      
       console.log(`🔥 Heatmap: ${sinistrosData.length} siniestros desde setData`);
       
       // Si ya está visible, renderizar
@@ -137,6 +155,103 @@ const heatmapLayer = (() => {
         render();
       }
     }
+  };
+
+  /**
+   * Verifica si un punto [lng, lat] está dentro de un polígono
+   */
+  const pointInPolygon = (point, polygon) => {
+    if (!polygon) return false;
+    
+    const [lng, lat] = point;
+    let inside = false;
+
+    if (polygon.type === 'Polygon') {
+      const coords = polygon.coordinates[0];
+      for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
+        const xi = coords[i][0], yi = coords[i][1];
+        const xj = coords[j][0], yj = coords[j][1];
+        
+        const intersect = ((yi > lat) !== (yj > lat))
+          && (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+      }
+    } else if (polygon.type === 'MultiPolygon') {
+      for (let polyIdx = 0; polyIdx < polygon.coordinates.length; polyIdx++) {
+        const poly = polygon.coordinates[polyIdx];
+        let insideCurrent = false;
+        
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+          const xi = poly[i][0], yi = poly[i][1];
+          const xj = poly[j][0], yj = poly[j][1];
+          
+          const intersect = ((yi > lat) !== (yj > lat))
+            && (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+          if (intersect) insideCurrent = !insideCurrent;
+        }
+        
+        if (insideCurrent) {
+          inside = true;
+          break;
+        }
+      }
+    }
+    
+    return inside;
+  };
+
+  /**
+   * Obtiene el barrio que contiene un punto [lng, lat]
+   */
+  const getBarrioForPoint = (point) => {
+    if (!barriosGeoJson || !point) {
+      return null;
+    }
+    
+    for (const feature of barriosGeoJson.features) {
+      const geometry = feature.geometry;
+      if (pointInPolygon(point, geometry)) {
+        return feature.properties?.nombre || feature.properties?.soc_fomen || null;
+      }
+    }
+    
+    return null;
+  };
+
+  /**
+   * Aplica los filtros de barrio al heatmap
+   */
+  const applyFilters = () => {
+    if (filters.globalBarrio === 'all' || !barriosGeoJson) {
+      filteredSinistrosData = sinistrosData;
+    } else {
+      filteredSinistrosData = sinistrosData.filter(item => {
+        const barrio = getBarrioForPoint(item.coords);
+        return barrio === filters.globalBarrio;
+      });
+    }
+
+    // Renderizar si está visible
+    if (visible && heatmapInstance) {
+      render();
+    }
+  };
+
+  /**
+   * Setter para filtro
+   */
+  const setFilter = (filterName, value) => {
+    if (filters.hasOwnProperty(filterName)) {
+      filters[filterName] = value;
+      applyFilters();
+    }
+  };
+
+  /**
+   * Setter para barrios GeoJSON
+   */
+  const setBarriosGeoJson = (barrios) => {
+    barriosGeoJson = barrios;
   };
 
   /**
@@ -163,6 +278,8 @@ const heatmapLayer = (() => {
     setData,
     render,
     attachCheckboxListener,
+    setFilter,
+    setBarriosGeoJson,
     isVisible: () => visible
   };
 })();

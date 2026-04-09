@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"nombre": "Línea 5", "numero": "5", "tipo": "recorrido", "ciudad": "Córdoba"}, "geometry": {"type": "LineString", "coordinates": [[-64.195, -31.425], [-64.188, -31.428], [-64.180, -31.430], [-64.175, -31.432], [-64.170, -31.435]]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio Alberbi", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.195, -31.425]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Av. Hipólito Yrigoyen", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.185, -31.430]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio Güemes", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.170, -31.435]}}
+  ]
+}

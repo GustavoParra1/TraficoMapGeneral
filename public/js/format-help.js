@@ -143,20 +143,6 @@ const FormatHelp = (() => {
   "geometry": { "type": "Point", "coordinates": [-57.5521, -38.0055] }
 }`
     },
-    colectivos: {
-      title: '🚌 COLECTIVOS/LÍNEAS',
-      description: 'Rutas y líneas de transporte público',
-      format: 'GeoJSON (LineString o MultiLineString)',
-      csvColumns: ['NO - Se requiere GeoJSON con rutas'],
-      geoJsonExample: `{
-  "type": "Feature",
-  "properties": { "nombre": "Línea 501", "numero": "501", "ramal": "A" },
-  "geometry": {
-    "type": "LineString",
-    "coordinates": [[-57.5521, -38.0055], [-57.5525, -38.0060], ...]
-  }
-}`
-    },
     corredores: {
       title: '🛣️ CORREDORES ESCOLARES',
       description: 'Rutas seguras cercanas a escuelas',
@@ -199,35 +185,6 @@ const FormatHelp = (() => {
   "type": "Feature",
   "properties": { "nombre": "Robo Centro", "fecha": "2024-01-15", "tipo_vehiculo": "auto" },
   "geometry": { "type": "Point", "coordinates": [-57.5521, -38.0055] }
-}`
-    },
-    alertas: {
-      title: '🚨 ALERTAS',
-      description: 'Puntos de alerta o situaciones especiales',
-      format: 'CSV o GeoJSON (Point)',
-      csvColumns: ['lat (obligatorio)', 'lng (obligatorio)', 'nombre', 'tipo', 'severidad'],
-      csvExample: `lat,lng,nombre,tipo,severidad
--38.0055,-57.5521,Alerta 1,construcción,media
--38.0060,-57.5525,Alerta 2,peligro,alta`,
-      geoJsonColumns: ['nombre', 'tipo', 'severidad (opcionales)'],
-      geoJsonExample: `{
-  "type": "Feature",
-  "properties": { "nombre": "Alerta 1", "tipo": "construcción", "severidad": "media" },
-  "geometry": { "type": "Point", "coordinates": [-57.5521, -38.0055] }
-}`
-    },
-    zonas: {
-      title: '⛔ ZONAS/ÁREAS',
-      description: 'Áreas especiales (prohibidas, seguras, peligrosas, etc.)',
-      format: 'GeoJSON (Polygon o MultiPolygon)',
-      csvColumns: ['NO - Se requiere GeoJSON'],
-      geoJsonExample: `{
-  "type": "Feature",
-  "properties": { "nombre": "Zona Peligrosa", "tipo": "riesgo", "descripcion": "Alta delincuencia" },
-  "geometry": {
-    "type": "Polygon",
-    "coordinates": [[[lng, lat], [lng, lat], ...]]
-  }
 }`
     }
   };

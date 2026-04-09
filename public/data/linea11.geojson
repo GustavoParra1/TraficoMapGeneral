@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"nombre": "Línea 11", "numero": "11", "tipo": "recorrido", "ciudad": "Córdoba"}, "geometry": {"type": "LineString", "coordinates": [[-64.192, -31.410], [-64.195, -31.412], [-64.200, -31.414], [-64.205, -31.416], [-64.210, -31.418]]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Nueva Córdoba", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.192, -31.410]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Zona Centro", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.202, -31.415]}},
+    {"type": "Feature", "properties": {"nombre": "Parada San Vicente", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.210, -31.418]}}
+  ]
+}

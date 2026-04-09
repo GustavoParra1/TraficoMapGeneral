@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"nombre": "Línea 14", "numero": "14", "tipo": "recorrido", "ciudad": "Córdoba"}, "geometry": {"type": "LineString", "coordinates": [[-64.189, -31.416], [-64.185, -31.419], [-64.182, -31.422], [-64.180, -31.425]]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Centro", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.189, -31.416]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Zona Sur", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.182, -31.420]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio Noblejas", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.180, -31.425]}}
+  ]
+}

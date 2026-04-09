@@ -1,0 +1,73 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Línea 1",
+        "numero": "1",
+        "tipo": "recorrido",
+        "ciudad": "Córdoba"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-64.189, -31.416],
+          [-64.190, -31.414],
+          [-64.191, -31.412],
+          [-64.192, -31.410],
+          [-64.193, -31.408],
+          [-64.193, -31.406]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Parada Cabildo",
+        "número": 1,
+        "tipo": "parada"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.189, -31.416]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Parada Av. Colón",
+        "número": 2,
+        "tipo": "parada"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.190, -31.413]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Parada Nueva Córdoba",
+        "número": 3,
+        "tipo": "parada"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.192, -31.410]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Parada Terminal Nueva Córdoba",
+        "número": 4,
+        "tipo": "parada"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.193, -31.406]
+      }
+    }
+  ]
+}

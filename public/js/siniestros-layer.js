@@ -272,13 +272,21 @@ const SiniestrosLayer = (() => {
 
   /**
    * Carga los datos de barrios para filtrado geográfico
-   * (Nota: El selector de barrio se llena desde app.js en setupSinistrosFilters)
+   * IMPORTANTE: Solo carga si NO ya fueron seteados desde app.js (para ciudades como Córdoba)
    */
   async function loadBarriosList() {
+    // Si ya hay barrios (fueron seteados desde app.js), NO cargar de nuevo
+    if (barriosGeoJson && barriosGeoJson.features && barriosGeoJson.features.length > 0) {
+      console.log(`✅ Datos de barrios ya disponibles (${barriosGeoJson.features.length} features)`);
+      return;
+    }
+    
+    // Solo cargar barrios.json si No hay datos seteados
     try {
+      console.log(`⏳ Intentando cargar barrios desde data/barrios.json...`);
       const response = await fetch('data/barrios.json');
       barriosGeoJson = await response.json();
-      console.log(`✅ Datos de barrios cargados para filtrado geográfico`);
+      console.log(`✅ Datos de barrios cargados para filtrado geográfico (${barriosGeoJson.features?.length || 0} features)`);
     } catch (error) {
       console.warn('⚠️ No se pudieron cargar los barrios:', error);
     }
@@ -352,49 +360,19 @@ const SiniestrosLayer = (() => {
     for (let i = 0; i < totalBarrios; i++) {
       const feature = barriosGeoJson.features[i];
       
-      // Log solo los primeros 2 tests para cada punto
-      if (testCounter < 2 && i < 3) {
-        const barName = feature.properties?.nombre || feature.properties?.soc_fomen || `barrio-${i}`;
-        const geom = feature.geometry;
-        
-        console.log(`\n   🔬 Analizando barrio [${i}] "${barName}"`);
-        console.log(`      - Tipo: ${geom?.type}`);
-        console.log(`      - coordinates length: ${geom?.coordinates?.length}`);
-        
-        if (geom?.type === 'MultiPolygon') {
-          console.log(`      - MultiPolygon con ${geom.coordinates.length} polígonos`);
-          if (geom.coordinates[0]) {
-            console.log(`      - Primer polígono: ${geom.coordinates[0].length} anillos`);
-            if (geom.coordinates[0][0]) {
-              console.log(`      - Primer anillo: ${geom.coordinates[0][0].length} puntos`);
-              console.log(`      - Primeros 3 puntos: ${JSON.stringify(geom.coordinates[0][0].slice(0, 3))}`);
-              console.log(`      - Punto a buscar: [${point[0]}, ${point[1]}]`);
-            }
-          }
-        }
-      }
-      
       // Verificar estructura del geometry antes de pasar a pointInPolygon
       if (!feature.geometry || !feature.geometry.coordinates) {
-        testCounter++;
         continue;
       }
       
       const match = pointInPolygon(point, feature.geometry);
       
-      if (testCounter < 2 && i < 3) {
-        console.log(`      - RESULTADO: ${match ? '✅ DENTRO' : '❌ FUERA'}\n`);
-      }
-      
       if (match) {
         const barrio = feature.properties?.nombre || feature.properties?.soc_fomen;
         return barrio;
       }
-      
-      testCounter++;
     }
     
-    console.log(`❌ Punto [${point[0]}, ${point[1]}] NO ENCONTRADO en ${totalBarrios} barrios`);
     return null;
   }
 

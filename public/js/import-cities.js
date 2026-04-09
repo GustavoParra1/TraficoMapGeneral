@@ -99,18 +99,15 @@ const ImportCities = (() => {
       optionalLayers: {
         semaforos: null,
         colegios: null,
-        colectivos: null,
         corredores: null,
         flujo: null,
-        robo: null,
-        alertas: null,
-        zonas: null
+        robo: null
       }
     };
 
     // Definir capas obligatorias y opcionales
     const mainLayers = ['barrios', 'siniestros', 'cameras', 'private_cameras'];
-    const optionalLayersList = ['semaforos', 'colegios', 'colectivos', 'corredores', 'flujo', 'robo', 'alertas', 'zonas'];
+    const optionalLayersList = ['semaforos', 'colegios', 'corredores', 'flujo', 'robo'];
 
     // Procesar cada archivo basándose en su tipo
     for (const [fileType, file] of Object.entries(files)) {

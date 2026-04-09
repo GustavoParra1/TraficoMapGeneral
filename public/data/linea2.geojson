@@ -1,0 +1,30 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Línea 2",
+        "numero": "2",
+        "tipo": "recorrido",
+        "ciudad": "Córdoba"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-64.189, -31.416],
+          [-64.190, -31.418],
+          [-64.191, -31.420],
+          [-64.192, -31.422],
+          [-64.193, -31.424],
+          [-64.194, -31.426],
+          [-64.195, -31.428]
+        ]
+      }
+    },
+    {"type": "Feature", "properties": {"nombre": "Parada Centro", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.189, -31.416]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Av. General Paz", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.190, -31.419]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio Alberbi", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.192, -31.423]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Terminal Alberbi", "número": 4, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.195, -31.428]}}
+  ]
+}

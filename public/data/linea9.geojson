@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"nombre": "Línea 9", "numero": "9", "tipo": "recorrido", "ciudad": "Córdoba"}, "geometry": {"type": "LineString", "coordinates": [[-64.189, -31.416], [-64.188, -31.410], [-64.188, -31.405], [-64.188, -31.400]]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Centro", "número": 1, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.189, -31.416]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Barrio Junín", "número": 2, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.188, -31.408]}},
+    {"type": "Feature", "properties": {"nombre": "Parada Terminal Junín", "número": 3, "tipo": "parada"}, "geometry": {"type": "Point", "coordinates": [-64.188, -31.400]}}
+  ]
+}
