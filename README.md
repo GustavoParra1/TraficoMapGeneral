@@ -4,7 +4,21 @@
 
 ---
 
-## 🎯 Características
+## �️ Arquitectura SaaS Multi-Municipio
+
+**Una URL compartida, múltiples municipios.**
+
+```
+Login: mdp@trafico.com → Ver datos de Mar del Plata
+Login: rosario@trafico.com → Ver datos de Rosario  
+Login: cordoba@trafico.com → Ver datos de Córdoba
+```
+
+📖 **Ver:** [ARQUITECTURA_SAAS.md](ARQUITECTURA_SAAS.md)
+
+---
+
+## �🎯 Características
 
 - 📍 **Mapeo interactivo** con Leaflet.js + Google Maps Geocoding
 - 🔍 **Búsqueda inteligente** - Encuentra calles e intersecciones con precisión

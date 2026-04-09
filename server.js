@@ -22,41 +22,63 @@ app.get('/api/health', (req, res) => {
 // 🗺️ ENDPOINT DE GEOCODING - Búsqueda de direcciones con Google Maps
 const GOOGLE_MAPS_API_KEY = 'AIzaSyBp2ZiKA4lYieyjX_aJJjE023NeqKrRhJc';
 
-// 📊 SISTEMA DE MONITOREO DE COSTOS
+// 📊 SISTEMA DE MONITOREO DE COSTOS - POR MUNICIPIO
 const geocodingStats = {
-  totalRequests: 0,
-  successfulRequests: 0,
-  failedRequests: 0,
-  requestsBySource: {},
-  requestsByCity: {},
-  startTime: new Date(),
-  lastRequests: [] // Últimos 100 requests para análisis detallado
+  'mdp': {
+    totalRequests: 0,
+    successfulRequests: 0,
+    failedRequests: 0,
+    startTime: new Date(),
+    lastRequests: []
+  },
+  'rosario': {
+    totalRequests: 0,
+    successfulRequests: 0,
+    failedRequests: 0,
+    startTime: new Date(),
+    lastRequests: []
+  },
+  'cordoba': {
+    totalRequests: 0,
+    successfulRequests: 0,
+    failedRequests: 0,
+    startTime: new Date(),
+    lastRequests: []
+  }
 };
 
-function logGeocodingRequest(query, city, source, success, responseTime) {
-  geocodingStats.totalRequests++;
-  if (success) geocodingStats.successfulRequests++;
-  else geocodingStats.failedRequests++;
-  
-  geocodingStats.requestsBySource[source] = (geocodingStats.requestsBySource[source] || 0) + 1;
-  geocodingStats.requestsByCity[city] = (geocodingStats.requestsByCity[city] || 0) + 1;
+function logGeocodingRequest(municipioId, query, success, responseTime) {
+  // Inicializar municipio si no existe
+  if (!geocodingStats[municipioId]) {
+    geocodingStats[municipioId] = {
+      totalRequests: 0,
+      successfulRequests: 0,
+      failedRequests: 0,
+      startTime: new Date(),
+      lastRequests: []
+    };
+  }
+
+  const stats = geocodingStats[municipioId];
+  stats.totalRequests++;
+  if (success) stats.successfulRequests++;
+  else stats.failedRequests++;
   
   // Mantener últimos 100 requests
-  geocodingStats.lastRequests.unshift({
+  stats.lastRequests.unshift({
     timestamp: new Date().toISOString(),
     query,
-    city,
-    source,
     success,
     responseTime
   });
-  if (geocodingStats.lastRequests.length > 100) {
-    geocodingStats.lastRequests.pop();
+  if (stats.lastRequests.length > 100) {
+    stats.lastRequests.pop();
   }
 }
 
 app.get('/api/geocode', async (req, res) => {
   const address = req.query.address;
+  const municipioId = req.query.municipio || 'mdp'; // Por defecto Mar del Plata
   
   if (!address || address.trim().length === 0) {
     return res.status(400).json({ 
@@ -67,7 +89,7 @@ app.get('/api/geocode', async (req, res) => {
 
   const startTime = Date.now();
   // Ciudad desde parámetro (por defecto Mar del Plata)
-  const city = req.query.city || 'mar-del-plata';
+  const city = req.query.city || municipioId;
   
   // Configuración de ciudades
   const cityConfig = {
@@ -106,7 +128,7 @@ app.get('/api/geocode', async (req, res) => {
         if (intersectionResult) {
           console.log(`   ✅ Intersección encontrada directamente`);
           const responseTime = Date.now() - startTime;
-          logGeocodingRequest(address, city, 'google-maps-intersection', true, responseTime);
+          logGeocodingRequest(municipioId, address, true, responseTime);
           return res.json({
             success: true,
             address: intersectionResult.formatted_address,
@@ -134,7 +156,7 @@ app.get('/api/geocode', async (req, res) => {
           console.log(`   🎯 Punto medio: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
           
           const responseTime = Date.now() - startTime;
-          logGeocodingRequest(address, city, 'google-maps-intersection-midpoint', true, responseTime);
+          logGeocodingRequest(municipioId, address, true, responseTime);
           
           return res.json({
             success: true,
@@ -145,7 +167,7 @@ app.get('/api/geocode', async (req, res) => {
           });
         } else {
           const responseTime = Date.now() - startTime;
-          logGeocodingRequest(address, city, 'google-maps-intersection-midpoint', false, responseTime);
+          logGeocodingRequest(municipioId, address, false, responseTime);
           return res.status(404).json({
             success: false,
             message: `No se encontró el cruce en ${config.name}`,
@@ -172,7 +194,7 @@ app.get('/api/geocode', async (req, res) => {
           console.log(`✅ Dirección encontrada: ${result.lat.toFixed(4)}, ${result.lng.toFixed(4)}`);
           
           const responseTime = Date.now() - startTime;
-          logGeocodingRequest(address, city, 'google-maps-address', true, responseTime);
+          logGeocodingRequest(municipioId, address, true, responseTime);
           
           return res.json({
             success: true,
@@ -183,7 +205,7 @@ app.get('/api/geocode', async (req, res) => {
           });
         } else {
           const responseTime = Date.now() - startTime;
-          logGeocodingRequest(address, city, 'google-maps-address', false, responseTime);
+          logGeocodingRequest(municipioId, address, false, responseTime);
           return res.status(404).json({
             success: false,
             message: `No se encontró la dirección en ${config.name}`
@@ -237,15 +259,36 @@ async function searchGoogleMaps(query) {
   }
 }
 
-// 📊 ENDPOINT DE ESTADÍSTICAS DE GEOCODING
+// 📊 ENDPOINT DE ESTADÍSTICAS DE GEOCODING - POR MUNICIPIO
 app.get('/api/geocode-stats', (req, res) => {
-  const uptime = Date.now() - geocodingStats.startTime.getTime();
-  const uptimeMinutes = Math.floor(uptime / 60000);
+  const municipioId = req.query.municipio || 'mdp';
   const costPerRequest = 0.007; // $7 por 1000 requests = $0.007 por request
-  const estimatedCost = (geocodingStats.successfulRequests * costPerRequest).toFixed(2);
+  
+  // Obtener stats del municipio solicitado
+  const municipioStats = geocodingStats[municipioId];
+  
+  if (!municipioStats) {
+    return res.status(404).json({
+      success: false,
+      message: `Municipio "${municipioId}" no encontrado`
+    });
+  }
+  
+  const uptime = Date.now() - municipioStats.startTime.getTime();
+  const uptimeMinutes = Math.floor(uptime / 60000);
+  const estimatedCost = (municipioStats.successfulRequests * costPerRequest).toFixed(2);
+  const successRate = municipioStats.totalRequests > 0 
+    ? ((municipioStats.successfulRequests / municipioStats.totalRequests) * 100).toFixed(2) 
+    : '0';
+  const averageResponseTime = municipioStats.lastRequests.length > 0 
+    ? (municipioStats.lastRequests.reduce((sum, r) => sum + r.responseTime, 0) / municipioStats.lastRequests.length).toFixed(0) + 'ms'
+    : '0ms';
   
   const stats = {
-    ...geocodingStats,
+    municipio: municipioId,
+    totalRequests: municipioStats.totalRequests,
+    successfulRequests: municipioStats.successfulRequests,
+    failedRequests: municipioStats.failedRequests,
     uptime: {
       milliseconds: uptime,
       minutes: uptimeMinutes,
@@ -254,16 +297,47 @@ app.get('/api/geocode-stats', (req, res) => {
     costs: {
       costPerRequest: '$' + costPerRequest.toFixed(4),
       estimatedTotalCost: '$' + estimatedCost,
-      successfulRequestsCount: geocodingStats.successfulRequests,
+      successfulRequestsCount: municipioStats.successfulRequests,
       costPerThousand: '$7.00'
     },
-    successRate: ((geocodingStats.successfulRequests / geocodingStats.totalRequests) * 100).toFixed(2) + '%',
-    averageResponseTime: geocodingStats.lastRequests.length > 0 
-      ? (geocodingStats.lastRequests.reduce((sum, r) => sum + r.responseTime, 0) / geocodingStats.lastRequests.length).toFixed(0) + 'ms'
-      : '0ms'
+    successRate: successRate + '%',
+    averageResponseTime: averageResponseTime,
+    lastRequests: municipioStats.lastRequests.slice(0, 20) // Últimas 20 solicitudes
   };
   
   res.json(stats);
+});
+
+// 📊 ENDPOINT DE ESTADÍSTICAS GLOBALES (para panel admin)
+app.get('/api/geocode-stats-all', (req, res) => {
+  const costPerRequest = 0.007;
+  const allMunicipios = {};
+  let totalRequestsGlobal = 0;
+  let totalSuccessfulGlobal = 0;
+  let totalCostGlobal = 0;
+  
+  Object.entries(geocodingStats).forEach(([municipioId, stats]) => {
+    const cost = (stats.successfulRequests * costPerRequest).toFixed(2);
+    totalRequestsGlobal += stats.totalRequests;
+    totalSuccessfulGlobal += stats.successfulRequests;
+    totalCostGlobal += parseFloat(cost);
+    
+    allMunicipios[municipioId] = {
+      totalRequests: stats.totalRequests,
+      successfulRequests: stats.successfulRequests,
+      failedRequests: stats.failedRequests,
+      estimatedCost: '$' + cost
+    };
+  });
+  
+  res.json({
+    summary: {
+      totalRequests: totalRequestsGlobal,
+      totalSuccessful: totalSuccessfulGlobal,
+      totalEstimatedCost: '$' + totalCostGlobal.toFixed(2)
+    },
+    municipios: allMunicipios
+  });
 });
 
 // Cualquier otra ruta devuelve index.html (para SPA)
