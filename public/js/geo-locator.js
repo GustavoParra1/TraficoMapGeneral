@@ -1,9 +1,11 @@
 /**
  * 🗺️ GEO-LOCATOR: Búsqueda de direcciones
- * Usa el endpoint /api/geocode del servidor para búsquedas precisas
+ * Usa Google Maps Geocoding API directamente desde el navegador
  */
 
 const GeoLocator = (() => {
+  const GOOGLE_MAPS_API_KEY = 'AIzaSyBp2ZiKA4lYieyjX_aJJjE023NeqKrRhJc';
+  
   let addressIndex = [];
   let locationMarker = null;
   let map = null;
@@ -225,43 +227,57 @@ const GeoLocator = (() => {
       results.push(...fuzzyResults.slice(0, 20));
     }
 
-    // PASO 3: Si SIGUE sin resultados, usar API del servidor (que consulta Nominatim con bounds precisos)
+    // PASO 3: Si SIGUE sin resultados, usar Google Maps Geocoding API directamente
     if (results.length === 0) {
-      console.log(`🌐 Sin resultados locales. Consultando API del servidor (Nominatim con bounds)...`);
+      console.log(`🌐 Sin resultados locales. Consultando Google Maps Geocoding API...`);
       
       try {
-        const apiUrl = `/api/geocode?address=${encodeURIComponent(query)}&city=${currentCity}`;
-        console.log(`  📡 GET ${apiUrl}`);
+        // Configurar ciudad según municipio
+        const cityNames = {
+          'cordoba': 'Córdoba, Argentina',
+          'rosario': 'Rosario, Argentina',
+          'mar-del-plata': 'Mar del Plata, Argentina'
+        };
         
-        const response = await fetch(apiUrl);
+        const cityName = cityNames[currentCity] || 'Córdoba, Argentina';
+        const googleQuery = isIntersection ? `${query}, ${cityName}` : `${query}, ${cityName}`;
+        
+        const googleUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(googleQuery)}&key=${GOOGLE_MAPS_API_KEY}`;
+        console.log(`  📡 Llamando Google Maps: ${query} in ${cityName}`);
+        
+        const response = await fetch(googleUrl);
         const data = await response.json();
 
-        if (response.ok && data.success) {
-          console.log(`✅ Resultado del servidor:`, data);
+        if (data.results && data.results.length > 0) {
+          const result = data.results[0];
+          const lat = result.geometry.location.lat;
+          const lng = result.geometry.location.lng;
+          const formattedAddress = result.formatted_address;
           
-          // Convertir respuesta del servidor al formato local
+          console.log(`✅ Encontrado en Google Maps:`, formattedAddress);
+          
           results.push({
-            original: data.address,
-            normalized: normalizeText(data.address),
-            lat: data.lat,
-            lng: data.lng,
-            coordinates: [data.lng, data.lat],
-            matchType: isIntersection ? 'nominatim_cruce' : 'nominatim_address',
-            relevance: 85,
-            source: 'nominatim',
-            serverResponse: data
+            original: formattedAddress,
+            normalized: normalizeText(formattedAddress),
+            lat: lat,
+            lng: lng,
+            coordinates: [lng, lat],
+            matchType: isIntersection ? 'google_cruce' : 'google_address',
+            relevance: 90,
+            source: 'google-maps',
+            googleResponse: result
           });
         } else {
-          console.warn(`⚠️ API retornó error:`, data.message);
+          console.warn(`⚠️ Google Maps no encontró resultados para: ${googleQuery}`);
         }
       } catch (error) {
-        console.error(`❌ Error al consultar API:`, error);
+        console.error(`❌ Error al consultar Google Maps:`, error);
       }
     }
 
     // Ordenar resultados finales
     results.sort((a, b) => {
-      const priorityOrder = { exacta: 0, cruce: 1, parcial: 2, cruce_fuzzy: 3, nominatim_cruce: 4, nominatim_address: 5, palabra_clave: 6, similar: 7 };
+      const priorityOrder = { exacta: 0, cruce: 1, parcial: 2, cruce_fuzzy: 3, google_cruce: 4, google_address: 5, palabra_clave: 6, similar: 7 };
       const priorityA = priorityOrder[a.matchType] ?? 8;
       const priorityB = priorityOrder[b.matchType] ?? 8;
       
@@ -313,11 +329,11 @@ const GeoLocator = (() => {
       map.removeLayer(locationMarker);
     }
 
-    // Crear nuevo marcador
+    // Crear nuevo marcador con ícono funcional
     locationMarker = L.marker([lat, lng], {
       icon: L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
