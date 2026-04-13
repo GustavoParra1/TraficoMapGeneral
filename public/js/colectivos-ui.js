@@ -927,11 +927,29 @@ const ColectivosUI = (() => {
     }
   };
 
+  /**
+   * Refresca el panel con las nuevas líneas de la ciudad actual
+   */
+  const refreshPanel = () => {
+    console.log('🔄 ColectivosUI.refreshPanel() llamado');
+    if (!ColectivosLayer) {
+      console.warn('⚠️ ColectivosLayer no disponible');
+      return;
+    }
+    
+    const lineas = ColectivosLayer.getLineas();
+    if (lineas && lineas.length > 0) {
+      renderLineasList(lineas);
+      console.log(`✅ Panel actualizado con ${lineas.length} líneas`);
+    }
+  };
+
   return {
     init,
     refresh,
     show,
     hide,
+    refreshPanel,
     renderLineasList
   };
 })();

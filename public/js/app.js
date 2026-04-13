@@ -37,6 +37,11 @@ function iniciarMapa() {
     // Inicializar módulo de cámaras privadas
     PrivateCamerasLayer.init(map);
     
+    // Inicializar módulo de LPR (Lectores de Patentes)
+    if (typeof LprLayer !== 'undefined') {
+      LprLayer.init(map);
+    }
+    
     // Inicializar módulo de semáforos
     SemaforosLayer.init(map);
     
@@ -58,7 +63,7 @@ function iniciarMapa() {
 // ============================
 // CONFIGURACIÓN DE CIUDADES
 // ============================
-let currentCity = 'cordoba';
+let currentCity = 'mar-del-plata'; // Cambiar a mar-del-plata para usar datos reales con propiedades LPR
 let citiesConfig = null;
 
 async function loadCitiesConfig() {
@@ -74,7 +79,7 @@ async function loadCitiesConfig() {
 }
 
 // Cargar datos geográficos dinámicamente según ciudad
-async function cargarDatosGeograficos(cityId = 'cordoba') {
+async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
   console.log(`📍 INICIO: Cargando datos para ciudad: ${cityId}`);
   
   if (!citiesConfig) {
@@ -266,7 +271,7 @@ async function cargarDatosGeograficos(cityId = 'cordoba') {
       if (cityConfig.files.cameras.startsWith('data:')) {
         console.log(`      ℹ️ Cargando cámaras desde memoria (usuario)`);
         // Cargar cámaras desde GeoJSON en memoria (importadas)
-        CamerasLayer.loadFromGeoJson(camGeoJson, true);
+        await CamerasLayer.loadFromGeoJson(camGeoJson, true);
       } else {
         await CamerasLayer.load(cityConfig.files.cameras);
       }
@@ -276,6 +281,12 @@ async function cargarDatosGeograficos(cityId = 'cordoba') {
       // Pasar cámaras a ColectivosLayer
       if (typeof ColectivosLayer !== 'undefined' && ColectivosLayer.setCamerasData) {
         ColectivosLayer.setCamerasData(CamerasLayer.getAll());
+      }
+      // Pasar cámaras a LprLayer para funcionalidad de LPR
+      if (typeof LprLayer !== 'undefined' && LprLayer.setData) {
+        const camerasData = CamerasLayer.getAll();
+        console.log(`🔧 [DEBUG] Pasando ${camerasData?.length || 0} cámaras a LprLayer.setData()`);
+        LprLayer.setData(camerasData);
       }
       console.log(`      ✓ Cámaras públicas cargadas`);
     }
@@ -744,6 +755,21 @@ auth.onAuthStateChanged((user) => {
           console.log('  ✓ Cámaras cargadas (ocultas)');
         }
         
+        // 9. ACTUALIZAR PANEL DE COLECTIVOS CON LAS NUEVAS LÍNEAS
+        console.log('9️⃣ Actualizando panel de colectivos y LPR...');
+        if (ColectivosUI && ColectivosUI.showPanel) {
+          const nuevasLineas = await ColectivosLayer.loadLineas('data', newCity);
+          if (nuevasLineas && Object.keys(nuevasLineas).length > 0) {
+            console.log(`  ✓ Panel de colectivos actualizado con ${Object.keys(nuevasLineas).length} líneas de ${newCity}`);
+            ColectivosUI.refreshPanel();
+          }
+        }
+        // Actualizar LPR con las nuevas cámaras
+        if (typeof LprLayer !== 'undefined' && LprLayer.setData) {
+          LprLayer.setData(CamerasLayer.getAll());
+          console.log('  ✓ Datos de LPR actualizados para la nueva ciudad');
+        }
+        
         console.log(`✅ FIN: Ciudad ${newCity} cargada exitosamente`);
         console.log(`========================================\n`);
       });
@@ -1053,6 +1079,14 @@ auth.onAuthStateChanged((user) => {
     
     // Inicializar mapa si no existe
     iniciarMapa();
+    
+    // Re-renderizar selector LPR después de que autenticación complete el sidebar
+    if (typeof LprLayer !== 'undefined' && LprLayer.renderLprSelector) {
+      console.log('🔧 Re-renderizando selector LPR después de autenticación...');
+      setTimeout(() => {
+        LprLayer.renderLprSelector();
+      }, 100);
+    }
     
     // Cargar datos geográficos Y siniestros PRIMERO
     console.log(`📍 INICIALIZANDO CARGA DE DATOS DE ${currentCity.toUpperCase()}`);

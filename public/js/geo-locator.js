@@ -232,18 +232,30 @@ const GeoLocator = (() => {
       console.log(`🌐 Sin resultados locales. Consultando Google Maps Geocoding API...`);
       
       try {
-        // Configurar ciudad según municipio
-        const cityNames = {
-          'cordoba': 'Córdoba, Argentina',
-          'rosario': 'Rosario, Argentina',
-          'mar-del-plata': 'Mar del Plata, Argentina'
+        // Configurar ciudad según municipio con bounds para limitar búsqueda
+        const cityBounds = {
+          'cordoba': {
+            name: 'Córdoba, Argentina',
+            latMin: -31.45, latMax: -31.36,    // Zona urbana de Córdoba
+            lngMin: -64.25, lngMax: -64.12
+          },
+          'rosario': {
+            name: 'Rosario, Argentina',
+            latMin: -32.92, latMax: -32.87,
+            lngMin: -60.72, lngMax: -60.62
+          },
+          'mar-del-plata': {
+            name: 'Mar del Plata, Argentina',
+            latMin: -38.05, latMax: -37.95,    // Ampliado para abarcar toda la ciudad
+            lngMin: -57.65, lngMax: -57.45
+          }
         };
         
-        const cityName = cityNames[currentCity] || 'Córdoba, Argentina';
-        const googleQuery = isIntersection ? `${query}, ${cityName}` : `${query}, ${cityName}`;
+        const config = cityBounds[currentCity] || cityBounds['cordoba'];
+        const googleQuery = isIntersection ? `${query}, ${config.name}` : `${query}, ${config.name}`;
         
         const googleUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(googleQuery)}&key=${GOOGLE_MAPS_API_KEY}`;
-        console.log(`  📡 Llamando Google Maps: ${query} in ${cityName}`);
+        console.log(`  📡 Llamando Google Maps: ${query} in ${config.name}`);
         
         const response = await fetch(googleUrl);
         const data = await response.json();
@@ -254,21 +266,32 @@ const GeoLocator = (() => {
           const lng = result.geometry.location.lng;
           const formattedAddress = result.formatted_address;
           
-          console.log(`✅ Encontrado en Google Maps:`, formattedAddress);
+          // Validar que el resultado esté DENTRO de los bounds
+          const isWithinBounds = 
+            lat >= config.latMin && lat <= config.latMax &&
+            lng >= config.lngMin && lng <= config.lngMax;
           
-          results.push({
-            original: formattedAddress,
-            normalized: normalizeText(formattedAddress),
-            lat: lat,
-            lng: lng,
-            coordinates: [lng, lat],
-            matchType: isIntersection ? 'google_cruce' : 'google_address',
-            relevance: 90,
-            source: 'google-maps',
-            googleResponse: result
-          });
+          if (isWithinBounds) {
+            console.log(`✅ Encontrado en Google Maps (dentro de bounds):`, formattedAddress);
+            
+            results.push({
+              original: formattedAddress,
+              normalized: normalizeText(formattedAddress),
+              lat: lat,
+              lng: lng,
+              coordinates: [lng, lat],
+              matchType: isIntersection ? 'google_cruce' : 'google_address',
+              relevance: 90,
+              source: 'google-maps',
+              googleResponse: result
+            });
+          } else {
+            console.warn(`⚠️ Resultado de Google Maps FUERA de bounds: ${formattedAddress} (Lat: ${lat}, Lng: ${lng})`);
+            console.warn(`   Bounds esperados: Lat [${config.latMin}, ${config.latMax}], Lng [${config.lngMin}, ${config.lngMax}]`);
+          }
         } else {
           console.warn(`⚠️ Google Maps no encontró resultados para: ${googleQuery}`);
+
         }
       } catch (error) {
         console.error(`❌ Error al consultar Google Maps:`, error);

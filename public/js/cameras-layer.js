@@ -37,8 +37,9 @@ const CamerasLayer = (() => {
 
   /**
    * Carga las cámaras desde GeoJSON (para datos importados/data URLs)
+   * Ahora devuelve una promesa para mejor sincronización
    */
-  function loadCamerasFromGeoJson(geojson) {
+  async function loadCamerasFromGeoJson(geojson) {
     try {
       camerasData = geojson.features || [];
       
