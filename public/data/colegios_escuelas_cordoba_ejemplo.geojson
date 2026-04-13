@@ -1,0 +1,71 @@
+{
+  "type": "FeatureCollection",
+  "name": "COLEGIOS_ESCUELAS_CORDOBA",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "Name": "Escuela N° 1 - Centro",
+        "description": "Primaria",
+        "address": "Rivadavia 550",
+        "barrio": "Centro"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.1863, -31.4178]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Name": "Colegio Privado 'La Salle'",
+        "description": "Primaria y Secundaria",
+        "address": "Avenida Colón 2100",
+        "barrio": "Nueva Córdoba"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.1802, -31.4215]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Name": "Escuela N° 5 - Belgrano",
+        "description": "Primaria",
+        "address": "Calle Belgrano 890",
+        "barrio": "Centro"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.1915, -31.4112]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Name": "Instituto Técnico Municipal",
+        "description": "Ciclo Superior",
+        "address": "Duarte Quirós 1450",
+        "barrio": "Centro"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.1841, -31.4199]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Name": "Escuela N° 12 - Alberdi",
+        "description": "Primaria",
+        "address": "Avenida Chacabuco 2300",
+        "barrio": "Alberdi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-64.1972, -31.4160]
+      }
+    }
+  ]
+}

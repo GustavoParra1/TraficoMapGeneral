@@ -18,9 +18,9 @@
       },
       "optionalLayers": {
         "semaforos": "data/semaforos.geojson",
-        "colegios": null,
+        "colegios": "colegios_escuelas.geojson",
+        "corredores": "corredores_escolares.geojson",
         "colectivos": null,
-        "corredores": null,
         "flujo": null,
         "robo": null,
         "alertas": null,
@@ -72,9 +72,9 @@
       },
       "optionalLayers": {
         "semaforos": "data/semaforos_cordoba_ejemplo.csv",
-        "colegios": null,
+        "colegios": "data/colegios_escuelas_cordoba_ejemplo.geojson",
+        "corredores": "data/corredores_escolares_cordoba_ejemplo.geojson",
         "colectivos": null,
-        "corredores": null,
         "flujo": null,
         "robo": null,
         "alertas": null,

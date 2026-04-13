@@ -45,6 +45,12 @@ function iniciarMapa() {
     // Inicializar módulo de semáforos
     SemaforosLayer.init(map);
     
+    // Inicializar módulo de escuelas y colegios
+    ColegiosLayer.init(map);
+    
+    // Inicializar módulo de corredores escolares
+    CorredoresLayer.init(map);
+    
     // Inicializar módulo de colectivos
     ColectivosLayer.init(map);
     
@@ -328,6 +334,31 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
         }
       }
 
+      // Escuelas y Colegios
+      if (cityConfig.optionalLayers.colegios) {
+        console.log(`  [OPT] Cargando escuelas desde: ${cityConfig.optionalLayers.colegios}`);
+        const colegiosGeoJson = await loadData(cityConfig.optionalLayers.colegios);
+        if (colegiosGeoJson) {
+          ColegiosLayer.loadFromGeoJson(colegiosGeoJson);
+          
+          // Pasar barrios a ColegiosLayer para filtrado geopolítico
+          if (bariosGeoJson) {
+            ColegiosLayer.setBarriosGeoJson(bariosGeoJson);
+          }
+          console.log(`       ✓ Escuelas cargadas`);
+        }
+      }
+
+      // Corredores Escolares
+      if (cityConfig.optionalLayers.corredores) {
+        console.log(`  [OPT] Cargando corredores escolares desde: ${cityConfig.optionalLayers.corredores}`);
+        const corredoresGeoJson = await loadData(cityConfig.optionalLayers.corredores);
+        if (corredoresGeoJson) {
+          CorredoresLayer.loadFromGeoJson(corredoresGeoJson);
+          console.log(`       ✓ Corredores escolares cargados`);
+        }
+      }
+
       // Colectivos (múltiples líneas) - ESCALABLE POR CIUDAD
       console.log(`  [OPT] Cargando líneas de colectivos...`);
       const colectivosLoaded = await ColectivosLayer.loadLineas(`data`, cityId);
@@ -415,8 +446,8 @@ auth.onAuthStateChanged((user) => {
       <div class="sidebar-section">
         <div class="sidebar-title">Ciudad</div>
         <select id="city-selector" style="width: 100%; padding: 10px; border: 2px solid #0066ff; border-radius: 4px; background-color: #fff; color: #333; font-size: 13px; font-weight: 500;">
+          <option value="mar-del-plata" selected>Mar del Plata</option>
           <option value="cordoba">Córdoba</option>
-          <option value="mar-del-plata">Mar del Plata</option>
           <option value="san-martin-del-mar">San Martín del Mar</option>
         </select>
         <div style="font-size: 11px; color: #888; margin-top: 8px;">
@@ -479,6 +510,14 @@ auth.onAuthStateChanged((user) => {
           <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
             <input type="checkbox" id="heatmap-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
             <span style="position: relative; z-index: 100;">🔥 Mapa de Calor de Siniestros</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="colegios-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">🏫 Escuelas y Colegios (<span id="total-colegios-count">0</span>)</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="corredores-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">🚌 Corredores Escolares</span>
           </label>
         </div>
         <div style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #f0f0f0; border-radius: 4px;">
@@ -642,6 +681,8 @@ auth.onAuthStateChanged((user) => {
         const camCheckbox = document.getElementById('cameras-checkbox');
         const privCamCheckbox = document.getElementById('private-cameras-checkbox');
         const toggleBarrios = document.getElementById('toggle-barrios');
+        const colegiosCheckbox = document.getElementById('colegios-checkbox');
+        const corredoresCheckbox = document.getElementById('corredores-checkbox');
         
         if (sinCheckbox && sinCheckbox.checked) {
           console.log('  • Desactivando siniestros');
@@ -657,6 +698,16 @@ auth.onAuthStateChanged((user) => {
           console.log('  • Desactivando cámaras privadas');
           privCamCheckbox.checked = false;
           PrivateCamerasLayer.toggle(false);
+        }
+        if (colegiosCheckbox && colegiosCheckbox.checked) {
+          console.log('  • Desactivando colegios');
+          colegiosCheckbox.checked = false;
+          ColegiosLayer.toggle(false);
+        }
+        if (corredoresCheckbox && corredoresCheckbox.checked) {
+          console.log('  • Desactivando corredores');
+          corredoresCheckbox.checked = false;
+          CorredoresLayer.toggle(false);
         }
         
         // 2. Limpiar capas
@@ -795,7 +846,9 @@ auth.onAuthStateChanged((user) => {
       siniestros: false,
       cameras: false,
       privateCameras: false,
-      semaforos: false
+      semaforos: false,
+      colegios: false,
+      corredores: false
     };
     
     // Función para aplicar el filtro global a las capas visibles
@@ -952,6 +1005,61 @@ auth.onAuthStateChanged((user) => {
       });
     }
 
+    // Toggle de escuelas y colegios
+    const colegiosCheckbox = document.getElementById('colegios-checkbox');
+    if (colegiosCheckbox) {
+      colegiosCheckbox.addEventListener('change', (e) => {
+        // Prevenir clics múltiples mientras se procesa
+        if (checkboxLocks.colegios) {
+          e.preventDefault();
+          console.log('⏸️ Clic bloqueado en colegios (aún procesando)');
+          return;
+        }
+        
+        checkboxLocks.colegios = true;
+        console.log('🔒 Colegios bloqueado para procesamiento');
+        
+        ColegiosLayer.toggle(e.target.checked);
+        // Aplicar filtro global si se activa
+        if (e.target.checked) {
+          applyGlobalBarrioFilter();
+        } else {
+          // RESETEAR el filtro de barrio cuando se desactiva
+          ColegiosLayer.setFilter('globalBarrio', 'all');
+        }
+        
+        // Desbloquear después de procesamiento
+        setTimeout(() => {
+          checkboxLocks.colegios = false;
+          console.log('🔓 Colegios desbloqueado');
+        }, 300);
+      });
+    }
+
+    // Toggle de corredores escolares
+    const corredoresCheckbox = document.getElementById('corredores-checkbox');
+    if (corredoresCheckbox) {
+      corredoresCheckbox.addEventListener('change', (e) => {
+        // Prevenir clics múltiples mientras se procesa
+        if (checkboxLocks.corredores) {
+          e.preventDefault();
+          console.log('⏸️ Clic bloqueado en corredores (aún procesando)');
+          return;
+        }
+        
+        checkboxLocks.corredores = true;
+        console.log('🔒 Corredores bloqueado para procesamiento');
+        
+        CorredoresLayer.toggle(e.target.checked);
+        
+        // Desbloquear después de procesamiento
+        setTimeout(() => {
+          checkboxLocks.corredores = false;
+          console.log('🔓 Corredores desbloqueado');
+        }, 300);
+      });
+    }
+
     // Botón para mostrar panel de colectivos
     const btnShowColectivos = document.getElementById('btn-show-colectivos');
     console.log('🚌 btnShowColectivos:', btnShowColectivos ? 'ENCONTRADO' : 'NO ENCONTRADO');
@@ -1009,6 +1117,8 @@ auth.onAuthStateChanged((user) => {
       const semaforosCheckbox = document.getElementById('semaforos-checkbox');
       const heatmapCheckbox = document.getElementById('heatmap-checkbox');
       const toggleBarrios = document.getElementById('toggle-barrios');
+      const colegiosCheckbox = document.getElementById('colegios-checkbox');
+      const corredoresCheckbox = document.getElementById('corredores-checkbox');
       
       if (sinCheckbox && sinCheckbox.checked) {
         sinCheckbox.checked = false;
@@ -1029,6 +1139,14 @@ auth.onAuthStateChanged((user) => {
       if (heatmapCheckbox && heatmapCheckbox.checked) {
         heatmapCheckbox.checked = false;
         heatmapLayer.toggle(false);
+      }
+      if (colegiosCheckbox && colegiosCheckbox.checked) {
+        colegiosCheckbox.checked = false;
+        ColegiosLayer.toggle(false);
+      }
+      if (corredoresCheckbox && corredoresCheckbox.checked) {
+        corredoresCheckbox.checked = false;
+        CorredoresLayer.toggle(false);
       }
       if (toggleBarrios && toggleBarrios.checked) {
         toggleBarrios.checked = false;

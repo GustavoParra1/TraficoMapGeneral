@@ -1,0 +1,36 @@
+{
+  "type": "FeatureCollection",
+  "name": "CORREDORES_ESCOLARES_CORDOBA",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "Name": "CORREDOR 1 - CENTRO A LA SALLE",
+        "description": "Ruta de escuelas en Centro y Nueva Córdoba"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-64.1863, -31.4178],
+          [-64.1850, -31.4190],
+          [-64.1802, -31.4215]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Name": "CORREDOR 2 - BELGRANO A TÉCNICO",
+        "description": "Ruta segura hacia Instituto Técnico"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-64.1915, -31.4112],
+          [-64.1900, -31.4150],
+          [-64.1841, -31.4199]
+        ]
+      }
+    }
+  ]
+}
