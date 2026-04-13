@@ -790,6 +790,14 @@ auth.onAuthStateChanged((user) => {
       });
     }
     
+    // Sistema de debouncing para evitar clics duplicados en checkboxes
+    const checkboxLocks = {
+      siniestros: false,
+      cameras: false,
+      privateCameras: false,
+      semaforos: false
+    };
+    
     // Función para aplicar el filtro global a las capas visibles
     const applyGlobalBarrioFilter = () => {
       const globalBarrioSelect = document.getElementById('global-barrio-filter');
@@ -824,6 +832,16 @@ auth.onAuthStateChanged((user) => {
     const sinCheckbox = document.getElementById('siniestros-checkbox');
     if (sinCheckbox) {
       sinCheckbox.addEventListener('change', (e) => {
+        // Prevenir clics múltiples mientras se procesa
+        if (checkboxLocks.siniestros) {
+          e.preventDefault();
+          console.log('⏸️ Clic bloqueado en siniestros (aún procesando)');
+          return;
+        }
+        
+        checkboxLocks.siniestros = true;
+        console.log('🔒 Siniestros bloqueado para procesamiento');
+        
         SiniestrosLayer.toggle(e.target.checked);
         // Aplicar filtro global si se activa
         if (e.target.checked) {
@@ -832,6 +850,12 @@ auth.onAuthStateChanged((user) => {
           // RESETEAR el filtro de barrio cuando se desactiva
           SiniestrosLayer.setFilter('globalBarrio', 'all');
         }
+        
+        // Desbloquear después de procesamiento
+        setTimeout(() => {
+          checkboxLocks.siniestros = false;
+          console.log('🔓 Siniestros desbloqueado');
+        }, 300);
       });
     }
     
@@ -839,6 +863,16 @@ auth.onAuthStateChanged((user) => {
     const camCheckbox = document.getElementById('cameras-checkbox');
     if (camCheckbox) {
       camCheckbox.addEventListener('change', (e) => {
+        // Prevenir clics múltiples mientras se procesa
+        if (checkboxLocks.cameras) {
+          e.preventDefault();
+          console.log('⏸️ Clic bloqueado en cámaras (aún procesando)');
+          return;
+        }
+        
+        checkboxLocks.cameras = true;
+        console.log('🔒 Cámaras bloqueado para procesamiento');
+        
         CamerasLayer.toggle(e.target.checked);
         // Aplicar filtro global si se activa
         if (e.target.checked) {
@@ -847,6 +881,12 @@ auth.onAuthStateChanged((user) => {
           // RESETEAR el filtro de barrio cuando se desactiva
           CamerasLayer.setFilter('globalBarrio', 'all');
         }
+        
+        // Desbloquear después de procesamiento
+        setTimeout(() => {
+          checkboxLocks.cameras = false;
+          console.log('🔓 Cámaras desbloqueado');
+        }, 300);
       });
     }
     
@@ -854,6 +894,16 @@ auth.onAuthStateChanged((user) => {
     const privCamCheckbox = document.getElementById('private-cameras-checkbox');
     if (privCamCheckbox) {
       privCamCheckbox.addEventListener('change', (e) => {
+        // Prevenir clics múltiples mientras se procesa
+        if (checkboxLocks.privateCameras) {
+          e.preventDefault();
+          console.log('⏸️ Clic bloqueado en cámaras privadas (aún procesando)');
+          return;
+        }
+        
+        checkboxLocks.privateCameras = true;
+        console.log('🔒 Cámaras privadas bloqueado para procesamiento');
+        
         PrivateCamerasLayer.toggle(e.target.checked);
         // Aplicar filtro global si se activa
         if (e.target.checked) {
@@ -862,6 +912,12 @@ auth.onAuthStateChanged((user) => {
           // RESETEAR el filtro de barrio cuando se desactiva
           PrivateCamerasLayer.setFilter('globalBarrio', 'all');
         }
+        
+        // Desbloquear después de procesamiento
+        setTimeout(() => {
+          checkboxLocks.privateCameras = false;
+          console.log('🔓 Cámaras privadas desbloqueado');
+        }, 300);
       });
     }
 
@@ -869,6 +925,16 @@ auth.onAuthStateChanged((user) => {
     const semaforosCheckbox = document.getElementById('semaforos-checkbox');
     if (semaforosCheckbox) {
       semaforosCheckbox.addEventListener('change', (e) => {
+        // Prevenir clics múltiples mientras se procesa
+        if (checkboxLocks.semaforos) {
+          e.preventDefault();
+          console.log('⏸️ Clic bloqueado en semáforos (aún procesando)');
+          return;
+        }
+        
+        checkboxLocks.semaforos = true;
+        console.log('🔒 Semáforos bloqueado para procesamiento');
+        
         SemaforosLayer.toggle(e.target.checked);
         // Aplicar filtro global si se activa
         if (e.target.checked) {
@@ -877,6 +943,12 @@ auth.onAuthStateChanged((user) => {
           // RESETEAR el filtro de barrio cuando se desactiva
           SemaforosLayer.setFilter('globalBarrio', 'all');
         }
+        
+        // Desbloquear después de procesamiento
+        setTimeout(() => {
+          checkboxLocks.semaforos = false;
+          console.log('🔓 Semáforos desbloqueado');
+        }, 300);
       });
     }
 
@@ -1120,48 +1192,36 @@ auth.onAuthStateChanged((user) => {
         })
         .catch(e => console.warn('⚠️ Error cargando colectivos:', e));
       
-      // WAIT UN POCO Y LUEGO ASEGURAR QUE TODO ESTÁ APAGADO
-      setTimeout(() => {
-        console.log('⏱️ Esperado 500ms, asegurando que todo está apagado...');
-        const sinCheckbox = document.getElementById('siniestros-checkbox');
-        const camCheckbox = document.getElementById('cameras-checkbox');
-        const toggleBarrios = document.getElementById('toggle-barrios');
-        
-        console.log('  - sinCheckbox:', !!sinCheckbox);
-        console.log('  - camCheckbox:', !!camCheckbox);
-        console.log('  - toggleBarrios:', !!toggleBarrios);
-        console.log('  - SiniestrosLayer:', typeof SiniestrosLayer, SiniestrosLayer ? 'exists' : 'MISSING');
-        console.log('  - CamerasLayer:', typeof CamerasLayer, CamerasLayer ? 'exists' : 'MISSING');
-        
-        if (toggleBarrios) {
-          console.log('🔄 Apagando barrios...');
-          toggleBarrios.checked = false;
-          if (GeoLayers.isLayerVisible('Zonas / Barrios')) {
-            GeoLayers.toggleLayer('Zonas / Barrios');
-          }
-          console.log('  ✓ Barrios apagados');
+      // Asegurar que todo está apagado (SIN DELAY)
+      console.log('🔧 Asegurando que todo está apagado...');
+      const sinCheckbox = document.getElementById('siniestros-checkbox');
+      const camCheckbox = document.getElementById('cameras-checkbox');
+      const toggleBarrios = document.getElementById('toggle-barrios');
+      
+      if (toggleBarrios) {
+        console.log('🔄 Apagando barrios...');
+        toggleBarrios.checked = false;
+        if (GeoLayers.isLayerVisible('Zonas / Barrios')) {
+          GeoLayers.toggleLayer('Zonas / Barrios');
         }
-        
-        if (sinCheckbox && SiniestrosLayer) {
-          console.log('🔄 Apagando siniestros...');
-          sinCheckbox.checked = false;
-          SiniestrosLayer.toggle(false);
-          console.log('  ✓ Siniestros apagados');
-        } else {
-          console.error('❌ NO SE PUEDE APAGAR SINIESTROS: sinCheckbox=' + !!sinCheckbox + ', SiniestrosLayer=' + !!SiniestrosLayer);
-        }
-        
-        if (camCheckbox && CamerasLayer) {
-          console.log('🔄 Apagando cámaras...');
-          camCheckbox.checked = false;
-          CamerasLayer.toggle(false);
-          console.log('  ✓ Cámaras apagadas');
-        } else {
-          console.error('❌ NO SE PUEDE APAGAR CAMARAS: camCheckbox=' + !!camCheckbox + ', CamerasLayer=' + !!CamerasLayer);
-        }
-        
-        console.log('✅ INICIALIZACION COMPLETADA - TODO APAGADO');
-      }, 500);
+        console.log('  ✓ Barrios apagados');
+      }
+      
+      if (sinCheckbox && SiniestrosLayer) {
+        console.log('🔄 Apagando siniestros...');
+        sinCheckbox.checked = false;
+        SiniestrosLayer.toggle(false);
+        console.log('  ✓ Siniestros apagados');
+      }
+      
+      if (camCheckbox && CamerasLayer) {
+        console.log('🔄 Apagando cámaras...');
+        camCheckbox.checked = false;
+        CamerasLayer.toggle(false);
+        console.log('  ✓ Cámaras apagadas');
+      }
+      
+      console.log('✅ INICIALIZACION COMPLETADA - CONTADORES ACTUALIZADOS AL INSTANTE');
     }).catch(err => {
       console.error('❌ ERROR EN PROMESA cargarDatosGeograficos():', err);
     });
