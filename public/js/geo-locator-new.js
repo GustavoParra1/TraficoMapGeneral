@@ -7,7 +7,7 @@ const GeoLocator = (() => {
   let addressIndex = [];
   let locationMarker = null;
   let map = null;
-  let currentCity = 'cordoba';
+  let currentCity = 'mar-del-plata';
 
   /**
    * Normaliza texto: elimina acentos, convierte a minúsculas, limpia espacios

@@ -19,6 +19,9 @@ const PrivateCamerasLayer = (() => {
     name: ''
   };
 
+  // Filtro de distancia (para búsqueda de dirección)
+  let locationFilter = null; // { lat, lng, radiusKm }
+
   /**
    * Inicializa el módulo
    */
@@ -144,6 +147,24 @@ const PrivateCamerasLayer = (() => {
       // Filtro por nombre
       if (filters.name && !props.name.toLowerCase().includes(filters.name.toLowerCase())) {
         return false;
+      }
+
+      // Filtro por distancia (búsqueda de dirección)
+      if (locationFilter && coords && coords.length === 2) {
+        const [cameraLng, cameraLat] = coords;
+        const R = 6371; // Radio de la Tierra en km
+        const dLat = (cameraLat - locationFilter.lat) * Math.PI / 180;
+        const dLng = (cameraLng - locationFilter.lng) * Math.PI / 180;
+        const a = 
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(locationFilter.lat * Math.PI / 180) * Math.cos(cameraLat * Math.PI / 180) *
+          Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
+        
+        if (distance > locationFilter.radiusKm) {
+          return false;
+        }
       }
 
       return true;
@@ -327,6 +348,7 @@ const PrivateCamerasLayer = (() => {
   function clearFilters() {
     filters.name = '';
     filters.globalBarrio = 'all';
+    locationFilter = null; // Limpiar filtro de distancia
 
     // Reset input - con verificación de existencia
     const safeSetElement = (id, value) => {
@@ -341,6 +363,24 @@ const PrivateCamerasLayer = (() => {
     applyFilters();
   }
 
+  /**
+   * Filtrar cámaras privadas por distancia (para búsqueda de dirección)
+   */
+  function setLocationFilter(lat, lng, radiusKm) {
+    locationFilter = { lat, lng, radiusKm };
+    applyFilters();
+    console.log(`📍 Filtro de distancia (privadas) establecido: ${radiusKm}km desde (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+  }
+
+  /**
+   * Limpiar filtro de distancia
+   */
+  function clearLocationFilter() {
+    locationFilter = null;
+    applyFilters();
+    console.log('🧹 Filtro de distancia (privadas) limpiado');
+  }
+
   // API pública
   return {
     init,
@@ -352,6 +392,8 @@ const PrivateCamerasLayer = (() => {
     setBarriosGeoJson,
     toggle,
     clearFilters,
+    setLocationFilter,
+    clearLocationFilter,
     getFiltered: () => filteredPrivateCameras,
     getAll: () => privateCamerasData
   };
