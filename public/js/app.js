@@ -981,11 +981,109 @@ auth.onAuthStateChanged((user) => {
       }
     });
     
-    document.getElementById('reset-view-btn').addEventListener('click', () => {
+    document.getElementById('reset-view-btn').addEventListener('click', async () => {
+      console.log('🔄 RESETEO COMPLETO INICIADO...');
+      
+      // 0. Cambiar ciudad a Mar del Plata y disparar evento change
+      const citySelector = document.getElementById('city-selector');
+      if (citySelector && citySelector.value !== 'mar-del-plata') {
+        console.log('  • Cambiando ciudad a Mar del Plata');
+        citySelector.value = 'mar-del-plata';
+        // Disparar evento change para cargar datos de Mar del Plata
+        const changeEvent = new Event('change', { bubbles: true });
+        citySelector.dispatchEvent(changeEvent);
+        // Esperar a que se carguen los datos
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+      // 1. Resetear vista del mapa
       if (map) {
         map.setView([-38.0, -57.55], 12);
-        console.log('✅ Vista reseteada');
+        console.log('  ✓ Mapa centrado en Mar del Plata');
       }
+      
+      // 2. Desactivar todos los checkboxes restantes
+      const sinCheckbox = document.getElementById('siniestros-checkbox');
+      const camCheckbox = document.getElementById('cameras-checkbox');
+      const privCamCheckbox = document.getElementById('private-cameras-checkbox');
+      const semaforosCheckbox = document.getElementById('semaforos-checkbox');
+      const heatmapCheckbox = document.getElementById('heatmap-checkbox');
+      const toggleBarrios = document.getElementById('toggle-barrios');
+      
+      if (sinCheckbox && sinCheckbox.checked) {
+        sinCheckbox.checked = false;
+        SiniestrosLayer.toggle(false);
+      }
+      if (camCheckbox && camCheckbox.checked) {
+        camCheckbox.checked = false;
+        CamerasLayer.toggle(false);
+      }
+      if (privCamCheckbox && privCamCheckbox.checked) {
+        privCamCheckbox.checked = false;
+        PrivateCamerasLayer.toggle(false);
+      }
+      if (semaforosCheckbox && semaforosCheckbox.checked) {
+        semaforosCheckbox.checked = false;
+        SemaforosLayer.toggle(false);
+      }
+      if (heatmapCheckbox && heatmapCheckbox.checked) {
+        heatmapCheckbox.checked = false;
+        heatmapLayer.toggle(false);
+      }
+      if (toggleBarrios && toggleBarrios.checked) {
+        toggleBarrios.checked = false;
+        if (GeoLayers.isLayerVisible('Zonas / Barrios')) {
+          GeoLayers.toggleLayer('Zonas / Barrios');
+        }
+      }
+      console.log('  ✓ Todos los checkboxes desactivados');
+      
+      // 3. Limpiar filtros de siniestros
+      const yearFilter = document.getElementById('year-filter');
+      const causeFilter = document.getElementById('cause-filter');
+      const participantFilter = document.getElementById('participant-filter');
+      const startHourFilter = document.getElementById('start-hour-filter');
+      const endHourFilter = document.getElementById('end-hour-filter');
+      const streetFilter = document.getElementById('street-filter');
+      
+      if (yearFilter) yearFilter.value = 'all';
+      if (causeFilter) causeFilter.value = 'all';
+      if (participantFilter) participantFilter.value = 'all';
+      if (startHourFilter) startHourFilter.value = 'all';
+      if (endHourFilter) endHourFilter.value = 'all';
+      if (streetFilter) streetFilter.value = '';
+      console.log('  ✓ Filtros de siniestros limpiados');
+      
+      // 4. Resetear filtro global de barrio
+      const globalBarrioSelect = document.getElementById('global-barrio-filter');
+      if (globalBarrioSelect) {
+        globalBarrioSelect.value = 'all';
+        console.log('  ✓ Filtro global de barrio reseteado');
+      }
+      
+      // 5. Limpiar búsqueda de direcciones
+      const addressSearchInput = document.getElementById('address-search-input');
+      const addressResults = document.getElementById('address-results');
+      const addressClearBtn = document.getElementById('address-clear-btn');
+      
+      if (addressSearchInput) {
+        addressSearchInput.value = '';
+      }
+      if (addressResults) {
+        addressResults.style.display = 'none';
+        addressResults.innerHTML = '';
+      }
+      if (addressClearBtn) {
+        addressClearBtn.style.display = 'none';
+      }
+      
+      // Limpiar marcador de dirección si existe
+      if (typeof GeoLocator !== 'undefined' && GeoLocator.clearMarker) {
+        GeoLocator.clearMarker();
+      }
+      console.log('  ✓ Búsqueda de direcciones limpiada');
+      
+      console.log('✅ RESETEO COMPLETO FINALIZADO');
     });
 
     // ============= BUSCADOR DE DIRECCIONES =============
