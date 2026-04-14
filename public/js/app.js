@@ -1109,22 +1109,18 @@ auth.onAuthStateChanged((user) => {
     document.getElementById('reset-view-btn').addEventListener('click', async () => {
       console.log('🔄 RESETEO COMPLETO INICIADO...');
       
-      // 0. Cambiar ciudad a Mar del Plata y disparar evento change
+      // 0. Obtener ciudad actualmente seleccionada (NO cambiar a Mar del Plata)
       const citySelector = document.getElementById('city-selector');
-      if (citySelector && citySelector.value !== 'mar-del-plata') {
-        console.log('  • Cambiando ciudad a Mar del Plata');
-        citySelector.value = 'mar-del-plata';
-        // Disparar evento change para cargar datos de Mar del Plata
-        const changeEvent = new Event('change', { bubbles: true });
-        citySelector.dispatchEvent(changeEvent);
-        // Esperar a que se carguen los datos
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
+      const currentCity = citySelector?.value || 'mar-del-plata';
+      console.log(`  • Ciudad actual seleccionada: ${currentCity}`);
       
-      // 1. Resetear vista del mapa
-      if (map) {
-        map.setView([-38.0, -57.55], 12);
-        console.log('  ✓ Mapa centrado en Mar del Plata');
+      // 1. Resetear vista del mapa a la ciudad actual
+      if (map && currentCityConfig) {
+        const lat = currentCityConfig.center.lat;
+        const lng = currentCityConfig.center.lng;
+        const zoom = currentCityConfig.zoom || 12;
+        map.setView([lat, lng], zoom);
+        console.log(`  ✓ Mapa centrado en ${currentCity} (${lat}, ${lng})`);
       }
       
       // 2. Desactivar todos los checkboxes restantes
