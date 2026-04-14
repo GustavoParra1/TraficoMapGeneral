@@ -482,11 +482,8 @@ const GeoLocator = (() => {
     map.setView([lat, lng], 16);
     locationMarker.openPopup();
 
-    // Mostrar Street View automáticamente
-    if (typeof StreetViewLayer !== 'undefined') {
-      StreetViewLayer.showAt(lat, lng, original);
-      console.log(`🏙️ Street View mostrado para: ${original}`);
-    }
+    // Guardar última ubicación para Street View manual
+    window.lastSearchLocation = { lat, lng, address: original };
 
     console.log(`📍 Marcador mostrado: ${original}`);
   };

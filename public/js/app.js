@@ -57,6 +57,11 @@ function iniciarMapa() {
     // Inicializar módulo de heatmap
     heatmapLayer.init();
     
+    // Inicializar módulo de Street View
+    if (typeof StreetViewLayer !== 'undefined') {
+      StreetViewLayer.init();
+    }
+    
     // Inicializar módulo de búsqueda de direcciones
     if (typeof GeoLocator !== 'undefined') {
       GeoLocator.init(map);
@@ -475,6 +480,18 @@ auth.onAuthStateChanged((user) => {
           <!-- Resultados de búsqueda aquí -->
         </div>
         <button id="address-clear-btn" style="width: 100%; margin-top: 8px; padding: 6px; background-color: #666; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; display: none;">✕ Limpiar Marcador</button>
+        
+        <!-- Toggle de Street View -->
+        <div style="margin-top: 12px; padding: 10px; background: #e3f2fd; border: 1px solid #2196F3; border-radius: 6px; display: none;" id="street-view-toggle-container">
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; font-weight: 600; color: #1565c0;">
+            <input 
+              type="checkbox" 
+              id="street-view-toggle" 
+              style="cursor: pointer; width: 18px; height: 18px; accent-color: #2196F3;"
+            >
+            <span>🏙️ Mostrar Street View</span>
+          </label>
+        </div>
       </div>
       
       <div class="sidebar-section">
@@ -1336,6 +1353,19 @@ auth.onAuthStateChanged((user) => {
               addressResults.style.display = 'none';
               addressClearBtn.style.display = 'block';
               addressSearchInput.value = selected.original || 'Ubicación';
+              
+              // Mostrar toggle de Street View
+              const toggleContainer = document.getElementById('street-view-toggle-container');
+              const streetViewToggle = document.getElementById('street-view-toggle');
+              if (toggleContainer) {
+                toggleContainer.style.display = 'block';
+                console.log('🏙️ Toggle de Street View mostrado');
+                if (streetViewToggle) {
+                  streetViewToggle.checked = false; // Desactivado por defecto
+                  // Asegurar que el listener esté configurado
+                  setupStreetViewToggle();
+                }
+              }
             });
           });
         }, 100);
@@ -1358,6 +1388,20 @@ auth.onAuthStateChanged((user) => {
         addressClearBtn.style.display = 'none';
         addressResults.style.display = 'none';
         addressSearchInput.value = '';
+        
+        // Ocultar toggle de Street View y cerrar Street View
+        const toggleContainer = document.getElementById('street-view-toggle-container');
+        const streetViewToggle = document.getElementById('street-view-toggle');
+        if (toggleContainer) {
+          toggleContainer.style.display = 'none';
+        }
+        if (streetViewToggle && streetViewToggle.checked) {
+          streetViewToggle.checked = false;
+          if (typeof StreetViewLayer !== 'undefined') {
+            StreetViewLayer.hide();
+          }
+        }
+        
         console.log('🧹 Búsqueda y marcador limpiados');
       });
     }
@@ -2059,3 +2103,59 @@ iniciarMapa();
 setTimeout(() => {
   setupImportCities();
 }, 1000);
+
+// ============================
+// TOGGLE DE STREET VIEW
+// ============================
+let streetViewToggleSetup = false;
+
+function setupStreetViewToggle() {
+  const streetViewToggle = document.getElementById('street-view-toggle');
+  
+  console.log('🔧 setupStreetViewToggle() llamado - toggle existe:', !!streetViewToggle, 'ya configurado:', streetViewToggleSetup);
+  
+  if (!streetViewToggle || streetViewToggleSetup) {
+    return;
+  }
+  
+  streetViewToggle.addEventListener('change', function(e) {
+    console.log('🔄 Toggle change event disparado:', this.checked);
+    
+    if (!window.lastSearchLocation) {
+      console.warn('⚠️ Sin ubicación guardada');
+      this.checked = false;
+      alert('Por favor, busca una dirección primero');
+      return;
+    }
+    
+    if (this.checked) {
+      // Activar Street View
+      console.log('✅ Activando Street View...');
+      if (typeof StreetViewLayer !== 'undefined') {
+        StreetViewLayer.showAt(
+          window.lastSearchLocation.lat, 
+          window.lastSearchLocation.lng,
+          window.lastSearchLocation.address
+        );
+        console.log('✅ Street View activado manualmente');
+      } else {
+        console.error('❌ StreetViewLayer no disponible');
+      }
+    } else {
+      // Desactivar Street View
+      console.log('❌ Desactivando Street View...');
+      if (typeof StreetViewLayer !== 'undefined') {
+        StreetViewLayer.hide();
+        console.log('❌ Street View desactivado manualmente');
+      }
+    }
+  });
+  
+  streetViewToggleSetup = true;
+  console.log('✅ setupStreetViewToggle() completado - listener agregado');
+}
+
+// Llamar al setup cuando se haya renderizado el sidebar
+setTimeout(() => {
+  setupStreetViewToggle();
+}, 300);
