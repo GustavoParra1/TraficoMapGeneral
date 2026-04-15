@@ -23,7 +23,7 @@
         "aforos": "data/aforos-mar-del-plata.csv",
         "colectivos": null,
         "flujo": null,
-        "robo": null,
+        "robo": "data/robo automotor - Hoja 1.csv",
         "alertas": null,
         "zonas": null
       }

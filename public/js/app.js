@@ -604,6 +604,63 @@ function populateAforosFilters() {
 }
 
 // ============================
+// POBLADOR DE FILTROS DE ROBOS
+// ============================
+function populateRoboFilters() {
+  if (typeof RoboLayer === 'undefined') return;
+  
+  console.log('🚗 Poblando filtros de robos...');
+  
+  try {
+    const metadata = RoboLayer.getMetadata();
+    if (!metadata) {
+      console.warn('⚠️ No hay metadata disponible en RoboLayer');
+      return;
+    }
+    
+    // Años
+    const yearFilter = document.getElementById('robo-year-filter');
+    if (yearFilter && metadata.years && metadata.years.length > 0) {
+      const options = yearFilter.querySelectorAll('option:not(:first-child)');
+      options.forEach(opt => opt.remove());
+      
+      metadata.years.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearFilter.appendChild(option);
+      });
+      console.log(`  ✓ Años: ${metadata.years.join(', ')}`);
+    }
+    
+    // Resultados
+    const resultadoFilter = document.getElementById('robo-resultado-filter');
+    if (resultadoFilter && metadata.resultados && metadata.resultados.length > 0) {
+      const options = resultadoFilter.querySelectorAll('option:not(:first-child)');
+      options.forEach(opt => opt.remove());
+      
+      metadata.resultados.forEach(resultado => {
+        const option = document.createElement('option');
+        option.value = resultado;
+        option.textContent = resultado;
+        resultadoFilter.appendChild(option);
+      });
+      console.log(`  ✓ Resultados: ${metadata.resultados.length} disponibles`);
+    }
+    
+    // Actualizar total de robos
+    const totalSpan = document.getElementById('robo-total-count');
+    if (totalSpan && metadata.total) {
+      totalSpan.textContent = metadata.total.toLocaleString();
+    }
+    
+    console.log('✅ Filtros de robos poblados correctamente');
+  } catch (error) {
+    console.error('❌ Error poblando filtros de robos:', error);
+  }
+}
+
+// ============================
 // AUTENTICACIÓN
 // ============================
 auth.onAuthStateChanged((user) => {
