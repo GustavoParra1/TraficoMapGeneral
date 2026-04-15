@@ -62,6 +62,11 @@ function iniciarMapa() {
       AforosLayer.init(map);
     }
     
+    // Inicializar módulo de robos
+    if (typeof RoboLayer !== 'undefined') {
+      RoboLayer.init(map);
+    }
+    
     // Inicializar módulo de Street View
     if (typeof StreetViewLayer !== 'undefined') {
       StreetViewLayer.init();
@@ -357,6 +362,40 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
           setTimeout(() => {
             populateAforosFilters();
           }, 500);
+        }
+      }
+
+      // Cargar robos si están disponibles
+      if (cityConfig.optionalLayers.robo && typeof RoboLayer !== 'undefined') {
+        console.log(`  [OPT] Cargando robos desde: ${cityConfig.optionalLayers.robo}`);
+        
+        // Determinar si es CSV o GeoJSON
+        const roboPath = cityConfig.optionalLayers.robo;
+        const isCSV = roboPath.endsWith('.csv');
+        
+        try {
+          if (isCSV) {
+            await RoboLayer.loadRoboFromCSV(roboPath);
+          } else {
+            const roboGeoJson = await loadData(roboPath);
+            if (roboGeoJson) {
+              RoboLayer.loadRoboFromGeoJSON(roboGeoJson);
+            }
+          }
+          
+          // Pasar barrios a RoboLayer para filtrado geopolítico
+          if (bariosGeoJson) {
+            RoboLayer.setBarriosData(bariosGeoJson);
+          }
+          
+          console.log(`       ✓ Robos cargados`);
+          
+          // Poblar los filtros de robos
+          setTimeout(() => {
+            populateRoboFilters();
+          }, 500);
+        } catch (error) {
+          console.warn('⚠️ Error cargando robos:', error);
         }
       }
       // Semáforos
@@ -806,6 +845,42 @@ auth.onAuthStateChanged((user) => {
             <strong>Estadísticas:</strong>
             <div style="margin-top: 4px;">
               Total: <span id="aforos-total-vehicles">0</span> vehículos
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">🚗 Robo Automotor</div>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-bottom: 12px;">
+          <input type="checkbox" id="robo-checkbox" style="cursor: pointer; width: 16px; height: 16px;">
+          <span>Mostrar Robos</span>
+        </label>
+        
+        <div id="robo-filters" style="display: none; font-size: 12px;">
+          <label style="display: block; margin-bottom: 8px;">
+            Año:
+            <select id="robo-year-filter" style="width: 100%; padding: 4px;"><option value="all">Todos los Años</option></select>
+          </label>
+          
+          <label style="display: block; margin-bottom: 8px;">
+            Filtrar por Resultado:
+            <select id="robo-resultado-filter" style="width: 100%; padding: 4px;"><option value="all">Todos los Resultados</option></select>
+          </label>
+
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 10px;">
+            <input type="checkbox" id="robo-heatmap-checkbox" style="cursor: pointer; width: 16px; height: 16px;">
+            <span>Mapa de Calor (Robos)</span>
+          </label>
+
+          <button id="clear-robo-filters-btn" style="width: 100%; margin-top: 8px; padding: 8px; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+            Limpiar Filtros Robos
+          </button>
+
+          <div id="robo-stats" style="margin-top: 12px; padding: 8px; background: #f0f0f0; border-radius: 4px; font-size: 11px;">
+            <strong>Estadísticas:</strong>
+            <div style="margin-top: 4px;">
+              Total: <span id="robo-total-count">0</span> robos registrados
             </div>
           </div>
         </div>
@@ -1408,6 +1483,71 @@ auth.onAuthStateChanged((user) => {
         
         console.log('🧹 Filtros de aforos limpiados');
         applyAforosFilters();
+      });
+    }
+
+    // ==========================================
+    // FUNCIONALIDAD DE ROBOS
+    // ==========================================
+    const roboCheckbox = document.getElementById('robo-checkbox');
+    const roboFiltersDiv = document.getElementById('robo-filters');
+    const roboYearFilter = document.getElementById('robo-year-filter');
+    const roboResultadoFilter = document.getElementById('robo-resultado-filter');
+    const roboHeatmapCheckbox = document.getElementById('robo-heatmap-checkbox');
+    const clearRoboFiltersBtn = document.getElementById('clear-robo-filters-btn');
+    const roboTotalSpan = document.getElementById('robo-total-count');
+
+    if (roboCheckbox) {
+      roboCheckbox.addEventListener('change', (e) => {
+        if (typeof RoboLayer === 'undefined') return;
+        
+        console.log('🚗 Toggle robos:', e.target.checked);
+        
+        // Mostrar/ocultar filtros
+        if (roboFiltersDiv) {
+          roboFiltersDiv.style.display = e.target.checked ? 'block' : 'none';
+        }
+        
+        RoboLayer.toggle(e.target.checked);
+        
+        // Aplicar filtros globales si se activa
+        if (e.target.checked) {
+          applyGlobalBarrioFilter();
+        } else {
+          RoboLayer.setFilter('globalBarrio', 'all');
+        }
+      });
+    }
+
+    const applyRoboFilters = () => {
+      if (typeof RoboLayer === 'undefined') return;
+      
+      const filters = {
+        year: roboYearFilter?.value === 'all' ? 'all' : roboYearFilter?.value,
+        resultado: roboResultadoFilter?.value === 'all' ? 'all' : roboResultadoFilter?.value
+      };
+      
+      console.log('🚗 Aplicando filtros de robos:', filters);
+      RoboLayer.setFilter('year', filters.year);
+      RoboLayer.setFilter('resultado', filters.resultado);
+      
+      // Actualizar estadísticas
+      const metadata = RoboLayer.getMetadata();
+      if (roboTotalSpan && metadata) {
+        roboTotalSpan.textContent = metadata.total?.toLocaleString() || '0';
+      }
+    };
+
+    if (roboYearFilter) roboYearFilter.addEventListener('change', applyRoboFilters);
+    if (roboResultadoFilter) roboResultadoFilter.addEventListener('change', applyRoboFilters);
+
+    if (clearRoboFiltersBtn) {
+      clearRoboFiltersBtn.addEventListener('click', () => {
+        if (roboYearFilter) roboYearFilter.value = 'all';
+        if (roboResultadoFilter) roboResultadoFilter.value = 'all';
+        
+        console.log('🧹 Filtros de robos limpiados');
+        applyRoboFilters();
       });
     }
 
