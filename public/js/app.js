@@ -349,7 +349,7 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
       // Cargar aforos si están disponibles
       if (cityConfig.optionalLayers.aforos && typeof AforosLayer !== 'undefined') {
         console.log(`  [OPT] Cargando aforos desde: ${cityConfig.optionalLayers.aforos}`);
-        const aforesLoaded = await AforosLayer.loadFromCSV(cityConfig.optionalLayers.aforos);
+        const aforesLoaded = await AforosLayer.loadFromCSV(cityConfig.optionalLayers.aforos, citiesConfig, currentCity);
         if (aforesLoaded) {
           console.log(`       ✓ Aforos cargados`);
           

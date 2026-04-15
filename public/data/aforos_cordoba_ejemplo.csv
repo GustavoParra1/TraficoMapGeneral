@@ -1,0 +1,141 @@
+N CAMARA,DIRECCION,FECHA,DIA,HORA,PART,TOTAL
+1,Parada Cabildo,03/15/2023,miercoles,06 a 07,auto,520
+1,Parada Cabildo,03/15/2023,miercoles,06 a 07,moto,45
+1,Parada Cabildo,03/15/2023,miercoles,06 a 07,bici,18
+1,Parada Cabildo,03/15/2023,miercoles,06 a 07,colectivo,28
+1,Parada Cabildo,03/15/2023,miercoles,06 a 07,camiones,12
+1,Parada Cabildo,03/15/2023,miercoles,07 a 08,auto,780
+1,Parada Cabildo,03/15/2023,miercoles,07 a 08,moto,62
+1,Parada Cabildo,03/15/2023,miercoles,07 a 08,bici,24
+1,Parada Cabildo,03/15/2023,miercoles,07 a 08,colectivo,42
+1,Parada Cabildo,03/15/2023,miercoles,07 a 08,camiones,18
+1,Parada Cabildo,03/15/2023,miercoles,08 a 09,auto,920
+1,Parada Cabildo,03/15/2023,miercoles,08 a 09,moto,78
+1,Parada Cabildo,03/15/2023,miercoles,08 a 09,bici,32
+1,Parada Cabildo,03/15/2023,miercoles,08 a 09,colectivo,56
+1,Parada Cabildo,03/15/2023,miercoles,08 a 09,camiones,24
+1,Parada Cabildo,03/15/2023,miercoles,09 a 10,auto,650
+1,Parada Cabildo,03/15/2023,miercoles,09 a 10,moto,55
+1,Parada Cabildo,03/15/2023,miercoles,09 a 10,bici,21
+1,Parada Cabildo,03/15/2023,miercoles,09 a 10,colectivo,38
+1,Parada Cabildo,03/15/2023,miercoles,09 a 10,camiones,15
+1,Parada Cabildo,03/16/2023,jueves,06 a 07,auto,580
+1,Parada Cabildo,03/16/2023,jueves,06 a 07,moto,48
+1,Parada Cabildo,03/16/2023,jueves,06 a 07,bici,20
+1,Parada Cabildo,03/16/2023,jueves,06 a 07,colectivo,32
+1,Parada Cabildo,03/16/2023,jueves,06 a 07,camiones,14
+1,Parada Cabildo,03/16/2023,jueves,07 a 08,auto,840
+1,Parada Cabildo,03/16/2023,jueves,07 a 08,moto,68
+1,Parada Cabildo,03/16/2023,jueves,07 a 08,bici,28
+1,Parada Cabildo,03/16/2023,jueves,07 a 08,colectivo,48
+1,Parada Cabildo,03/16/2023,jueves,07 a 08,camiones,20
+1,Parada Cabildo,03/17/2023,viernes,06 a 07,auto,610
+1,Parada Cabildo,03/17/2023,viernes,06 a 07,moto,52
+1,Parada Cabildo,03/17/2023,viernes,06 a 07,bici,22
+1,Parada Cabildo,03/17/2023,viernes,06 a 07,colectivo,35
+1,Parada Cabildo,03/17/2023,viernes,06 a 07,camiones,16
+1,Parada Cabildo,03/17/2023,viernes,07 a 08,auto,920
+1,Parada Cabildo,03/17/2023,viernes,07 a 08,moto,75
+1,Parada Cabildo,03/17/2023,viernes,07 a 08,bici,30
+1,Parada Cabildo,03/17/2023,viernes,07 a 08,colectivo,52
+1,Parada Cabildo,03/17/2023,viernes,07 a 08,camiones,22
+5,Parada Centro (Línea 2),03/15/2023,miercoles,06 a 07,auto,480
+5,Parada Centro (Línea 2),03/15/2023,miercoles,06 a 07,moto,38
+5,Parada Centro (Línea 2),03/15/2023,miercoles,06 a 07,bici,16
+5,Parada Centro (Línea 2),03/15/2023,miercoles,06 a 07,colectivo,24
+5,Parada Centro (Línea 2),03/15/2023,miercoles,06 a 07,camiones,10
+5,Parada Centro (Línea 2),03/15/2023,miercoles,07 a 08,auto,720
+5,Parada Centro (Línea 2),03/15/2023,miercoles,07 a 08,moto,58
+5,Parada Centro (Línea 2),03/15/2023,miercoles,07 a 08,bici,22
+5,Parada Centro (Línea 2),03/15/2023,miercoles,07 a 08,colectivo,38
+5,Parada Centro (Línea 2),03/15/2023,miercoles,07 a 08,camiones,16
+5,Parada Centro (Línea 2),03/15/2023,miercoles,08 a 09,auto,850
+5,Parada Centro (Línea 2),03/15/2023,miercoles,08 a 09,moto,68
+5,Parada Centro (Línea 2),03/15/2023,miercoles,08 a 09,bici,28
+5,Parada Centro (Línea 2),03/15/2023,miercoles,08 a 09,colectivo,48
+5,Parada Centro (Línea 2),03/15/2023,miercoles,08 a 09,camiones,20
+5,Parada Centro (Línea 2),03/16/2023,jueves,07 a 08,auto,680
+5,Parada Centro (Línea 2),03/16/2023,jueves,07 a 08,moto,52
+5,Parada Centro (Línea 2),03/16/2023,jueves,07 a 08,bici,20
+5,Parada Centro (Línea 2),03/16/2023,jueves,07 a 08,colectivo,35
+5,Parada Centro (Línea 2),03/16/2023,jueves,07 a 08,camiones,14
+5,Parada Centro (Línea 2),03/17/2023,viernes,07 a 08,auto,820
+5,Parada Centro (Línea 2),03/17/2023,viernes,07 a 08,moto,65
+5,Parada Centro (Línea 2),03/17/2023,viernes,07 a 08,bici,26
+5,Parada Centro (Línea 2),03/17/2023,viernes,07 a 08,colectivo,42
+5,Parada Centro (Línea 2),03/17/2023,viernes,07 a 08,camiones,18
+9,Parada Centro (Línea 3),03/15/2023,miercoles,06 a 07,auto,540
+9,Parada Centro (Línea 3),03/15/2023,miercoles,06 a 07,moto,42
+9,Parada Centro (Línea 3),03/15/2023,miercoles,06 a 07,bici,17
+9,Parada Centro (Línea 3),03/15/2023,miercoles,06 a 07,colectivo,26
+9,Parada Centro (Línea 3),03/15/2023,miercoles,06 a 07,camiones,11
+9,Parada Centro (Línea 3),03/15/2023,miercoles,07 a 08,auto,810
+9,Parada Centro (Línea 3),03/15/2023,miercoles,07 a 08,moto,65
+9,Parada Centro (Línea 3),03/15/2023,miercoles,07 a 08,bici,26
+9,Parada Centro (Línea 3),03/15/2023,miercoles,07 a 08,colectivo,44
+9,Parada Centro (Línea 3),03/15/2023,miercoles,07 a 08,camiones,18
+9,Parada Centro (Línea 3),03/15/2023,miercoles,08 a 09,auto,960
+9,Parada Centro (Línea 3),03/15/2023,miercoles,08 a 09,moto,78
+9,Parada Centro (Línea 3),03/15/2023,miercoles,08 a 09,bici,31
+9,Parada Centro (Línea 3),03/15/2023,miercoles,08 a 09,colectivo,52
+9,Parada Centro (Línea 3),03/15/2023,miercoles,08 a 09,camiones,22
+9,Parada Centro (Línea 3),03/16/2023,jueves,07 a 08,auto,750
+9,Parada Centro (Línea 3),03/16/2023,jueves,07 a 08,moto,60
+9,Parada Centro (Línea 3),03/16/2023,jueves,07 a 08,bici,24
+9,Parada Centro (Línea 3),03/16/2023,jueves,07 a 08,colectivo,40
+9,Parada Centro (Línea 3),03/16/2023,jueves,07 a 08,camiones,16
+9,Parada Centro (Línea 3),03/17/2023,viernes,08 a 09,auto,1020
+9,Parada Centro (Línea 3),03/17/2023,viernes,08 a 09,moto,82
+9,Parada Centro (Línea 3),03/17/2023,viernes,08 a 09,bici,34
+9,Parada Centro (Línea 3),03/17/2023,viernes,08 a 09,colectivo,56
+9,Parada Centro (Línea 3),03/17/2023,viernes,08 a 09,camiones,24
+15,Parada Barrio San Vicente,03/15/2023,miercoles,06 a 07,auto,380
+15,Parada Barrio San Vicente,03/15/2023,miercoles,06 a 07,moto,28
+15,Parada Barrio San Vicente,03/15/2023,miercoles,06 a 07,bici,12
+15,Parada Barrio San Vicente,03/15/2023,miercoles,06 a 07,colectivo,18
+15,Parada Barrio San Vicente,03/15/2023,miercoles,06 a 07,camiones,8
+15,Parada Barrio San Vicente,03/15/2023,miercoles,07 a 08,auto,580
+15,Parada Barrio San Vicente,03/15/2023,miercoles,07 a 08,moto,42
+15,Parada Barrio San Vicente,03/15/2023,miercoles,07 a 08,bici,18
+15,Parada Barrio San Vicente,03/15/2023,miercoles,07 a 08,colectivo,28
+15,Parada Barrio San Vicente,03/15/2023,miercoles,07 a 08,camiones,12
+15,Parada Barrio San Vicente,03/15/2023,miercoles,08 a 09,auto,680
+15,Parada Barrio San Vicente,03/15/2023,miercoles,08 a 09,moto,52
+15,Parada Barrio San Vicente,03/15/2023,miercoles,08 a 09,bici,22
+15,Parada Barrio San Vicente,03/15/2023,miercoles,08 a 09,colectivo,34
+15,Parada Barrio San Vicente,03/15/2023,miercoles,08 a 09,camiones,16
+15,Parada Barrio San Vicente,03/16/2023,jueves,07 a 08,auto,520
+15,Parada Barrio San Vicente,03/16/2023,jueves,07 a 08,moto,38
+15,Parada Barrio San Vicente,03/16/2023,jueves,07 a 08,bici,16
+15,Parada Barrio San Vicente,03/16/2023,jueves,07 a 08,colectivo,24
+15,Parada Barrio San Vicente,03/16/2023,jueves,07 a 08,camiones,10
+15,Parada Barrio San Vicente,03/17/2023,viernes,07 a 08,auto,640
+15,Parada Barrio San Vicente,03/17/2023,viernes,07 a 08,moto,48
+15,Parada Barrio San Vicente,03/17/2023,viernes,07 a 08,bici,20
+15,Parada Barrio San Vicente,03/17/2023,viernes,07 a 08,colectivo,32
+15,Parada Barrio San Vicente,03/17/2023,viernes,07 a 08,camiones,14
+34,Parada Nueva Córdoba,03/15/2023,miercoles,06 a 07,auto,620
+34,Parada Nueva Córdoba,03/15/2023,miercoles,06 a 07,moto,52
+34,Parada Nueva Córdoba,03/15/2023,miercoles,06 a 07,bici,21
+34,Parada Nueva Córdoba,03/15/2023,miercoles,06 a 07,colectivo,32
+34,Parada Nueva Córdoba,03/15/2023,miercoles,06 a 07,camiones,14
+34,Parada Nueva Córdoba,03/15/2023,miercoles,07 a 08,auto,920
+34,Parada Nueva Córdoba,03/15/2023,miercoles,07 a 08,moto,78
+34,Parada Nueva Córdoba,03/15/2023,miercoles,07 a 08,bici,32
+34,Parada Nueva Córdoba,03/15/2023,miercoles,07 a 08,colectivo,48
+34,Parada Nueva Córdoba,03/15/2023,miercoles,07 a 08,camiones,22
+34,Parada Nueva Córdoba,03/15/2023,miercoles,08 a 09,auto,1080
+34,Parada Nueva Córdoba,03/15/2023,miercoles,08 a 09,moto,92
+34,Parada Nueva Córdoba,03/15/2023,miercoles,08 a 09,bici,38
+34,Parada Nueva Córdoba,03/15/2023,miercoles,08 a 09,colectivo,58
+34,Parada Nueva Córdoba,03/15/2023,miercoles,08 a 09,camiones,26
+34,Parada Nueva Córdoba,03/16/2023,jueves,08 a 09,auto,950
+34,Parada Nueva Córdoba,03/16/2023,jueves,08 a 09,moto,82
+34,Parada Nueva Córdoba,03/16/2023,jueves,08 a 09,bici,34
+34,Parada Nueva Córdoba,03/16/2023,jueves,08 a 09,colectivo,52
+34,Parada Nueva Córdoba,03/16/2023,jueves,08 a 09,camiones,24
+34,Parada Nueva Córdoba,03/17/2023,viernes,07 a 08,auto,1050
+34,Parada Nueva Córdoba,03/17/2023,viernes,07 a 08,moto,88
+34,Parada Nueva Córdoba,03/17/2023,viernes,07 a 08,bici,36
+34,Parada Nueva Córdoba,03/17/2023,viernes,07 a 08,colectivo,54
+34,Parada Nueva Córdoba,03/17/2023,viernes,07 a 08,camiones,28

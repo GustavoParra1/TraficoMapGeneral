@@ -75,6 +75,7 @@
         "semaforos": "data/semaforos_cordoba_ejemplo.csv",
         "colegios": "data/colegios_escuelas_cordoba_ejemplo.geojson",
         "corredores": "data/corredores_escolares_cordoba_ejemplo.geojson",
+        "aforos": "data/aforos_cordoba_ejemplo.csv",
         "colectivos": null,
         "flujo": null,
         "robo": null,

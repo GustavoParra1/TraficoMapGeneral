@@ -131,16 +131,47 @@ const FormatHelp = (() => {
     colegios: {
       title: '🏫 COLEGIOS/ESCUELAS',
       description: 'Ubicaciones de establecimientos educativos',
-      format: 'CSV o GeoJSON (Point)',
-      csvColumns: ['lat (obligatorio)', 'lng (obligatorio)', 'nombre', 'nivel', 'sector'],
-      csvExample: `lat,lng,nombre,nivel,sector
--38.0055,-57.5521,Escuela Primaria 1,primario,público
--38.0060,-57.5525,Colegio Secundario 2,secundario,privado`,
-      geoJsonColumns: ['nombre', 'nivel', 'sector (opcionales)'],
+      format: 'GeoJSON (Point)',
+      csvColumns: ['NO - Se requiere GeoJSON'],
+      csvInfo: `
+        <p style="background: #e3f2fd; padding: 10px; border-radius: 4px; margin: 10px 0;">
+          <strong>❓ ¿POR QUÉ GEOJSON?</strong> Las coordenadas <code>[lng, lat]</code> en la sección <code>geometry</code> son lo que ubica cada colegio en el mapa. Es OBLIGATORIO.
+        </p>
+        <p><strong>📋 Estructura obligatoria:</strong></p>
+        <ul style="font-size: 12px;">
+          <li><code>"type": "Feature"</code> - Define que es un punto</li>
+          <li><code>"properties"</code> - Datos del colegio (Name, description, address, barrio)</li>
+          <li><code>"geometry": {"type": "Point", "coordinates": [lng, lat]}</code> - <strong>¡ESTO UBICA EL PUNTO EN EL MAPA!</strong></li>
+        </ul>
+        <p><strong>✅ Propiedades compatibles (Mar del Plata + Córdoba):</strong></p>
+        <ul style="font-size: 12px;">
+          <li><code>Name</code> - Nombre del colegio/escuela (OBLIGATORIO)</li>
+          <li><code>description</code> - Nivel: primario, secundario, jardín, etc. (puede ser null)</li>
+          <li><code>address</code> - Dirección (OPCIONAL)</li>
+          <li><code>barrio</code> - Barrio o zona (OPCIONAL)</li>
+        </ul>
+        <p><strong>✅ Forma fácil de crear:</strong></p>
+        <ul style="font-size: 12px;">
+          <li>Usa <a href="https://geojson.io" target="_blank">geojson.io</a> - Haz clic en el mapa y automáticamente genera las coordenadas</li>
+          <li>O exporta desde Google Maps/Earth con coordenadas y convierte con herramientas online</li>
+        </ul>
+        <p style="background: #fff3cd; padding: 8px; border-left: 3px solid #FF9800; margin: 10px 0;">
+          💡 <strong>Sin coordinates, el colegio NO aparecerá en el mapa.</strong> Las coordenadas son lo más importante.
+        </p>
+      `,
+      geoJsonColumns: ['Name (obligatorio)', 'description (opt)', 'address (opt)', 'barrio (opt)'],
       geoJsonExample: `{
   "type": "Feature",
-  "properties": { "nombre": "Escuela Primaria 1", "nivel": "primario", "sector": "público" },
-  "geometry": { "type": "Point", "coordinates": [-57.5521, -38.0055] }
+  "properties": {
+    "Name": "Escuela N° 1 - Centro",
+    "description": "Primaria",
+    "address": "Rivadavia 550",
+    "barrio": "Centro"
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [-64.1863, -31.4178]
+  }
 }`
     },
     corredores: {
@@ -158,19 +189,18 @@ const FormatHelp = (() => {
 }`
     },
     flujo: {
-      title: '📊 FLUJO VEHICULAR',
-      description: 'Datos de flujo de tránsito (puntos o áreas)',
-      format: 'CSV o GeoJSON (Point, LineString o Polygon)',
-      csvColumns: ['lat (obligatorio)', 'lng (obligatorio)', 'nombre', 'intensidad', 'hora_pico'],
-      csvExample: `lat,lng,nombre,intensidad,hora_pico
--38.0055,-57.5521,Intersección Avenida,alta,08:00-09:00
--38.0060,-57.5525,Puente Centro,media,17:00-18:30`,
-      geoJsonColumns: ['nombre', 'intensidad', 'hora_pico (opcionales)'],
-      geoJsonExample: `{
-  "type": "Feature",
-  "properties": { "nombre": "Intersección Avenida", "intensidad": "alta", "hora_pico": "08:00-09:00" },
-  "geometry": { "type": "Point", "coordinates": [-57.5521, -38.0055] }
-}`
+      title: '📊 FLUJO VEHICULAR (AFOROS)',
+      description: 'Datos de aforos vehiculares - conteo de vehículos por tipo en rango horario',
+      format: 'CSV (obligatorio)',
+      csvColumns: ['N CAMARA (obligatorio)', 'DIRECCION (obligatorio)', 'FECHA (MM/DD/YYYY)', 'DIA', 'HORA (HH a HH)', 'PART (tipo vehículo)', 'TOTAL (obligatorio)'],
+      csvExample: `N CAMARA,DIRECCION,FECHA,DIA,HORA,PART,TOTAL
+306,Quintana y Patricio Peralta Ramos,12/10/2022,sabado,06 a 07,auto,1434
+306,Quintana y Patricio Peralta Ramos,12/10/2022,sabado,06 a 07,moto,54
+306,Quintana y Patricio Peralta Ramos,12/10/2022,sabado,06 a 07,bici,12
+306,Quintana y Patricio Peralta Ramos,12/10/2022,sabado,06 a 07,colectivo,12
+306,Quintana y Patricio Peralta Ramos,12/10/2022,sabado,06 a 07,camiones,0`,
+      geoJsonColumns: ['NO - Se requiere CSV para aforos'],
+      geoJsonExample: 'No aplica para aforos'
     },
     robo: {
       title: '🚗 ROBO AUTOMOTOR',
@@ -204,54 +234,97 @@ const FormatHelp = (() => {
           <p><strong>📋 Formato aceptado:</strong> ${format.format}</p>
     `;
 
+    // Determinar si es solo CSV, solo GeoJSON, o ambos
+    const onlyGeojson = format.csvColumns && format.csvColumns[0] === 'NO - Se requiere GeoJSON';
+    const onlyCSV = format.geoJsonColumns && format.geoJsonColumns[0] === 'NO - Se requiere CSV para aforos';
+    
     // CSV section if applicable
-    if (format.csvColumns && format.csvColumns[0] !== 'NO - Se requiere GeoJSON') {
-      html += `
-        <div class="format-section">
-          <h3>📊 Opción 1: CSV (Comma-Separated Values)</h3>
-          <p><strong>Columnas requeridas:</strong></p>
-          <ul>
-            <li><code>lat</code> - Latitud (obligatorio)</li>
-            <li><code>lng</code> - Longitud (obligatorio)</li>
-            ${format.csvColumns.slice(2).map(col => `<li><code>${col}</code> (opcional)</li>`).join('')}
-          </ul>
-          <p><strong>Ejemplo:</strong></p>
-          <pre><code>${format.csvExample}</code></pre>
-          ${format.csvInfo ? format.csvInfo : ''}
-          <p>💡 <strong>Cómo crear</strong></p>
-          <ol>
-            <li>Abre Excel o Google Sheets</li>
-            <li>Crea columnas: lat, lng, nombre, ${format.csvColumns.slice(2).join(', ')}</li>
-            <li>Llena tus datos</li>
-            <li>Guarda como CSV: Archivo → Descargar → CSV</li>
-          </ol>
-        </div>
-      `;
-    } else {
-      html += `<p style="background: #fff3cd; padding: 8px; border-radius: 4px;">
-        ⚠️ Este tipo de capa requiere <strong>GeoJSON</strong> (no acepta CSV)
-      </p>`;
+    if (!onlyGeojson) {
+      const isAforos = layerType === 'flujo';
+      
+      if (isAforos) {
+        html += `
+          <div class="format-section">
+            <h3>📊 Formato CSV (Obligatorio)</h3>
+            <p><strong>Columnas requeridas:</strong></p>
+            <ul>
+              <li><code>N CAMARA</code> - ID de la cámara (debe coincidir con cameras.geojson)</li>
+              <li><code>DIRECCION</code> - Ubicación o dirección</li>
+              <li><code>FECHA</code> - Formato: MM/DD/YYYY</li>
+              <li><code>DIA</code> - Día de la semana (lunes, martes, etc.)</li>
+              <li><code>HORA</code> - Rango: "06 a 07", "07 a 08", etc.</li>
+              <li><code>PART</code> - Tipo vehículo: auto, moto, bici, colectivo, camiones</li>
+              <li><code>TOTAL</code> - Cantidad de vehículos (número)</li>
+            </ul>
+            <p><strong>Ejemplo:</strong></p>
+            <pre><code>${format.csvExample}</code></pre>
+`;
+        html += format.csvInfo ? format.csvInfo : '';
+        html += `
+            <p>💡 <strong>Cómo crear</strong></p>
+            <ol>
+              <li>Abre Excel o Google Sheets</li>
+              <li>Crea columnas: N CAMARA, DIRECCION, FECHA, DIA, HORA, PART, TOTAL</li>
+              <li>Para CADA hora y CADA tipo de vehículo, crea una fila</li>
+              <li>Asegúrate que los IDs de cámara coincidan con tu cameras.geojson</li>
+              <li>Guarda como CSV: Archivo → Descargar → CSV</li>
+            </ol>
+          </div>
+        `;
+      } else if (!onlyGeojson && format.csvColumns && format.csvColumns[0] !== 'NO - Se requiere GeoJSON') {
+        html += `
+          <div class="format-section">
+            <h3>📊 Opción 1: CSV (Comma-Separated Values)</h3>
+            <p><strong>Columnas requeridas:</strong></p>
+            <ul>
+              <li><code>lat</code> - Latitud (obligatorio)</li>
+              <li><code>lng</code> - Longitud (obligatorio)</li>
+              ${format.csvColumns.slice(2).map(col => `<li><code>${col}</code> (opcional)</li>`).join('')}
+            </ul>
+            <p><strong>Ejemplo:</strong></p>
+            <pre><code>${format.csvExample}</code></pre>
+            ${format.csvInfo ? format.csvInfo : ''}
+            <p>💡 <strong>Cómo crear</strong></p>
+            <ol>
+              <li>Abre Excel o Google Sheets</li>
+              <li>Crea columnas: lat, lng, nombre, ${format.csvColumns.slice(2).join(', ')}</li>
+              <li>Llena tus datos</li>
+              <li>Guarda como CSV: Archivo → Descargar → CSV</li>
+            </ol>
+          </div>
+        `;
+      }
     }
 
     // GeoJSON section
-    html += `
+    if (!onlyCSV) {
+      const title = onlyGeojson ? 'GeoJSON (Obligatorio)' : (layerType === 'flujo' ? '' : 'Opción 2: GeoJSON');
+      const showTitle = !onlyCSV && title !== '';
+      
+      html += `
         <div class="format-section">
-          <h3>🗺️ Opción 2: GeoJSON</h3>
-          <p><strong>Propiedades opcionales:</strong></p>
+          ${showTitle ? `<h3>🗺️ ${title}</h3>` : ''}
+          <p><strong>${onlyGeojson ? '' : 'Propiedades '}${onlyGeojson ? 'Propiedades requeridas:' : 'opcionales:'}${onlyGeojson ? '' : ''}</strong></p>
           <ul>
             ${format.geoJsonColumns.map(col => `<li><code>${col}</code></li>`).join('')}
-          </ul>
-          <p><strong>Ejemplo:</strong></p>
+          </ul>`;
+          
+      if (format.csvInfo && onlyGeojson) {
+        html += format.csvInfo;
+      }
+      
+      html += `<p><strong>Ejemplo:</strong></p>
           <pre><code>${format.geoJsonExample}</code></pre>
           <p>💡 <strong>Cómo crear</strong></p>
           <ol>
             <li>Usa <a href="https://geojson.io" target="_blank">geojson.io</a> (web gratuita)</li>
-            <li>Dibuja las geometrías directamente en el mapa</li>
-            <li>Agrega propiedades con información</li>
+            <li>Haz clic en el mapa para crear puntos con coordenadas automáticas</li>
+            <li>Agrega propiedades con información en la sección Properties</li>
             <li>Descarga como archivo .geojson</li>
           </ol>
         </div>
-    `;
+      `;
+    }
 
     html += `
         <div class="format-tips">
