@@ -57,6 +57,11 @@ function iniciarMapa() {
     // Inicializar módulo de heatmap
     heatmapLayer.init();
     
+    // Inicializar módulo de aforos
+    if (typeof AforosLayer !== 'undefined') {
+      AforosLayer.init(map);
+    }
+    
     // Inicializar módulo de Street View
     if (typeof StreetViewLayer !== 'undefined') {
       StreetViewLayer.init();
@@ -89,9 +94,22 @@ async function loadCitiesConfig() {
   }
 }
 
+// Variables globales para seguimiento de ciudad actual
+let currentCityConfig = null;
+let checkboxLocks = {};
+
 // Cargar datos geográficos dinámicamente según ciudad
 async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
   console.log(`📍 INICIO: Cargando datos para ciudad: ${cityId}`);
+  
+  // Deshabilitar checkbox de aforos durante carga
+  const aforosCheckbox = document.getElementById('aforos-checkbox');
+  if (aforosCheckbox) {
+    aforosCheckbox.disabled = true;
+    aforosCheckbox.checked = false;
+    aforosCheckbox.style.opacity = '0.5';
+    console.log('⏸️ Checkbox de aforos deshabilitado durante carga...');
+  }
   
   if (!citiesConfig) {
     citiesConfig = await loadCitiesConfig();
@@ -115,6 +133,9 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
     console.error(`❌ Ciudad no encontrada: ${cityId}`);
     return null;
   }
+  
+  // Guardar en variable global para acceso desde event listeners
+  currentCityConfig = cityConfig;
   
   console.log(`✅ Configuración de ciudad obtenida:`, cityConfig);
   
@@ -324,6 +345,20 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
 
     // OPCIONAL: Cargar capas opcionales si están disponibles
     if (cityConfig.optionalLayers) {
+      
+      // Cargar aforos si están disponibles
+      if (cityConfig.optionalLayers.aforos && typeof AforosLayer !== 'undefined') {
+        console.log(`  [OPT] Cargando aforos desde: ${cityConfig.optionalLayers.aforos}`);
+        const aforesLoaded = await AforosLayer.loadFromCSV(cityConfig.optionalLayers.aforos);
+        if (aforesLoaded) {
+          console.log(`       ✓ Aforos cargados`);
+          
+          // Poblar los filtros de aforos con los metadatos disponibles
+          setTimeout(() => {
+            populateAforosFilters();
+          }, 500);
+        }
+      }
       // Semáforos
       if (cityConfig.optionalLayers.semaforos) {
         console.log(`  [OPT] Cargando semáforos desde: ${cityConfig.optionalLayers.semaforos}`);
@@ -377,11 +412,156 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
     }
     
     console.log(`✅ FIN: Datos de ${cityId} cargados exitosamente`);
+    
+    // Habilitar checkbox de aforos después de carga
+    const aforosCheckbox = document.getElementById('aforos-checkbox');
+    if (aforosCheckbox) {
+      aforosCheckbox.disabled = false;
+      aforosCheckbox.style.opacity = '1';
+      console.log('✅ Checkbox de aforos habilitado');
+    }
+
   } catch (error) {
     console.warn('⚠️ Error cargando datos:', error);
   }
   
   return bariosGeoJson;
+}
+
+// ============================
+// POBLADOR DE FILTROS DE AFOROS
+// ============================
+function populateAforosFilters() {
+  if (typeof AforosLayer === 'undefined') return;
+  
+  console.log('📊 Poblando filtros de aforos...');
+  
+  try {
+    const metadata = AforosLayer.getMetadata();
+    if (!metadata) {
+      console.warn('⚠️ No hay metadata disponible en AforosLayer');
+      return;
+    }
+    
+    // Años
+    const yearFilter = document.getElementById('aforos-year-filter');
+    if (yearFilter && metadata.years && metadata.years.length > 0) {
+      const currentValue = yearFilter.value;
+      const options = yearFilter.querySelectorAll('option:not(:first-child)');
+      options.forEach(opt => opt.remove());
+      
+      metadata.years.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearFilter.appendChild(option);
+      });
+      console.log(`  ✓ Años: ${metadata.years.join(', ')}`);
+    }
+    
+    // Meses
+    const monthFilter = document.getElementById('aforos-month-filter');
+    if (monthFilter && metadata.months && metadata.months.length > 0) {
+      const currentValue = monthFilter.value;
+      const options = monthFilter.querySelectorAll('option:not(:first-child)');
+      options.forEach(opt => opt.remove());
+      
+      metadata.months.forEach(month => {
+        const option = document.createElement('option');
+        option.value = month;
+        const monthName = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                          'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][month - 1];
+        option.textContent = monthName || month;
+        monthFilter.appendChild(option);
+      });
+      console.log(`  ✓ Meses: ${metadata.months.length} disponibles`);
+    }
+    
+    // Días de la semana
+    const dayofweekFilter = document.getElementById('aforos-dayofweek-filter');
+    if (dayofweekFilter && metadata.daysOfWeek && metadata.daysOfWeek.length > 0) {
+      const currentValue = dayofweekFilter.value;
+      const options = dayofweekFilter.querySelectorAll('option:not(:first-child)');
+      options.forEach(opt => opt.remove());
+      
+      metadata.daysOfWeek.forEach(day => {
+        const option = document.createElement('option');
+        option.value = day;
+        const dayName = {
+          'Lunes': 'Lunes',
+          'Martes': 'Martes',
+          'Miércoles': 'Miércoles',
+          'Jueves': 'Jueves',
+          'Viernes': 'Viernes',
+          'Sábado': 'Sábado',
+          'Domingo': 'Domingo'
+        }[day] || day;
+        option.textContent = dayName;
+        dayofweekFilter.appendChild(option);
+      });
+      console.log(`  ✓ Días: ${metadata.daysOfWeek.join(', ')}`);
+    }
+    
+    // Horas (desde)
+    const startHourFilter = document.getElementById('aforos-start-hour-filter');
+    if (startHourFilter && metadata.hours && metadata.hours.length > 0) {
+      const currentValue = startHourFilter.value;
+      const options = startHourFilter.querySelectorAll('option:not(:first-child)');
+      options.forEach(opt => opt.remove());
+      
+      metadata.hours.forEach(hour => {
+        const option = document.createElement('option');
+        option.value = hour;
+        option.textContent = `${hour.toString().padStart(2, '0')}:00`;
+        startHourFilter.appendChild(option);
+      });
+      console.log(`  ✓ Horas disponibles: ${metadata.hours.length}`);
+    }
+    
+    // Horas (hasta)
+    const endHourFilter = document.getElementById('aforos-end-hour-filter');
+    if (endHourFilter && metadata.hours && metadata.hours.length > 0) {
+      const currentValue = endHourFilter.value;
+      const options = endHourFilter.querySelectorAll('option:not(:first-child)');
+      options.forEach(opt => opt.remove());
+      
+      metadata.hours.forEach(hour => {
+        const option = document.createElement('option');
+        option.value = hour;
+        option.textContent = `${hour.toString().padStart(2, '0')}:00`;
+        endHourFilter.appendChild(option);
+      });
+    }
+    
+    // Tipos de vehículos
+    const vehicleTypeFilter = document.getElementById('aforos-vehicle-type-filter');
+    if (vehicleTypeFilter && metadata.vehicleTypes && metadata.vehicleTypes.length > 0) {
+      const currentValue = vehicleTypeFilter.value;
+      const options = vehicleTypeFilter.querySelectorAll('option:not(:first-child)');
+      options.forEach(opt => opt.remove());
+      
+      const vehicleTypeNames = {
+        'auto': 'Automóviles',
+        'moto': 'Motos',
+        'bici': 'Bicicletas',
+        'colectivo': 'Colectivos',
+        'camiones': 'Camiones'
+      };
+      
+      metadata.vehicleTypes.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = vehicleTypeNames[type] || type;
+        vehicleTypeFilter.appendChild(option);
+      });
+      console.log(`  ✓ Tipos de vehículos: ${metadata.vehicleTypes.join(', ')}`);
+    }
+    
+    console.log('✅ Filtros de aforos poblados correctamente');
+    
+  } catch (error) {
+    console.error('❌ Error poblando filtros de aforos:', error);
+  }
 }
 
 // ============================
@@ -536,6 +716,10 @@ auth.onAuthStateChanged((user) => {
             <input type="checkbox" id="corredores-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
             <span style="position: relative; z-index: 100;">🚌 Corredores Escolares</span>
           </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="aforos-checkbox" disabled style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0; opacity: 0.5;">
+            <span style="position: relative; z-index: 100;">📊 Aforos - Flujo Vehicular</span>
+          </label>
         </div>
         <div style="font-size: 11px; color: #666; margin-top: 8px; padding: 8px; background: #f0f0f0; border-radius: 4px;">
           📊 Haz clic en las zonas para ver detalles
@@ -578,6 +762,52 @@ auth.onAuthStateChanged((user) => {
           <button id="clear-filters-btn" style="width: 100%; margin-top: 8px; padding: 8px; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
             Limpiar Filtros
           </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">Filtrar Aforos</div>
+        <div style="font-size: 12px;">
+          <label style="display: block; margin-bottom: 8px;">
+            Año:
+            <select id="aforos-year-filter" style="width: 100%; padding: 4px;"><option value="all">Todos</option></select>
+          </label>
+          
+          <label style="display: block; margin-bottom: 8px;">
+            Mes:
+            <select id="aforos-month-filter" style="width: 100%; padding: 4px;"><option value="all">Todos</option></select>
+          </label>
+          
+          <label style="display: block; margin-bottom: 8px;">
+            Día de la Semana:
+            <select id="aforos-dayofweek-filter" style="width: 100%; padding: 4px;"><option value="all">Todos</option></select>
+          </label>
+
+          <label style="display: block; margin-bottom: 8px;">
+            Desde Hora:
+            <select id="aforos-start-hour-filter" style="width: 100%; padding: 4px;"><option value="all">Todas</option></select>
+          </label>
+
+          <label style="display: block; margin-bottom: 8px;">
+            Hasta Hora:
+            <select id="aforos-end-hour-filter" style="width: 100%; padding: 4px;"><option value="all">Todas</option></select>
+          </label>
+
+          <label style="display: block; margin-bottom: 8px;">
+            Tipo Vehículo:
+            <select id="aforos-vehicle-type-filter" style="width: 100%; padding: 4px;"><option value="all">Todos</option></select>
+          </label>
+
+          <button id="clear-aforos-filters-btn" style="width: 100%; margin-top: 8px; padding: 8px; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+            Limpiar Filtros Aforos
+          </button>
+
+          <div id="aforos-stats" style="margin-top: 12px; padding: 8px; background: #f0f0f0; border-radius: 4px; font-size: 11px; display: none;">
+            <strong>Estadísticas:</strong>
+            <div style="margin-top: 4px;">
+              Total: <span id="aforos-total-vehicles">0</span> vehículos
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1077,6 +1307,110 @@ auth.onAuthStateChanged((user) => {
       });
     }
 
+    // Toggle de aforos (flujo vehicular)
+    const aforosCheckbox = document.getElementById('aforos-checkbox');
+    if (aforosCheckbox && typeof AforosLayer !== 'undefined') {
+      aforosCheckbox.addEventListener('change', async (e) => {
+        if (checkboxLocks.aforos) {
+          e.preventDefault();
+          console.log('⏸️ Clic bloqueado en aforos (aún procesando)');
+          return;
+        }
+        
+        checkboxLocks.aforos = true;
+        console.log('🔒 Aforos bloqueado para procesamiento - valor checkbox:', e.target.checked);
+        
+        try {
+          if (e.target.checked) {
+            // Renderizar marcadores cuando se activa
+            console.log('📊 Iniciando renderización de marcadores de aforos...');
+            await AforosLayer.renderMarkers(currentCity);
+            console.log('📊 renderMarkers() completado, mostrando marcadores...');
+            AforosLayer.toggle(true);
+          } else {
+            // Solo ocultarlos cuando se desactiva
+            console.log('📊 Ocultando marcadores de aforos...');
+            AforosLayer.toggle(false);
+          }
+          
+          // Mostrar/ocultar stats
+          const statsPanel = document.getElementById('aforos-stats');
+          if (statsPanel) {
+            statsPanel.style.display = e.target.checked ? 'block' : 'none';
+          }
+        } catch (error) {
+          console.error('❌ Error al procesar aforos:', error);
+        }
+        
+        setTimeout(() => {
+          checkboxLocks.aforos = false;
+          console.log('🔓 Aforos desbloqueado');
+        }, 300);
+      });
+    }
+
+
+    // Event listeners para filtros de aforos
+    const aforosYearFilter = document.getElementById('aforos-year-filter');
+    const aforosMonthFilter = document.getElementById('aforos-month-filter');
+    const aforosDayofweekFilter = document.getElementById('aforos-dayofweek-filter');
+    const aforosStartHourFilter = document.getElementById('aforos-start-hour-filter');
+    const aforosEndHourFilter = document.getElementById('aforos-end-hour-filter');
+    const aforosVehicleTypeFilter = document.getElementById('aforos-vehicle-type-filter');
+    const clearAforosFiltersBtn = document.getElementById('clear-aforos-filters-btn');
+
+    const applyAforosFilters = async () => {
+      if (typeof AforosLayer === 'undefined') return;
+      
+      const filters = {
+        year: aforosYearFilter?.value === 'all' ? null : parseInt(aforosYearFilter?.value),
+        month: aforosMonthFilter?.value === 'all' ? null : parseInt(aforosMonthFilter?.value),
+        dayOfWeek: aforosDayofweekFilter?.value === 'all' ? null : aforosDayofweekFilter?.value,
+        hourFrom: aforosStartHourFilter?.value === 'all' ? null : parseInt(aforosStartHourFilter?.value),
+        hourTo: aforosEndHourFilter?.value === 'all' ? null : parseInt(aforosEndHourFilter?.value),
+        vehicleType: aforosVehicleTypeFilter?.value === 'all' ? null : aforosVehicleTypeFilter?.value
+      };
+      
+      console.log('📊 Aplicando filtros de aforos:', filters);
+      AforosLayer.applyFilters(filters);
+      
+      // Solo re-renderizar si el checkbox está marcado
+      const aforosCheckbox = document.getElementById('aforos-checkbox');
+      if (aforosCheckbox && aforosCheckbox.checked) {
+        console.log('📊 Re-renderizando marcadores con filtros...');
+        await AforosLayer.renderMarkers(currentCity);
+      }
+      
+      // Actualizar estadísticas
+      const stats = AforosLayer.getStatistics();
+      const totalVehiclesSpan = document.getElementById('aforos-total-vehicles');
+      if (totalVehiclesSpan && stats) {
+        totalVehiclesSpan.textContent = stats.totalVehicles?.toLocaleString() || '0';
+      }
+    };
+
+    if (aforosYearFilter) aforosYearFilter.addEventListener('change', applyAforosFilters);
+    if (aforosMonthFilter) aforosMonthFilter.addEventListener('change', applyAforosFilters);
+    if (aforosDayofweekFilter) aforosDayofweekFilter.addEventListener('change', applyAforosFilters);
+    if (aforosStartHourFilter) aforosStartHourFilter.addEventListener('change', applyAforosFilters);
+    if (aforosEndHourFilter) aforosEndHourFilter.addEventListener('change', applyAforosFilters);
+    if (aforosVehicleTypeFilter) aforosVehicleTypeFilter.addEventListener('change', applyAforosFilters);
+
+    if (clearAforosFiltersBtn) {
+      clearAforosFiltersBtn.addEventListener('click', () => {
+        // Resetear todos los filtros
+        if (aforosYearFilter) aforosYearFilter.value = 'all';
+        if (aforosMonthFilter) aforosMonthFilter.value = 'all';
+        if (aforosDayofweekFilter) aforosDayofweekFilter.value = 'all';
+        if (aforosStartHourFilter) aforosStartHourFilter.value = 'all';
+        if (aforosEndHourFilter) aforosEndHourFilter.value = 'all';
+        if (aforosVehicleTypeFilter) aforosVehicleTypeFilter.value = 'all';
+        
+        console.log('🧹 Filtros de aforos limpiados');
+        applyAforosFilters();
+      });
+    }
+
     // Botón para mostrar panel de colectivos
     const btnShowColectivos = document.getElementById('btn-show-colectivos');
     console.log('🚌 btnShowColectivos:', btnShowColectivos ? 'ENCONTRADO' : 'NO ENCONTRADO');
@@ -1161,6 +1495,12 @@ auth.onAuthStateChanged((user) => {
         corredoresCheckbox.checked = false;
         CorredoresLayer.toggle(false);
       }
+      
+      const aforosCheckbox = document.getElementById('aforos-checkbox');
+      if (aforosCheckbox && aforosCheckbox.checked) {
+        aforosCheckbox.checked = false;
+        AforosLayer.toggle(false);
+      }
       if (toggleBarrios && toggleBarrios.checked) {
         toggleBarrios.checked = false;
         if (GeoLayers.isLayerVisible('Zonas / Barrios')) {
@@ -1185,6 +1525,21 @@ auth.onAuthStateChanged((user) => {
       if (streetFilter) streetFilter.value = '';
       console.log('  ✓ Filtros de siniestros limpiados');
       
+      // Limpiar filtros de aforos
+      const aforosYearFilter = document.getElementById('aforos-year-filter');
+      const aforosMonthFilter = document.getElementById('aforos-month-filter');
+      const aforosDayofweekFilter = document.getElementById('aforos-dayofweek-filter');
+      const aforosStartHourFilter = document.getElementById('aforos-start-hour-filter');
+      const aforosEndHourFilter = document.getElementById('aforos-end-hour-filter');
+      const aforosVehicleTypeFilter = document.getElementById('aforos-vehicle-type-filter');
+      
+      if (aforosYearFilter) aforosYearFilter.value = 'all';
+      if (aforosMonthFilter) aforosMonthFilter.value = 'all';
+      if (aforosDayofweekFilter) aforosDayofweekFilter.value = 'all';
+      if (aforosStartHourFilter) aforosStartHourFilter.value = 'all';
+      if (aforosEndHourFilter) aforosEndHourFilter.value = 'all';
+      if (aforosVehicleTypeFilter) aforosVehicleTypeFilter.value = 'all';
+      console.log('  ✓ Filtros de aforos limpiados');
       // 4. Resetear filtro global de barrio
       const globalBarrioSelect = document.getElementById('global-barrio-filter');
       if (globalBarrioSelect) {
@@ -1665,6 +2020,13 @@ auth.onAuthStateChanged((user) => {
           SemaforosLayer.toggle(false);
           heatmapLayer.toggle(false);
           GeoLayers.toggle('all', false);
+          
+          // Limpiar aforos
+          if (typeof AforosLayer !== 'undefined') {
+            AforosLayer.clearMarkers();
+            const aforosCheckbox = document.getElementById('aforos-checkbox');
+            if (aforosCheckbox) aforosCheckbox.checked = false;
+          }
           
           console.log('✅ Todos los filtros, checkboxes y capas han sido limpiados');
         });

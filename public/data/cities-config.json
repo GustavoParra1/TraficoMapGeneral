@@ -20,6 +20,7 @@
         "semaforos": "data/semaforos.geojson",
         "colegios": "colegios_escuelas.geojson",
         "corredores": "corredores_escolares.geojson",
+        "aforos": "data/aforos-mar-del-plata.csv",
         "colectivos": null,
         "flujo": null,
         "robo": null,
