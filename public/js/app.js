@@ -1449,13 +1449,36 @@ auth.onAuthStateChanged((user) => {
       console.log(`  • Ciudad actual seleccionada: ${currentCity}`);
       
       // 1. Resetear vista del mapa a la ciudad actual
-      if (map && currentCityConfig) {
-        const lat = currentCityConfig.center.lat;
-        const lng = currentCityConfig.center.lng;
-        const zoom = currentCityConfig.zoom || 12;
-        map.setView([lat, lng], zoom);
-        console.log(`  ✓ Mapa centrado en ${currentCity} (${lat}, ${lng})`);
+      if (map && citiesConfig) {
+        // Buscar la configuración de la ciudad en citiesConfig
+        const cityConfig = citiesConfig.cities.find(c => c.id === currentCity);
+        if (cityConfig && cityConfig.coordinates) {
+          const lat = cityConfig.coordinates.lat;
+          const lng = cityConfig.coordinates.lng;
+          const zoom = cityConfig.zoom || 12;
+          map.setView([lat, lng], zoom);
+          console.log(`  ✓ Mapa centrado en ${currentCity} (${lat}, ${lng})`);
+        } else {
+          console.warn(`⚠️ Configuración de ciudad no encontrada para ${currentCity}`);
+        }
       }
+      
+      // 1.5 Cerrar cualquier popup abierto en el mapa
+      if (map) {
+        map.closePopup();
+        // Limpiar todos los popups
+        for (let i = 0; i < map._layers.length; i++) {
+          if (map._layers[i] && map._layers[i].closePopup) {
+            map._layers[i].closePopup();
+          }
+        }
+        Object.values(map._layers).forEach(layer => {
+          if (layer && layer.closePopup && typeof layer.closePopup === 'function') {
+            layer.closePopup();
+          }
+        });
+      }
+      console.log('  ✓ Popups cerrados');
       
       // 2. Desactivar todos los checkboxes restantes
       const sinCheckbox = document.getElementById('siniestros-checkbox');
@@ -2228,8 +2251,13 @@ const setupImportCities = () => {
   const btnSubmit = document.getElementById('btn-import-submit');
   const citySelector = document.getElementById('city-selector');
 
-  if (!modal || !btnImport) {
-    console.error('❌ No se pudo crear el modal de importación');
+  if (!modal || !btnImport || !btnCancel || !btnSubmit) {
+    console.error('❌ No se pudo crear el modal de importación', {
+      modal: !!modal,
+      btnImport: !!btnImport,
+      btnCancel: !!btnCancel,
+      btnSubmit: !!btnSubmit
+    });
     return;
   }
 
@@ -2290,7 +2318,13 @@ const setupImportCities = () => {
 
   // Abrir modal
   btnImport.addEventListener('click', () => {
-    console.log('Abriendo modal de importación');
+    console.log('✅ Click en botón de importar detectado');
+    if (!modal) {
+      console.error('❌ Modal no existe. Recargando página...');
+      location.reload();
+      return;
+    }
+    console.log('🔓 Abriendo modal de importación');
     modal.style.display = 'block';
   });
 
@@ -2321,7 +2355,7 @@ const setupImportCities = () => {
 
   // Procesar importación
   btnSubmit.addEventListener('click', async () => {
-    console.log('📥 Iniciando importación de ciudad');
+    console.log('📥 Iniciando importación de ciudad - Validando...');
     const status = document.getElementById('import-status');
     const cityName = document.getElementById('import-city-name').value.trim();
 
@@ -2457,10 +2491,8 @@ const setupImportCities = () => {
 // Inicializar mapa al cargar
 iniciarMapa();
 
-// Inicializar sistema de importación de ciudades
-setTimeout(() => {
-  setupImportCities();
-}, 1000);
+// Inicializar sistema de importación de ciudades (sin delay)
+setupImportCities();
 
 // ============================
 // TOGGLE DE STREET VIEW
