@@ -1,0 +1,143 @@
+{
+  "cities": [
+    {
+      "id": "mar-del-plata",
+      "name": "Mar del Plata",
+      "country": "Argentina",
+      "province": "Buenos Aires",
+      "coordinates": {
+        "lat": -38.0,
+        "lng": -57.55
+      },
+      "zoom": 12,
+      "files": {
+        "barrios": "data/barrios.json",
+        "siniestros": "data/siniestros_con_ubicacion.geojson",
+        "cameras": "data/cameras.geojson",
+        "private_cameras": "data/private-cameras.geojson"
+      },
+      "optionalLayers": {
+        "semaforos": "data/semaforos.geojson",
+        "colegios": "colegios_escuelas.geojson",
+        "corredores": "corredores_escolares.geojson",
+        "aforos": "data/aforos-mar-del-plata.csv",
+        "colectivos": null,
+        "flujo": null,
+        "robo": "data/robos_final.csv",
+        "alertas": null,
+        "zonas": null
+      }
+    },
+    {
+      "id": "la-plata",
+      "name": "La Plata",
+      "country": "Argentina",
+      "province": "Buenos Aires",
+      "coordinates": {
+        "lat": -34.9205,
+        "lng": -57.9557
+      },
+      "zoom": 12,
+      "files": {
+        "barrios": "data/la-plata/barrios.json",
+        "siniestros": "data/la-plata/siniestros.geojson",
+        "cameras": "data/la-plata/cameras.geojson",
+        "private_cameras": "data/la-plata/private-cameras.geojson"
+      },
+      "optionalLayers": {
+        "semaforos": null,
+        "colegios": null,
+        "corredores": null,
+        "aforos": null,
+        "colectivos": null,
+        "flujo": null,
+        "robo": "data/robos_la-plata.csv",
+        "alertas": null,
+        "zonas": null
+      }
+    },
+    {
+      "id": "rosario",
+      "name": "Rosario",
+      "country": "Argentina",
+      "province": "Santa Fe",
+      "coordinates": {
+        "lat": -32.9387,
+        "lng": -60.6611
+      },
+      "zoom": 12,
+      "files": {
+        "barrios": "data/rosario/barrios.json",
+        "siniestros": "data/rosario/siniestros.geojson",
+        "cameras": "data/rosario/cameras.geojson",
+        "private_cameras": "data/rosario/private-cameras.geojson"
+      },
+      "optionalLayers": {
+        "semaforos": null,
+        "colegios": null,
+        "corredores": null,
+        "aforos": null,
+        "colectivos": null,
+        "flujo": null,
+        "robo": "data/robos_rosario.csv",
+        "alertas": null,
+        "zonas": null
+      }
+    },
+    {
+      "id": "san-martin-del-mar",
+      "name": "San Martín del Mar",
+      "country": "Argentina",
+      "province": "Corrientes",
+      "coordinates": {
+        "lat": -29.8,
+        "lng": -58.1
+      },
+      "zoom": 13,
+      "files": {
+        "barrios": "data/san-martin/barrios.json",
+        "siniestros": "data/san-martin/siniestros.geojson",
+        "cameras": "data/san-martin/cameras.geojson",
+        "private_cameras": "data/san-martin/private-cameras.geojson"
+      },
+      "optionalLayers": {
+        "semaforos": null,
+        "colegios": null,
+        "colectivos": null,
+        "corredores": null,
+        "flujo": null,
+        "robo": null,
+        "alertas": null,
+        "zonas": null
+      }
+    },
+    {
+      "id": "cordoba",
+      "name": "Córdoba",
+      "country": "Argentina",
+      "province": "Córdoba",
+      "coordinates": {
+        "lat": -31.415,
+        "lng": -64.189
+      },
+      "zoom": 12,
+      "files": {
+        "barrios": "data/barrios_cordoba_ejemplo.geojson",
+        "siniestros": "data/siniestros_cordoba.geojson",
+        "cameras": "data/cameras_cordoba.geojson",
+        "private_cameras": "data/private_cameras_cordoba.geojson"
+      },
+      "optionalLayers": {
+        "semaforos": "data/semaforos_cordoba_ejemplo.csv",
+        "colegios": "data/colegios_escuelas_cordoba_ejemplo.geojson",
+        "corredores": "data/corredores_escolares_cordoba_ejemplo.geojson",
+        "aforos": "data/aforos_cordoba_ejemplo.csv",
+        "colectivos": null,
+        "flujo": null,
+        "robo": null,
+        "alertas": null,
+        "zonas": null
+      }
+    }
+  ]
+}
