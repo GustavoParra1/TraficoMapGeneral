@@ -2514,15 +2514,26 @@ const setupImportCities = () => {
   const btnSubmit = document.getElementById('btn-import-submit');
   const citySelector = document.getElementById('city-selector');
 
+  console.log('🔍 Elementos buscados:', {
+    modal: !!modal,
+    btnImport: !!btnImport,
+    btnCancel: !!btnCancel,
+    btnSubmit: !!btnSubmit,
+    citySelector: !!citySelector
+  });
+
   if (!modal || !btnImport || !btnCancel || !btnSubmit) {
-    console.error('❌ No se pudo crear el modal de importación', {
-      modal: !!modal,
-      btnImport: !!btnImport,
-      btnCancel: !!btnCancel,
-      btnSubmit: !!btnSubmit
+    console.error('❌ No se pudo crear el modal de importación. Faltantes:', {
+      'import-modal': !!modal,
+      'btn-import-city': !!btnImport,
+      'btn-import-cancel': !!btnCancel,
+      'btn-import-submit': !!btnSubmit
     });
+    console.log('📝 Intentando agregar listeners sin modal...'); 
     return;
   }
+
+  console.log('✅ Todos los elementos encontrados correctamente');
 
   // Agregar event listeners para los botones de ayuda dentro del modal
   modal.addEventListener('click', (e) => {
@@ -2540,10 +2551,14 @@ const setupImportCities = () => {
   });
 
   // Cargar ciudades guardadas del usuario
-  ImportCities.loadUserCities();
+  if (typeof ImportCities !== 'undefined') {
+    ImportCities.loadUserCities();
+  }
 
   // Actualizar selector con ciudades del usuario
   const updateCitySelector = () => {
+    if (!citySelector || typeof ImportCities === 'undefined') return;
+    
     const userCities = ImportCities.getUserCities();
     const currentOptions = Array.from(citySelector.options).map(o => o.value);
     
@@ -2580,16 +2595,21 @@ const setupImportCities = () => {
   };
 
   // Abrir modal
-  btnImport.addEventListener('click', () => {
-    console.log('✅ Click en botón de importar detectado');
-    if (!modal) {
-      console.error('❌ Modal no existe. Recargando página...');
-      location.reload();
-      return;
-    }
-    console.log('🔓 Abriendo modal de importación');
-    modal.style.display = 'block';
-  });
+  if (btnImport) {
+    btnImport.addEventListener('click', () => {
+      console.log('✅ Click en botón de importar detectado');
+      if (!modal) {
+        console.error('❌ Modal no existe. Intentando recargar...');
+        setTimeout(() => location.reload(), 500);
+        return;
+      }
+      console.log('🔓 Abriendo modal de importación');
+      modal.style.display = 'block';
+    });
+    console.log('✅ Event listener agregado a btn-import-city');
+  } else {
+    console.error('❌ btn-import-city no encontrado en el DOM');
+  }
 
   // Cerrar modal
   btnCancel.addEventListener('click', () => {
@@ -2754,8 +2774,11 @@ const setupImportCities = () => {
 // Inicializar mapa al cargar
 iniciarMapa();
 
-// Inicializar sistema de importación de ciudades (sin delay)
-setupImportCities();
+// Inicializar sistema de importación de ciudades (CON DELAY para asegurar que el sidebar esté listo)
+setTimeout(() => {
+  console.log('⏳ Ejecutando setupImportCities() después del delay');
+  setupImportCities();
+}, 1000);
 
 // ============================
 // TOGGLE DE STREET VIEW

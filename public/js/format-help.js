@@ -204,17 +204,40 @@ const FormatHelp = (() => {
     },
     robo: {
       title: '🚗 ROBO AUTOMOTOR',
-      description: 'Ubicaciones de robos de vehículos',
+      description: 'Ubicaciones de robos de vehículos con tipo de resultado e intervención',
       format: 'CSV o GeoJSON (Point)',
-      csvColumns: ['lat (obligatorio)', 'lng (obligatorio)', 'nombre', 'fecha', 'tipo_vehiculo'],
-      csvExample: `lat,lng,nombre,fecha,tipo_vehiculo
--38.0055,-57.5521,Robo Centro,2024-01-15,auto
--38.0060,-57.5525,Robo Barrio,2024-01-16,moto`,
-      geoJsonColumns: ['nombre', 'fecha', 'tipo_vehiculo (opcionales)'],
+      csvColumns: ['lat (obligatorio)', 'lng (obligatorio)', 'fecha', 'resultado', 'observaciones', 'año'],
+      csvExample: `lat,lng,fecha,resultado,observaciones,año
+-38.032577,-57.5876566,2023-01-01,Asiste Policia y Libera,Centro,2023
+-38.012543,-57.5816004,2023-01-01,Hallazgo de Automotor,Barrio Norte,2023
+-38.077284,-57.5496172,2024-01-15,Sin Recurso Policial,Zona Industrial,2024`,
+      csvInfo: `
+            <div style="background: #f0f8ff; padding: 12px; margin: 10px 0; border-radius: 4px; border-left: 4px solid #0066ff;">
+              <strong>📌 Valores válidos para "resultado":</strong>
+              <ul style="margin: 8px 0; padding-left: 20px;">
+                <li>Asiste Policia y Libera</li>
+                <li>Hallazgo de Automotor</li>
+                <li>Intervencion Policial</li>
+                <li>Sin Recurso Policial</li>
+                <li>Seguimiento LPR</li>
+                <li>LPR Detencion</li>
+                <li>Otros (para valores no definidos)</li>
+              </ul>
+            </div>
+            <strong>💡 Notas importantes:</strong>
+            <ul style="padding-left: 20px;">
+              <li>Las coordenadas deben estar en Argentina: lat entre -56 y -20, lng entre -75 y -50</li>
+              <li>La fecha debe estar en formato YYYY-MM-DD</li>
+              <li>El campo "resultado" define el color del marcador en el mapa</li>
+              <li>El campo "observaciones" puede contener nombre de barrio, dirección, o notas</li>
+              <li>El año se extrae automáticamente de la fecha si no lo especificas</li>
+            </ul>
+      `,
+      geoJsonColumns: ['fecha', 'resultado', 'observaciones', 'año (opcionales)'],
       geoJsonExample: `{
   "type": "Feature",
-  "properties": { "nombre": "Robo Centro", "fecha": "2024-01-15", "tipo_vehiculo": "auto" },
-  "geometry": { "type": "Point", "coordinates": [-57.5521, -38.0055] }
+  "properties": { "fecha": "2023-01-01", "resultado": "Asiste Policia y Libera", "observaciones": "Centro", "año": 2023 },
+  "geometry": { "type": "Point", "coordinates": [-57.5876566, -38.032577] }
 }`
     }
   };
