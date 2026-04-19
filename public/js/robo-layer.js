@@ -460,7 +460,7 @@ const RoboLayer = (() => {
     return {
       years,
       resultados,
-      total: roboData.length
+      total: filteredRobo.length
     };
   }
 
@@ -496,13 +496,14 @@ const RoboLayer = (() => {
     isVisible = show;
     
     if (show) {
-      if (map && roboLayer) {
-        map.addLayer(roboLayer);
-      }
+      // Si se muestra, re-renderizar los robos
+      applyFilters();
     } else {
-      if (roboLayer) {
-        roboLayer.clearLayers();
+      // Si se oculta, limpiar la capa del mapa
+      if (roboLayer && map) {
+        map.removeLayer(roboLayer);
       }
+      roboLayer.clearLayers();
     }
     
     console.log(`🚗 RoboLayer ${show ? 'mostrado' : 'ocultado'}`);
@@ -536,6 +537,7 @@ const RoboLayer = (() => {
     clearFilters,
     toggle,
     setBarriosData,
-    clearMarkers
+    clearMarkers,
+    getVisibleRobos: () => filteredRobo
   };
 })();

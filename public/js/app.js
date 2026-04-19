@@ -934,7 +934,7 @@ auth.onAuthStateChanged((user) => {
             Limpiar Filtros Robos
           </button>
 
-          <div id="robo-stats" style="margin-top: 12px; padding: 8px; background: #f0f0f0; border-radius: 4px; font-size: 11px;">
+          <div id="robo-stats" style="margin-top: 12px; padding: 8px; background: #f0f0f0; border-radius: 4px; font-size: 11px; color: #1a1a1a;">
             <strong>Estadísticas:</strong>
             <div style="margin-top: 4px;">
               Total: <span id="robo-total-count">0</span> robos registrados
@@ -1554,11 +1554,72 @@ auth.onAuthStateChanged((user) => {
     const clearRoboFiltersBtn = document.getElementById('clear-robo-filters-btn');
     const roboTotalSpan = document.getElementById('robo-total-count');
 
+    // Mapa de calor de robos
+    let roboHeatmapInstance = null;
+    
+    const renderRoboHeatmap = () => {
+      if (!map || typeof RoboLayer === 'undefined') return;
+      
+      // Obtener datos de robos
+      const roboData = RoboLayer.getVisibleRobos?.() || [];
+      if (!roboData || roboData.length === 0) {
+        console.warn('⚠️ No hay datos de robos para el heatmap');
+        return;
+      }
+      
+      // Convertir a formato heatmap [lat, lng, intensidad]
+      const heatmapData = roboData.map(robo => [robo.lat, robo.lng, 0.6]);
+      
+      // Remover heatmap anterior
+      if (roboHeatmapInstance) {
+        map.removeLayer(roboHeatmapInstance);
+      }
+      
+      // Crear nuevo heatmap
+      roboHeatmapInstance = L.heatLayer(heatmapData, {
+        radius: 30,
+        blur: 25,
+        maxZoom: 17,
+        gradient: {
+          0.0: '#0099ff',  // Azul (baja densidad)
+          0.25: '#00ff00', // Verde
+          0.5: '#ffff00',  // Amarillo
+          0.75: '#ff7700', // Naranja
+          1.0: '#ff0000'   // Rojo (alta densidad)
+        }
+      });
+      
+      map.addLayer(roboHeatmapInstance);
+      console.log('🔥 Heatmap de robos renderizado');
+    };
+    
+    if (roboHeatmapCheckbox) {
+      roboHeatmapCheckbox.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          renderRoboHeatmap();
+        } else {
+          if (roboHeatmapInstance) {
+            map.removeLayer(roboHeatmapInstance);
+            roboHeatmapInstance = null;
+          }
+        }
+      });
+    }
+
     if (roboCheckbox) {
       roboCheckbox.addEventListener('change', (e) => {
         if (typeof RoboLayer === 'undefined') return;
         
         console.log('🚗 Toggle robos:', e.target.checked);
+        
+        // Si se desactivan robos, desactivar heatmap también
+        if (!e.target.checked && roboHeatmapCheckbox) {
+          roboHeatmapCheckbox.checked = false;
+          if (roboHeatmapInstance) {
+            map.removeLayer(roboHeatmapInstance);
+            roboHeatmapInstance = null;
+          }
+        }
         
         // Mostrar/ocultar filtros
         if (roboFiltersDiv) {
@@ -1592,6 +1653,11 @@ auth.onAuthStateChanged((user) => {
       const metadata = RoboLayer.getMetadata();
       if (roboTotalSpan && metadata) {
         roboTotalSpan.textContent = metadata.total?.toLocaleString() || '0';
+      }
+      
+      // Re-renderizar heatmap si está activo
+      if (roboHeatmapCheckbox?.checked) {
+        renderRoboHeatmap();
       }
     };
 
