@@ -67,6 +67,12 @@ function iniciarMapa() {
       RoboLayer.init(map);
     }
     
+    // Inicializar módulo de patrullas
+    if (typeof PatullaLayer !== 'undefined' && db) {
+      patullaLayer = new PatullaLayer(map, currentCity, db);
+      console.log('✅ Módulo de patrullas inicializado');
+    }
+    
     // Inicializar módulo de Street View
     if (typeof StreetViewLayer !== 'undefined') {
       StreetViewLayer.init();
@@ -86,6 +92,7 @@ function iniciarMapa() {
 // ============================
 let currentCity = 'mar-del-plata'; // Cambiar a mar-del-plata para usar datos reales con propiedades LPR
 let citiesConfig = null;
+let patullaLayer = null; // Módulo de patrullas
 
 async function loadCitiesConfig() {
   try {
@@ -997,6 +1004,23 @@ auth.onAuthStateChanged((user) => {
       </div>
 
       <div class="sidebar-section">
+        <div class="sidebar-title">🚓 Patrullas</div>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-bottom: 12px;">
+          <input type="checkbox" id="patrullas-checkbox" style="cursor: pointer; width: 16px; height: 16px;">
+          <span>Mostrar Patrullas</span>
+        </label>
+
+        <div id="patrullas-stats" style="display: none; font-size: 12px; padding: 8px; background: #f0f0f0; border-radius: 4px;">
+          <strong style="color: #1a1a1a;">Estadísticas:</strong>
+          <div style="margin-top: 4px; color: #1a1a1a;">
+            Total: <span id="patrullas-total-count">0</span><br>
+            Online: <span id="patrullas-online-count" style="color: #10b981;">0</span><br>
+            Emergencia: <span id="patrullas-emergencia-count" style="color: #dc2626;">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
         <div class="sidebar-title">Centro de Control</div>
         <div class="button-group">
           <button id="btn-show-colectivos" style="width: 100%; padding: 10px; background-color: #ff9500; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 12px; text-align: left;">
@@ -1251,6 +1275,23 @@ auth.onAuthStateChanged((user) => {
         if (typeof LprLayer !== 'undefined' && LprLayer.setData) {
           LprLayer.setData(CamerasLayer.getAll());
           console.log('  ✓ Datos de LPR actualizados para la nueva ciudad');
+        }
+        
+        // 🟠 ACTUALIZAR PATRULLAS PARA LA NUEVA CIUDAD
+        console.log('🔟 Actualizando patrullas para la nueva ciudad...');
+        if (patullaLayer) {
+          patullaLayer.destroy();
+          console.log('  ✓ Patrulla layer anterior destruido');
+        }
+        if (typeof PatullaLayer !== 'undefined' && db) {
+          patullaLayer = new PatullaLayer(map, newCity, db);
+          const patrullasCheckbox = document.getElementById('patrullas-checkbox');
+          if (patrullasCheckbox && patrullasCheckbox.checked) {
+            patullaLayer.show();
+            console.log(`  ✓ Patrullas cargadas para ${newCity}`);
+          } else {
+            console.log(`  ✓ Patrullas inicializadas para ${newCity} (ocultas)`);
+          }
         }
         
         console.log(`✅ FIN: Ciudad ${newCity} cargada exitosamente`);
@@ -1815,6 +1856,58 @@ auth.onAuthStateChanged((user) => {
       console.error('❌ NO SE ENCONTRÓ btnShowColectivos - el HTML puede no estar listo');
     }
     
+    // ==========================================
+    // FUNCIONALIDAD DE PATRULLAS
+    // ==========================================
+    const patrullasCheckbox = document.getElementById('patrullas-checkbox');
+    const patrullasStatsDiv = document.getElementById('patrullas-stats');
+
+    console.log('🚓 Elementos de Patrullas encontrados:');
+    console.log('  - patrullasCheckbox:', patrullasCheckbox ? '✓' : '✗');
+    console.log('  - patrullasStatsDiv:', patrullasStatsDiv ? '✓' : '✗');
+
+    // Actualizar estadísticas de patrullas
+    const updatePatrullasStats = () => {
+      if (!patullaLayer) return;
+      
+      const totalCount = patullaLayer.count();
+      const onlineCount = patullaLayer.countOnline();
+      const emergenciaCount = patullaLayer.countEmergencia();
+
+      document.getElementById('patrullas-total-count').textContent = totalCount;
+      document.getElementById('patrullas-online-count').textContent = onlineCount;
+      document.getElementById('patrullas-emergencia-count').textContent = emergenciaCount;
+      
+      console.log(`🚓 Patrullas: Total=${totalCount}, Online=${onlineCount}, Emergencia=${emergenciaCount}`);
+    };
+
+    if (patrullasCheckbox) {
+      patrullasCheckbox.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          console.log('✅ Mostrando patrullas');
+          if (patullaLayer) patullaLayer.show();
+          if (patrullasStatsDiv) patrullasStatsDiv.style.display = 'block';
+          updatePatrullasStats();
+          
+          // Actualizar estadísticas cada 5 segundos
+          const statsInterval = setInterval(() => {
+            if (!patrullasCheckbox.checked) {
+              clearInterval(statsInterval);
+              return;
+            }
+            updatePatrullasStats();
+          }, 5000);
+        } else {
+          console.log('❌ Ocultando patrullas');
+          if (patullaLayer) patullaLayer.hide();
+          if (patrullasStatsDiv) patrullasStatsDiv.style.display = 'none';
+        }
+      });
+      console.log('✅ Event listener asignado a patrullasCheckbox');
+    } else {
+      console.warn('⚠️ patrullasCheckbox NO ENCONTRADO');
+    }
+
     document.getElementById('center-map-btn').addEventListener('click', () => {
       if (map) {
         map.setView([-38.0, -57.55], 12);
