@@ -9,12 +9,36 @@
  * 3. Ejecutar: crearPatrullasPrueba()
  */
 
+// Helper: Obtener instancia de Firebase Firestore
+function getFirebaseDatabase() {
+  if (typeof window.db !== 'undefined' && window.db) return window.db;
+  if (typeof db !== 'undefined' && db) return db;
+  if (typeof firebase !== 'undefined' && firebase.firestore) return firebase.firestore();
+  throw new Error('Firebase Firestore no disponible. Recarga la página con Ctrl+Shift+R');
+}
+
 async function crearPatrullasPrueba() {
   console.log('🚓 INICIANDO CREACIÓN DE PATRULLAS DE PRUEBA...');
   
-  // Validar que Firebase está disponible
-  if (typeof db === 'undefined') {
-    console.error('❌ Firestore no está disponible. Asegúrate de estar en la página correcta.');
+  // Validar que Firebase está disponible - com múltiples fallbacks
+  let firebaseDb = null;
+  
+  if (typeof window.db !== 'undefined' && window.db) {
+    firebaseDb = window.db;
+    console.log('✅ Usando window.db (Firestore)');
+  } else if (typeof db !== 'undefined' && db) {
+    firebaseDb = db;
+    console.log('✅ Usando db (Firestore)');
+  } else if (typeof firebase !== 'undefined' && firebase.firestore) {
+    firebaseDb = firebase.firestore();
+    console.log('✅ Creando nueva instancia de firebase.firestore()');
+  } else {
+    console.error('❌ Firebase Firestore no está disponible.');
+    console.error('   Posibles causas:');
+    console.error('   1. Página no cargó correctamente');
+    console.error('   2. Caché del navegador - intenta: Ctrl+Shift+R (hard refresh)');
+    console.error('   3. Firebase no inicializado');
+    console.log('\n💡 Intenta diagnosticar con: debugPatrullas.testConnection()');
     return;
   }
 
@@ -78,7 +102,7 @@ async function crearPatrullasPrueba() {
     console.log(`\n📝 Insertando en colección: ${coleccion}`);
 
     for (const patrulla of patrullasPrueba) {
-      await db.collection(coleccion).doc(patrulla.patente).set({
+      await firebaseDb.collection(coleccion).doc(patrulla.patente).set({
         lat: patrulla.lat,
         lng: patrulla.lng,
         online: patrulla.online,
@@ -113,11 +137,19 @@ async function crearPatrullasPrueba() {
 async function simularMovimiento() {
   console.log('🚗 INICIANDO SIMULACIÓN DE MOVIMIENTO...');
 
-  if (typeof db === 'undefined' || typeof currentCity === 'undefined') {
-    console.error('❌ Firestore o currentCity no disponibles');
+  try {
+    const firebaseDb = getFirebaseDatabase();
+  } catch (error) {
+    console.error('❌ ' + error.message);
     return;
   }
 
+  if (typeof currentCity === 'undefined') {
+    console.error('❌ currentCity no disponible');
+    return;
+  }
+
+  const firebaseDb = getFirebaseDatabase();
   const coleccion = `patrullas_${currentCity}`;
   let movimiento = 0;
 
@@ -128,7 +160,7 @@ async function simularMovimiento() {
     // (sin cambios)
 
     // PATRULLA_02: Moviéndose
-    await db.collection(coleccion).doc('PATRULLA_02').update({
+    await firebaseDb.collection(coleccion).doc('PATRULLA_02').update({
       lat: (currentCity === 'cordoba' ? -31.42 : -38.01) + Math.sin(movimiento) * 0.01,
       lng: (currentCity === 'cordoba' ? -64.19 : -57.54) + Math.cos(movimiento) * 0.01,
       speed: Math.abs(Math.sin(movimiento) * 50),
@@ -136,7 +168,7 @@ async function simularMovimiento() {
     });
 
     // PATRULLA_03: Moviéndose rápido (emergencia)
-    await db.collection(coleccion).doc('PATRULLA_03').update({
+    await firebaseDb.collection(coleccion).doc('PATRULLA_03').update({
       lat: (currentCity === 'cordoba' ? -31.41 : -37.99) + Math.sin(movimiento * 2) * 0.02,
       lng: (currentCity === 'cordoba' ? -64.18 : -57.56) + Math.cos(movimiento * 2) * 0.02,
       speed: 60,
@@ -164,17 +196,25 @@ async function simularMovimiento() {
 async function limpiarPatrullasPrueba() {
   console.log('🗑️ LIMPIANDO PATRULLAS DE PRUEBA...');
 
-  if (typeof db === 'undefined' || typeof currentCity === 'undefined') {
-    console.error('❌ Firestore o currentCity no disponibles');
+  try {
+    const firebaseDb = getFirebaseDatabase();
+  } catch (error) {
+    console.error('❌ ' + error.message);
     return;
   }
 
+  if (typeof currentCity === 'undefined') {
+    console.error('❌ currentCity no disponible');
+    return;
+  }
+
+  const firebaseDb = getFirebaseDatabase();
   const coleccion = `patrullas_${currentCity}`;
   const patentes = ['PATRULLA_01', 'PATRULLA_02', 'PATRULLA_03', 'PATRULLA_04'];
 
   try {
     for (const patente of patentes) {
-      await db.collection(coleccion).doc(patente).delete();
+      await firebaseDb.collection(coleccion).doc(patente).delete();
       console.log(`  ✓ ${patente} eliminado`);
     }
     console.log('\n✅ PATRULLAS DE PRUEBA ELIMINADAS');
@@ -187,15 +227,23 @@ async function limpiarPatrullasPrueba() {
 async function verPatrullas() {
   console.log('📊 PATRULLAS ACTUALES EN FIRESTORE...');
 
-  if (typeof db === 'undefined' || typeof currentCity === 'undefined') {
-    console.error('❌ Firestore o currentCity no disponibles');
+  try {
+    const firebaseDb = getFirebaseDatabase();
+  } catch (error) {
+    console.error('❌ ' + error.message);
     return;
   }
 
+  if (typeof currentCity === 'undefined') {
+    console.error('❌ currentCity no disponible');
+    return;
+  }
+
+  const firebaseDb = getFirebaseDatabase();
   const coleccion = `patrullas_${currentCity}`;
 
   try {
-    const snapshot = await db.collection(coleccion).get();
+    const snapshot = await firebaseDb.collection(coleccion).get();
     console.log(`\n📍 Colección: ${coleccion}`);
     console.log(`📊 Total de documentos: ${snapshot.size}`);
 

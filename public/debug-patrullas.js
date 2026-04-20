@@ -57,14 +57,28 @@
     testConnection: async function() {
       console.log('%c🔌 PROBANDO CONEXIÓN A FIREBASE', 'background: #f59e0b; color: white; padding: 5px 10px; border-radius: 3px; font-weight: bold;');
       
-      if (typeof db === 'undefined') {
-        console.error('❌ Firestore no disponible');
+      let firebaseDb = null;
+      try {
+        if (typeof window.db !== 'undefined' && window.db) {
+          firebaseDb = window.db;
+        } else if (typeof db !== 'undefined' && db) {
+          firebaseDb = db;
+        } else if (typeof firebase !== 'undefined' && firebase.firestore) {
+          firebaseDb = firebase.firestore();
+        }
+      } catch (e) {
+        console.error('❌ Error inicializando Firestore:', e.message);
+        return false;
+      }
+
+      if (!firebaseDb) {
+        console.error('❌ Firestore no está disponible - posiblemente caché. Intenta Ctrl+Shift+R');
         return false;
       }
 
       try {
         // Intentar lectura
-        const snapshot = await db.collection('patrullas_mar-del-plata').limit(1).get();
+        const snapshot = await firebaseDb.collection('patrullas_mar-del-plata').limit(1).get();
         console.log(`✅ Firestore accesible (${snapshot.size} docs en muestra)`);
         return true;
       } catch (error) {
@@ -76,13 +90,27 @@
     viewFirestoreData: async function(ciudad = 'mar-del-plata') {
       console.log(`%c📊 MOSTRANDO DATOS DE ${ciudad.toUpperCase()}`, 'background: #10b981; color: white; padding: 5px 10px; border-radius: 3px; font-weight: bold;');
       
-      if (typeof db === 'undefined') {
+      let firebaseDb = null;
+      try {
+        if (typeof window.db !== 'undefined' && window.db) {
+          firebaseDb = window.db;
+        } else if (typeof db !== 'undefined' && db) {
+          firebaseDb = db;
+        } else if (typeof firebase !== 'undefined' && firebase.firestore) {
+          firebaseDb = firebase.firestore();
+        }
+      } catch (e) {
+        console.error('❌ Error inicializando Firestore:', e.message);
+        return;
+      }
+
+      if (!firebaseDb) {
         console.error('❌ Firestore no disponible');
         return;
       }
 
       try {
-        const snapshot = await db.collection(`patrullas_${ciudad}`).get();
+        const snapshot = await firebaseDb.collection(`patrullas_${ciudad}`).get();
         console.log(`📍 Total de patrullas en ${ciudad}: ${snapshot.size}`);
         
         const datos = [];
