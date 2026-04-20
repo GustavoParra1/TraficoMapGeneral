@@ -611,9 +611,9 @@
 
     try {
       const coleccion = `chat_${municipio}`;
-      const docId = `centro-control_${patrollaId}`;
 
-      await db.collection(coleccion).doc(docId).collection('messages').add({
+      // Usar estructura plana igual a patrulla app
+      await db.collection(coleccion).add({
         from: 'CENTRO_CONTROL',
         to: patrollaId,
         text: mensaje,
@@ -640,7 +640,8 @@
     try {
       const coleccion = `chat_${municipio}`;
 
-      await db.collection(coleccion).doc('broadcast_' + Date.now()).set({
+      // Usar estructura plana igual a patrulla app
+      await db.collection(coleccion).add({
         from: 'CENTRO_CONTROL',
         to: 'all',
         text: mensaje,
