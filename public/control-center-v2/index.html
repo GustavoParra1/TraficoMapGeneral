@@ -535,11 +535,14 @@
             console.log(`📍 Ciudad del usuario (custom claim): ${municipio}`);
           } else {
             // Fallback a localStorage si viene del mapa global
+            console.log('🔍 Buscando en localStorage...');
             const storedCity = localStorage.getItem('selectedCity');
+            console.log('📦 localStorage.getItem("selectedCity"):', storedCity);
+            console.log('📦 Tipo:', typeof storedCity);
             if (storedCity) {
               // Convertir mar-del-plata a mardelplata
               municipio = storedCity.replace(/-/g, '');
-              console.log(`📍 Ciudad del localStorage: ${municipio}`);
+              console.log(`📍 Ciudad del localStorage: ${storedCity} → ${municipio}`);
             } else {
               // Por defecto mardelplata
               municipio = 'mardelplata';
