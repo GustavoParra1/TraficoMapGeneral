@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0, user-scalable=yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>🚓 Patrulla - TraficoMap</title>
+
+  <!-- Leaflet Mapa -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+    }
+
+    .patrulla-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100%;
+    }
+
+    .patrulla-header {
+      background: #dc2626;
+      color: white;
+      padding: 16px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      flex: 0 0 auto;
+    }
+
+    .patrulla-header h1 {
+      margin: 0;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .patrulla-header p {
+      margin: 8px 0 0 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .patrulla-content {
+      display: flex;
+      flex-direction: row;
+      flex: 1;
+      gap: 16px;
+      padding: 16px 20px;
+      overflow: hidden;
+    }
+
+    .patrulla-map-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    #map {
+      flex: 1;
+      z-index: 10;
+    }
+
+    .patrulla-controls {
+      padding: 12px;
+      border-top: 1px solid #eee;
+      display: flex;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-gps {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-gps:hover:not(:disabled) {
+      background: #2563eb;
+    }
+
+    .btn-gps:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .btn-emergencia {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-emergencia:hover:not(:disabled) {
+      background: #b91c1c;
+    }
+
+    .btn-emergencia:disabled {
+      background: #9ca3af;
+    }
+
+    .btn-logout {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-logout:hover {
+      background: #4b5563;
+    }
+
+    .patrulla-sidebar {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .patrulla-panel {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 16px;
+      flex: 0 0 auto;
+    }
+
+    .patrulla-panel h3 {
+      margin: 0 0 12px 0;
+      font-size: 16px;
+      color: #1f2937;
+    }
+
+    .patrulla-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background: #f3f4f6;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    .status-indicator.offline {
+      background: #ef4444;
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .chat-box {
+      height: 200px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+      background: #f9fafb;
+    }
+
+    .chat-message {
+      padding: 8px 12px;
+      border-radius: 6px;
+      word-wrap: break-word;
+    }
+
+    .chat-message.own {
+      background: #3b82f6;
+      color: white;
+      align-self: flex-end;
+      max-width: 80%;
+    }
+
+    .chat-message.other {
+      background: #e5e7eb;
+      color: #1f2937;
+      align-self: flex-start;
+      max-width: 80%;
+    }
+
+    .chat-input-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chat-input-group input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .chat-input-group button {
+      padding: 8px 12px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .chat-input-group button:hover {
+      background: #2563eb;
+    }
+
+    .patrulla-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .stat-item {
+      background: #f3f4f6;
+      padding: 8px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .stat-label {
+      color: #6b7280;
+      font-size: 11px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1f2937;
+    }
+
+    @media (max-width: 1024px) {
+      .patrulla-content {
+        flex-direction: column;
+      }
+
+      .patrulla-sidebar {
+        width: 100%;
+        max-height: 200px;
+      }
+    }
+
+    .estado-div {
+      padding: 12px;
+      background: #e5e7eb;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #374151;
+    }
+
+    .error-estado {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .success-estado {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .warning-estado {
+      background: #fef3c7;
+      color: #d97706;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="patrulla-container">
+    <!-- HEADER -->
+    <div class="patrulla-header">
+      <h1>🚓 Patrulla - TraficoMap</h1>
+      <p id="patrulla-info">Cargando...</p>
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="patrulla-content">
+      <!-- MAPA -->
+      <div class="patrulla-map-section">
+        <div id="map"></div>
+        <div class="patrulla-controls">
+          <button id="gps-btn" class="btn-gps">📡 Activar GPS</button>
+          <button id="emergencia-btn" class="btn-emergencia" disabled>🚨 Emergencia</button>
+          <button id="logout-btn" class="btn-logout">🚪 Salir</button>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div class="patrulla-sidebar">
+        <!-- ESTADO -->
+        <div class="patrulla-panel">
+          <h3>📊 Estado</h3>
+          <div id="estado-div" class="estado-div">Verificando sesión...</div>
+        </div>
+
+        <!-- ESTADÍSTICAS -->
+        <div class="patrulla-panel">
+          <h3>📈 Estadísticas</h3>
+          <div class="patrulla-stats">
+            <div class="stat-item">
+              <div class="stat-label">Velocidad</div>
+              <div class="stat-value" id="stat-speed">0 km/h</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Precisión</div>
+              <div class="stat-value" id="stat-accuracy">-- m</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Altitud</div>
+              <div class="stat-value" id="stat-altitude">-- m</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Última actualización</div>
+              <div class="stat-value" id="stat-time">--:--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHAT -->
+        <div class="patrulla-panel">
+          <h3>💬 Chat con Centro</h3>
+          <div id="chat-box" class="chat-box"></div>
+          <div class="chat-input-group">
+            <input id="chat-input" type="text" placeholder="Mensaje..." disabled>
+            <button id="chat-send" disabled>Enviar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================
+    // FIREBASE CONFIG
+    // ============================
+    const firebaseConfig = {
+      apiKey: "AIzaSyDfWGUZpH_Jx7qKxYpDJ-8kZ-3Z_4rJ2l0",
+      authDomain: "trafico-map-general-v2.firebaseapp.com",
+      projectId: "trafico-map-general-v2",
+      storageBucket: "trafico-map-general-v2.appspot.com",
+      messagingSenderId: "123456789012",
+      appId: "1:123456789012:web:abcd1234efgh5678ijkl"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const realtimeDb = firebase.database();
+
+    // ============================
+    // VARIABLES GLOBALES
+    // ============================
+    let userId = null;
+    let municipio = null;
+    let patenteMóvil = null;
+    let map = null;
+    let marker = null;
+    let watchId = null;
+    let gpsActivo = false;
+    let emergenciaActiva = false;
+    let chatUnsubscribe = null;
+
+    // ============================
+    // ELEMENTOS DOM
+    // ============================
+    const gpsBtn = document.getElementById('gps-btn');
+    const emergenciaBtn = document.getElementById('emergencia-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const estadoDiv = document.getElementById('estado-div');
+    const patrullaInfo = document.getElementById('patrulla-info');
+    const chatBox = document.getElementById('chat-box');
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
+
+    // ============================
+    // HELPER: ESTADO
+    // ============================
+    function setEstado(mensaje, tipo = 'info') {
+      estadoDiv.textContent = mensaje;
+      estadoDiv.className = 'estado-div';
+      if (tipo === 'error') estadoDiv.classList.add('error-estado');
+      if (tipo === 'success') estadoDiv.classList.add('success-estado');
+      if (tipo === 'warning') estadoDiv.classList.add('warning-estado');
+      console.log(`[${tipo.toUpperCase()}] ${mensaje}`);
+    }
+
+    // ============================
+    // AUTENTICACIÓN
+    // ============================
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        setEstado('❌ No autenticado. Redirigiendo...', 'error');
+        setTimeout(() => { location.href = '/'; }, 2000);
+        return;
+      }
+
+      userId = user.uid;
+
+      try {
+        // Obtener datos del usuario
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (!userDoc.exists) {
+          setEstado('❌ Usuario no encontrado en BD', 'error');
+          return;
+        }
+
+        const userData = userDoc.data();
+        municipio = userData.municipio;
+        patenteMóvil = userData.patenteMóvil || 'PATRULLA_01';
+
+        // Validar que sea patrulla
+        if (userData.rol !== 'patrulla') {
+          setEstado('❌ Acceso denegado - Solo patrullas', 'error');
+          await auth.signOut();
+          return;
+        }
+
+        setEstado('✅ Sesión iniciada', 'success');
+        patrullaInfo.textContent = `🚓 ${patenteMóvil} - ${municipio} | ${user.email}`;
+
+        // Habilitar controles
+        gpsBtn.disabled = false;
+        emergenciaBtn.disabled = false;
+        chatInput.disabled = false;
+        chatSend.disabled = false;
+
+        // Iniciar mapa
+        iniciarMapa();
+
+        // Iniciar chat
+        iniciarChat();
+
+      } catch (error) {
+        setEstado(`❌ Error: ${error.message}`, 'error');
+        console.error(error);
+      }
+    });
+
+    // ============================
+    // MAPA
+    // ============================
+    function iniciarMapa(lat = -38.0, lng = -57.55) {
+      map = L.map('map').setView([lat, lng], 16);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+
+      marker = L.marker([lat, lng], { 
+        icon: new L.Icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        })
+      }).addTo(map).bindPopup(`<b>${patenteMóvil}</b><br>Patrulla activa`);
+    }
+
+    // ============================
+    // GPS
+    // ============================
+    gpsBtn.addEventListener('click', () => {
+      if (gpsActivo) {
+        // Detener GPS
+        navigator.geolocation.clearWatch(watchId);
+        gpsActivo = false;
+        gpsBtn.textContent = '📡 Activar GPS';
+        gpsBtn.style.background = '#3b82f6';
+        setEstado('⏸️ GPS detenido', 'warning');
+        return;
+      }
+
+      // Iniciar GPS
+      setEstado('📍 Buscando ubicación...', 'warning');
+      gpsBtn.textContent = '⏹️ Detener GPS';
+      gpsBtn.style.background = '#10b981';
+
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          const { latitude, longitude, accuracy, altitude, speed } = pos.coords;
+          const timestamp = new Date();
+
+          // Actualizar mapa
+          marker.setLatLng([latitude, longitude]);
+          map.setView([latitude, longitude]);
+
+          // Actualizar estadísticas
+          document.getElementById('stat-speed').textContent = 
+            speed ? (speed * 3.6).toFixed(0) + ' km/h' : '0 km/h';
+          document.getElementById('stat-accuracy').textContent = 
+            accuracy.toFixed(0) + ' m';
+          document.getElementById('stat-altitude').textContent = 
+            altitude ? altitude.toFixed(0) + ' m' : '-- m';
+          document.getElementById('stat-time').textContent = 
+            timestamp.toLocaleTimeString();
+
+          // Guardar en Firestore
+          db.collection(`patrullas_${municipio}`).doc(patenteMóvil).set({
+            lat: latitude,
+            lng: longitude,
+            accuracy: accuracy,
+            altitude: altitude,
+            speed: speed,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            online: true,
+            estado: emergenciaActiva ? 'emergencia' : 'activo'
+          }, { merge: true }).catch(err => {
+            console.error('Error actualizando ubicación:', err);
+          });
+
+          setEstado('✅ GPS activo - Ubicación actualizada', 'success');
+        },
+        (err) => {
+          setEstado(`❌ Error GPS: ${err.message}`, 'error');
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
+
+      gpsActivo = true;
+    });
+
+    // ============================
+    // EMERGENCIA
+    // ============================
+    emergenciaBtn.addEventListener('click', async () => {
+      emergenciaActiva = !emergenciaActiva;
+
+      if (emergenciaActiva) {
+        emergenciaBtn.textContent = '🚨 Emergencia ACTIVA';
+        emergenciaBtn.style.background = '#b91c1c';
+        setEstado('🚨 ¡EMERGENCIA ACTIVADA!', 'error');
+      } else {
+        emergenciaBtn.textContent = '🚨 Emergencia';
+        emergenciaBtn.style.background = '#dc2626';
+        setEstado('✅ Emergencia desactivada', 'success');
+      }
+
+      // Actualizar en BD
+      try {
+        await db.collection(`patrullas_${municipio}`).doc(patenteMóvil).update({
+          emergencia: emergenciaActiva,
+          estado: emergenciaActiva ? 'emergencia' : 'activo',
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch (err) {
+        setEstado(`❌ Error: ${err.message}`, 'error');
+      }
+    });
+
+    // ============================
+    // CHAT
+    // ============================
+    function iniciarChat() {
+      const chatCollection = `chat_${municipio}`;
+      const chatPath = `${patenteMóvil}/messages`;
+
+      chatUnsubscribe = db.collection(chatCollection).doc(patenteMóvil)
+        .collection('messages')
+        .orderBy('timestamp', 'asc')
+        .limitToLast(50)
+        .onSnapshot((snapshot) => {
+          chatBox.innerHTML = '';
+          snapshot.forEach((doc) => {
+            const msg = doc.data();
+            const div = document.createElement('div');
+            div.className = `chat-message ${msg.from === patenteMóvil ? 'own' : 'other'}`;
+            div.textContent = msg.text;
+            chatBox.appendChild(div);
+          });
+          chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    }
+
+    chatSend.addEventListener('click', async () => {
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      try {
+        await db.collection(`chat_${municipio}`).doc(patenteMóvil)
+          .collection('messages').add({
+            text: text,
+            from: patenteMóvil,
+            to: 'centro-control',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            leido: false
+          });
+
+        chatInput.value = '';
+      } catch (err) {
+        setEstado(`❌ Error enviando mensaje: ${err.message}`, 'error');
+      }
+    });
+
+    // Enter para enviar
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') chatSend.click();
+    });
+
+    // ============================
+    // LOGOUT
+    // ============================
+    logoutBtn.addEventListener('click', () => {
+      if (gpsActivo) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+      if (chatUnsubscribe) {
+        chatUnsubscribe();
+      }
+      auth.signOut().then(() => {
+        location.href = '/';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ========== AUTENTICACIÓN ==========
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserMunicipio() {
+      return request.auth.token.municipio;
+    }
+
+    function isAdmin() {
+      return request.auth.token.admin == true;
+    }
+
+    function isPatrulla() {
+      return request.auth.token.rol == 'patrulla';
+    }
+
+    // ========== USERS ==========
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create: if isAuthenticated() && isAdmin();
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ========== PATRULLAS - Multi-municipio ==========
+    match /patrullas_{municipio}/{patrolId} {
+      allow read: if isAuthenticated() && getUserMunicipio() == municipio;
+      allow write: if isAuthenticated() && isPatrulla() && getUserMunicipio() == municipio;
+      allow delete: if isAdmin();
+
+      // Sub-colección: historial GPS
+      match /gps_history/{entry} {
+        allow read: if isAuthenticated() && getUserMunicipio() == municipio;
+        allow write: if isAuthenticated() && isPatrulla() && getUserMunicipio() == municipio;
+      }
+    }
+
+    // ========== CHAT - Multi-municipio ==========
+    match /chat_{municipio}/{patrolId} {
+      allow read: if isAuthenticated() && getUserMunicipio() == municipio;
+      allow write: if isAuthenticated() && getUserMunicipio() == municipio;
+
+      // Sub-colección: mensajes
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() && getUserMunicipio() == municipio;
+        allow create: if isAuthenticated() && getUserMunicipio() == municipio;
+        allow update: if isAuthenticated() && (resource.data.from == request.auth.token.patente || isAdmin());
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ========== ROBOS (Siniestros) ==========
+    match /robos/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // ========== HISTORIALES ==========
+    match /audit_logs/{document=**} {
+      allow read: if isAdmin();
+      allow write: if isAuthenticated();
+      allow create: if isAuthenticated();
+    }
+
+    // ========== WEBRTC SIGNALING - Multi-municipio ==========
+    match /webrtc_{municipio}/{document=**} {
+      allow read: if isAuthenticated() && getUserMunicipio() == municipio;
+      allow write: if isAuthenticated() && getUserMunicipio() == municipio;
+      allow delete: if isAdmin();
+    }
+
+    // ========== DEFAULT: DENY ==========
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
