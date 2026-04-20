@@ -328,6 +328,17 @@
       background: #475569;
     }
 
+    /* PATROL MARKER */
+    .patrol-marker {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .patrol-marker img {
+      display: none !important;
+    }
+
     /* MODAL FOR PATRULLA SELECT */
     .modal {
       display: none;
@@ -560,7 +571,7 @@
       maxZoom: 19
     }).addTo(map);
 
-    console.log('✅ Mapa inicializado');
+    console.log('✅ Mapa inicializado en:', coords);
   }
 
   // ========================================
@@ -604,13 +615,24 @@
           // Actualizar marker en mapa
           if (myMarker) {
             myMarker.setLatLng([latitude, longitude]);
+            console.log(`📍 Marcador actualizado: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
           } else {
+            // Crear icono personalizado con emoji
+            const icon = L.divIcon({
+              html: '<div style="font-size:32px; text-align:center; line-height:1;">🚔</div>',
+              iconSize: [32, 32],
+              className: 'patrol-marker'
+            });
+
             myMarker = L.marker([latitude, longitude], {
+              icon: icon,
               title: patrullaId
             }).addTo(map);
+            console.log(`✅ Marcador creado en mapa: ${patrullaId}`);
           }
 
           map.setView([latitude, longitude], 15);
+          console.log(`🗺️ Mapa centrado en patrulla`);
         },
         (error) => {
           console.warn('⚠️ Error de geolocalización:', error.message);
