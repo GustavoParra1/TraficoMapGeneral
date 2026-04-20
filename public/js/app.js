@@ -9,81 +9,71 @@ let layers = {
 
 function iniciarMapa() {
   if (!map) {
-    map = L.map('map').setView([-38.0, -57.55], 12);
-    
-    // Capa OSM
-    layers.osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 19,
-      name: 'OpenStreetMap'
-    }).addTo(map);
-    
-    // Capa satélite
-    layers.satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles &copy; Esri',
-      maxZoom: 19,
-      name: 'Satélite'
-    });
-    
-    // Inicializar módulo de capas geográficas
-    GeoLayers.init(map);
-    
-    // Inicializar módulo de siniestros
-    SiniestrosLayer.init(map);
-    
-    // Inicializar módulo de cámaras
-    CamerasLayer.init(map);
-    
-    // Inicializar módulo de cámaras privadas
-    PrivateCamerasLayer.init(map);
-    
-    // Inicializar módulo de LPR (Lectores de Patentes)
-    if (typeof LprLayer !== 'undefined') {
-      LprLayer.init(map);
+    try {
+      console.log('🗺️ Iniciando mapa...');
+      map = L.map('map').setView([-38.0, -57.55], 12);
+      console.log('✅ Mapa Leaflet creado');
+      
+      // Capa OSM
+      layers.osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+        name: 'OpenStreetMap'
+      }).addTo(map);
+      console.log('✅ Capa OSM añadida');
+      
+      // Capa satélite
+      layers.satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri',
+        maxZoom: 19,
+        name: 'Satélite'
+      });
+      console.log('✅ Capa satélite creada');
+      
+      // Inicializar módulos con error handling
+      const modules = [
+        ['GeoLayers', () => GeoLayers.init(map)],
+        ['SiniestrosLayer', () => SiniestrosLayer.init(map)],
+        ['CamerasLayer', () => CamerasLayer.init(map)],
+        ['PrivateCamerasLayer', () => PrivateCamerasLayer.init(map)],
+        ['LprLayer', () => typeof LprLayer !== 'undefined' && LprLayer.init(map)],
+        ['SemaforosLayer', () => SemaforosLayer.init(map)],
+        ['ColegiosLayer', () => ColegiosLayer.init(map)],
+        ['CorredoresLayer', () => CorredoresLayer.init(map)],
+        ['ColectivosLayer', () => ColectivosLayer.init(map)],
+        ['HeatmapLayer', () => heatmapLayer.init()],
+        ['AforosLayer', () => typeof AforosLayer !== 'undefined' && AforosLayer.init(map)],
+        ['RoboLayer', () => typeof RoboLayer !== 'undefined' && RoboLayer.init(map)],
+        ['StreetViewLayer', () => typeof StreetViewLayer !== 'undefined' && StreetViewLayer.init()],
+        ['GeoLocator', () => typeof GeoLocator !== 'undefined' && GeoLocator.init(map)]
+      ];
+      
+      for (const [moduleName, initFn] of modules) {
+        try {
+          initFn();
+          console.log(`✅ ${moduleName} inicializado`);
+        } catch (err) {
+          console.error(`❌ Error inicializando ${moduleName}:`, err);
+        }
+      }
+      
+      // Inicializar módulo de patrullas
+      try {
+        if (typeof PatullaLayer !== 'undefined' && db) {
+          patullaLayer = new PatullaLayer(map, currentCity, db);
+          console.log('✅ Módulo de patrullas inicializado');
+        } else {
+          console.warn('⚠️ PatullaLayer no disponible o db no inicializado');
+        }
+      } catch (err) {
+        console.error('❌ Error inicializando PatullaLayer:', err);
+      }
+      
+      console.log("✅ Mapa inicializado completamente");
+    } catch (err) {
+      console.error('❌ ERROR CRÍTICO en iniciarMapa():', err);
+      console.log('📱 Abre DevTools (F12) → Console para ver detalles completos');
     }
-    
-    // Inicializar módulo de semáforos
-    SemaforosLayer.init(map);
-    
-    // Inicializar módulo de escuelas y colegios
-    ColegiosLayer.init(map);
-    
-    // Inicializar módulo de corredores escolares
-    CorredoresLayer.init(map);
-    
-    // Inicializar módulo de colectivos
-    ColectivosLayer.init(map);
-    
-    // Inicializar módulo de heatmap
-    heatmapLayer.init();
-    
-    // Inicializar módulo de aforos
-    if (typeof AforosLayer !== 'undefined') {
-      AforosLayer.init(map);
-    }
-    
-    // Inicializar módulo de robos
-    if (typeof RoboLayer !== 'undefined') {
-      RoboLayer.init(map);
-    }
-    
-    // Inicializar módulo de patrullas
-    if (typeof PatullaLayer !== 'undefined' && db) {
-      patullaLayer = new PatullaLayer(map, currentCity, db);
-      console.log('✅ Módulo de patrullas inicializado');
-    }
-    
-    // Inicializar módulo de Street View
-    if (typeof StreetViewLayer !== 'undefined') {
-      StreetViewLayer.init();
-    }
-    
-    // Inicializar módulo de búsqueda de direcciones
-    if (typeof GeoLocator !== 'undefined') {
-      GeoLocator.init(map);
-    }
-    
-    console.log("✅ Mapa inicializado");
   }
 }
 

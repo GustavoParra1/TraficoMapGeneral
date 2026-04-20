@@ -7,78 +7,107 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function getUserMunicipio() {
-      return request.auth.token.municipio;
-    }
-
     function isAdmin() {
       return request.auth.token.admin == true;
     }
 
-    function isPatrulla() {
-      return request.auth.token.rol == 'patrulla';
-    }
-
     // ========== USERS ==========
     match /users/{userId} {
-      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
-      allow create: if isAuthenticated() && isAdmin();
-      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
-      allow delete: if isAdmin();
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdmin();
     }
 
-    // ========== PATRULLAS - Multi-municipio ==========
-    // TESTING: Permitir acceso sin autenticación para desarrollo
-    // PRODUCCIÓN: Requiere autenticación con rol patrulla
-    match /patrullas_{municipio}/{patrolId} {
-      // Permitir lectura/escritura si:
-      // 1. Usuario autenticado con rol patrulla, O
-      // 2. Documento está marcado como testing, O  
-      // 3. Sin autenticación (para testing en desarrollo)
-      allow read: if isAuthenticated() || request.resource.data.testing == true || true;
-      allow write: if isAuthenticated() || request.resource.data.testing == true || true;
-      allow delete: if isAdmin() || request.resource.data.testing == true;
-
-      // Sub-colección: historial GPS
+    // ========== PATRULLAS MAR DEL PLATA - Permitir testing sin autenticación ==========
+    match /patrullas_mar-del-plata/{patrolId} {
+      allow read: if true;
+      allow write: if true;
       match /gps_history/{entry} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated() || true;
+        allow read: if true;
+        allow write: if true;
       }
     }
 
-    // ========== CHAT - Multi-municipio ==========
-    // TESTING: Permitir acceso sin autenticación
-    match /chat_{municipio}/{patrolId} {
-      allow read: if isAuthenticated() || true;
-      allow write: if isAuthenticated() || true;
-
-      // Sub-colección: mensajes
-      match /messages/{messageId} {
-        allow read: if isAuthenticated() || true;
-        allow create: if isAuthenticated() || true;
-        allow update: if isAuthenticated() || (resource.data.from == request.auth.token.patente) || true;
-        allow delete: if isAdmin() || true;
+    // ========== PATRULLAS SAN MARTIN DEL MAR - Permitir testing sin autenticación ==========
+    match /patrullas_san-martin-del-mar/{patrolId} {
+      allow read: if true;
+      allow write: if true;
+      match /gps_history/{entry} {
+        allow read: if true;
+        allow write: if true;
       }
+    }
+
+    // ========== PATRULLAS CORDOBA - Permitir testing sin autenticación ==========
+    match /patrullas_cordoba/{patrolId} {
+      allow read: if true;
+      allow write: if true;
+      match /gps_history/{entry} {
+        allow read: if true;
+        allow write: if true;
+      }
+    }
+
+    // ========== CHAT MAR DEL PLATA ==========
+    match /chat_mar-del-plata/{patrolId} {
+      allow read: if true;
+      allow write: if true;
+      match /messages/{messageId} {
+        allow read: if true;
+        allow write: if true;
+        allow delete: if true;
+      }
+    }
+
+    // ========== CHAT SAN MARTIN DEL MAR ==========
+    match /chat_san-martin-del-mar/{patrolId} {
+      allow read: if true;
+      allow write: if true;
+      match /messages/{messageId} {
+        allow read: if true;
+        allow write: if true;
+        allow delete: if true;
+      }
+    }
+
+    // ========== CHAT CORDOBA ==========
+    match /chat_cordoba/{patrolId} {
+      allow read: if true;
+      allow write: if true;
+      match /messages/{messageId} {
+        allow read: if true;
+        allow write: if true;
+        allow delete: if true;
+      }
+    }
+
+    // ========== WEBRTC MAR DEL PLATA ==========
+    match /webrtc_mar-del-plata/{document=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // ========== WEBRTC SAN MARTIN DEL MAR ==========
+    match /webrtc_san-martin-del-mar/{document=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // ========== WEBRTC CORDOBA ==========
+    match /webrtc_cordoba/{document=**} {
+      allow read: if true;
+      allow write: if true;
     }
 
     // ========== ROBOS (Siniestros) ==========
     match /robos/{document=**} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if isAdmin();
     }
 
-    // ========== HISTORIALES ==========
+    // ========== AUDIT LOGS ==========
     match /audit_logs/{document=**} {
       allow read: if isAdmin();
       allow write: if isAuthenticated();
-      allow create: if isAuthenticated();
-    }
-
-    // ========== WEBRTC SIGNALING - Multi-municipio ==========
-    match /webrtc_{municipio}/{document=**} {
-      allow read: if isAuthenticated() || true;
-      allow write: if isAuthenticated() || true;
-      allow delete: if isAdmin() || true;
     }
 
     // ========== DEFAULT: DENY ==========

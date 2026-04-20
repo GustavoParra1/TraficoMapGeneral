@@ -71,46 +71,67 @@ class PatullaLayer {
 
   startTracking() {
     const coleccion = `patrullas_${this.municipio}`;
+    console.log(`🔍 PatullaLayer startTracking() iniciado para colección: ${coleccion}`);
     
     this.unsubscribe = this.db.collection(coleccion)
       .onSnapshot((snapshot) => {
+        console.log(`📡 Snapshot recibido: ${snapshot.size} documentos en colección ${coleccion}`);
         const patentesEnBD = new Set();
-
+        
+        let iteracionCount = 0;
         snapshot.forEach((doc) => {
-          const patente = doc.id;
-          const data = doc.data();
-          patentesEnBD.add(patente);
-
-          const lat = data.lat;
-          const lng = data.lng;
-          const online = data.online !== false;
-          const emergencia = data.emergencia || false;
-          const estado = data.estado || 'activo';
-          const timestamp = data.timestamp ? data.timestamp.toDate() : null;
-
-          if (lat && lng) {
-            this.actualizarPatrulla(patente, {
-              lat,
-              lng,
-              online,
-              emergencia,
-              estado,
-              timestamp,
-              accuracy: data.accuracy,
-              speed: data.speed,
-              ...data
+          try {
+            iteracionCount++;
+            const patente = doc.id;
+            const data = doc.data();
+            console.log(`  [${iteracionCount}/${snapshot.size}] 📄 ${patente}:`, {
+              lat: data.lat,
+              lng: data.lng,
+              online: data.online,
+              emergencia: data.emergencia,
+              estado: data.estado
             });
+            patentesEnBD.add(patente);
+
+            const lat = data.lat;
+            const lng = data.lng;
+            const online = data.online !== false;
+            const emergencia = data.emergencia || false;
+            const estado = data.estado || 'activo';
+            const timestamp = data.timestamp ? data.timestamp.toDate() : null;
+
+            if (lat && lng) {
+              this.actualizarPatrulla(patente, {
+                lat,
+                lng,
+                online,
+                emergencia,
+                estado,
+                timestamp,
+                accuracy: data.accuracy,
+                speed: data.speed,
+                ...data
+              });
+              console.log(`  ✅ ${patente} ACTUALIZADO en mapa`);
+            } else {
+              console.warn(`  ❌ ${patente} OMITIDO: lat=${lat}, lng=${lng}`);
+            }
+          } catch (err) {
+            console.error(`  ❌ ERROR procesando documento [${iteracionCount}]:`, err);
           }
         });
+
+        console.log(`📊 forEach completó ${iteracionCount}/${snapshot.size} iteraciones. Map size: ${this.patrullas.size}, patentesEnBD: ${patentesEnBD.size}`);
 
         // Remover patrullas que no están en la BD
         for (const [patente, patrulla] of this.patrullas) {
           if (!patentesEnBD.has(patente)) {
             this.removerPatrulla(patente);
+            console.log(`  🗑️ ${patente} REMOVIDA (no en BD)`);
           }
         }
       }, (error) => {
-        console.error('Error en tracking de patrullas:', error);
+        console.error('❌ Error en tracking de patrullas:', error);
       });
   }
 
@@ -165,9 +186,18 @@ class PatullaLayer {
 
   crearPopup(patente, data) {
     const { lat, lng, online, emergencia, estado, timestamp, accuracy, speed } = data;
-    const tiempoFormato = timestamp 
-      ? timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
-      : 'Sin datos';
+    
+    // Convertir timestamp de Firestore a Date si es necesario
+    let tiempoFormato = 'Sin datos';
+    if (timestamp) {
+      try {
+        const date = timestamp instanceof Date ? timestamp : (timestamp.toDate ? timestamp.toDate() : new Date(timestamp));
+        tiempoFormato = date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+      } catch (e) {
+        console.warn(`⚠️ Error formateando timestamp para ${patente}:`, e);
+        tiempoFormato = 'Error en fecha';
+      }
+    }
 
     const estadoClase = emergencia ? '🚨' : (online ? '✅' : '❌');
     const estadoTexto = emergencia ? 'EMERGENCIA' : (online ? 'En línea' : 'Offline');
