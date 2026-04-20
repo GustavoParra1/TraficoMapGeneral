@@ -627,24 +627,13 @@
   function listenToMessages() {
     const coleccion = `chat_${municipio}`;
 
-    // Escuchar directos
+    // Escuchar TODOS los mensajes (sin filtros para evitar composite index)
     db.collection(coleccion)
-      .where('to', '==', patrullaId)
       .orderBy('timestamp', 'desc')
       .onSnapshot((snapshot) => {
         renderMessages();
       }, (error) => {
-        console.warn('⚠️ Error escuchando mensajes directos:', error);
-      });
-
-    // Escuchar broadcasts
-    db.collection(coleccion)
-      .where('type', '==', 'broadcast')
-      .orderBy('timestamp', 'desc')
-      .onSnapshot((snapshot) => {
-        renderMessages();
-      }, (error) => {
-        console.warn('⚠️ Error escuchando broadcasts:', error);
+        console.warn('⚠️ Error escuchando mensajes:', error);
       });
 
     console.log('✅ Escuchando mensajes');
@@ -658,41 +647,31 @@
     const coleccion = `chat_${municipio}`;
 
     try {
-      // Obtener directos
-      const directos = await db.collection(coleccion)
-        .where('to', '==', patrullaId)
+      // Obtener TODOS los mensajes sin filtros
+      const snapshot = await db.collection(coleccion)
         .orderBy('timestamp', 'asc')
         .get();
 
-      // Obtener broadcasts
-      const broadcasts = await db.collection(coleccion)
-        .where('type', '==', 'broadcast')
-        .orderBy('timestamp', 'asc')
-        .get();
-
-      // Combinar y ordenar
       let allMessages = [];
 
-      directos.forEach((doc) => {
+      snapshot.forEach((doc) => {
         const data = doc.data();
-        allMessages.push({
+        const msg = {
           id: doc.id,
           ...data,
           timestamp: data.timestamp?.toDate(),
-          type: 'direct'
-        });
+        };
+
+        // Filtrar: mensajes dirigidos a esta patrulla o broadcasts
+        const isForMe = data.to === patrullaId;
+        const isBroadcast = data.type === 'broadcast';
+
+        if (isForMe || isBroadcast) {
+          allMessages.push(msg);
+        }
       });
 
-      broadcasts.forEach((doc) => {
-        const data = doc.data();
-        allMessages.push({
-          id: doc.id,
-          ...data,
-          timestamp: data.timestamp?.toDate(),
-          type: 'broadcast'
-        });
-      });
-
+      // Ordenar por timestamp
       allMessages.sort((a, b) => a.timestamp - b.timestamp);
 
       if (allMessages.length === 0) {
