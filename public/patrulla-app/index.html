@@ -869,11 +869,45 @@
     // Asignar listeners de botones del control bar (siempre disponibles)
     const btnClearMessages = document.getElementById('btn-clear-messages');
     if (btnClearMessages) {
-      btnClearMessages.addEventListener('click', () => {
-        if (confirm('¿Limpiar todo el chat?')) {
-          document.getElementById('messages-container').innerHTML = 
-            '<div class="empty-messages">Chat limpiado</div>';
-          console.log('🗑️ Chat limpiado');
+      btnClearMessages.addEventListener('click', async () => {
+        if (confirm('¿Limpiar TODO el chat? (Se eliminarán todos los mensajes)')) {
+          console.log('🗑️ Limpiando chat de Firestore...');
+          
+          try {
+            const coleccion = `chat_${municipio}`;
+            
+            // Obtener todos los mensajes
+            const snapshot = await db.collection(coleccion).get();
+            
+            // Crear batch para eliminar en bloque
+            const batch = db.batch();
+            let conteo = 0;
+            
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              // Eliminar mensajes que sean de o para esta patrulla
+              const esParaEsta = (data.to === patrullaId || data.from === patrullaId);
+              const esBroadcast = data.type === 'broadcast';
+              
+              if (esParaEsta || esBroadcast) {
+                batch.delete(doc.ref);
+                conteo++;
+              }
+            });
+            
+            // Ejecutar eliminación en batch
+            await batch.commit();
+            console.log(`✅ ${conteo} mensajes eliminados de Firestore`);
+            
+            // Limpiar UI
+            document.getElementById('messages-container').innerHTML = 
+              '<div class="empty-messages">Chat limpiado</div>';
+            
+            alert(`✅ ${conteo} mensajes eliminados`);
+          } catch (error) {
+            console.error('❌ Error limpiando chat:', error);
+            alert('Error al limpiar el chat');
+          }
         }
       });
       console.log('✅ Listener asignado a btn-clear-messages');
