@@ -686,13 +686,15 @@
       .forEach((p) => {
         const estado = p.emergencia ? 'emergencia' : (p.online ? 'online' : 'offline');
         const estadoTexto = p.emergencia ? '🚨 EMERGENCIA' : (p.online ? '✅ En línea' : '❌ Offline');
+        // Extraer número de patrulla (patrulla-01 → 01, PATRULLA_01 → 01)
+        const numPatrulla = p.id.replace(/^(patrulla|PATRULLA)[_-]/, '');
 
         const card = document.createElement('div');
         card.className = `patrulla-card ${estado}`;
         card.innerHTML = `
           <div class="patrulla-name">
             <div class="patrulla-status-dot ${estado}"></div>
-            <span>${p.id}</span>
+            <span>${numPatrulla}</span>
           </div>
           <div class="patrulla-info">${estadoTexto}</div>
           <div class="patrulla-info">📍 ${p.lat?.toFixed(4)}, ${p.lng?.toFixed(4)}</div>
@@ -746,8 +748,8 @@
         return;
       }
 
-      // Extraer número de patrulla (PATRULLA_01 → 01)
-      const numPatrulla = p.id.replace('PATRULLA_', '');
+      // Extraer número de patrulla (patrulla-01 → 01, PATRULLA_01 → 01)
+      const numPatrulla = p.id.replace(/^(patrulla|PATRULLA)[_-]/, '');
 
       // Determinar color según estado
       let bgColor = '#3b82f6'; // azul - en línea
