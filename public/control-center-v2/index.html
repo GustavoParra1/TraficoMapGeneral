@@ -381,6 +381,17 @@
       padding: 20px;
       font-size: 12px;
     }
+
+    /* EMOJI MARKERS */
+    .emoji-marker {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .emoji-marker img {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -478,6 +489,7 @@
   // ========================================
   let map = null;
   let patrullas = new Map();
+  let markers = []; // Para guardar referencias de marcadores
   let municipio = 'mar-del-plata';
   let selectedPatrulla = null;
 
@@ -501,18 +513,24 @@
   // ========================================
   function listenToPatrullas() {
     const coleccion = `patrullas_${municipio}`;
+    
+    console.log(`📡 Escuchando patrullas en: ${coleccion}`);
 
     db.collection(coleccion).onSnapshot((snapshot) => {
+      console.log(`📊 Snapshot recibido: ${snapshot.size} patrullas`);
       patrullas.clear();
 
       snapshot.forEach((doc) => {
         const data = doc.data();
+        console.log(`✅ ${doc.id}: lat=${data.lat}, lng=${data.lng}, online=${data.online}`);
+        
         patrullas.set(doc.id, {
           id: doc.id,
           ...data
         });
       });
 
+      console.log(`🔄 Actualizando UI con ${patrullas.size} patrullas`);
       actualizarUI();
     }, (error) => {
       console.error('❌ Error escuchando patrullas:', error);
@@ -611,42 +629,58 @@
   }
 
   function actualizarMapa() {
-    // Limpiar markers existentes
-    document.querySelectorAll('.leaflet-marker-icon').forEach((el) => {
-      if (el.parentElement) {
-        el.parentElement.remove();
+    // Limpiar marcadores anteriores
+    markers.forEach((marker) => {
+      if (map.hasLayer(marker)) {
+        map.removeLayer(marker);
       }
     });
+    markers = [];
+
+    console.log(`📍 Actualizando mapa con ${patrullas.size} patrullas`);
 
     patrullas.forEach((p) => {
-      if (!p.lat || !p.lng) return;
-
-      // Determinar color
-      let color = '#3b82f6'; // azul
-      let html = '🔵';
-
-      if (p.emergencia) {
-        color = '#ef4444'; // rojo
-        html = '🔴';
-      } else if (!p.online) {
-        color = '#64748b'; // gris
-        html = '⚫';
+      if (!p.lat || !p.lng) {
+        console.warn(`⚠️ ${p.id} sin coordenadas`);
+        return;
       }
 
-      // Crear marker
-      L.marker([p.lat, p.lng], {
+      // Determinar ícono y color
+      let html = '🔵'; // azul - en línea
+      if (p.emergencia) {
+        html = '🔴'; // rojo - emergencia
+      } else if (!p.online) {
+        html = '⚫'; // gris - offline
+      }
+
+      // Crear ícono personalizado con emoji
+      const icon = L.divIcon({
+        html: `<div style="font-size:24px; text-align:center; line-height:1;">${html}</div>`,
+        iconSize: [30, 30],
+        className: 'emoji-marker'
+      });
+
+      // Crear marker y agregarlo al mapa
+      const marker = L.marker([p.lat, p.lng], {
+        icon: icon,
         title: p.id
       })
         .bindPopup(`
-          <div style="font-size:12px;">
+          <div style="font-size:12px; font-family: Arial;">
             <b>${p.id}</b><br>
             ${p.emergencia ? '🚨 EMERGENCIA' : (p.online ? '✅ En línea' : '❌ Offline')}<br>
+            Lat: ${p.lat?.toFixed(5)}<br>
+            Lng: ${p.lng?.toFixed(5)}<br>
             Vel: ${(p.speed * 3.6).toFixed(0)} km/h<br>
-            <button style="width:100%; margin-top:8px; padding:6px; background:#667eea; color:white; border:none; border-radius:4px;" onclick="zoomAlPatrulla('${p.id}')">Ver detalles</button>
+            <button style="width:100%; margin-top:8px; padding:6px; background:#667eea; color:white; border:none; border-radius:4px; cursor:pointer;" onclick="zoomAlPatrulla('${p.id}')">📍 Zoom</button>
           </div>
         `)
         .addTo(map);
+
+      markers.push(marker);
     });
+
+    console.log(`✅ Mapa actualizado con ${markers.length} marcadores`);
   }
 
   // ========================================
