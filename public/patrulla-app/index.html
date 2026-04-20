@@ -579,68 +579,76 @@
   // ========================================
   function startTracking() {
     if (!navigator.geolocation) {
+      console.error('❌ Tu navegador no soporta geolocalización');
       alert('Tu navegador no soporta geolocalización');
       return;
     }
 
-    // Limpiar intervalo anterior si existe
-    if (ubicacionInterval) {
-      clearInterval(ubicacionInterval);
-    }
+    // Usar watchPosition para tracking continuo (es la forma correcta)
+    console.log('📍 Iniciando geolocalización continua con watchPosition()...');
+    
+    ubicacionInterval = navigator.geolocation.watchPosition(
+      (position) => {
+        const { latitude, longitude, accuracy, speed = 0 } = position.coords;
 
-    // Intentar obtener ubicación cada 5 segundos
-    ubicacionInterval = setInterval(() => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude, accuracy, speed = 0 } = position.coords;
+        console.log(`📍 Ubicación recibida: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
 
-          // Actualizar UI
-          document.getElementById('lat').textContent = latitude.toFixed(4);
-          document.getElementById('lng').textContent = longitude.toFixed(4);
-          document.getElementById('speed').textContent = Math.round(speed * 3.6); // m/s a km/h
+        // Actualizar UI
+        document.getElementById('lat').textContent = latitude.toFixed(4);
+        document.getElementById('lng').textContent = longitude.toFixed(4);
+        document.getElementById('speed').textContent = Math.round(speed * 3.6); // m/s a km/h
 
-          // Actualizar en Firestore
-          const coleccion = `patrullas_${municipio}`;
-          db.collection(coleccion).doc(patrullaId).update({
-            lat: latitude,
-            lng: longitude,
-            accuracy: accuracy,
-            speed: speed,
-            online: true,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-          }).catch((error) => {
-            console.warn('⚠️ Error actualizando ubicación:', error);
+        // Actualizar en Firestore
+        const coleccion = `patrullas_${municipio}`;
+        db.collection(coleccion).doc(patrullaId).update({
+          lat: latitude,
+          lng: longitude,
+          accuracy: accuracy,
+          speed: speed,
+          online: true,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch((error) => {
+          console.warn('⚠️ Error actualizando ubicación en Firestore:', error);
+        });
+
+        // Actualizar marker en mapa
+        if (myMarker) {
+          myMarker.setLatLng([latitude, longitude]);
+          console.log(`🗺️ Marcador actualizado en mapa`);
+        } else {
+          // Crear icono personalizado con emoji
+          const icon = L.divIcon({
+            html: '<div style="font-size:32px; text-align:center; line-height:1;">🚔</div>',
+            iconSize: [32, 32],
+            className: 'patrol-marker'
           });
 
-          // Actualizar marker en mapa
-          if (myMarker) {
-            myMarker.setLatLng([latitude, longitude]);
-            console.log(`📍 Marcador actualizado: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
-          } else {
-            // Crear icono personalizado con emoji
-            const icon = L.divIcon({
-              html: '<div style="font-size:32px; text-align:center; line-height:1;">🚔</div>',
-              iconSize: [32, 32],
-              className: 'patrol-marker'
-            });
-
-            myMarker = L.marker([latitude, longitude], {
-              icon: icon,
-              title: patrullaId
-            }).addTo(map);
-            console.log(`✅ Marcador creado en mapa: ${patrullaId}`);
-          }
-
-          map.setView([latitude, longitude], 15);
-          console.log(`🗺️ Mapa centrado en patrulla`);
-        },
-        (error) => {
-          console.warn('⚠️ Error de geolocalización:', error.message);
+          myMarker = L.marker([latitude, longitude], {
+            icon: icon,
+            title: patrullaId
+          }).addTo(map);
+          console.log(`✅ Marcador 🚔 creado en mapa: ${patrullaId}`);
         }
-      );
-    }, 5000);
 
-    console.log('✅ Tracking iniciado');
+        map.setView([latitude, longitude], 15);
+      },
+      (error) => {
+        console.warn('⚠️ Error de geolocalización:', error.message);
+        console.warn('Error code:', error.code); // 1=Permission denied, 2=Position unavailable, 3=Timeout
+        
+        if (error.code === 1) {
+          console.error('❌ Permiso de geolocalización rechazado por el usuario');
+          alert('Debes permitir acceso a tu ubicación. Ve a configuración del navegador.');
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 10000
+      }
+    );
+
+    console.log('✅ Tracking iniciado con watchPosition()');
   }
 
   // ========================================
