@@ -329,13 +329,15 @@
     }
 
     /* PATROL MARKER */
-    .patrol-marker {
+    .patrol-marker,
+    .my-patrol-marker {
       background: transparent !important;
       border: none !important;
       box-shadow: none !important;
     }
 
-    .patrol-marker img {
+    .patrol-marker img,
+    .my-patrol-marker img {
       display: none !important;
     }
 
@@ -618,11 +620,34 @@
         if (myMarker) {
           myMarker.setLatLng([latitude, longitude]);
         } else {
-          // Crear icono personalizado con emoji
+          // Extraer número de patrulla (PATRULLA_01 → 01)
+          const numPatrulla = patrullaId.replace('PATRULLA_', '');
+          
+          // Crear icono personalizado mejorado
           const icon = L.divIcon({
-            html: '<div style="font-size:32px; text-align:center; line-height:1;">🚔</div>',
-            iconSize: [32, 32],
-            className: 'patrol-marker'
+            html: `
+              <div style="
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: 3px solid white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+                font-size: 20px;
+                font-family: Arial, sans-serif;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.3);
+              ">
+                ${numPatrulla}
+              </div>
+            `,
+            iconSize: [50, 50],
+            iconAnchor: [25, 25],
+            popupAnchor: [0, -25],
+            className: 'my-patrol-marker'
           });
 
           myMarker = L.marker([latitude, longitude], {

@@ -382,14 +382,18 @@
       font-size: 12px;
     }
 
-    /* EMOJI MARKERS */
-    .emoji-marker {
+    /* PATROL MARKERS */
+    .emoji-marker,
+    .patrol-marker-icon,
+    .my-patrol-marker {
       background: transparent !important;
       border: none !important;
       box-shadow: none !important;
     }
 
-    .emoji-marker img {
+    .emoji-marker img,
+    .patrol-marker-icon img,
+    .my-patrol-marker img {
       display: none !important;
     }
   </style>
@@ -645,19 +649,48 @@
         return;
       }
 
-      // Determinar ícono y color
-      let html = '🔵'; // azul - en línea
+      // Extraer número de patrulla (PATRULLA_01 → 01)
+      const numPatrulla = p.id.replace('PATRULLA_', '');
+
+      // Determinar color según estado
+      let bgColor = '#3b82f6'; // azul - en línea
+      let borderColor = '#1e40af';
+      let textColor = 'white';
+      
       if (p.emergencia) {
-        html = '🔴'; // rojo - emergencia
+        bgColor = '#ef4444'; // rojo - emergencia
+        borderColor = '#dc2626';
       } else if (!p.online) {
-        html = '⚫'; // gris - offline
+        bgColor = '#64748b'; // gris - offline
+        borderColor = '#475569';
       }
 
-      // Crear ícono personalizado con emoji
+      // Crear ícono personalizado con número de patrulla
       const icon = L.divIcon({
-        html: `<div style="font-size:24px; text-align:center; line-height:1;">${html}</div>`,
-        iconSize: [30, 30],
-        className: 'emoji-marker'
+        html: `
+          <div style="
+            width: 45px;
+            height: 45px;
+            background: ${bgColor};
+            border: 3px solid ${borderColor};
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: ${textColor};
+            font-weight: bold;
+            font-size: 18px;
+            font-family: Arial, sans-serif;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            transform: scale(1);
+          ">
+            ${numPatrulla}
+          </div>
+        `,
+        iconSize: [45, 45],
+        iconAnchor: [22, 22],
+        popupAnchor: [0, -22],
+        className: 'patrol-marker-icon'
       });
 
       // Crear marker y agregarlo al mapa
@@ -666,13 +699,14 @@
         title: p.id
       })
         .bindPopup(`
-          <div style="font-size:12px; font-family: Arial;">
-            <b>${p.id}</b><br>
-            ${p.emergencia ? '🚨 EMERGENCIA' : (p.online ? '✅ En línea' : '❌ Offline')}<br>
-            Lat: ${p.lat?.toFixed(5)}<br>
-            Lng: ${p.lng?.toFixed(5)}<br>
-            Vel: ${(p.speed * 3.6).toFixed(0)} km/h<br>
-            <button style="width:100%; margin-top:8px; padding:6px; background:#667eea; color:white; border:none; border-radius:4px; cursor:pointer;" onclick="zoomAlPatrulla('${p.id}')">📍 Zoom</button>
+          <div style="font-size:13px; font-family: Arial;">
+            <b style="font-size:14px; color:#667eea;">📍 ${p.id}</b><br>
+            <div style="margin: 6px 0; padding: 6px 0; border-top: 1px solid #e0e0e0;">
+              Estado: ${p.emergencia ? '<span style="color:#ef4444;">🚨 EMERGENCIA</span>' : (p.online ? '<span style="color:#10b981;">✅ En línea</span>' : '<span style="color:#64748b;">❌ Offline</span>')}<br>
+              Coordenadas: ${p.lat?.toFixed(5)}, ${p.lng?.toFixed(5)}<br>
+              Velocidad: ${(p.speed * 3.6).toFixed(0)} km/h<br>
+            </div>
+            <button style="width:100%; margin-top:8px; padding:8px; background:#667eea; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;" onclick="zoomAlPatrulla('${p.id}')">📍 Zoom a Patrulla</button>
           </div>
         `)
         .addTo(map);
