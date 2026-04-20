@@ -209,35 +209,51 @@ const FormatHelp = (() => {
       csvColumns: ['lat (obligatorio)', 'lng (obligatorio)', 'fecha', 'resultado', 'observaciones', 'año'],
       csvExample: `lat,lng,fecha,resultado,observaciones,año
 -38.032577,-57.5876566,2023-01-01,Asiste Policia y Libera,Centro,2023
--38.012543,-57.5816004,2023-01-01,Hallazgo de Automotor,Barrio Norte,2023
--38.077284,-57.5496172,2024-01-15,Sin Recurso Policial,Zona Industrial,2024`,
+-38.012543,-57.5816004,2023-01-01,Hallazgo Automotor,Barrio Norte,2023
+-38.077284,-57.5496172,2024-01-15,Persecucion Y Detencion,Zona Industrial,2024`,
       csvInfo: `
             <div style="background: #f0f8ff; padding: 12px; margin: 10px 0; border-radius: 4px; border-left: 4px solid #0066ff;">
               <strong>📌 Valores válidos para "resultado" (con color asignado):</strong>
               <div style="margin: 8px 0; padding-left: 20px; font-size: 12px; line-height: 1.8;">
-                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
-                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #e74c3c; border-radius: 50%; border: 1px solid #333;"></span>
-                  <code>Intervencion Policial</code>
-                </div>
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
                   <span style="display: inline-block; width: 16px; height: 16px; background-color: #f39c12; border-radius: 50%; border: 1px solid #333;"></span>
                   <code>Asiste Policia y Libera</code>
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
                   <span style="display: inline-block; width: 16px; height: 16px; background-color: #27ae60; border-radius: 50%; border: 1px solid #333;"></span>
-                  <code>Hallazgo de Automotor</code>
+                  <code>Hallazgo Automotor</code>
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
-                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #f1c40f; border-radius: 50%; border: 1px solid #333;"></span>
-                  <code>Sin Recurso Policial</code>
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #e74c3c; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>Persecucion Y Detencion</code>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #c0392b; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>Detencion</code>
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
                   <span style="display: inline-block; width: 16px; height: 16px; background-color: #3498db; border-radius: 50%; border: 1px solid #333;"></span>
-                  <code>Seguimiento LPR</code>
+                  <code>Se Realiza Seguimiento del Evento</code>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #f1c40f; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>No Asiste</code>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #9b59b6; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>Secuestro De Vehiculo</code>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #e67e22; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>Asiste Bomberos</code>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #34495e; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>Persecucion Y Perdida</code>
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
                   <span style="display: inline-block; width: 16px; height: 16px; background-color: #1abc9c; border-radius: 50%; border: 1px solid #333;"></span>
-                  <code>LPR Detencion</code>
+                  <code>Asiste Unidad Sanitaria y Traslada</code>
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center;">
                   <span style="display: inline-block; width: 16px; height: 16px; background-color: #95a5a6; border-radius: 50%; border: 1px solid #333;"></span>

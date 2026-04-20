@@ -15,11 +15,15 @@ const RoboLayer = (() => {
   // Colores para resultados de robos - COLORES DISTINTIVOS
   const resultadoColors = {
     'Asiste Policia y Libera': '#f39c12',      // 🟠 Naranja vibrante
-    'Hallazgo de Automotor': '#27ae60',        // 🟢 Verde oscuro
-    'Intervencion Policial': '#e74c3c',        // 🔴 Rojo
-    'Sin Recurso Policial': '#f1c40f',         // 🟡 Amarillo
-    'Seguimiento LPR': '#3498db',              // 🔵 Azul
-    'LPR Detencion': '#1abc9c',                // 🔷 Cian/Verde menta
+    'Hallazgo Automotor': '#27ae60',           // 🟢 Verde oscuro
+    'Persecucion Y Detencion': '#e74c3c',      // 🔴 Rojo
+    'Detencion': '#c0392b',                    // 🔴 Rojo oscuro
+    'Se Realiza Seguimiento del Evento': '#3498db',  // 🔵 Azul
+    'No Asiste': '#f1c40f',                    // 🟡 Amarillo
+    'Secuestro De Vehiculo': '#9b59b6',        // 🟣 Púrpura
+    'Asiste Bomberos': '#e67e22',              // 🟠 Naranja oscuro
+    'Persecucion Y Perdida': '#34495e',        // ⚫ Gris oscuro
+    'Asiste Unidad Sanitaria y Traslada': '#1abc9c',  // 🔷 Cian
     'Otros': '#95a5a6'                         // ⚫ Gris
   };
 

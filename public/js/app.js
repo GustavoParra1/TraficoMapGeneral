@@ -614,15 +614,16 @@ function populateRoboFilters() {
   try {
     const metadata = RoboLayer.getMetadata();
     if (!metadata) {
-      console.warn('⚠️ No hay metadata disponible en RoboLayer');
+      console.error('❌ No hay metadata disponible en RoboLayer');
       return;
     }
     
     // Años
     const yearFilter = document.getElementById('robo-year-filter');
     if (yearFilter && metadata.years && metadata.years.length > 0) {
-      const options = yearFilter.querySelectorAll('option:not(:first-child)');
-      options.forEach(opt => opt.remove());
+      // Limpiar opciones anteriores (excepto la primera)
+      const existingOptions = yearFilter.querySelectorAll('option:not(:first-child)');
+      existingOptions.forEach(opt => opt.remove());
       
       metadata.years.forEach(year => {
         const option = document.createElement('option');
@@ -630,14 +631,17 @@ function populateRoboFilters() {
         option.textContent = year;
         yearFilter.appendChild(option);
       });
-      console.log(`  ✓ Años: ${metadata.years.join(', ')}`);
+      console.log(`  ✓ Años: ${metadata.years.join(', ')} (${metadata.years.length} opciones)`);
+    } else {
+      console.warn('⚠️ yearFilter no encontrado o sin años');
     }
     
     // Resultados
     const resultadoFilter = document.getElementById('robo-resultado-filter');
     if (resultadoFilter && metadata.resultados && metadata.resultados.length > 0) {
-      const options = resultadoFilter.querySelectorAll('option:not(:first-child)');
-      options.forEach(opt => opt.remove());
+      // Limpiar opciones anteriores (excepto la primera)
+      const existingOptions = resultadoFilter.querySelectorAll('option:not(:first-child)');
+      existingOptions.forEach(opt => opt.remove());
       
       metadata.resultados.forEach(resultado => {
         const option = document.createElement('option');
@@ -646,12 +650,15 @@ function populateRoboFilters() {
         resultadoFilter.appendChild(option);
       });
       console.log(`  ✓ Resultados: ${metadata.resultados.length} disponibles`);
+    } else {
+      console.warn('⚠️ resultadoFilter no encontrado o sin resultados');
     }
     
     // Actualizar total de robos
     const totalSpan = document.getElementById('robo-total-count');
     if (totalSpan && metadata.total) {
       totalSpan.textContent = metadata.total.toLocaleString();
+      console.log(`  ✓ Total: ${metadata.total}`);
     }
     
     console.log('✅ Filtros de robos poblados correctamente');
@@ -930,8 +937,8 @@ auth.onAuthStateChanged((user) => {
             <span>Mapa de Calor (Robos)</span>
           </label>
 
-          <button id="clear-robo-filters-btn" style="width: 100%; margin-top: 8px; padding: 8px; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-            Limpiar Filtros Robos
+          <button id="clear-robo-filters-btn" style="width: 100%; margin-top: 8px; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: background 0.2s;" onmouseover="this.style.background='#c0392b'" onmouseout="this.style.background='#e74c3c'">
+            🧹 Limpiar Filtros Robos
           </button>
 
           <div id="robo-stats" style="margin-top: 12px; padding: 8px; background: #f0f0f0; border-radius: 4px; font-size: 11px; color: #1a1a1a;">
@@ -945,10 +952,6 @@ auth.onAuthStateChanged((user) => {
             <strong style="display: block; margin-bottom: 8px; color: #1a1a1a;">🎨 Leyenda de Resultados:</strong>
             <div style="font-size: 10px; line-height: 1.6; color: #1a1a1a;">
               <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background-color: #e74c3c; border-radius: 50%; border: 1px solid #333;"></span>
-                <span style="color: #1a1a1a;">Intervención Policial</span>
-              </div>
-              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
                 <span style="display: inline-block; width: 12px; height: 12px; background-color: #f39c12; border-radius: 50%; border: 1px solid #333;"></span>
                 <span style="color: #1a1a1a;">Asiste Policía y Libera</span>
               </div>
@@ -957,20 +960,36 @@ auth.onAuthStateChanged((user) => {
                 <span style="color: #1a1a1a;">Hallazgo de Automotor</span>
               </div>
               <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background-color: #f1c40f; border-radius: 50%; border: 1px solid #333;"></span>
-                <span style="color: #1a1a1a;">Sin Recurso Policial</span>
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #e74c3c; border-radius: 50%; border: 1px solid #333;"></span>
+                <span style="color: #1a1a1a;">Persecución y Detención</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #c0392b; border-radius: 50%; border: 1px solid #333;"></span>
+                <span style="color: #1a1a1a;">Detención</span>
               </div>
               <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
                 <span style="display: inline-block; width: 12px; height: 12px; background-color: #3498db; border-radius: 50%; border: 1px solid #333;"></span>
-                <span style="color: #1a1a1a;">Seguimiento LPR</span>
+                <span style="color: #1a1a1a;">Seguimiento del Evento</span>
               </div>
               <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background-color: #1abc9c; border-radius: 50%; border: 1px solid #333;"></span>
-                <span style="color: #1a1a1a;">LPR Detención</span>
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #f1c40f; border-radius: 50%; border: 1px solid #333;"></span>
+                <span style="color: #1a1a1a;">No Asiste</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #9b59b6; border-radius: 50%; border: 1px solid #333;"></span>
+                <span style="color: #1a1a1a;">Secuestro de Vehículo</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #e67e22; border-radius: 50%; border: 1px solid #333;"></span>
+                <span style="color: #1a1a1a;">Asiste Bomberos</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #34495e; border-radius: 50%; border: 1px solid #333;"></span>
+                <span style="color: #1a1a1a;">Persecución y Pérdida</span>
               </div>
               <div style="display: flex; gap: 6px; align-items: center;">
-                <span style="display: inline-block; width: 12px; height: 12px; background-color: #95a5a6; border-radius: 50%; border: 1px solid #333;"></span>
-                <span style="color: #1a1a1a;">Otros</span>
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #1abc9c; border-radius: 50%; border: 1px solid #333;"></span>
+                <span style="color: #1a1a1a;">Asiste Unidad Sanitaria</span>
               </div>
             </div>
           </div>
@@ -1588,6 +1607,13 @@ auth.onAuthStateChanged((user) => {
     const clearRoboFiltersBtn = document.getElementById('clear-robo-filters-btn');
     const roboTotalSpan = document.getElementById('robo-total-count');
 
+    console.log('🚗 Elementos de Robo encontrados:');
+    console.log('  - roboCheckbox:', roboCheckbox ? '✓' : '✗');
+    console.log('  - roboYearFilter:', roboYearFilter ? '✓' : '✗');
+    console.log('  - roboResultadoFilter:', roboResultadoFilter ? '✓' : '✗');
+    console.log('  - clearRoboFiltersBtn:', clearRoboFiltersBtn ? '✓' : '✗');
+    console.log('  - roboTotalSpan:', roboTotalSpan ? '✓' : '✗');
+
     // Mapa de calor de robos
     let roboHeatmapInstance = null;
     
@@ -1672,27 +1698,40 @@ auth.onAuthStateChanged((user) => {
     }
 
     const applyRoboFilters = () => {
-      if (typeof RoboLayer === 'undefined') return;
+      console.log('🚗 applyRoboFilters() ejecutada');
       
-      const filters = {
-        year: roboYearFilter?.value === 'all' ? 'all' : roboYearFilter?.value,
-        resultado: roboResultadoFilter?.value === 'all' ? 'all' : roboResultadoFilter?.value
-      };
+      if (typeof RoboLayer === 'undefined') {
+        console.error('❌ RoboLayer no está disponible');
+        return;
+      }
       
-      console.log('🚗 Aplicando filtros de robos:', filters);
-      RoboLayer.setFilter('year', filters.year);
-      RoboLayer.setFilter('resultado', filters.resultado);
+      // Obtener valores de los selects
+      const yearValue = roboYearFilter?.value;
+      const resultadoValue = roboResultadoFilter?.value;
+      
+      console.log(`  • Valores actuales: year="${yearValue}", resultado="${resultadoValue}"`);
+      
+      // Aplicar filtros a través de RoboLayer
+      console.log('  • Aplicando RoboLayer.setFilter()...');
+      RoboLayer.setFilter('year', yearValue === 'all' ? 'all' : yearValue);
+      RoboLayer.setFilter('resultado', resultadoValue === 'all' ? 'all' : resultadoValue);
+      console.log('  ✓ Filtros aplicados');
       
       // Actualizar estadísticas
       const metadata = RoboLayer.getMetadata();
       if (roboTotalSpan && metadata) {
         roboTotalSpan.textContent = metadata.total?.toLocaleString() || '0';
+        console.log(`  ✓ Total actualizado: ${metadata.total}`);
       }
       
       // Re-renderizar heatmap si está activo
       if (roboHeatmapCheckbox?.checked) {
+        console.log('  • Re-renderizando heatmap...');
         renderRoboHeatmap();
+        console.log('  ✓ Heatmap actualizado');
       }
+      
+      console.log('✅ applyRoboFilters() completada');
     };
 
     if (roboYearFilter) roboYearFilter.addEventListener('change', applyRoboFilters);
@@ -1700,12 +1739,44 @@ auth.onAuthStateChanged((user) => {
 
     if (clearRoboFiltersBtn) {
       clearRoboFiltersBtn.addEventListener('click', () => {
-        if (roboYearFilter) roboYearFilter.value = 'all';
-        if (roboResultadoFilter) roboResultadoFilter.value = 'all';
+        console.log('%c🧹 CLICK en Limpiar Filtros Robos', 'background: #e74c3c; color: white; padding: 5px 10px; border-radius: 3px;');
         
-        console.log('🧹 Filtros de robos limpiados');
+        // 1. Validar que existan los elementos
+        console.log('  📋 Validando elementos...');
+        if (!roboYearFilter) {
+          console.error('    ❌ roboYearFilter NO ENCONTRADO');
+          return;
+        }
+        if (!roboResultadoFilter) {
+          console.error('    ❌ roboResultadoFilter NO ENCONTRADO');
+          return;
+        }
+        console.log('    ✓ Elementos encontrados');
+        
+        // 2. Mostrar estado actual antes de limpiar
+        console.log(`  📊 Estado ANTES de limpiar:`);
+        console.log(`    - Year: "${roboYearFilter.value}"`);
+        console.log(`    - Resultado: "${roboResultadoFilter.value}"`);
+        
+        // 3. Resetear los selects
+        console.log('  🔄 Reseteando selects...');
+        roboYearFilter.value = 'all';
+        roboResultadoFilter.value = 'all';
+        
+        console.log(`  📊 Estado DESPUÉS de resetear:`);
+        console.log(`    - Year: "${roboYearFilter.value}"`);
+        console.log(`    - Resultado: "${roboResultadoFilter.value}"`);
+        
+        // 4. Aplicar filtros
+        console.log('  🔧 Aplicando filtros...');
         applyRoboFilters();
+        
+        console.log('%c✅ Filtros de robos limpiados correctamente', 'background: #27ae60; color: white; padding: 5px 10px; border-radius: 3px;');
       });
+      
+      console.log('✅ Event listener asignado a clearRoboFiltersBtn');
+    } else {
+      console.error('🚨 clearRoboFiltersBtn NO ENCONTRADO - el botón no responderá');
     }
 
     // Botón para mostrar panel de colectivos

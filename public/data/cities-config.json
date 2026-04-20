@@ -78,7 +78,7 @@
         "aforos": "data/aforos_cordoba_ejemplo.csv",
         "colectivos": null,
         "flujo": null,
-        "robo": null,
+        "robo": "data/EJEMPLO_robos_cordoba.csv",
         "alertas": null,
         "zonas": null
       }
