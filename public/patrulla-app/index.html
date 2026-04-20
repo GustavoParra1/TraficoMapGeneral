@@ -430,7 +430,10 @@
         <div>📍 <span id="lat">-38.00</span>, <span id="lng">-57.55</span></div>
         <div class="speed">⚡ <span id="speed">0</span> km/h</div>
       </div>
-      <button class="btn emergencia" id="btn-emergencia" style="width: auto;">🚨 EMERGENCIA</button>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn" id="btn-start-tracking" style="width: auto; background: #10b981;">📍 Iniciar Rastreo</button>
+        <button class="btn emergencia" id="btn-emergencia" style="width: auto;">🚨 EMERGENCIA</button>
+      </div>
     </div>
   </div>
 
@@ -584,14 +587,14 @@
       return;
     }
 
-    // Usar watchPosition para tracking continuo (es la forma correcta)
     console.log('📍 Iniciando geolocalización continua con watchPosition()...');
+    console.log('⏳ Esperando permiso del usuario...');
     
     ubicacionInterval = navigator.geolocation.watchPosition(
       (position) => {
         const { latitude, longitude, accuracy, speed = 0 } = position.coords;
 
-        console.log(`📍 Ubicación recibida: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
+        console.log(`✅ GPS ACTIVO: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
 
         // Actualizar UI
         document.getElementById('lat').textContent = latitude.toFixed(4);
@@ -614,7 +617,6 @@
         // Actualizar marker en mapa
         if (myMarker) {
           myMarker.setLatLng([latitude, longitude]);
-          console.log(`🗺️ Marcador actualizado en mapa`);
         } else {
           // Crear icono personalizado con emoji
           const icon = L.divIcon({
@@ -633,12 +635,26 @@
         map.setView([latitude, longitude], 15);
       },
       (error) => {
-        console.warn('⚠️ Error de geolocalización:', error.message);
-        console.warn('Error code:', error.code); // 1=Permission denied, 2=Position unavailable, 3=Timeout
+        console.error('❌ ERROR DE GEOLOCALIZACIÓN:', error.message);
+        console.error('Código:', error.code); // 1=Rechazado, 2=No disponible, 3=Timeout
         
+        let mensajeError = '';
         if (error.code === 1) {
-          console.error('❌ Permiso de geolocalización rechazado por el usuario');
-          alert('Debes permitir acceso a tu ubicación. Ve a configuración del navegador.');
+          mensajeError = 'Permiso rechazado. Ve a Configuración del navegador y permite acceso a tu ubicación.';
+        } else if (error.code === 2) {
+          mensajeError = 'Ubicación no disponible. Verifica que tu GPS está activado.';
+        } else if (error.code === 3) {
+          mensajeError = 'Timeout. Intenta nuevamente.';
+        }
+        
+        alert(`⚠️ ${mensajeError}`);
+        
+        // Mostrar botón nuevamente para reintentar
+        const btn = document.getElementById('btn-start-tracking');
+        if (btn) {
+          btn.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = '📍 Reintentar Rastreo';
         }
       },
       {
@@ -648,7 +664,8 @@
       }
     );
 
-    console.log('✅ Tracking iniciado con watchPosition()');
+    console.log('✅ watchPosition() iniciado');
+  }    console.log('✅ Tracking iniciado con watchPosition()');
   }
 
   // ========================================
@@ -920,9 +937,11 @@
 
     try {
       initMap();
-      startTracking();
       listenToMessages();
       updateStatus();
+
+      // NO iniciar tracking automáticamente - esperar a que usuario presione el botón
+      // Esto es importante en móvil: muchos navegadores requieren gesto del usuario
 
       // Agregar event listeners
       document.getElementById('btn-send').addEventListener('click', enviarMensaje);
@@ -931,6 +950,16 @@
       });
 
       document.getElementById('btn-emergencia').addEventListener('click', toggleEmergencia);
+
+      // Botón para iniciar rastreo manualmente
+      document.getElementById('btn-start-tracking').addEventListener('click', () => {
+        console.log('🟢 Usuario presionó "Iniciar Rastreo"');
+        const btn = document.getElementById('btn-start-tracking');
+        btn.disabled = true;
+        btn.textContent = '⏳ Conectando...';
+        startTracking();
+        btn.style.display = 'none'; // Ocultar botón después de iniciar
+      });
 
       document.getElementById('btn-select-patrulla').addEventListener('click', () => {
         console.log('🔄 Cambiando patrulla...');
