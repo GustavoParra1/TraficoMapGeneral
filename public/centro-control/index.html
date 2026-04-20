@@ -14,6 +14,9 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
+  <!-- Patrulla Chat Module -->
+  <script src="../js/patrulla-chat.js?v=20260420001"></script>
+
   <style>
     * { box-sizing: border-box; }
     
@@ -368,6 +371,12 @@
         const userData = userDoc.data();
         municipio = userData.municipio;
 
+        // Inicializar sistema de chat
+        if (typeof PatrullaChat !== 'undefined') {
+          window.patullaChat = new PatrullaChat(db, municipio);
+          console.log(`💬 PatrullaChat inicializado para ${municipio}`);
+        }
+
         // Validar que sea centro-control
         if (userData.rol !== 'centro-control' && !userData.admin) {
           alert('Acceso denegado - Solo centro de control');
@@ -527,17 +536,11 @@
 
     btnBroadcast.addEventListener('click', () => {
       const mensaje = prompt('Mensaje para todas las patrullas:');
-      if (mensaje) {
-        patrullas.forEach((_, patente) => {
-          db.collection(`chat_${municipio}`).doc(patente).collection('messages').add({
-            text: '📢 [CENTRO]: ' + mensaje,
-            from: 'centro-control',
-            to: patente,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            leido: false
-          });
-        });
-        alert('Mensaje enviado');
+      if (mensaje && window.patullaChat) {
+        window.patullaChat.broadcastMessage('CENTRO_CONTROL', mensaje);
+        alert('✅ Broadcast enviado');
+      } else if (!window.patullaChat) {
+        alert('❌ PatrullaChat no inicializado');
       }
     });
 

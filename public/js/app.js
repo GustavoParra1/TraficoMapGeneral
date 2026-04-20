@@ -449,6 +449,12 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
     
     console.log(`✅ FIN: Datos de ${cityId} cargados exitosamente`);
     
+    // Inicializar chat de patrullas
+    if (typeof PatrullaChat !== 'undefined' && db) {
+      window.patullaChat = new PatrullaChat(db, currentCity);
+      console.log('💬 Sistema de chat de patrullas inicializado');
+    }
+    
     // Habilitar checkbox de aforos después de carga
     const aforosCheckbox = document.getElementById('aforos-checkbox');
     if (aforosCheckbox) {
