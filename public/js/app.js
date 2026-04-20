@@ -1861,6 +1861,8 @@ auth.onAuthStateChanged((user) => {
     if (btnOpenControlCenter) {
       btnOpenControlCenter.addEventListener('click', () => {
         console.log('🎛️ Abriendo Control Center v2');
+        console.log('💾 Guardando ciudad actual:', currentCity);
+        localStorage.setItem('selectedCity', currentCity);
         window.open('control-center-v2/', '_blank');
       });
       console.log('✅ Event listener asignado a btnOpenControlCenter');

@@ -532,11 +532,19 @@
           
           if (userCity) {
             municipio = userCity;
-            console.log(`📍 Ciudad del usuario: ${municipio}`);
+            console.log(`📍 Ciudad del usuario (custom claim): ${municipio}`);
           } else {
-            // Si no tiene city, usar mar-del-plata por defecto
-            municipio = 'mardelplata';
-            console.warn('⚠️ No se encontró city en custom claims, usando mardelplata');
+            // Fallback a localStorage si viene del mapa global
+            const storedCity = localStorage.getItem('selectedCity');
+            if (storedCity) {
+              // Convertir mar-del-plata a mardelplata
+              municipio = storedCity.replace(/-/g, '');
+              console.log(`📍 Ciudad del localStorage: ${municipio}`);
+            } else {
+              // Por defecto mardelplata
+              municipio = 'mardelplata';
+              console.warn('⚠️ No se encontró city en custom claims ni localStorage, usando mardelplata');
+            }
           }
           
           // Iniciar la aplicación
@@ -600,7 +608,9 @@
   // ESCUCHAR PATRULLAS EN TIEMPO REAL
   // ========================================
   function listenToPatrullas() {
-    const coleccion = `patrullas_${municipio}`;
+    // Asegurar que no haya guiones en el nombre de la colección
+    const municipioSinGuiones = municipio.replace(/-/g, '');
+    const coleccion = `patrullas_${municipioSinGuiones}`;
     
     console.log(`📡 Escuchando patrullas en: ${coleccion}`);
 
@@ -820,7 +830,8 @@
     const p = patrullas.get(patrollaId);
     if (!p) return;
 
-    const coleccion = `patrullas_${municipio}`;
+    const municipioSinGuiones = municipio.replace(/-/g, '');
+    const coleccion = `patrullas_${municipioSinGuiones}`;
     await db.collection(coleccion).doc(patrollaId).update({
       emergencia: !p.emergencia,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
