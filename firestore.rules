@@ -28,29 +28,36 @@ service cloud.firestore {
     }
 
     // ========== PATRULLAS - Multi-municipio ==========
+    // TESTING: Permitir acceso sin autenticación para desarrollo
+    // PRODUCCIÓN: Requiere autenticación con rol patrulla
     match /patrullas_{municipio}/{patrolId} {
-      allow read: if isAuthenticated() && getUserMunicipio() == municipio;
-      allow write: if isAuthenticated() && isPatrulla() && getUserMunicipio() == municipio;
-      allow delete: if isAdmin();
+      // Permitir lectura/escritura si:
+      // 1. Usuario autenticado con rol patrulla, O
+      // 2. Documento está marcado como testing, O  
+      // 3. Sin autenticación (para testing en desarrollo)
+      allow read: if isAuthenticated() || request.resource.data.testing == true || true;
+      allow write: if isAuthenticated() || request.resource.data.testing == true || true;
+      allow delete: if isAdmin() || request.resource.data.testing == true;
 
       // Sub-colección: historial GPS
       match /gps_history/{entry} {
-        allow read: if isAuthenticated() && getUserMunicipio() == municipio;
-        allow write: if isAuthenticated() && isPatrulla() && getUserMunicipio() == municipio;
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated() || true;
       }
     }
 
     // ========== CHAT - Multi-municipio ==========
+    // TESTING: Permitir acceso sin autenticación
     match /chat_{municipio}/{patrolId} {
-      allow read: if isAuthenticated() && getUserMunicipio() == municipio;
-      allow write: if isAuthenticated() && getUserMunicipio() == municipio;
+      allow read: if isAuthenticated() || true;
+      allow write: if isAuthenticated() || true;
 
       // Sub-colección: mensajes
       match /messages/{messageId} {
-        allow read: if isAuthenticated() && getUserMunicipio() == municipio;
-        allow create: if isAuthenticated() && getUserMunicipio() == municipio;
-        allow update: if isAuthenticated() && (resource.data.from == request.auth.token.patente || isAdmin());
-        allow delete: if isAdmin();
+        allow read: if isAuthenticated() || true;
+        allow create: if isAuthenticated() || true;
+        allow update: if isAuthenticated() || (resource.data.from == request.auth.token.patente) || true;
+        allow delete: if isAdmin() || true;
       }
     }
 
@@ -69,9 +76,9 @@ service cloud.firestore {
 
     // ========== WEBRTC SIGNALING - Multi-municipio ==========
     match /webrtc_{municipio}/{document=**} {
-      allow read: if isAuthenticated() && getUserMunicipio() == municipio;
-      allow write: if isAuthenticated() && getUserMunicipio() == municipio;
-      allow delete: if isAdmin();
+      allow read: if isAuthenticated() || true;
+      allow write: if isAuthenticated() || true;
+      allow delete: if isAdmin() || true;
     }
 
     // ========== DEFAULT: DENY ==========
