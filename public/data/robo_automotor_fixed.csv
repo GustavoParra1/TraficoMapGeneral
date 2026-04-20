@@ -1,0 +1,11 @@
+lat,lng,fecha,resultado,observaciones
+-38.0,−57.5,2024-01-15,Robo,Zona centro
+-38.1,−57.4,2024-01-16,Robo,Barrio sur
+-38.05,−57.55,2024-01-17,Robo,Estadio
+-38.15,−57.45,2024-01-18,Robo,Zona norte
+-38.02,−57.52,2024-01-19,Robo,Centro comercial
+-38.08,−57.48,2024-01-20,Robo,Playa
+-38.12,−57.58,2024-01-21,Robo,Zona residencial
+-38.03,−57.53,2024-01-22,Robo,Via principal
+-38.10,−57.46,2024-01-23,Robo,Barrio oeste
+-38.07,−57.54,2024-01-24,Robo,Zona industrial

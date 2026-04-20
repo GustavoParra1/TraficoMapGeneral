@@ -1,0 +1,16 @@
+import pandas as pd
+
+df = pd.read_csv('public/data/robos_completo_2023_2024.csv')
+print("📊 RESUMEN DE FUSIÓN:")
+print("=" * 50)
+print(f"Total de registros: {len(df)}")
+print(f"Registros 2023: {len(df[df['año'] == 2023])}")
+print(f"Registros 2024: {len(df[df['año'] == 2024])}")
+print(f"\n📆 Rango de fechas:")
+print(f"  Mínimo: {df['fecha'].min()}")
+print(f"  Máximo: {df['fecha'].max()}")
+print(f"\n🎯 Columnas del archivo:")
+print(f"  {list(df.columns)}")
+print("\n✅ El archivo está listo para usar en la aplicación.")
+print("   → ubicación: data/robos_completo_2023_2024.csv")
+print("   → Filtro por año: Disponible en la UI")

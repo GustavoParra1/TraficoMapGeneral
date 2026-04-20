@@ -829,7 +829,7 @@ auth.onAuthStateChanged((user) => {
         </div>
       </div>
 
-      <div class="sidebar-section">
+      <div id="siniestros-filters-section" class="sidebar-section" style="display: none;">
         <div class="sidebar-title">Filtrar Siniestros</div>
         <div style="font-size: 12px;">
           <label style="display: block; margin-bottom: 8px;">
@@ -868,7 +868,7 @@ auth.onAuthStateChanged((user) => {
         </div>
       </div>
 
-      <div class="sidebar-section">
+      <div id="aforos-filters-section" class="sidebar-section" style="display: none;">
         <div class="sidebar-title">Filtrar Aforos</div>
         <div style="font-size: 12px;">
           <label style="display: block; margin-bottom: 8px;">
@@ -1315,6 +1315,7 @@ auth.onAuthStateChanged((user) => {
     
     // Toggle de siniestros
     const sinCheckbox = document.getElementById('siniestros-checkbox');
+    const sinFiltersSection = document.getElementById('siniestros-filters-section');
     if (sinCheckbox) {
       sinCheckbox.addEventListener('change', (e) => {
         // Prevenir clics múltiples mientras se procesa
@@ -1326,6 +1327,12 @@ auth.onAuthStateChanged((user) => {
         
         checkboxLocks.siniestros = true;
         console.log('🔒 Siniestros bloqueado para procesamiento');
+        
+        // Mostrar/ocultar panel de filtros
+        if (sinFiltersSection) {
+          sinFiltersSection.style.display = e.target.checked ? 'block' : 'none';
+          console.log(`  📋 Panel de filtros de siniestros: ${e.target.checked ? 'MOSTRADO' : 'OCULTADO'}`);
+        }
         
         SiniestrosLayer.toggle(e.target.checked);
         // Aplicar filtro global si se activa
@@ -1494,6 +1501,7 @@ auth.onAuthStateChanged((user) => {
 
     // Toggle de aforos (flujo vehicular)
     const aforosCheckbox = document.getElementById('aforos-checkbox');
+    const aforosFiltersSection = document.getElementById('aforos-filters-section');
     if (aforosCheckbox && typeof AforosLayer !== 'undefined') {
       aforosCheckbox.addEventListener('change', async (e) => {
         if (checkboxLocks.aforos) {
@@ -1516,6 +1524,12 @@ auth.onAuthStateChanged((user) => {
             // Solo ocultarlos cuando se desactiva
             console.log('📊 Ocultando marcadores de aforos...');
             AforosLayer.toggle(false);
+          }
+          
+          // Mostrar/ocultar panel de filtros
+          if (aforosFiltersSection) {
+            aforosFiltersSection.style.display = e.target.checked ? 'block' : 'none';
+            console.log(`  📊 Panel de filtros de aforos: ${e.target.checked ? 'MOSTRADO' : 'OCULTADO'}`);
           }
           
           // Mostrar/ocultar stats
