@@ -70,6 +70,13 @@ const DEMO_USERS = [
     role: 'patrulla',
     city: 'cordoba'
   },
+  {
+    email: 'patrulla-cordoba-03@seguridad-mdp.com',
+    password: 'patrulla123',
+    displayName: 'Patrulla Córdoba 03',
+    role: 'patrulla',
+    city: 'cordoba'
+  },
   // Operadores - Capa Norte (Mar del Plata)
   {
     email: 'capa-norte@seguridad-mdp.com',
