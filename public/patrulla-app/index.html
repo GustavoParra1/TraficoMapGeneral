@@ -2,19 +2,16 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0, user-scalable=yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <title>🚓 Patrulla - TraficoMap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📱 Patrulla - TraficoMap</title>
 
-  <!-- Leaflet Mapa -->
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <style>
     * { box-sizing: border-box; }
@@ -24,638 +21,800 @@
       padding: 0;
       height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f5f5f5;
+      background: #0f172a;
     }
 
-    .patrulla-container {
+    body {
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      width: 100%;
     }
 
-    .patrulla-header {
-      background: #dc2626;
+    /* HEADER */
+    .app-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      padding: 16px 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      flex: 0 0 auto;
-    }
-
-    .patrulla-header h1 {
-      margin: 0;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .patrulla-header p {
-      margin: 8px 0 0 0;
-      font-size: 14px;
-      opacity: 0.9;
-    }
-
-    .patrulla-content {
-      display: flex;
-      flex-direction: row;
-      flex: 1;
-      gap: 16px;
-      padding: 16px 20px;
-      overflow: hidden;
-    }
-
-    .patrulla-map-section {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
-
-    #map {
-      flex: 1;
-      z-index: 10;
-    }
-
-    .patrulla-controls {
-      padding: 12px;
-      border-top: 1px solid #eee;
-      display: flex;
-      gap: 8px;
-      flex: 0 0 auto;
-    }
-
-    button {
-      flex: 1;
       padding: 12px 16px;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-gps {
-      background: #3b82f6;
-      color: white;
-    }
-
-    .btn-gps:hover:not(:disabled) {
-      background: #2563eb;
-    }
-
-    .btn-gps:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
-    }
-
-    .btn-emergencia {
-      background: #dc2626;
-      color: white;
-    }
-
-    .btn-emergencia:hover:not(:disabled) {
-      background: #b91c1c;
-    }
-
-    .btn-emergencia:disabled {
-      background: #9ca3af;
-    }
-
-    .btn-logout {
-      background: #6b7280;
-      color: white;
-    }
-
-    .btn-logout:hover {
-      background: #4b5563;
-    }
-
-    .patrulla-sidebar {
-      width: 320px;
       display: flex;
-      flex-direction: column;
-      gap: 16px;
-      overflow-y: auto;
-    }
-
-    .patrulla-panel {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      padding: 16px;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       flex: 0 0 auto;
     }
 
-    .patrulla-panel h3 {
-      margin: 0 0 12px 0;
-      font-size: 16px;
-      color: #1f2937;
-    }
-
-    .patrulla-status {
+    .app-header h1 {
+      margin: 0;
+      font-size: 18px;
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 12px;
-      background: #f3f4f6;
-      border-radius: 6px;
-      margin-bottom: 12px;
     }
 
-    .status-indicator {
+    .app-header .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .status-dot {
       width: 12px;
       height: 12px;
       border-radius: 50%;
       background: #10b981;
-      animation: pulse 2s infinite;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
     }
 
-    .status-indicator.offline {
+    .status-dot.emergencia {
       background: #ef4444;
-      animation: none;
+      animation: pulse 0.6s infinite;
     }
 
     @keyframes pulse {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+      50% { opacity: 0.4; }
     }
 
-    .chat-box {
-      height: 200px;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      padding: 12px;
-      overflow-y: auto;
+    /* MAIN CONTAINER */
+    .container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      gap: 0;
+    }
+
+    /* MAP SECTION */
+    .map-section {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      background: #0f172a;
+    }
+
+    #map {
+      flex: 1;
+      background: #0f172a;
+    }
+
+    .map-info {
+      background: #1e293b;
+      padding: 12px 16px;
+      border-top: 1px solid #334155;
       font-size: 12px;
-      background: #f9fafb;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .chat-message {
-      padding: 8px 12px;
-      border-radius: 6px;
+    .map-info .coords {
+      display: flex;
+      gap: 12px;
+    }
+
+    .map-info .speed {
+      font-weight: bold;
+      color: #60a5fa;
+    }
+
+    /* CHAT SECTION */
+    .chat-section {
+      width: 340px;
+      background: #1e293b;
+      border-left: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 12px 16px;
+      background: #0f172a;
+      border-bottom: 1px solid #334155;
+      flex: 0 0 auto;
+    }
+
+    .chat-header h3 {
+      margin: 0;
+      font-size: 14px;
+      color: #e2e8f0;
+    }
+
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.incoming {
+      align-items: flex-start;
+    }
+
+    .message.outgoing {
+      align-items: flex-end;
+    }
+
+    .message.broadcast {
+      align-items: center;
+      text-align: center;
+    }
+
+    .message-content {
+      padding: 10px 12px;
+      border-radius: 8px;
+      max-width: 90%;
       word-wrap: break-word;
+      font-size: 13px;
+      line-height: 1.4;
     }
 
-    .chat-message.own {
-      background: #3b82f6;
+    .message.incoming .message-content {
+      background: #334155;
+      color: #e2e8f0;
+    }
+
+    .message.outgoing .message-content {
+      background: #667eea;
       color: white;
-      align-self: flex-end;
-      max-width: 80%;
     }
 
-    .chat-message.other {
-      background: #e5e7eb;
-      color: #1f2937;
-      align-self: flex-start;
-      max-width: 80%;
+    .message.broadcast .message-content {
+      background: #10b981;
+      color: white;
+      font-size: 12px;
+      width: 90%;
+      border-radius: 4px;
     }
 
-    .chat-input-group {
+    .message-meta {
+      font-size: 11px;
+      color: #64748b;
+      padding: 0 8px;
+    }
+
+    .empty-messages {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #64748b;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    /* INPUT AREA */
+    .message-input-area {
+      padding: 12px;
+      border-top: 1px solid #334155;
+      background: #0f172a;
       display: flex;
       gap: 8px;
-      margin-top: 12px;
+      flex: 0 0 auto;
     }
 
-    .chat-input-group input {
+    .message-input-area input {
       flex: 1;
-      padding: 8px 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-size: 12px;
+      padding: 10px 12px;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 13px;
+      outline: none;
     }
 
-    .chat-input-group button {
-      padding: 8px 12px;
-      background: #3b82f6;
+    .message-input-area input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .message-input-area input::placeholder {
+      color: #64748b;
+    }
+
+    .message-input-area button {
+      padding: 10px 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .message-input-area button:hover {
+      background: #5568d3;
+    }
+
+    .message-input-area button:active {
+      transform: scale(0.95);
+    }
+
+    /* CONTROL BAR */
+    .control-bar {
+      background: #1e293b;
+      border-top: 1px solid #334155;
+      padding: 12px;
+      display: flex;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      background: #0f172a;
+      color: #e2e8f0;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: #1e293b;
+      border-color: #475569;
+    }
+
+    .btn.emergencia {
+      background: #ef4444;
+      color: white;
+      border-color: #dc2626;
+    }
+
+    .btn.emergencia:hover {
+      background: #dc2626;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* MODAL FOR PATRULLA SELECT */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1e293b;
+      padding: 24px;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content h2 {
+      margin: 0 0 16px 0;
+      color: #e2e8f0;
+      font-size: 18px;
+    }
+
+    .modal-content p {
+      color: #94a3b8;
+      margin: 0 0 16px 0;
+      font-size: 14px;
+    }
+
+    .modal-content select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: 14px;
+    }
+
+    .modal-content button {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
       color: white;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 12px;
-    }
-
-    .chat-input-group button:hover {
-      background: #2563eb;
-    }
-
-    .patrulla-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      font-size: 12px;
-    }
-
-    .stat-item {
-      background: #f3f4f6;
-      padding: 8px;
-      border-radius: 6px;
-      text-align: center;
-    }
-
-    .stat-label {
-      color: #6b7280;
-      font-size: 11px;
-    }
-
-    .stat-value {
-      font-size: 18px;
       font-weight: bold;
-      color: #1f2937;
+      transition: all 0.2s;
     }
 
-    @media (max-width: 1024px) {
-      .patrulla-content {
-        flex-direction: column;
-      }
-
-      .patrulla-sidebar {
-        width: 100%;
-        max-height: 200px;
-      }
-    }
-
-    .estado-div {
-      padding: 12px;
-      background: #e5e7eb;
-      border-radius: 6px;
-      font-size: 12px;
-      color: #374151;
-    }
-
-    .error-estado {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-
-    .success-estado {
-      background: #ecfdf5;
-      color: #059669;
-    }
-
-    .warning-estado {
-      background: #fef3c7;
-      color: #d97706;
+    .modal-content button:hover {
+      background: #5568d3;
     }
   </style>
 </head>
 
 <body>
-  <div class="patrulla-container">
-    <!-- HEADER -->
-    <div class="patrulla-header">
-      <h1>🚓 Patrulla - TraficoMap</h1>
-      <p id="patrulla-info">Cargando...</p>
-    </div>
 
-    <!-- CONTENIDO -->
-    <div class="patrulla-content">
-      <!-- MAPA -->
-      <div class="patrulla-map-section">
-        <div id="map"></div>
-        <div class="patrulla-controls">
-          <button id="gps-btn" class="btn-gps">📡 Activar GPS</button>
-          <button id="emergencia-btn" class="btn-emergencia" disabled>🚨 Emergencia</button>
-          <button id="logout-btn" class="btn-logout">🚪 Salir</button>
-        </div>
+<!-- HEADER -->
+<div class="app-header">
+  <h1>
+    <span id="patrulla-id">📱 Patrulla</span>
+  </h1>
+  <div class="status">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">Conectando...</span>
+  </div>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="container">
+  <!-- MAP -->
+  <div class="map-section">
+    <div id="map"></div>
+    <div class="map-info">
+      <div class="coords">
+        <div>📍 <span id="lat">-38.00</span>, <span id="lng">-57.55</span></div>
+        <div class="speed">⚡ <span id="speed">0</span> km/h</div>
       </div>
-
-      <!-- SIDEBAR -->
-      <div class="patrulla-sidebar">
-        <!-- ESTADO -->
-        <div class="patrulla-panel">
-          <h3>📊 Estado</h3>
-          <div id="estado-div" class="estado-div">Verificando sesión...</div>
-        </div>
-
-        <!-- ESTADÍSTICAS -->
-        <div class="patrulla-panel">
-          <h3>📈 Estadísticas</h3>
-          <div class="patrulla-stats">
-            <div class="stat-item">
-              <div class="stat-label">Velocidad</div>
-              <div class="stat-value" id="stat-speed">0 km/h</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-label">Precisión</div>
-              <div class="stat-value" id="stat-accuracy">-- m</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-label">Altitud</div>
-              <div class="stat-value" id="stat-altitude">-- m</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-label">Última actualización</div>
-              <div class="stat-value" id="stat-time">--:--</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- CHAT -->
-        <div class="patrulla-panel">
-          <h3>💬 Chat con Centro</h3>
-          <div id="chat-box" class="chat-box"></div>
-          <div class="chat-input-group">
-            <input id="chat-input" type="text" placeholder="Mensaje..." disabled>
-            <button id="chat-send" disabled>Enviar</button>
-          </div>
-        </div>
-      </div>
+      <button class="btn emergencia" id="btn-emergencia" style="width: auto;">🚨 EMERGENCIA</button>
     </div>
   </div>
 
+  <!-- CHAT -->
+  <div class="chat-section">
+    <div class="chat-header">
+      <h3>💬 Mensajes</h3>
+    </div>
+    <div class="messages-container" id="messages-container">
+      <div class="empty-messages">Esperando mensajes...</div>
+    </div>
+    <div class="message-input-area">
+      <input type="text" id="message-input" placeholder="Responder...">
+      <button id="btn-send">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROL BAR -->
+<div class="control-bar">
+  <button class="btn" id="btn-select-patrulla">🔄 Cambiar Patrulla</button>
+  <button class="btn" id="btn-clear-messages">🗑️ Limpiar Chat</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h2>Selecciona tu Patrulla</h2>
+    <p>¿Cuál eres?</p>
+    <select id="patrulla-options">
+      <option value="">-- Cargando patrullas --</option>
+    </select>
+    <button id="btn-continue">Continuar</button>
+  </div>
+</div>
+
   <script>
-    // ============================
-    // FIREBASE CONFIG
-    // ============================
-    const firebaseConfig = {
-      apiKey: "AIzaSyDfWGUZpH_Jx7qKxYpDJ-8kZ-3Z_4rJ2l0",
-      authDomain: "trafico-map-general-v2.firebaseapp.com",
-      projectId: "trafico-map-general-v2",
-      storageBucket: "trafico-map-general-v2.appspot.com",
-      messagingSenderId: "123456789012",
-      appId: "1:123456789012:web:abcd1234efgh5678ijkl"
-    };
+  // ========================================
+  // FIREBASE CONFIG
+  // ========================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyD5YdBbTYFsqeQ0VZ1oK8e4P3eT2wF1Y0g",
+    authDomain: "trafico-map-general-v2.firebaseapp.com",
+    projectId: "trafico-map-general-v2",
+    storageBucket: "trafico-map-general-v2.appspot.com",
+    messagingSenderId: "573493453246",
+    appId: "1:573493453246:web:e94f2c5f1e7e8b9c0d1f2e"
+  };
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
 
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const realtimeDb = firebase.database();
+  const db = firebase.firestore();
 
-    // ============================
-    // VARIABLES GLOBALES
-    // ============================
-    let userId = null;
-    let municipio = null;
-    let patenteMóvil = null;
-    let map = null;
-    let marker = null;
-    let watchId = null;
-    let gpsActivo = false;
-    let emergenciaActiva = false;
-    let chatUnsubscribe = null;
+  // ========================================
+  // VARIABLES GLOBALES
+  // ========================================
+  let map = null;
+  let patrullaId = localStorage.getItem('patrullaId') || null;
+  let municipio = 'mar-del-plata';
+  let myMarker = null;
+  let emergencia = false;
+  let ubicacionInterval = null;
 
-    // ============================
-    // ELEMENTOS DOM
-    // ============================
-    const gpsBtn = document.getElementById('gps-btn');
-    const emergenciaBtn = document.getElementById('emergencia-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const estadoDiv = document.getElementById('estado-div');
-    const patrullaInfo = document.getElementById('patrulla-info');
-    const chatBox = document.getElementById('chat-box');
-    const chatInput = document.getElementById('chat-input');
-    const chatSend = document.getElementById('chat-send');
+  // ========================================
+  // MODAL - SELECCIONAR PATRULLA
+  // ========================================
+  function showSelectPatrullaModal() {
+    document.getElementById('modal').classList.add('active');
 
-    // ============================
-    // HELPER: ESTADO
-    // ============================
-    function setEstado(mensaje, tipo = 'info') {
-      estadoDiv.textContent = mensaje;
-      estadoDiv.className = 'estado-div';
-      if (tipo === 'error') estadoDiv.classList.add('error-estado');
-      if (tipo === 'success') estadoDiv.classList.add('success-estado');
-      if (tipo === 'warning') estadoDiv.classList.add('warning-estado');
-      console.log(`[${tipo.toUpperCase()}] ${mensaje}`);
-    }
+    // Cargar patrullas disponibles
+    const coleccion = `patrullas_${municipio}`;
+    db.collection(coleccion).onSnapshot((snapshot) => {
+      const select = document.getElementById('patrulla-options');
+      select.innerHTML = '<option value="">-- Selecciona --</option>';
 
-    // ============================
-    // AUTENTICACIÓN
-    // ============================
-    auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        setEstado('❌ No autenticado. Redirigiendo...', 'error');
-        setTimeout(() => { location.href = '/'; }, 2000);
-        return;
-      }
-
-      userId = user.uid;
-
-      try {
-        // Obtener datos del usuario
-        const userDoc = await db.collection('users').doc(userId).get();
-        if (!userDoc.exists) {
-          setEstado('❌ Usuario no encontrado en BD', 'error');
-          return;
-        }
-
-        const userData = userDoc.data();
-        municipio = userData.municipio;
-        patenteMóvil = userData.patenteMóvil || 'PATRULLA_01';
-
-        // Validar que sea patrulla
-        if (userData.rol !== 'patrulla') {
-          setEstado('❌ Acceso denegado - Solo patrullas', 'error');
-          await auth.signOut();
-          return;
-        }
-
-        setEstado('✅ Sesión iniciada', 'success');
-        patrullaInfo.textContent = `🚓 ${patenteMóvil} - ${municipio} | ${user.email}`;
-
-        // Habilitar controles
-        gpsBtn.disabled = false;
-        emergenciaBtn.disabled = false;
-        chatInput.disabled = false;
-        chatSend.disabled = false;
-
-        // Iniciar mapa
-        iniciarMapa();
-
-        // Iniciar chat
-        iniciarChat();
-
-      } catch (error) {
-        setEstado(`❌ Error: ${error.message}`, 'error');
-        console.error(error);
-      }
+      snapshot.forEach((doc) => {
+        const option = document.createElement('option');
+        option.value = doc.id;
+        option.textContent = doc.id;
+        select.appendChild(option);
+      });
     });
+  }
 
-    // ============================
-    // MAPA
-    // ============================
-    function iniciarMapa(lat = -38.0, lng = -57.55) {
-      map = L.map('map').setView([lat, lng], 16);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
-      }).addTo(map);
+  // ========================================
+  // INICIALIZAR MAPA
+  // ========================================
+  function initMap() {
+    const coords = [-38.0, -57.55]; // Mar del Plata
+    map = L.map('map').setView(coords, 15);
 
-      marker = L.marker([lat, lng], { 
-        icon: new L.Icon({
-          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          shadowSize: [41, 41]
-        })
-      }).addTo(map).bindPopup(`<b>${patenteMóvil}</b><br>Patrulla activa`);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 19
+    }).addTo(map);
+
+    console.log('✅ Mapa inicializado');
+  }
+
+  // ========================================
+  // INICIAR UBICACIÓN EN TIEMPO REAL
+  // ========================================
+  function startTracking() {
+    if (!navigator.geolocation) {
+      alert('Tu navegador no soporta geolocalización');
+      return;
     }
 
-    // ============================
-    // GPS
-    // ============================
-    gpsBtn.addEventListener('click', () => {
-      if (gpsActivo) {
-        // Detener GPS
-        navigator.geolocation.clearWatch(watchId);
-        gpsActivo = false;
-        gpsBtn.textContent = '📡 Activar GPS';
-        gpsBtn.style.background = '#3b82f6';
-        setEstado('⏸️ GPS detenido', 'warning');
-        return;
-      }
+    // Intentar obtener ubicación cada 5 segundos
+    ubicacionInterval = setInterval(() => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude, accuracy, speed = 0 } = position.coords;
 
-      // Iniciar GPS
-      setEstado('📍 Buscando ubicación...', 'warning');
-      gpsBtn.textContent = '⏹️ Detener GPS';
-      gpsBtn.style.background = '#10b981';
+          // Actualizar UI
+          document.getElementById('lat').textContent = latitude.toFixed(4);
+          document.getElementById('lng').textContent = longitude.toFixed(4);
+          document.getElementById('speed').textContent = Math.round(speed * 3.6); // m/s a km/h
 
-      watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-          const { latitude, longitude, accuracy, altitude, speed } = pos.coords;
-          const timestamp = new Date();
-
-          // Actualizar mapa
-          marker.setLatLng([latitude, longitude]);
-          map.setView([latitude, longitude]);
-
-          // Actualizar estadísticas
-          document.getElementById('stat-speed').textContent = 
-            speed ? (speed * 3.6).toFixed(0) + ' km/h' : '0 km/h';
-          document.getElementById('stat-accuracy').textContent = 
-            accuracy.toFixed(0) + ' m';
-          document.getElementById('stat-altitude').textContent = 
-            altitude ? altitude.toFixed(0) + ' m' : '-- m';
-          document.getElementById('stat-time').textContent = 
-            timestamp.toLocaleTimeString();
-
-          // Guardar en Firestore
-          db.collection(`patrullas_${municipio}`).doc(patenteMóvil).set({
+          // Actualizar en Firestore
+          const coleccion = `patrullas_${municipio}`;
+          db.collection(coleccion).doc(patrullaId).update({
             lat: latitude,
             lng: longitude,
             accuracy: accuracy,
-            altitude: altitude,
             speed: speed,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            online: true,
-            estado: emergenciaActiva ? 'emergencia' : 'activo'
-          }, { merge: true }).catch(err => {
-            console.error('Error actualizando ubicación:', err);
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          }).catch((error) => {
+            console.error('Error actualizando ubicación:', error);
           });
 
-          setEstado('✅ GPS activo - Ubicación actualizada', 'success');
+          // Actualizar marker en mapa
+          if (myMarker) {
+            myMarker.setLatLng([latitude, longitude]);
+          } else {
+            myMarker = L.marker([latitude, longitude], {
+              title: patrullaId
+            }).addTo(map);
+          }
+
+          map.setView([latitude, longitude], 15);
         },
-        (err) => {
-          setEstado(`❌ Error GPS: ${err.message}`, 'error');
-        },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        (error) => {
+          console.warn('Error de geolocalización:', error);
+        }
       );
+    }, 5000);
 
-      gpsActivo = true;
-    });
+    console.log('✅ Tracking iniciado');
+  }
 
-    // ============================
-    // EMERGENCIA
-    // ============================
-    emergenciaBtn.addEventListener('click', async () => {
-      emergenciaActiva = !emergenciaActiva;
+  // ========================================
+  // ESCUCHAR MENSAJES
+  // ========================================
+  function listenToMessages() {
+    const coleccion = `chat_${municipio}`;
 
-      if (emergenciaActiva) {
-        emergenciaBtn.textContent = '🚨 Emergencia ACTIVA';
-        emergenciaBtn.style.background = '#b91c1c';
-        setEstado('🚨 ¡EMERGENCIA ACTIVADA!', 'error');
-      } else {
-        emergenciaBtn.textContent = '🚨 Emergencia';
-        emergenciaBtn.style.background = '#dc2626';
-        setEstado('✅ Emergencia desactivada', 'success');
-      }
-
-      // Actualizar en BD
-      try {
-        await db.collection(`patrullas_${municipio}`).doc(patenteMóvil).update({
-          emergencia: emergenciaActiva,
-          estado: emergenciaActiva ? 'emergencia' : 'activo',
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      } catch (err) {
-        setEstado(`❌ Error: ${err.message}`, 'error');
-      }
-    });
-
-    // ============================
-    // CHAT
-    // ============================
-    function iniciarChat() {
-      const chatCollection = `chat_${municipio}`;
-      const chatPath = `${patenteMóvil}/messages`;
-
-      chatUnsubscribe = db.collection(chatCollection).doc(patenteMóvil)
-        .collection('messages')
-        .orderBy('timestamp', 'asc')
-        .limitToLast(50)
-        .onSnapshot((snapshot) => {
-          chatBox.innerHTML = '';
-          snapshot.forEach((doc) => {
-            const msg = doc.data();
-            const div = document.createElement('div');
-            div.className = `chat-message ${msg.from === patenteMóvil ? 'own' : 'other'}`;
-            div.textContent = msg.text;
-            chatBox.appendChild(div);
-          });
-          chatBox.scrollTop = chatBox.scrollHeight;
-        });
-    }
-
-    chatSend.addEventListener('click', async () => {
-      const text = chatInput.value.trim();
-      if (!text) return;
-
-      try {
-        await db.collection(`chat_${municipio}`).doc(patenteMóvil)
-          .collection('messages').add({
-            text: text,
-            from: patenteMóvil,
-            to: 'centro-control',
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            leido: false
-          });
-
-        chatInput.value = '';
-      } catch (err) {
-        setEstado(`❌ Error enviando mensaje: ${err.message}`, 'error');
-      }
-    });
-
-    // Enter para enviar
-    chatInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') chatSend.click();
-    });
-
-    // ============================
-    // LOGOUT
-    // ============================
-    logoutBtn.addEventListener('click', () => {
-      if (gpsActivo) {
-        navigator.geolocation.clearWatch(watchId);
-      }
-      if (chatUnsubscribe) {
-        chatUnsubscribe();
-      }
-      auth.signOut().then(() => {
-        location.href = '/';
+    // Escuchar directos
+    db.collection(coleccion)
+      .where('to', '==', patrullaId)
+      .orderBy('timestamp', 'desc')
+      .onSnapshot((snapshot) => {
+        renderMessages();
       });
+
+    // Escuchar broadcasts
+    db.collection(coleccion)
+      .where('type', '==', 'broadcast')
+      .orderBy('timestamp', 'desc')
+      .onSnapshot((snapshot) => {
+        renderMessages();
+      });
+
+    console.log('✅ Escuchando mensajes');
+  }
+
+  // ========================================
+  // RENDERIZAR MENSAJES
+  // ========================================
+  async function renderMessages() {
+    const container = document.getElementById('messages-container');
+    const coleccion = `chat_${municipio}`;
+
+    try {
+      // Obtener directos
+      const directos = await db.collection(coleccion)
+        .where('to', '==', patrullaId)
+        .orderBy('timestamp', 'asc')
+        .get();
+
+      // Obtener broadcasts
+      const broadcasts = await db.collection(coleccion)
+        .where('type', '==', 'broadcast')
+        .orderBy('timestamp', 'asc')
+        .get();
+
+      // Combinar y ordenar
+      let allMessages = [];
+
+      directos.forEach((doc) => {
+        const data = doc.data();
+        allMessages.push({
+          id: doc.id,
+          ...data,
+          timestamp: data.timestamp?.toDate(),
+          type: 'direct'
+        });
+      });
+
+      broadcasts.forEach((doc) => {
+        const data = doc.data();
+        allMessages.push({
+          id: doc.id,
+          ...data,
+          timestamp: data.timestamp?.toDate(),
+          type: 'broadcast'
+        });
+      });
+
+      allMessages.sort((a, b) => a.timestamp - b.timestamp);
+
+      if (allMessages.length === 0) {
+        container.innerHTML = '<div class="empty-messages">Sin mensajes</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+
+      allMessages.forEach((msg) => {
+        const isOutgoing = msg.from === patrullaId;
+        const isBroadcast = msg.type === 'broadcast';
+
+        const div = document.createElement('div');
+        div.className = `message ${isBroadcast ? 'broadcast' : (isOutgoing ? 'outgoing' : 'incoming')}`;
+
+        const timeStr = msg.timestamp
+          ? msg.timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+          : '--:--';
+
+        let fromText = msg.from === 'CENTRO_CONTROL' ? '🎛️ Centro' : msg.from;
+        if (isBroadcast) {
+          fromText = '📢 BROADCAST';
+        }
+
+        div.innerHTML = `
+          <div class="message-content">${msg.text}</div>
+          <div class="message-meta">${fromText} · ${timeStr}</div>
+        `;
+
+        container.appendChild(div);
+      });
+
+      // Auto-scroll a último
+      container.scrollTop = container.scrollHeight;
+    } catch (error) {
+      console.error('Error renderizando mensajes:', error);
+    }
+  }
+
+  // ========================================
+  // ENVIAR MENSAJE
+  // ========================================
+  async function enviarMensaje() {
+    const input = document.getElementById('message-input');
+    const texto = input.value.trim();
+
+    if (!texto) return;
+
+    try {
+      const coleccion = `chat_${municipio}`;
+
+      await db.collection(coleccion).add({
+        from: patrullaId,
+        to: 'CENTRO_CONTROL',
+        text: texto,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        read: false
+      });
+
+      console.log('✅ Mensaje enviado');
+      input.value = '';
+      renderMessages();
+    } catch (error) {
+      console.error('❌ Error:', error);
+    }
+  }
+
+  // ========================================
+  // TOGGLE EMERGENCIA
+  // ========================================
+  async function toggleEmergencia() {
+    try {
+      const coleccion = `patrullas_${municipio}`;
+      emergencia = !emergencia;
+
+      await db.collection(coleccion).doc(patrullaId).update({
+        emergencia: emergencia,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      updateStatus();
+      console.log(`${emergencia ? '🚨' : '✅'} Estado actualizado`);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  // ========================================
+  // ACTUALIZAR STATUS
+  // ========================================
+  async function updateStatus() {
+    try {
+      const coleccion = `patrullas_${municipio}`;
+      const doc = await db.collection(coleccion).doc(patrullaId).get();
+
+      if (doc.exists) {
+        const data = doc.data();
+        emergencia = data.emergencia || false;
+
+        const dot = document.getElementById('status-dot');
+        const text = document.getElementById('status-text');
+
+        if (emergencia) {
+          dot.classList.add('emergencia');
+          text.textContent = '🚨 EMERGENCIA';
+        } else {
+          dot.classList.remove('emergencia');
+          text.textContent = '✅ En línea';
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  // ========================================
+  // EVENT LISTENERS
+  // ========================================
+  document.addEventListener('DOMContentLoaded', () => {
+    // Si no hay patrulla, mostrar modal
+    if (!patrullaId) {
+      showSelectPatrullaModal();
+
+      document.getElementById('btn-continue').addEventListener('click', () => {
+        const selected = document.getElementById('patrulla-options').value;
+        if (!selected) {
+          alert('Selecciona una patrulla');
+          return;
+        }
+        patrullaId = selected;
+        localStorage.setItem('patrullaId', patrullaId);
+        document.getElementById('patrulla-id').textContent = `📱 ${patrullaId}`;
+        document.getElementById('modal').classList.remove('active');
+        init();
+      });
+    } else {
+      // Mostrar patrulla seleccionada
+      document.getElementById('patrulla-id').textContent = `📱 ${patrullaId}`;
+      init();
+    }
+  });
+
+  function init() {
+    initMap();
+    startTracking();
+    listenToMessages();
+    updateStatus();
+
+    document.getElementById('btn-send').addEventListener('click', enviarMensaje);
+    document.getElementById('message-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') enviarMensaje();
     });
-  </script>
+
+    document.getElementById('btn-emergencia').addEventListener('click', toggleEmergencia);
+
+    document.getElementById('btn-select-patrulla').addEventListener('click', () => {
+      localStorage.removeItem('patrullaId');
+      location.reload();
+    });
+
+    document.getElementById('btn-clear-messages').addEventListener('click', () => {
+      if (confirm('¿Limpiar todo el chat?')) {
+        document.getElementById('messages-container').innerHTML = 
+          '<div class="empty-messages">Chat limpiado</div>';
+      }
+    });
+
+    // Actualizar status cada 10 segundos
+    setInterval(updateStatus, 10000);
+
+    // Renderizar mensajes cada 3 segundos
+    setInterval(renderMessages, 3000);
+  }
+</script>
 </body>
 </html>
