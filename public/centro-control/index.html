@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎛️ Centro de Control - TraficoMap</title>
+
+  <!-- Leaflet Mapa -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+    }
+
+    .control-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100%;
+    }
+
+    .control-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      flex: 0 0 auto;
+    }
+
+    .control-header h1 {
+      margin: 0;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .control-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.2);
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .stat-card b {
+      display: block;
+      font-size: 20px;
+      margin-top: 4px;
+    }
+
+    .control-content {
+      display: flex;
+      flex-direction: row;
+      flex: 1;
+      gap: 12px;
+      padding: 12px;
+      overflow: hidden;
+    }
+
+    .control-map-section {
+      flex: 1;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #map {
+      flex: 1;
+      z-index: 10;
+    }
+
+    .control-sidebar {
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    .control-panel {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 16px;
+      flex: 0 0 auto;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .control-panel h3 {
+      margin: 0 0 12px 0;
+      font-size: 16px;
+      color: #1f2937;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .patrulla-item {
+      padding: 12px;
+      border-left: 4px solid #667eea;
+      background: #f9fafb;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .patrulla-item:hover {
+      background: #f0f1ff;
+      transform: translateX(4px);
+    }
+
+    .patrulla-item.emergencia {
+      border-left-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    .patrulla-item.offline {
+      border-left-color: #6b7280;
+      background: #f3f4f6;
+      opacity: 0.6;
+    }
+
+    .patrulla-item b {
+      display: block;
+      font-size: 14px;
+      color: #1f2937;
+    }
+
+    .patrulla-item small {
+      display: block;
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .patrulla-status {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .patrulla-status.online {
+      background: #10b981;
+    }
+
+    .patrulla-status.offline {
+      background: #6b7280;
+    }
+
+    .patrulla-status.emergencia {
+      background: #dc2626;
+      animation: blink 0.5s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0.3; }
+    }
+
+    .control-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .btn-logout {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-logout:hover {
+      background: #4b5563;
+    }
+
+    @media (max-width: 1024px) {
+      .control-content {
+        flex-direction: column;
+      }
+
+      .control-sidebar {
+        width: 100%;
+        max-height: 250px;
+      }
+
+      .control-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="control-container">
+    <!-- HEADER -->
+    <div class="control-header">
+      <h1>🎛️ Centro de Control - TraficoMap</h1>
+      <div class="control-stats">
+        <div class="stat-card">
+          <span>Total</span>
+          <b id="stat-total">0</b>
+        </div>
+        <div class="stat-card">
+          <span>Online</span>
+          <b id="stat-online" style="color: #10b981;">0</b>
+        </div>
+        <div class="stat-card">
+          <span>Emergencia</span>
+          <b id="stat-emergencia" style="color: #dc2626;">0</b>
+        </div>
+        <div class="stat-card">
+          <span>Municipio</span>
+          <b id="stat-municipio">--</b>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="control-content">
+      <!-- MAPA -->
+      <div class="control-map-section">
+        <div id="map"></div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div class="control-sidebar">
+        <!-- PATRULLAS -->
+        <div class="control-panel">
+          <h3>🚓 Patrullas en Servicio</h3>
+          <div id="patrullas-list">
+            <div style="text-align: center; color: #6b7280; padding: 20px;">
+              Cargando patrullas...
+            </div>
+          </div>
+        </div>
+
+        <!-- ACCIONES -->
+        <div class="control-panel">
+          <h3>⚙️ Acciones</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="btn-primary" id="btn-refresh">🔄 Actualizar</button>
+            <button class="btn-danger" id="btn-broadcast">📢 Broadcast</button>
+            <button class="btn-logout" id="btn-logout" style="grid-column: 1 / -1;">🚪 Salir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================
+    // FIREBASE CONFIG
+    // ============================
+    const firebaseConfig = {
+      apiKey: "AIzaSyDfWGUZpH_Jx7qKxYpDJ-8kZ-3Z_4rJ2l0",
+      authDomain: "trafico-map-general-v2.firebaseapp.com",
+      projectId: "trafico-map-general-v2",
+      storageBucket: "trafico-map-general-v2.appspot.com",
+      messagingSenderId: "123456789012",
+      appId: "1:123456789012:web:abcd1234efgh5678ijkl"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // ============================
+    // VARIABLES GLOBALES
+    // ============================
+    let userId = null;
+    let municipio = null;
+    let map = null;
+    let patrullas = new Map();
+    let unsubscribe = null;
+
+    // ============================
+    // ELEMENTOS DOM
+    // ============================
+    const patrullasList = document.getElementById('patrullas-list');
+    const statTotal = document.getElementById('stat-total');
+    const statOnline = document.getElementById('stat-online');
+    const statEmergencia = document.getElementById('stat-emergencia');
+    const statMunicipio = document.getElementById('stat-municipio');
+    const btnRefresh = document.getElementById('btn-refresh');
+    const btnBroadcast = document.getElementById('btn-broadcast');
+    const btnLogout = document.getElementById('btn-logout');
+
+    // ============================
+    // AUTENTICACIÓN
+    // ============================
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = '/';
+        return;
+      }
+
+      userId = user.uid;
+
+      try {
+        // Obtener datos del usuario
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (!userDoc.exists) {
+          alert('Usuario no encontrado');
+          return;
+        }
+
+        const userData = userDoc.data();
+        municipio = userData.municipio;
+
+        // Validar que sea centro-control
+        if (userData.rol !== 'centro-control' && !userData.admin) {
+          alert('Acceso denegado - Solo centro de control');
+          await auth.signOut();
+          return;
+        }
+
+        statMunicipio.textContent = municipio.toUpperCase();
+
+        // Iniciar mapa
+        iniciarMapa();
+
+        // Iniciar tracking
+        iniciarTracking();
+
+      } catch (error) {
+        console.error(error);
+        alert('Error: ' + error.message);
+      }
+    });
+
+    // ============================
+    // MAPA
+    // ============================
+    function iniciarMapa(lat = -38.0, lng = -57.55) {
+      map = L.map('map').setView([lat, lng], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+    }
+
+    // ============================
+    // TRACKING
+    // ============================
+    function iniciarTracking() {
+      const coleccion = `patrullas_${municipio}`;
+      
+      unsubscribe = db.collection(coleccion)
+        .onSnapshot((snapshot) => {
+          const patentesEnBD = new Set();
+
+          snapshot.forEach((doc) => {
+            const patente = doc.id;
+            const data = doc.data();
+            patentesEnBD.add(patente);
+
+            if (data.lat && data.lng) {
+              actualizarPatrulla(patente, data);
+            }
+          });
+
+          // Remover patrullas que no están
+          for (const patente of patrullas.keys()) {
+            if (!patentesEnBD.has(patente)) {
+              patrullas.delete(patente);
+              actualizarUI();
+            }
+          }
+
+          actualizarUI();
+        });
+    }
+
+    function actualizarPatrulla(patente, data) {
+      const { lat, lng, online, emergencia } = data;
+
+      if (!patrullas.has(patente)) {
+        // Crear nuevo marker
+        const color = emergencia ? 'red' : 'blue';
+        const iconUrl = `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`;
+
+        const marker = L.marker([lat, lng], {
+          icon: new L.Icon({
+            iconUrl: iconUrl,
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+          })
+        }).bindPopup(`<b>${patente}</b><br>${online ? '✅ Online' : '❌ Offline'}`).addTo(map);
+
+        patrullas.set(patente, { marker, data });
+      } else {
+        // Actualizar marker
+        const patrulla = patrullas.get(patente);
+        patrulla.data = data;
+        patrulla.marker.setLatLng([lat, lng]);
+
+        // Actualizar color
+        const color = emergencia ? 'red' : 'blue';
+        const iconUrl = `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`;
+        patrulla.marker.setIcon(new L.Icon({
+          iconUrl: iconUrl,
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        }));
+      }
+    }
+
+    function actualizarUI() {
+      let online = 0, emergencia = 0;
+      let html = '';
+
+      const patentesArray = Array.from(patrullas.entries()).sort((a, b) => 
+        a[1].data.emergencia ? -1 : b[1].data.emergencia ? 1 : 0
+      );
+
+      patentesArray.forEach(([patente, patrulla]) => {
+        const { online: isOnline, emergencia: isEmergencia, speed, accuracy } = patrulla.data;
+
+        if (isOnline) online++;
+        if (isEmergencia) emergencia++;
+
+        const statusClass = isEmergencia ? 'emergencia' : (isOnline ? 'online' : 'offline');
+        const statusText = isEmergencia ? '🚨' : (isOnline ? '✅' : '❌');
+
+        html += `
+          <div class="patrulla-item ${statusClass}" onclick="zoomToPatrulla('${patente}')">
+            <b><span class="patrulla-status ${isOnline && !isEmergencia ? 'online' : (isEmergencia ? 'emergencia' : 'offline')}"></span>${patente}</b>
+            <small>
+              ${statusText} ${isEmergencia ? 'EMERGENCIA' : (isOnline ? 'En línea' : 'Offline')}<br>
+              Vel: ${patrulla.data.speed ? (patrulla.data.speed * 3.6).toFixed(0) : 0} km/h
+            </small>
+          </div>
+        `;
+      });
+
+      if (patrullas.size === 0) {
+        html = '<div style="text-align: center; color: #6b7280; padding: 20px;">Sin patrullas activas</div>';
+      }
+
+      patrullasList.innerHTML = html;
+      statTotal.textContent = patrullas.size;
+      statOnline.textContent = online;
+      statEmergencia.textContent = emergencia;
+    }
+
+    function zoomToPatrulla(patente) {
+      const patrulla = patrullas.get(patente);
+      if (patrulla) {
+        map.flyTo(patrulla.marker.getLatLng(), 15);
+        patrulla.marker.openPopup();
+      }
+    }
+
+    // ============================
+    // EVENT LISTENERS
+    // ============================
+    btnRefresh.addEventListener('click', () => {
+      actualizarUI();
+      alert('Actualizado');
+    });
+
+    btnBroadcast.addEventListener('click', () => {
+      const mensaje = prompt('Mensaje para todas las patrullas:');
+      if (mensaje) {
+        patrullas.forEach((_, patente) => {
+          db.collection(`chat_${municipio}`).doc(patente).collection('messages').add({
+            text: '📢 [CENTRO]: ' + mensaje,
+            from: 'centro-control',
+            to: patente,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            leido: false
+          });
+        });
+        alert('Mensaje enviado');
+      }
+    });
+
+    btnLogout.addEventListener('click', () => {
+      if (unsubscribe) unsubscribe();
+      auth.signOut().then(() => {
+        location.href = '/';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -26,6 +26,12 @@
         "robo": "data/robos_final.csv",
         "alertas": null,
         "zonas": null
+      },
+      "patrullas": {
+        "enabled": true,
+        "dataCollection": "patrullas_mar-del-plata",
+        "chatCollection": "chat_mar-del-plata",
+        "webrtcCollection": "webrtc_mar-del-plata"
       }
     },
     {
@@ -53,6 +59,12 @@
         "robo": null,
         "alertas": null,
         "zonas": null
+      },
+      "patrullas": {
+        "enabled": true,
+        "dataCollection": "patrullas_san-martin-del-mar",
+        "chatCollection": "chat_san-martin-del-mar",
+        "webrtcCollection": "webrtc_san-martin-del-mar"
       }
     },
     {
@@ -81,6 +93,12 @@
         "robo": "data/EJEMPLO_robos_cordoba.csv",
         "alertas": null,
         "zonas": null
+      },
+      "patrullas": {
+        "enabled": true,
+        "dataCollection": "patrullas_cordoba",
+        "chatCollection": "chat_cordoba",
+        "webrtcCollection": "webrtc_cordoba"
       }
     }
   ]
