@@ -88,7 +88,9 @@ class PatullaLayer {
   }
 
   startTracking() {
-    const coleccion = `patrullas_${this.municipio}`;
+    // Remover guiones del municipio para construir el nombre correcto de la colección
+    const municipioSinGuiones = this.municipio.replace(/-/g, '');
+    const coleccion = `patrullas_${municipioSinGuiones}`;
     console.log(`🔍 PatullaLayer startTracking() iniciado para colección: ${coleccion}`);
     
     this.unsubscribe = this.db.collection(coleccion)
