@@ -309,6 +309,78 @@
       padding: 20px;
       color: #94a3b8;
     }
+
+    /* CHAT MESSAGES */
+    .chat-panel {
+      background: #1e293b;
+      border-top: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      height: 200px;
+      flex: 0 0 200px;
+    }
+
+    .chat-header {
+      padding: 10px 12px;
+      border-bottom: 1px solid #334155;
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: bold;
+    }
+
+    #messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .message {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      max-width: 90%;
+      word-wrap: break-word;
+    }
+
+    .message.incoming {
+      background: #334155;
+      color: #e2e8f0;
+      align-self: flex-start;
+      border-left: 3px solid #667eea;
+    }
+
+    .message.outgoing {
+      background: #667eea;
+      color: white;
+      align-self: flex-end;
+    }
+
+    .message.broadcast {
+      background: #f59e0b;
+      color: white;
+      align-self: center;
+      text-align: center;
+      max-width: 95%;
+    }
+
+    .message-content {
+      margin-bottom: 2px;
+    }
+
+    .message-meta {
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    .empty-messages {
+      color: #64748b;
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -351,6 +423,14 @@
   <!-- MAIN CONTENT -->
   <div class="main-content">
     <div id="map"></div>
+
+    <!-- CHAT MESSAGES -->
+    <div class="chat-panel">
+      <div class="chat-header">💬 Mensajes en Tiempo Real</div>
+      <div id="messages-container">
+        <div class="empty-messages">Sin mensajes</div>
+      </div>
+    </div>
 
     <!-- CONTROL PANEL -->
     <div class="control-panel">
@@ -660,11 +740,103 @@
   }
 
   // ========================================
+  // ESCUCHAR MENSAJES EN TIEMPO REAL
+  // ========================================
+  function listenToMessages() {
+    const coleccion = `chat_${municipio}`;
+
+    // Escuchar TODOS los mensajes
+    db.collection(coleccion)
+      .orderBy('timestamp', 'desc')
+      .onSnapshot((snapshot) => {
+        renderMessages();
+      }, (error) => {
+        console.warn('⚠️ Error escuchando mensajes:', error);
+      });
+
+    console.log('✅ Escuchando mensajes en tiempo real');
+  }
+
+  // ========================================
+  // RENDERIZAR MENSAJES
+  // ========================================
+  async function renderMessages() {
+    const container = document.getElementById('messages-container');
+    const coleccion = `chat_${municipio}`;
+
+    try {
+      // Obtener TODOS los mensajes sin filtros
+      const snapshot = await db.collection(coleccion)
+        .orderBy('timestamp', 'asc')
+        .limit(50)
+        .get();
+
+      let allMessages = [];
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const msg = {
+          id: doc.id,
+          ...data,
+          timestamp: data.timestamp?.toDate(),
+        };
+
+        // Mostrar mensajes que vienen de patrullas o broadcasts (para el centro de control)
+        const isFromPatrulla = data.from !== 'CENTRO_CONTROL';
+        const isBroadcast = data.type === 'broadcast';
+
+        if (isFromPatrulla || isBroadcast) {
+          allMessages.push(msg);
+        }
+      });
+
+      // Ordenar por timestamp
+      allMessages.sort((a, b) => a.timestamp - b.timestamp);
+
+      if (allMessages.length === 0) {
+        container.innerHTML = '<div class="empty-messages">Sin mensajes</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+
+      allMessages.forEach((msg) => {
+        const isBroadcast = msg.type === 'broadcast';
+
+        const div = document.createElement('div');
+        div.className = `message ${isBroadcast ? 'broadcast' : 'incoming'}`;
+
+        const timeStr = msg.timestamp
+          ? msg.timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+          : '--:--';
+
+        let fromText = msg.from;
+        if (isBroadcast) {
+          fromText = '📢 BROADCAST';
+        }
+
+        div.innerHTML = `
+          <div class="message-content">${msg.text}</div>
+          <div class="message-meta">${fromText} · ${timeStr}</div>
+        `;
+
+        container.appendChild(div);
+      });
+
+      // Auto-scroll a último
+      container.scrollTop = container.scrollHeight;
+    } catch (error) {
+      console.error('Error renderizando mensajes:', error);
+    }
+  }
+
+  // ========================================
   // INIT
   // ========================================
   document.addEventListener('DOMContentLoaded', () => {
     initMap();
     listenToPatrullas();
+    listenToMessages();
 
     document.getElementById('btn-send').addEventListener('click', enviarMensaje);
     document.getElementById('btn-broadcast').addEventListener('click', enviarBroadcast);
