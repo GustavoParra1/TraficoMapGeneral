@@ -1019,6 +1019,9 @@ auth.onAuthStateChanged((user) => {
       <div class="sidebar-section">
         <div class="sidebar-title">Centro de Control</div>
         <div class="button-group">
+          <button id="btn-open-control-center" style="width: 100%; padding: 10px; background-color: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 12px; text-align: left; margin-bottom: 8px;">
+            🎛️ Abrir Control Center
+          </button>
           <button id="btn-show-colectivos" style="width: 100%; padding: 10px; background-color: #ff9500; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 12px; text-align: left;">
             🚌 Líneas de Colectivos (Control)
           </button>
@@ -1850,6 +1853,19 @@ auth.onAuthStateChanged((user) => {
       console.log('✅ Event listener asignado a btnShowColectivos');
     } else {
       console.error('❌ NO SE ENCONTRÓ btnShowColectivos - el HTML puede no estar listo');
+    }
+
+    // Botón para abrir Control Center v2
+    const btnOpenControlCenter = document.getElementById('btn-open-control-center');
+    console.log('🎛️ btnOpenControlCenter:', btnOpenControlCenter ? 'ENCONTRADO' : 'NO ENCONTRADO');
+    if (btnOpenControlCenter) {
+      btnOpenControlCenter.addEventListener('click', () => {
+        console.log('🎛️ Abriendo Control Center v2');
+        window.open('control-center-v2/', '_blank');
+      });
+      console.log('✅ Event listener asignado a btnOpenControlCenter');
+    } else {
+      console.error('❌ NO SE ENCONTRÓ btnOpenControlCenter');
     }
     
     // ==========================================
