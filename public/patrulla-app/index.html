@@ -866,6 +866,19 @@
   document.addEventListener('DOMContentLoaded', async () => {
     console.log('📱 DOMContentLoaded disparado');
     
+    // Asignar listeners de botones del control bar (siempre disponibles)
+    const btnClearMessages = document.getElementById('btn-clear-messages');
+    if (btnClearMessages) {
+      btnClearMessages.addEventListener('click', () => {
+        if (confirm('¿Limpiar todo el chat?')) {
+          document.getElementById('messages-container').innerHTML = 
+            '<div class="empty-messages">Chat limpiado</div>';
+          console.log('🗑️ Chat limpiado');
+        }
+      });
+      console.log('✅ Listener asignado a btn-clear-messages');
+    }
+    
     // Intentar cargar patrulla del localStorage
     const hasPatrulla = loadPatrollaFromStorage();
 
@@ -989,13 +1002,6 @@
         console.log('🔄 Cambiando patrulla...');
         localStorage.removeItem('patrullaId');
         location.reload();
-      });
-
-      document.getElementById('btn-clear-messages').addEventListener('click', () => {
-        if (confirm('¿Limpiar todo el chat?')) {
-          document.getElementById('messages-container').innerHTML = 
-            '<div class="empty-messages">Chat limpiado</div>';
-        }
       });
 
       // Actualizar status cada 10 segundos
