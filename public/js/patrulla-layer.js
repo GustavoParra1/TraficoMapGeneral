@@ -21,34 +21,52 @@ class PatullaLayer {
   }
 
   initializeIcons() {
-    // Icono para patrulla activa
-    this.iconActiva = new L.Icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
+    // Los iconos se crearán dinámicamente en actualizarPatrulla()
+    // basándose en el número de patrulla y su estado
+    console.log('✅ Icons initialized (dynamic creation enabled)');
+  }
 
-    // Icono para patrulla en emergencia
-    this.iconEmergencia = new L.Icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
+  crearIcon(patente, online, emergencia) {
+    // Extraer número de patrulla (PATRULLA_01 → 01)
+    const numPatrulla = patente.replace(/[^\d]/g, '').padStart(2, '0');
 
-    // Icono para patrulla offline
-    this.iconOffline = new L.Icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
+    // Determinar color según estado
+    let bgColor = '#3b82f6'; // azul - en línea
+    let borderColor = '#1e40af';
+    
+    if (emergencia) {
+      bgColor = '#ef4444'; // rojo - emergencia
+      borderColor = '#dc2626';
+    } else if (!online) {
+      bgColor = '#64748b'; // gris - offline
+      borderColor = '#475569';
+    }
+
+    return L.divIcon({
+      html: `
+        <div style="
+          width: 45px;
+          height: 45px;
+          background: ${bgColor};
+          border: 3px solid ${borderColor};
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: bold;
+          font-size: 16px;
+          font-family: Arial, sans-serif;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+          transform: scale(1);
+        ">
+          ${numPatrulla}
+        </div>
+      `,
+      iconSize: [45, 45],
+      iconAnchor: [22, 22],
+      popupAnchor: [0, -22],
+      className: 'patrulla-marker-icon'
     });
   }
 
@@ -147,8 +165,7 @@ class PatullaLayer {
 
     if (!this.patrullas.has(patente)) {
       // Crear nueva patrulla
-      const icon = emergencia ? this.iconEmergencia : 
-                   (!online ? this.iconOffline : this.iconActiva);
+      const icon = this.crearIcon(patente, online, emergencia);
 
       const marker = L.marker([lat, lng], { icon })
         .bindPopup(this.crearPopup(patente, data), { maxWidth: 250 });
@@ -163,9 +180,8 @@ class PatullaLayer {
       const patrulla = this.patrullas.get(patente);
       patrulla.data = data;
 
-      // Actualizar icono
-      const icon = emergencia ? this.iconEmergencia : 
-                   (!online ? this.iconOffline : this.iconActiva);
+      // Crear nuevo icono según estado actual
+      const icon = this.crearIcon(patente, online, emergencia);
       patrulla.marker.setIcon(icon);
 
       // Actualizar posición
