@@ -6,15 +6,21 @@
  * https://console.firebase.google.com -> Project Settings -> Service Accounts -> Generate new private key
  */
 
-const admin = require('firebase-admin');
-const path = require('path');
+import admin from 'firebase-admin';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { readFileSync } from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Cargar la clave de servicio (descargada de Firebase)
 // Guarda el archivo en: ./serviceAccountKey.json
-const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');
+const serviceAccountPath = join(__dirname, 'serviceAccountKey.json');
 
 try {
-  const serviceAccount = require(serviceAccountPath);
+  const serviceAccountData = readFileSync(serviceAccountPath, 'utf8');
+  const serviceAccount = JSON.parse(serviceAccountData);
   
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -34,76 +40,88 @@ const auth = admin.auth();
 
 // Usuarios a crear
 const DEMO_USERS = [
-  // Patrullas
+  // Patrullas Mar del Plata
   {
-    email: 'patrulla1@seguridad-mdp.com',
+    email: 'patrulla-mardelplata-01@seguridad-mdp.com',
     password: 'patrulla123',
-    displayName: 'Patrulla 01',
-    role: 'patrulla'
+    displayName: 'Patrulla MDP 01',
+    role: 'patrulla',
+    city: 'mardelplata'
   },
   {
-    email: 'patrulla2@seguridad-mdp.com',
+    email: 'patrulla-mardelplata-02@seguridad-mdp.com',
     password: 'patrulla123',
-    displayName: 'Patrulla 02',
-    role: 'patrulla'
+    displayName: 'Patrulla MDP 02',
+    role: 'patrulla',
+    city: 'mardelplata'
+  },
+  // Patrullas Córdoba
+  {
+    email: 'patrulla-cordoba-01@seguridad-mdp.com',
+    password: 'patrulla123',
+    displayName: 'Patrulla Córdoba 01',
+    role: 'patrulla',
+    city: 'cordoba'
   },
   {
-    email: 'patrulla3@seguridad-mdp.com',
+    email: 'patrulla-cordoba-02@seguridad-mdp.com',
     password: 'patrulla123',
-    displayName: 'Patrulla 03',
-    role: 'patrulla'
+    displayName: 'Patrulla Córdoba 02',
+    role: 'patrulla',
+    city: 'cordoba'
   },
-  {
-    email: 'patrulla4@seguridad-mdp.com',
-    password: 'patrulla123',
-    displayName: 'Patrulla 04',
-    role: 'patrulla'
-  },
-  // Operadores - Capa Norte
+  // Operadores - Capa Norte (Mar del Plata)
   {
     email: 'capa-norte@seguridad-mdp.com',
     password: 'control123',
     displayName: 'Operador Capa Norte',
-    role: 'operador'
+    role: 'operador',
+    city: 'mardelplata'
   },
-  // Operadores - Capa Sur
+  // Operadores - Capa Sur (Mar del Plata)
   {
     email: 'capa-sur@seguridad-mdp.com',
     password: 'control123',
     displayName: 'Operador Capa Sur',
-    role: 'operador'
+    role: 'operador',
+    city: 'mardelplata'
   },
-  // Otros operadores
+  // Otros operadores Mar del Plata
   {
     email: 'mac@seguridad-mdp.com',
     password: 'control123',
     displayName: 'MAC Operador',
-    role: 'operador'
+    role: 'operador',
+    city: 'mardelplata'
   },
   {
     email: 'uppl@seguridad-mdp.com',
     password: 'control123',
     displayName: 'UPPL Operador',
-    role: 'operador'
+    role: 'operador',
+    city: 'mardelplata'
   },
   {
     email: 'multiagencia@seguridad-mdp.com',
     password: 'control123',
     displayName: 'Multi-agencia Operador',
-    role: 'operador'
+    role: 'operador',
+    city: 'mardelplata'
   },
   {
     email: 'encargado-sala@seguridad-mdp.com',
     password: 'control123',
     displayName: 'Encargado de Sala',
-    role: 'operador'
+    role: 'operador',
+    city: 'mardelplata'
   },
-  // Admin
+  // Admin (acceso a todas las ciudades)
   {
     email: 'admin@seguridad-mdp.com',
     password: 'admin123',
     displayName: 'Administrador',
-    role: 'admin'
+    role: 'admin',
+    city: null
   }
 ];
 
@@ -122,7 +140,17 @@ async function createUsers() {
       const existingUser = await auth.getUserByEmail(user.email).catch(() => null);
       
       if (existingUser) {
-        console.log(`⚠️  ${user.email} - Ya existe`);
+        // Actualizar custom claims del usuario existente
+        await auth.setCustomUserClaims(existingUser.uid, {
+          role: user.role,
+          city: user.city,
+          createdAt: new Date().toISOString()
+        });
+        
+        console.log(`✏️  ${user.email} - Actualizado con custom claims`);
+        console.log(`   UID: ${existingUser.uid}`);
+        console.log(`   Rol: ${user.role}`);
+        console.log(`   Ciudad: ${user.city || 'Acceso global'}\n`);
         results.exists.push(user.email);
         continue;
       }
@@ -138,18 +166,21 @@ async function createUsers() {
       // Establecer claims personalizados (para verificación de rol)
       await auth.setCustomUserClaims(newUser.uid, {
         role: user.role,
+        city: user.city,
         createdAt: new Date().toISOString()
       });
 
       console.log(`✅ ${user.email} - Creado correctamente`);
       console.log(`   UID: ${newUser.uid}`);
       console.log(`   Contraseña: ${user.password}`);
-      console.log(`   Rol: ${user.role}\n`);
+      console.log(`   Rol: ${user.role}`);
+      console.log(`   Ciudad: ${user.city || 'Acceso global'}\n`);
 
       results.created.push({
         email: user.email,
         uid: newUser.uid,
         role: user.role,
+        city: user.city,
         password: user.password
       });
 
@@ -182,7 +213,8 @@ async function createUsers() {
   results.created.forEach(user => {
     console.log(`  📧 ${user.email}`);
     console.log(`     Contraseña: ${user.password}`);
-    console.log(`     Rol: ${user.role}\n`);
+    console.log(`     Rol: ${user.role}`);
+    console.log(`     Ciudad: ${user.city || 'Acceso global'}\n`);
   });
 
   console.log('🔗 URL de login: http://localhost:5000/login.html');

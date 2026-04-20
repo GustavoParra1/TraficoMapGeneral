@@ -519,12 +519,26 @@
       console.log('✅ Firebase initialized for control center');
 
       // Verificar autenticación
-      auth.onAuthStateChanged((user) => {
+      auth.onAuthStateChanged(async (user) => {
         if (!user) {
           console.warn('⚠️ No authenticated user. Redirecting to login...');
           window.location.href = '/login.html';
         } else {
           console.log('✅ Authenticated user:', user.email);
+          
+          // Obtener el custom claim 'city' del usuario
+          const idTokenResult = await user.getIdTokenResult();
+          const userCity = idTokenResult.claims.city;
+          
+          if (userCity) {
+            municipio = userCity;
+            console.log(`📍 Ciudad del usuario: ${municipio}`);
+          } else {
+            // Si no tiene city, usar mar-del-plata por defecto
+            municipio = 'mardelplata';
+            console.warn('⚠️ No se encontró city en custom claims, usando mardelplata');
+          }
+          
           // Iniciar la aplicación
           setupControlCenter();
         }
@@ -544,8 +558,15 @@
   let map = null;
   let patrullas = new Map();
   let markers = []; // Para guardar referencias de marcadores
-  let municipio = 'mar-del-plata';
+  let municipio = null;  // Se establece después de autenticación
   let selectedPatrulla = null;
+
+  // Coordenadas de cada ciudad
+  const CITY_COORDS = {
+    'mardelplata': [-38.0, -57.55],
+    'cordoba': [-31.4201, -64.1888],
+    'san-martin-del-mar': [-38.05, -57.6]
+  };
 
   // ========================================
   // SETUP CONTROL CENTER
@@ -561,7 +582,10 @@
   // INICIALIZAR MAPA
   // ========================================
   function initMap() {
-    const coords = municipio === 'cordoba' ? [-31.415, -64.189] : [-38.0, -57.55];
+    // Obtener coordenadas basadas en la ciudad
+    const coords = CITY_COORDS[municipio] || [-38.0, -57.55];
+    console.log(`🗺️ Inicializando mapa para ${municipio} con coordenadas: ${coords}`);
+    
     map = L.map('map').setView(coords, 12);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

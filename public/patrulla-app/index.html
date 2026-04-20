@@ -516,12 +516,24 @@
       console.log('✅ Firebase initialized for patrulla-app');
 
       // Verificar autenticación
-      auth.onAuthStateChanged((user) => {
+      auth.onAuthStateChanged(async (user) => {
         if (!user) {
           console.warn('⚠️ No authenticated user. Redirecting to login...');
           window.location.href = '/login.html';
         } else {
           console.log('✅ Authenticated user:', user.email);
+          
+          // Obtener el custom claim 'city' del usuario
+          const idTokenResult = await user.getIdTokenResult();
+          const userCity = idTokenResult.claims.city;
+          
+          if (userCity) {
+            municipio = userCity;
+            console.log(`📍 Ciudad del usuario: ${municipio}`);
+          } else {
+            console.warn('⚠️ No se encontró city en custom claims');
+          }
+          
           // Iniciar la aplicación
           loadPatrollaFromStorage();
         }
@@ -540,11 +552,18 @@
   // ========================================
   let map = null;
   let patrullaId = null;  // Inicializar como null siempre
-  let municipio = 'mar-del-plata';
+  let municipio = null;  // Se establece después de autenticación
   let myMarker = null;
   let emergencia = false;
   let ubicacionInterval = null;
   let isInitialized = false;  // Flag para evitar múltiples inicializaciones
+
+  // Coordenadas de cada ciudad
+  const CITY_COORDS = {
+    'mardelplata': [-38.0, -57.55],
+    'cordoba': [-31.4201, -64.1888],
+    'san-martin-del-mar': [-38.05, -57.6]
+  };
 
   // ========================================
   // CARGAR PATRULLA GUARDADA
@@ -612,7 +631,10 @@
       return;
     }
     
-    const coords = [-38.0, -57.55]; // Mar del Plata
+    // Obtener coordenadas basadas en la ciudad
+    const coords = CITY_COORDS[municipio] || [-38.0, -57.55];
+    console.log(`🗺️ Inicializando mapa para ${municipio} con coordenadas: ${coords}`);
+    
     map = L.map('map').setView(coords, 15);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
