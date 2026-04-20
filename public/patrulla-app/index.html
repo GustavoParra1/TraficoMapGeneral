@@ -452,7 +452,7 @@
     <select id="patrulla-options">
       <option value="">-- Cargando patrullas --</option>
     </select>
-    <button id="btn-continue">Continuar</button>
+    <button type="button" id="btn-continue">Continuar</button>
   </div>
 </div>
 
@@ -502,31 +502,31 @@
   // ========================================
   // MODAL - SELECCIONAR PATRULLA
   // ========================================
-  function showSelectPatrullaModal() {
+  async function showSelectPatrullaModal() {
     console.log('📋 Mostrando modal de selección de patrulla');
-    document.getElementById('modal').classList.add('active');
-    document.getElementById('patrulla-id').textContent = '📱 Seleccionar patrulla...';
-
-    // Cargar patrullas disponibles
-    const coleccion = `patrullas_${municipio}`;
+    const modal = document.getElementById('modal');
     const select = document.getElementById('patrulla-options');
     
-    db.collection(coleccion).onSnapshot((snapshot) => {
+    modal.classList.add('active');
+    document.getElementById('patrulla-id').textContent = '📱 Seleccionar patrulla...';
+
+    // Limpiar opciones previas
+    select.innerHTML = '<option value="">-- Cargando patrullas --</option>';
+
+    try {
+      // Cargar patrullas UNA SOLA VEZ (no continuo)
+      const coleccion = `patrullas_${municipio}`;
+      const snapshot = await db.collection(coleccion).get();
+
       console.log(`📡 Patrullas cargadas: ${snapshot.size}`);
-      
-      // Limpiar opciones previas
-      const currentValue = select.value;
-      select.innerHTML = '<option value="">-- Selecciona tu patrulla --</option>';
 
       if (snapshot.empty) {
-        const option = document.createElement('option');
-        option.value = '';
-        option.textContent = '❌ No hay patrullas disponibles';
-        option.disabled = true;
-        select.appendChild(option);
+        select.innerHTML = '<option value="">❌ No hay patrullas disponibles</option>';
         console.warn('⚠️ No hay patrullas en Firestore');
         return;
       }
+
+      select.innerHTML = '<option value="">-- Selecciona tu patrulla --</option>';
 
       snapshot.forEach((doc) => {
         const option = document.createElement('option');
@@ -534,10 +534,13 @@
         option.textContent = `🚓 ${doc.id}`;
         select.appendChild(option);
       });
-    }, (error) => {
+
+      console.log('✅ Patrullas cargadas en el select');
+    } catch (error) {
       console.error('❌ Error cargando patrullas:', error);
+      select.innerHTML = '<option value="">❌ Error cargando patrullas</option>';
       alert('Error cargando patrullas: ' + error.message);
-    });
+    }
   }
 
   // ========================================
@@ -809,7 +812,7 @@
   // ========================================
   // EVENT LISTENERS
   // ========================================
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     console.log('📱 DOMContentLoaded disparado');
     
     // Intentar cargar patrulla del localStorage
@@ -823,41 +826,73 @@
     } else {
       // No hay patrulla - mostrar modal
       console.log('❌ No hay patrulla guardada, mostrando modal');
-      showSelectPatrullaModal();
+      await showSelectPatrullaModal();
       
-      // Agregar evento al botón Continuar
+      // Agregar evento al botón Continuar - MORE ROBUST
       const btnContinue = document.getElementById('btn-continue');
-      btnContinue.addEventListener('click', handleSelectPatrulla);
+      if (btnContinue) {
+        // Remover cualquier listener previo
+        const newBtnContinue = btnContinue.cloneNode(true);
+        btnContinue.parentNode.replaceChild(newBtnContinue, btnContinue);
+        
+        // Agregar listener al nuevo botón
+        document.getElementById('btn-continue').addEventListener('click', (e) => {
+          e.preventDefault();  // Prevenir comportamiento por defecto
+          e.stopPropagation(); // Detener propagación
+          handleSelectPatrulla();
+        });
+        console.log('✅ Event listener asignado a btn-continue');
+      } else {
+        console.error('❌ btn-continue no encontrado');
+      }
     }
   });
 
   function handleSelectPatrulla() {
+    console.log('🎯 handleSelectPatrulla() ejecutada');
+    
     const select = document.getElementById('patrulla-options');
+    if (!select) {
+      console.error('❌ Select patrulla-options no encontrado');
+      return;
+    }
+    
     const selected = select.value.trim();
 
-    console.log(`🔍 Valor seleccionado: "${selected}"`);
+    console.log(`🔍 Valor seleccionado en select: "${selected}"`);
 
-    if (!selected) {
-      console.warn('⚠️ No hay patrulla seleccionada');
+    if (!selected || selected === '') {
+      console.warn('⚠️ No hay patrulla seleccionada (valor vacío)');
       alert('Por favor selecciona una patrulla');
       return;
     }
 
-    // Guardar en localStorage
+    console.log(`✅ Patrulla válida seleccionada: ${selected}`);
+
+    // 1. Guardar en localStorage
     patrullaId = selected;
     localStorage.setItem('patrullaId', patrullaId);
     console.log(`💾 Patrulla guardada en localStorage: ${patrullaId}`);
 
-    // Actualizar header
-    document.getElementById('patrulla-id').textContent = `📱 ${patrullaId}`;
+    // 2. Actualizar header
+    const headerElement = document.getElementById('patrulla-id');
+    if (headerElement) {
+      headerElement.textContent = `📱 ${patrullaId}`;
+      console.log(`📝 Header actualizado: ${patrullaId}`);
+    }
 
-    // Cerrar modal
+    // 3. Cerrar modal - CRITICAL
     const modal = document.getElementById('modal');
-    modal.classList.remove('active');
-    console.log('✅ Modal cerrado');
+    if (modal) {
+      modal.classList.remove('active');
+      console.log('✅ Modal cerrado (clase active removida)');
+    } else {
+      console.error('❌ Modal no encontrado');
+    }
 
-    // Inicializar app
-    setTimeout(() => init(), 100);
+    // 4. Inicializar app con delay
+    console.log('⏳ Waiting 200ms before init()...');
+    setTimeout(() => init(), 200);
   }
 
   function init() {
