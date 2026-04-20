@@ -479,30 +479,64 @@
   // VARIABLES GLOBALES
   // ========================================
   let map = null;
-  let patrullaId = localStorage.getItem('patrullaId') || null;
+  let patrullaId = null;  // Inicializar como null siempre
   let municipio = 'mar-del-plata';
   let myMarker = null;
   let emergencia = false;
   let ubicacionInterval = null;
+  let isInitialized = false;  // Flag para evitar múltiples inicializaciones
+
+  // ========================================
+  // CARGAR PATRULLA GUARDADA
+  // ========================================
+  function loadPatrollaFromStorage() {
+    const stored = localStorage.getItem('patrullaId');
+    if (stored) {
+      patrullaId = stored;
+      console.log(`✅ Patrulla cargada del localStorage: ${patrullaId}`);
+      return true;
+    }
+    return false;
+  }
 
   // ========================================
   // MODAL - SELECCIONAR PATRULLA
   // ========================================
   function showSelectPatrullaModal() {
+    console.log('📋 Mostrando modal de selección de patrulla');
     document.getElementById('modal').classList.add('active');
+    document.getElementById('patrulla-id').textContent = '📱 Seleccionar patrulla...';
 
     // Cargar patrullas disponibles
     const coleccion = `patrullas_${municipio}`;
+    const select = document.getElementById('patrulla-options');
+    
     db.collection(coleccion).onSnapshot((snapshot) => {
-      const select = document.getElementById('patrulla-options');
-      select.innerHTML = '<option value="">-- Selecciona --</option>';
+      console.log(`📡 Patrullas cargadas: ${snapshot.size}`);
+      
+      // Limpiar opciones previas
+      const currentValue = select.value;
+      select.innerHTML = '<option value="">-- Selecciona tu patrulla --</option>';
+
+      if (snapshot.empty) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = '❌ No hay patrullas disponibles';
+        option.disabled = true;
+        select.appendChild(option);
+        console.warn('⚠️ No hay patrullas en Firestore');
+        return;
+      }
 
       snapshot.forEach((doc) => {
         const option = document.createElement('option');
         option.value = doc.id;
-        option.textContent = doc.id;
+        option.textContent = `🚓 ${doc.id}`;
         select.appendChild(option);
       });
+    }, (error) => {
+      console.error('❌ Error cargando patrullas:', error);
+      alert('Error cargando patrullas: ' + error.message);
     });
   }
 
@@ -510,6 +544,11 @@
   // INICIALIZAR MAPA
   // ========================================
   function initMap() {
+    if (map) {
+      console.log('⚠️ Mapa ya inicializado, saltando...');
+      return;
+    }
+    
     const coords = [-38.0, -57.55]; // Mar del Plata
     map = L.map('map').setView(coords, 15);
 
@@ -530,6 +569,11 @@
       return;
     }
 
+    // Limpiar intervalo anterior si existe
+    if (ubicacionInterval) {
+      clearInterval(ubicacionInterval);
+    }
+
     // Intentar obtener ubicación cada 5 segundos
     ubicacionInterval = setInterval(() => {
       navigator.geolocation.getCurrentPosition(
@@ -548,9 +592,10 @@
             lng: longitude,
             accuracy: accuracy,
             speed: speed,
+            online: true,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
           }).catch((error) => {
-            console.error('Error actualizando ubicación:', error);
+            console.warn('⚠️ Error actualizando ubicación:', error);
           });
 
           // Actualizar marker en mapa
@@ -565,7 +610,7 @@
           map.setView([latitude, longitude], 15);
         },
         (error) => {
-          console.warn('Error de geolocalización:', error);
+          console.warn('⚠️ Error de geolocalización:', error.message);
         }
       );
     }, 5000);
@@ -585,6 +630,8 @@
       .orderBy('timestamp', 'desc')
       .onSnapshot((snapshot) => {
         renderMessages();
+      }, (error) => {
+        console.warn('⚠️ Error escuchando mensajes directos:', error);
       });
 
     // Escuchar broadcasts
@@ -593,6 +640,8 @@
       .orderBy('timestamp', 'desc')
       .onSnapshot((snapshot) => {
         renderMessages();
+      }, (error) => {
+        console.warn('⚠️ Error escuchando broadcasts:', error);
       });
 
     console.log('✅ Escuchando mensajes');
@@ -761,59 +810,108 @@
   // EVENT LISTENERS
   // ========================================
   document.addEventListener('DOMContentLoaded', () => {
-    // Si no hay patrulla, mostrar modal
-    if (!patrullaId) {
-      showSelectPatrullaModal();
+    console.log('📱 DOMContentLoaded disparado');
+    
+    // Intentar cargar patrulla del localStorage
+    const hasPatrulla = loadPatrollaFromStorage();
 
-      document.getElementById('btn-continue').addEventListener('click', () => {
-        const selected = document.getElementById('patrulla-options').value;
-        if (!selected) {
-          alert('Selecciona una patrulla');
-          return;
-        }
-        patrullaId = selected;
-        localStorage.setItem('patrullaId', patrullaId);
-        document.getElementById('patrulla-id').textContent = `📱 ${patrullaId}`;
-        document.getElementById('modal').classList.remove('active');
-        init();
-      });
-    } else {
-      // Mostrar patrulla seleccionada
+    if (hasPatrulla && patrullaId) {
+      // Patrulla ya guardada - inicializar directamente
+      console.log(`✅ Iniciando con patrulla guardada: ${patrullaId}`);
       document.getElementById('patrulla-id').textContent = `📱 ${patrullaId}`;
-      init();
+      setTimeout(() => init(), 100);  // Pequeño delay para asegurar que DOM está listo
+    } else {
+      // No hay patrulla - mostrar modal
+      console.log('❌ No hay patrulla guardada, mostrando modal');
+      showSelectPatrullaModal();
+      
+      // Agregar evento al botón Continuar
+      const btnContinue = document.getElementById('btn-continue');
+      btnContinue.addEventListener('click', handleSelectPatrulla);
     }
   });
 
+  function handleSelectPatrulla() {
+    const select = document.getElementById('patrulla-options');
+    const selected = select.value.trim();
+
+    console.log(`🔍 Valor seleccionado: "${selected}"`);
+
+    if (!selected) {
+      console.warn('⚠️ No hay patrulla seleccionada');
+      alert('Por favor selecciona una patrulla');
+      return;
+    }
+
+    // Guardar en localStorage
+    patrullaId = selected;
+    localStorage.setItem('patrullaId', patrullaId);
+    console.log(`💾 Patrulla guardada en localStorage: ${patrullaId}`);
+
+    // Actualizar header
+    document.getElementById('patrulla-id').textContent = `📱 ${patrullaId}`;
+
+    // Cerrar modal
+    const modal = document.getElementById('modal');
+    modal.classList.remove('active');
+    console.log('✅ Modal cerrado');
+
+    // Inicializar app
+    setTimeout(() => init(), 100);
+  }
+
   function init() {
-    initMap();
-    startTracking();
-    listenToMessages();
-    updateStatus();
+    if (isInitialized) {
+      console.warn('⚠️ App ya inicializada, saltando...');
+      return;
+    }
 
-    document.getElementById('btn-send').addEventListener('click', enviarMensaje);
-    document.getElementById('message-input').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') enviarMensaje();
-    });
+    console.log(`🚀 Inicializando app para patrulla: ${patrullaId}`);
 
-    document.getElementById('btn-emergencia').addEventListener('click', toggleEmergencia);
+    if (!patrullaId) {
+      console.error('❌ ERROR: patrullaId está vacío en init()');
+      return;
+    }
 
-    document.getElementById('btn-select-patrulla').addEventListener('click', () => {
-      localStorage.removeItem('patrullaId');
-      location.reload();
-    });
+    try {
+      initMap();
+      startTracking();
+      listenToMessages();
+      updateStatus();
 
-    document.getElementById('btn-clear-messages').addEventListener('click', () => {
-      if (confirm('¿Limpiar todo el chat?')) {
-        document.getElementById('messages-container').innerHTML = 
-          '<div class="empty-messages">Chat limpiado</div>';
-      }
-    });
+      // Agregar event listeners
+      document.getElementById('btn-send').addEventListener('click', enviarMensaje);
+      document.getElementById('message-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') enviarMensaje();
+      });
 
-    // Actualizar status cada 10 segundos
-    setInterval(updateStatus, 10000);
+      document.getElementById('btn-emergencia').addEventListener('click', toggleEmergencia);
 
-    // Renderizar mensajes cada 3 segundos
-    setInterval(renderMessages, 3000);
+      document.getElementById('btn-select-patrulla').addEventListener('click', () => {
+        console.log('🔄 Cambiando patrulla...');
+        localStorage.removeItem('patrullaId');
+        location.reload();
+      });
+
+      document.getElementById('btn-clear-messages').addEventListener('click', () => {
+        if (confirm('¿Limpiar todo el chat?')) {
+          document.getElementById('messages-container').innerHTML = 
+            '<div class="empty-messages">Chat limpiado</div>';
+        }
+      });
+
+      // Actualizar status cada 10 segundos
+      setInterval(updateStatus, 10000);
+
+      // Renderizar mensajes cada 3 segundos
+      setInterval(renderMessages, 3000);
+
+      isInitialized = true;
+      console.log('✅ App inicializada correctamente');
+    } catch (error) {
+      console.error('❌ Error inicializando app:', error);
+      alert('Error inicializando: ' + error.message);
+    }
   }
 </script>
 </body>
