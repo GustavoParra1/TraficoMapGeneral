@@ -108,7 +108,21 @@ service cloud.firestore {
     }
 
     // ========== MESSAGES - Nueva colección centralizada ==========
-    match /messages_{municipio}/{messageId} {
+    match /messages_mar-del-plata/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
+    }
+
+    match /messages_cordoba/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
+    }
+
+    match /messages_san-martin-del-mar/{messageId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated();
       allow update: if isAuthenticated();
