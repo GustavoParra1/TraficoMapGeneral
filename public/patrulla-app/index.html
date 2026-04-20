@@ -662,11 +662,12 @@
           timestamp: data.timestamp?.toDate(),
         };
 
-        // Filtrar: mensajes dirigidos a esta patrulla o broadcasts
+        // Filtrar: mensajes dirigidos a esta patrulla, broadcasts, O mensajes que ENVIE esta patrulla
         const isForMe = data.to === patrullaId;
         const isBroadcast = data.type === 'broadcast';
+        const isFromMe = data.from === patrullaId;
 
-        if (isForMe || isBroadcast) {
+        if (isForMe || isBroadcast || isFromMe) {
           allMessages.push(msg);
         }
       });
