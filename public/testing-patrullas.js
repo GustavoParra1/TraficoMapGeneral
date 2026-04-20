@@ -133,6 +133,9 @@ async function crearPatrullasPrueba() {
   }
 }
 
+// Variable global para almacenar el intervalo de simulación
+let simulacionIntervalo = null;
+
 // Función para simular movimiento de patrullas
 async function simularMovimiento() {
   console.log('🚗 INICIANDO SIMULACIÓN DE MOVIMIENTO...');
@@ -149,11 +152,17 @@ async function simularMovimiento() {
     return;
   }
 
+  // Detener simulación anterior si existe
+  if (simulacionIntervalo) {
+    clearInterval(simulacionIntervalo);
+    console.log('⏹️ Simulación anterior detenida');
+  }
+
   const firebaseDb = getFirebaseDatabase();
   const coleccion = `patrullas_${currentCity}`;
   let movimiento = 0;
 
-  const intervalo = setInterval(async () => {
+  simulacionIntervalo = setInterval(async () => {
     movimiento += 0.0001; // Incremento pequeño para simular movimiento
 
     // PATRULLA_01: Estacionada
@@ -183,13 +192,29 @@ async function simularMovimiento() {
 
     // Parar después de 2 minutos
     if (movimiento > 120) {
-      clearInterval(intervalo);
+      clearInterval(simulacionIntervalo);
+      simulacionIntervalo = null;
       console.log('\n⏹️ Simulación detenida después de 2 minutos');
       console.log('💡 Para reiniciar: simularMovimiento()');
     }
   }, 1000); // Actualizar cada 1 segundo
 
-  console.log('▶️ Simulación en progreso (detente con Ctrl+C)');
+  console.log('▶️ Simulación en progreso');
+  console.log('💡 Para detener: detenerSimulacion()');
+}
+
+/**
+ * Función para detener la simulación de movimiento
+ */
+function detenerSimulacion() {
+  if (simulacionIntervalo) {
+    clearInterval(simulacionIntervalo);
+    simulacionIntervalo = null;
+    console.log('⏹️ Simulación detenida manualmente');
+    console.log('💡 Para reiniciar: simularMovimiento()');
+  } else {
+    console.warn('⚠️ No hay simulación en progreso');
+  }
 }
 
 // Función para limpiar datos de prueba
@@ -282,10 +307,13 @@ console.log(`
 2. simularMovimiento()
    → Simula movimiento continuo (2 minutos)
    
-3. verPatrullas()
+3. detenerSimulacion()
+   → Detiene la simulación de movimiento
+   
+4. verPatrullas()
    → Muestra patrullas actuales en consola
    
-4. limpiarPatrullasPrueba()
+5. limpiarPatrullasPrueba()
    → Elimina todas las patrullas de prueba
 
 📍 UBICACIONES POR CIUDAD:
