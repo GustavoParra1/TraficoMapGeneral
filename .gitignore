@@ -24,3 +24,4 @@ __pycache__/
 htmlcov/
 test-results/
 coverage/
+serviceAccountKey.json
