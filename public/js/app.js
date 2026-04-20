@@ -940,6 +940,40 @@ auth.onAuthStateChanged((user) => {
               Total: <span id="robo-total-count">0</span> robos registrados
             </div>
           </div>
+
+          <div style="margin-top: 12px; padding: 10px; background: #f9f9f9; border-radius: 4px; border: 1px solid #ddd;">
+            <strong style="display: block; margin-bottom: 8px; color: #333;">🎨 Leyenda de Resultados:</strong>
+            <div style="font-size: 10px; line-height: 1.6;">
+              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #e74c3c; border-radius: 50%; border: 1px solid #333;"></span>
+                <span>Intervención Policial</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #f39c12; border-radius: 50%; border: 1px solid #333;"></span>
+                <span>Asiste Policía y Libera</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #27ae60; border-radius: 50%; border: 1px solid #333;"></span>
+                <span>Hallazgo de Automotor</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #f1c40f; border-radius: 50%; border: 1px solid #333;"></span>
+                <span>Sin Recurso Policial</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #3498db; border-radius: 50%; border: 1px solid #333;"></span>
+                <span>Seguimiento LPR</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #1abc9c; border-radius: 50%; border: 1px solid #333;"></span>
+                <span>LPR Detención</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <span style="display: inline-block; width: 12px; height: 12px; background-color: #95a5a6; border-radius: 50%; border: 1px solid #333;"></span>
+                <span>Otros</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

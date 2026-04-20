@@ -12,15 +12,15 @@ const RoboLayer = (() => {
   let isVisible = false;
   let barriosGeoJson = null;
 
-  // Colores para resultados de robos
+  // Colores para resultados de robos - COLORES DISTINTIVOS
   const resultadoColors = {
-    'Intervencion Policial': '#ff0000',        // Rojo
-    'Policia Asiste y Libera': '#ffaa00',      // Naranja
-    'Hallazgo de Automotor': '#00cc00',        // Verde
-    'Sin Recurso Policial': '#ff6600',         // Naranja oscuro
-    'Seguimiento LPR': '#0099ff',              // Azul
-    'LPR Detencion': '#00ff00',                // Verde fluorescente
-    'Otros': '#999999'                          // Gris
+    'Asiste Policia y Libera': '#f39c12',      // 🟠 Naranja vibrante
+    'Hallazgo de Automotor': '#27ae60',        // 🟢 Verde oscuro
+    'Intervencion Policial': '#e74c3c',        // 🔴 Rojo
+    'Sin Recurso Policial': '#f1c40f',         // 🟡 Amarillo
+    'Seguimiento LPR': '#3498db',              // 🔵 Azul
+    'LPR Detencion': '#1abc9c',                // 🔷 Cian/Verde menta
+    'Otros': '#95a5a6'                         // ⚫ Gris
   };
 
   // Función helper para parsear líneas CSV correctamente

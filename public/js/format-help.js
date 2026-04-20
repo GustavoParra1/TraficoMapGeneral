@@ -213,22 +213,43 @@ const FormatHelp = (() => {
 -38.077284,-57.5496172,2024-01-15,Sin Recurso Policial,Zona Industrial,2024`,
       csvInfo: `
             <div style="background: #f0f8ff; padding: 12px; margin: 10px 0; border-radius: 4px; border-left: 4px solid #0066ff;">
-              <strong>📌 Valores válidos para "resultado":</strong>
-              <ul style="margin: 8px 0; padding-left: 20px;">
-                <li>Asiste Policia y Libera</li>
-                <li>Hallazgo de Automotor</li>
-                <li>Intervencion Policial</li>
-                <li>Sin Recurso Policial</li>
-                <li>Seguimiento LPR</li>
-                <li>LPR Detencion</li>
-                <li>Otros (para valores no definidos)</li>
-              </ul>
+              <strong>📌 Valores válidos para "resultado" (con color asignado):</strong>
+              <div style="margin: 8px 0; padding-left: 20px; font-size: 12px; line-height: 1.8;">
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #e74c3c; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>Intervencion Policial</code>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #f39c12; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>Asiste Policia y Libera</code>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #27ae60; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>Hallazgo de Automotor</code>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #f1c40f; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>Sin Recurso Policial</code>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #3498db; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>Seguimiento LPR</code>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 6px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #1abc9c; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>LPR Detencion</code>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #95a5a6; border-radius: 50%; border: 1px solid #333;"></span>
+                  <code>Otros</code> (para valores no definidos)
+                </div>
+              </div>
             </div>
             <strong>💡 Notas importantes:</strong>
             <ul style="padding-left: 20px;">
               <li>Las coordenadas deben estar en Argentina: lat entre -56 y -20, lng entre -75 y -50</li>
               <li>La fecha debe estar en formato YYYY-MM-DD</li>
-              <li>El campo "resultado" define el color del marcador en el mapa</li>
+              <li>El campo "resultado" define el color del marcador en el mapa - ¡DEBE coincidir exactamente!</li>
               <li>El campo "observaciones" puede contener nombre de barrio, dirección, o notas</li>
               <li>El año se extrae automáticamente de la fecha si no lo especificas</li>
             </ul>
