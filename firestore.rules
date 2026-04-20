@@ -43,10 +43,9 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
-    // ========== PATRULLAS MAR DEL PLATA ==========
+    // ========== PATRULLAS MAR DEL PLATA (con y sin guiones) ==========
     match /patrullas_mar-del-plata/{patrolId} {
       allow read: if isAuthenticated();
-      // Patrullas pueden actualizar su propia posición
       allow write: if isPatullaOrAdmin();
       match /gps_history/{entry} {
         allow read: if isAuthenticated();
@@ -54,8 +53,26 @@ service cloud.firestore {
       }
     }
 
-    // ========== PATRULLAS SAN MARTIN DEL MAR ==========
+    match /patrullas_mardelplata/{patrolId} {
+      allow read: if isAuthenticated();
+      allow write: if isPatullaOrAdmin();
+      match /gps_history/{entry} {
+        allow read: if isAuthenticated();
+        allow write: if isPatullaOrAdmin();
+      }
+    }
+
+    // ========== PATRULLAS SAN MARTIN DEL MAR (con y sin guiones) ==========
     match /patrullas_san-martin-del-mar/{patrolId} {
+      allow read: if isAuthenticated();
+      allow write: if isPatullaOrAdmin();
+      match /gps_history/{entry} {
+        allow read: if isAuthenticated();
+        allow write: if isPatullaOrAdmin();
+      }
+    }
+
+    match /patrullas_sanmartindelmmar/{patrolId} {
       allow read: if isAuthenticated();
       allow write: if isPatullaOrAdmin();
       match /gps_history/{entry} {
@@ -74,41 +91,48 @@ service cloud.firestore {
       }
     }
 
-    // ========== CHAT MAR DEL PLATA ==========
-    match /chat_mar-del-plata/{patrolId} {
+    // ========== CHAT MAR DEL PLATA (con y sin guiones) ==========
+    match /chat_mar-del-plata/{document=**} {
       allow read: if isAuthenticated();
-      allow write: if isPatullaOrAdmin();
-      match /messages/{messageId} {
-        allow read: if isAuthenticated();
-        allow write: if isPatullaOrAdmin();
-        allow delete: if isOperadorOrAdmin();
-      }
+      allow write: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
     }
 
-    // ========== CHAT SAN MARTIN DEL MAR ==========
-    match /chat_san-martin-del-mar/{patrolId} {
+    match /chat_mardelplata/{document=**} {
       allow read: if isAuthenticated();
-      allow write: if isPatullaOrAdmin();
-      match /messages/{messageId} {
-        allow read: if isAuthenticated();
-        allow write: if isPatullaOrAdmin();
-        allow delete: if isOperadorOrAdmin();
-      }
+      allow write: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
+    }
+
+    // ========== CHAT SAN MARTIN DEL MAR (con y sin guiones) ==========
+    match /chat_san-martin-del-mar/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
+    }
+
+    match /chat_sanmartindelmmar/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
     }
 
     // ========== CHAT CORDOBA ==========
-    match /chat_cordoba/{patrolId} {
+    match /chat_cordoba/{document=**} {
       allow read: if isAuthenticated();
-      allow write: if isPatullaOrAdmin();
-      match /messages/{messageId} {
-        allow read: if isAuthenticated();
-        allow write: if isPatullaOrAdmin();
-        allow delete: if isOperadorOrAdmin();
-      }
+      allow write: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
     }
 
     // ========== MESSAGES - Nueva colección centralizada ==========
     match /messages_mar-del-plata/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
+    }
+
+    match /messages_mardelplata/{messageId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated();
       allow update: if isAuthenticated();
@@ -129,14 +153,31 @@ service cloud.firestore {
       allow delete: if isOperadorOrAdmin();
     }
 
-    // ========== WEBRTC MAR DEL PLATA ==========
+    match /messages_sanmartindelmmar/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
+    }
+
+    // ========== WEBRTC MAR DEL PLATA (con y sin guiones) ==========
     match /webrtc_mar-del-plata/{document=**} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated();
     }
 
-    // ========== WEBRTC SAN MARTIN DEL MAR ==========
+    match /webrtc_mardelplata/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // ========== WEBRTC SAN MARTIN DEL MAR (con y sin guiones) ==========
     match /webrtc_san-martin-del-mar/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /webrtc_sanmartindelmmar/{document=**} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated();
     }
