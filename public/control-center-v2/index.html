@@ -47,6 +47,10 @@
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       border-bottom: 1px solid #334155;
       flex: 0 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
     }
 
     .sidebar-header h2 {
@@ -55,6 +59,26 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex: 1;
+    }
+
+    .sidebar-header .btn-logout {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .sidebar-header .btn-logout:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
     }
 
     .sidebar-content {
@@ -405,6 +429,7 @@
   <div class="sidebar">
     <div class="sidebar-header">
       <h2>🎛️ Control Centro</h2>
+      <button class="btn-logout" onclick="logout()" title="Cerrar sesión">Salir</button>
     </div>
 
     <div class="sidebar-content">
@@ -471,22 +496,47 @@
 
 <script>
   // ========================================
-  // FIREBASE CONFIG
+  // FIREBASE CONFIG - Cargar desde config.json
   // ========================================
-  const firebaseConfig = {
-    apiKey: "AIzaSyD5YdBbTYFsqeQ0VZ1oK8e4P3eT2wF1Y0g",
-    authDomain: "trafico-map-general-v2.firebaseapp.com",
-    projectId: "trafico-map-general-v2",
-    storageBucket: "trafico-map-general-v2.appspot.com",
-    messagingSenderId: "573493453246",
-    appId: "1:573493453246:web:e94f2c5f1e7e8b9c0d1f2e"
-  };
+  let firebaseConfig = null;
+  let db = null;
+  let auth = null;
 
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+  async function initializeFirebase() {
+    try {
+      // Cargar configuración desde config.json
+      const response = await fetch('../config.json');
+      const config = await response.json();
+      firebaseConfig = config.firebase;
+
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+
+      db = firebase.firestore();
+      auth = firebase.auth();
+
+      console.log('✅ Firebase initialized for control center');
+
+      // Verificar autenticación
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          console.warn('⚠️ No authenticated user. Redirecting to login...');
+          window.location.href = '/login.html';
+        } else {
+          console.log('✅ Authenticated user:', user.email);
+          // Iniciar la aplicación
+          setupControlCenter();
+        }
+      });
+    } catch (error) {
+      console.error('❌ Firebase initialization error:', error);
+      alert('Error al inicializar Firebase. Por favor recarga la página.');
+    }
   }
 
-  const db = firebase.firestore();
+  // Inicializar Firebase al cargar
+  initializeFirebase();
 
   // ========================================
   // VARIABLES GLOBALES
@@ -496,6 +546,16 @@
   let markers = []; // Para guardar referencias de marcadores
   let municipio = 'mar-del-plata';
   let selectedPatrulla = null;
+
+  // ========================================
+  // SETUP CONTROL CENTER
+  // ========================================
+  function setupControlCenter() {
+    initMap();
+    listenToPatrullas();
+    listenToMessages();
+    setupUIControls();
+  }
 
   // ========================================
   // INICIALIZAR MAPA
@@ -899,23 +959,50 @@
   }
 
   // ========================================
+  // SETUP UI CONTROLS
+  // ========================================
+  function setupUIControls() {
+    // Event listeners para botones
+    const sendBtn = document.getElementById('btn-send');
+    const broadcastBtn = document.getElementById('btn-broadcast');
+    const messageInput = document.getElementById('message-input');
+
+    if (sendBtn) sendBtn.addEventListener('click', enviarMensaje);
+    if (broadcastBtn) broadcastBtn.addEventListener('click', enviarBroadcast);
+
+    if (messageInput) {
+      messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          enviarMensaje();
+        }
+      });
+    }
+
+    console.log('✅ UI Controls setup complete');
+  }
+
+  // ========================================
+  // LOGOUT
+  // ========================================
+  function logout() {
+    if (!auth) return;
+    
+    auth.signOut()
+      .then(() => {
+        console.log('Logged out');
+        window.location.href = '/login.html';
+      })
+      .catch((err) => {
+        console.error('Logout error:', err);
+      });
+  }
+
+  // ========================================
   // INIT
   // ========================================
   document.addEventListener('DOMContentLoaded', () => {
-    initMap();
-    listenToPatrullas();
-    listenToMessages();
-
-    document.getElementById('btn-send').addEventListener('click', enviarMensaje);
-    document.getElementById('btn-broadcast').addEventListener('click', enviarBroadcast);
-
-    document.getElementById('message-input').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        enviarMensaje();
-      }
-    });
-
-    console.log(`✅ Centro de Control inicializado para: ${municipio}`);
+    // setupControlCenter() se ejecuta después de que Firebase se autentifique
+    console.log('✅ Centro de Control DOM loaded');
   });
 </script>
 

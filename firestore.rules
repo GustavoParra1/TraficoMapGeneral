@@ -2,105 +2,140 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ========== AUTENTICACIÓN ==========
+    // ========== FUNCIONES DE AUTENTICACIÓN Y ROLES ==========
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    function isAdmin() {
-      return request.auth.token.admin == true;
+    function userRole() {
+      return request.auth.token.role;
     }
 
-    // ========== USERS ==========
+    function isAdmin() {
+      return userRole() == 'admin';
+    }
+
+    function isOperador() {
+      return userRole() == 'operador';
+    }
+
+    function isPatrulla() {
+      return userRole() == 'patrulla';
+    }
+
+    function getUserEmail() {
+      return request.auth.token.email;
+    }
+
+    // Solo patrullas o admins
+    function isOperadorOrAdmin() {
+      return isOperador() || isAdmin();
+    }
+
+    // Solo patrullas o admins
+    function isPatullaOrAdmin() {
+      return isPatrulla() || isAdmin();
+    }
+
+    // ========== USERS - Solo admins ==========
     match /users/{userId} {
       allow read: if isAuthenticated();
       allow create, update, delete: if isAdmin();
     }
 
-    // ========== PATRULLAS MAR DEL PLATA - Permitir testing sin autenticación ==========
+    // ========== PATRULLAS MAR DEL PLATA ==========
     match /patrullas_mar-del-plata/{patrolId} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isAuthenticated();
+      // Patrullas pueden actualizar su propia posición
+      allow write: if isPatullaOrAdmin();
       match /gps_history/{entry} {
-        allow read: if true;
-        allow write: if true;
+        allow read: if isAuthenticated();
+        allow write: if isPatullaOrAdmin();
       }
     }
 
-    // ========== PATRULLAS SAN MARTIN DEL MAR - Permitir testing sin autenticación ==========
+    // ========== PATRULLAS SAN MARTIN DEL MAR ==========
     match /patrullas_san-martin-del-mar/{patrolId} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isPatullaOrAdmin();
       match /gps_history/{entry} {
-        allow read: if true;
-        allow write: if true;
+        allow read: if isAuthenticated();
+        allow write: if isPatullaOrAdmin();
       }
     }
 
-    // ========== PATRULLAS CORDOBA - Permitir testing sin autenticación ==========
+    // ========== PATRULLAS CORDOBA ==========
     match /patrullas_cordoba/{patrolId} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isPatullaOrAdmin();
       match /gps_history/{entry} {
-        allow read: if true;
-        allow write: if true;
+        allow read: if isAuthenticated();
+        allow write: if isPatullaOrAdmin();
       }
     }
 
     // ========== CHAT MAR DEL PLATA ==========
     match /chat_mar-del-plata/{patrolId} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isPatullaOrAdmin();
       match /messages/{messageId} {
-        allow read: if true;
-        allow write: if true;
-        allow delete: if true;
+        allow read: if isAuthenticated();
+        allow write: if isPatullaOrAdmin();
+        allow delete: if isOperadorOrAdmin();
       }
     }
 
     // ========== CHAT SAN MARTIN DEL MAR ==========
     match /chat_san-martin-del-mar/{patrolId} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isPatullaOrAdmin();
       match /messages/{messageId} {
-        allow read: if true;
-        allow write: if true;
-        allow delete: if true;
+        allow read: if isAuthenticated();
+        allow write: if isPatullaOrAdmin();
+        allow delete: if isOperadorOrAdmin();
       }
     }
 
     // ========== CHAT CORDOBA ==========
     match /chat_cordoba/{patrolId} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isPatullaOrAdmin();
       match /messages/{messageId} {
-        allow read: if true;
-        allow write: if true;
-        allow delete: if true;
+        allow read: if isAuthenticated();
+        allow write: if isPatullaOrAdmin();
+        allow delete: if isOperadorOrAdmin();
       }
+    }
+
+    // ========== MESSAGES - Nueva colección centralizada ==========
+    match /messages_{municipio}/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
     }
 
     // ========== WEBRTC MAR DEL PLATA ==========
     match /webrtc_mar-del-plata/{document=**} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
     }
 
     // ========== WEBRTC SAN MARTIN DEL MAR ==========
     match /webrtc_san-martin-del-mar/{document=**} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
     }
 
     // ========== WEBRTC CORDOBA ==========
     match /webrtc_cordoba/{document=**} {
-      allow read: if true;
-      allow write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
     }
 
     // ========== ROBOS (Siniestros) ==========
     match /robos/{document=**} {
-      allow read: if true;
+      allow read: if isOperadorOrAdmin();
       allow write: if isAdmin();
     }
 
