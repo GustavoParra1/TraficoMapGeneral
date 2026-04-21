@@ -949,11 +949,13 @@
           timestamp: data.timestamp?.toDate(),
         };
 
-        // Mostrar mensajes que vienen de patrullas o broadcasts (para el centro de control)
-        const isFromPatrulla = data.from !== 'CENTRO_CONTROL';
+        // Mostrar TODOS los mensajes (los que recibe y los que envía)
+        // Mensajes de patrullas dirigidos al centro, broadcasts, y los que envía el centro
+        const isFromPatrulla = data.from && data.from !== 'CENTRO_CONTROL' && data.from !== 'all';
+        const isFromCentro = data.from === 'CENTRO_CONTROL';
         const isBroadcast = data.type === 'broadcast';
 
-        if (isFromPatrulla || isBroadcast) {
+        if (isFromPatrulla || isFromCentro || isBroadcast) {
           allMessages.push(msg);
         }
       });
@@ -970,9 +972,10 @@
 
       allMessages.forEach((msg) => {
         const isBroadcast = msg.type === 'broadcast';
+        const isFromCentro = msg.from === 'CENTRO_CONTROL';
 
         const div = document.createElement('div');
-        div.className = `message ${isBroadcast ? 'broadcast' : 'incoming'}`;
+        div.className = `message ${isBroadcast ? 'broadcast' : (isFromCentro ? 'outgoing' : 'incoming')}`;
 
         const timeStr = msg.timestamp
           ? msg.timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
@@ -981,6 +984,8 @@
         let fromText = msg.from;
         if (isBroadcast) {
           fromText = '📢 BROADCAST';
+        } else if (isFromCentro) {
+          fromText = '🎛️ Yo (Centro)';
         }
 
         div.innerHTML = `
