@@ -956,17 +956,15 @@
 
         // Filtrar mensajes según si hay patrulla seleccionada
         let mostrarMensaje = false;
+        const isBroadcast = data.type === 'broadcast';
 
         if (!selectedPatrolId) {
           // Sin patrulla seleccionada: mostrar solo broadcasts
-          mostrarMensaje = data.type === 'broadcast';
+          mostrarMensaje = isBroadcast;
         } else {
-          // Con patrulla seleccionada: mostrar conversación 1-a-1
+          // Con patrulla seleccionada: mostrar conversación 1-a-1 Y broadcasts
           const esDeEstaPatrulla = data.from === selectedPatrolId || data.to === selectedPatrolId;
-          const esDelCentro = data.from === 'CENTRO_CONTROL';
-          
-          // Mostrar: mensajes de la patrulla O mensajes del centro dirigidos a esta patrulla
-          mostrarMensaje = esDeEstaPatrulla;
+          mostrarMensaje = esDeEstaPatrulla || isBroadcast;
         }
 
         if (mostrarMensaje) {
