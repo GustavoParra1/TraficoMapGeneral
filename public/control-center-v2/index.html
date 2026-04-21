@@ -1056,16 +1056,15 @@
   // LOGOUT
   // ========================================
   function logout() {
-    if (!auth) return;
-    
-    auth.signOut()
-      .then(() => {
-        console.log('Logged out');
+    if (confirm('¿Cerrar sesión en esta ventana?')) {
+      console.log('🚪 Cerrando ventana de control-center');
+      // Solo cerrar esta ventana sin afectar otras ventanas
+      window.close();
+      // Si no se puede cerrar (popup bloqueado), redirigir al login
+      setTimeout(() => {
         window.location.href = '/login.html';
-      })
-      .catch((err) => {
-        console.error('Logout error:', err);
-      });
+      }, 500);
+    }
   }
 
   // ========================================

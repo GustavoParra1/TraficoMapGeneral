@@ -1134,16 +1134,14 @@
   // LOGOUT
   // ========================================
   function logout() {
-    if (confirm('¿Cerrar sesión?')) {
-      auth.signOut()
-        .then(() => {
-          console.log('✅ Logged out');
-          window.location.href = '/login.html';
-        })
-        .catch((err) => {
-          console.error('❌ Logout error:', err);
-          alert('Error al cerrar sesión: ' + err.message);
-        });
+    if (confirm('¿Cerrar sesión en esta ventana?')) {
+      console.log('🚪 Cerrando ventana de patrulla-app');
+      // Solo cerrar esta ventana sin afectar otras ventanas
+      window.close();
+      // Si no se puede cerrar (popup bloqueado), redirigir al login
+      setTimeout(() => {
+        window.location.href = '/login.html';
+      }, 500);
     }
   }
 </script>
