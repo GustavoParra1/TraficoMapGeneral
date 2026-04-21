@@ -673,46 +673,63 @@ function populateRoboFilters() {
 // ============================
 // AUTENTICACIÓN
 // ============================
+// Track la primera autenticación para login inicial
+// Usar sessionStorage para que cada ventana tenga su propio estado
+let authInitialized = false;
+
 auth.onAuthStateChanged((user) => {
   const sidebar = document.getElementById('sidebar');
   
   if (!user) {
-    // Usuario NO autenticado - mostrar login
-    sidebar.innerHTML = `
-      <div style="padding: 20px;">
-        <div id="logo">🗺️ TraficoMap</div>
-        <div class="sidebar-section">
-          <div class="sidebar-title">Usuario</div>
-          <input type="email" id="login-email" placeholder="Email" style="width: 100%; padding: 8px; margin-bottom: 8px; border: none; border-radius: 4px;">
-          <input type="password" id="login-password" placeholder="Contraseña" style="width: 100%; padding: 8px; margin-bottom: 8px; border: none; border-radius: 4px;">
-          <button id="login-btn" style="width: 100%; margin-top: 10px;">Iniciar Sesión</button>
-          <div id="error-msg" style="color: #ff6b6b; margin-top: 10px; font-size: 12px;"></div>
+    // Usuario NO autenticado
+    // Solo si es la primera carga, mostrar login
+    // Si pierde sesión después (logout en otra ventana), mantener el mapa funcionando
+    if (!authInitialized) {
+      authInitialized = true;
+      sidebar.innerHTML = `
+        <div style="padding: 20px;">
+          <div id="logo">🗺️ TraficoMap</div>
+          <div class="sidebar-section">
+            <div class="sidebar-title">Usuario</div>
+            <input type="email" id="login-email" placeholder="Email" style="width: 100%; padding: 8px; margin-bottom: 8px; border: none; border-radius: 4px;">
+            <input type="password" id="login-password" placeholder="Contraseña" style="width: 100%; padding: 8px; margin-bottom: 8px; border: none; border-radius: 4px;">
+            <button id="login-btn" style="width: 100%; margin-top: 10px;">Iniciar Sesión</button>
+            <div id="error-msg" style="color: #ff6b6b; margin-top: 10px; font-size: 12px;"></div>
+          </div>
         </div>
-      </div>
-    `;
-    
-    // Event listeners para login
-    document.getElementById('login-btn').addEventListener('click', () => {
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
-      const errorMsg = document.getElementById('error-msg');
+      `;
       
-      if (!email || !password) {
-        errorMsg.textContent = '❌ Ingresa email y contraseña';
-        return;
+      // Event listeners para login
+      document.getElementById('login-btn').addEventListener('click', () => {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        const errorMsg = document.getElementById('error-msg');
+        
+        if (!email || !password) {
+          errorMsg.textContent = '❌ Ingresa email y contraseña';
+          return;
+        }
+        
+        auth.signInWithEmailAndPassword(email, password)
+          .then(() => {
+            errorMsg.textContent = '';
+          })
+          .catch((error) => {
+            errorMsg.textContent = '❌ ' + error.message;
+          });
+      });
+      
+      // Ocultar mapa solo en la carga inicial
+      document.getElementById('map').style.opacity = '0.3';
+    } else {
+      // Ya fue autenticado pero se perdió sesión (logout en otra ventana)
+      // Mostrar notificación pero dejar el mapa funcionando
+      console.log('⚠️ Sesión perdida en otra ventana');
+      const errorDiv = document.querySelector('#error-msg');
+      if (errorDiv) {
+        errorDiv.textContent = '⚠️ Tu sesión fue cerrada desde otra ventana. El mapa sigue disponible.';
       }
-      
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-          errorMsg.textContent = '';
-        })
-        .catch((error) => {
-          errorMsg.textContent = '❌ ' + error.message;
-        });
-    });
-    
-    // Ocultar mapa
-    document.getElementById('map').style.opacity = '0.3';
+    }
     
   } else {
     // Usuario autenticado - mostrar panel
