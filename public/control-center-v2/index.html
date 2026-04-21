@@ -377,9 +377,10 @@
     }
 
     .message.outgoing {
-      background: #667eea;
+      background: #10b981;
       color: white;
-      align-self: flex-end;
+      align-self: flex-start;
+      border-left: 3px solid #059669;
     }
 
     .message.broadcast {
@@ -570,6 +571,7 @@
   let patrullas = new Map();
   let markers = []; // Para guardar referencias de marcadores
   let municipio = null;  // Se establece después de autenticación
+  let selectedPatrolId = null;  // Patrulla seleccionada para chat
   let selectedPatrulla = null;
 
   // Coordenadas de cada ciudad
@@ -858,6 +860,9 @@
     }
 
     try {
+      // Asegurar que selectedPatrolId está actualizado
+      selectedPatrolId = patrollaId;
+
       const coleccion = `chat_${municipio}`;
 
       // Usar estructura plana igual a patrulla app
@@ -949,13 +954,22 @@
           timestamp: data.timestamp?.toDate(),
         };
 
-        // Mostrar TODOS los mensajes (los que recibe y los que envía)
-        // Mensajes de patrullas dirigidos al centro, broadcasts, y los que envía el centro
-        const isFromPatrulla = data.from && data.from !== 'CENTRO_CONTROL' && data.from !== 'all';
-        const isFromCentro = data.from === 'CENTRO_CONTROL';
-        const isBroadcast = data.type === 'broadcast';
+        // Filtrar mensajes según si hay patrulla seleccionada
+        let mostrarMensaje = false;
 
-        if (isFromPatrulla || isFromCentro || isBroadcast) {
+        if (!selectedPatrolId) {
+          // Sin patrulla seleccionada: mostrar solo broadcasts
+          mostrarMensaje = data.type === 'broadcast';
+        } else {
+          // Con patrulla seleccionada: mostrar conversación 1-a-1
+          const esDeEstaPatrulla = data.from === selectedPatrolId || data.to === selectedPatrolId;
+          const esDelCentro = data.from === 'CENTRO_CONTROL';
+          
+          // Mostrar: mensajes de la patrulla O mensajes del centro dirigidos a esta patrulla
+          mostrarMensaje = esDeEstaPatrulla;
+        }
+
+        if (mostrarMensaje) {
           allMessages.push(msg);
         }
       });
@@ -964,7 +978,11 @@
       allMessages.sort((a, b) => a.timestamp - b.timestamp);
 
       if (allMessages.length === 0) {
-        container.innerHTML = '<div class="empty-messages">Sin mensajes</div>';
+        if (!selectedPatrolId) {
+          container.innerHTML = '<div class="empty-messages">Selecciona una patrulla para ver la conversación</div>';
+        } else {
+          container.innerHTML = '<div class="empty-messages">Sin mensajes</div>';
+        }
         return;
       }
 
@@ -985,7 +1003,7 @@
         if (isBroadcast) {
           fromText = '📢 BROADCAST';
         } else if (isFromCentro) {
-          fromText = '🎛️ Yo (Centro)';
+          fromText = '🎛️ Yo';
         }
 
         div.innerHTML = `
@@ -1011,6 +1029,7 @@
     const sendBtn = document.getElementById('btn-send');
     const broadcastBtn = document.getElementById('btn-broadcast');
     const messageInput = document.getElementById('message-input');
+    const patrollaSelect = document.getElementById('patrulla-select');
 
     if (sendBtn) sendBtn.addEventListener('click', enviarMensaje);
     if (broadcastBtn) broadcastBtn.addEventListener('click', enviarBroadcast);
@@ -1020,6 +1039,15 @@
         if (e.key === 'Enter') {
           enviarMensaje();
         }
+      });
+    }
+
+    // Listener para cambio de patrulla
+    if (patrollaSelect) {
+      patrollaSelect.addEventListener('change', (e) => {
+        selectedPatrolId = e.target.value || null;
+        console.log(`📱 Patrulla seleccionada: ${selectedPatrolId || 'Ninguna'}`);
+        renderMessages();  // Actualizar mensajes cuando cambia la patrulla
       });
     }
 
