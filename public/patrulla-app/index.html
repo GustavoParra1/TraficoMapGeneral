@@ -520,23 +520,28 @@
         if (!user) {
           console.warn('⚠️ No authenticated user. Redirecting to login...');
           window.location.href = '/login.html';
-        } else {
-          console.log('✅ Authenticated user:', user.email);
-          
-          // Obtener el custom claim 'city' del usuario
-          const idTokenResult = await user.getIdTokenResult();
-          const userCity = idTokenResult.claims.city;
-          
-          if (userCity) {
-            municipio = userCity;
-            console.log(`📍 Ciudad del usuario: ${municipio}`);
-          } else {
-            console.warn('⚠️ No se encontró city en custom claims');
-          }
-          
-          // Iniciar la aplicación
-          loadPatrollaFromStorage();
+          return;
         }
+        
+        console.log('✅ Authenticated user:', user.email);
+        
+        // Obtener el custom claim 'city' del usuario
+        const idTokenResult = await user.getIdTokenResult();
+        const userCity = idTokenResult.claims.city;
+        
+        if (userCity) {
+          municipio = userCity;
+          console.log(`📍 Ciudad del usuario: ${municipio}`);
+        } else {
+          console.warn('⚠️ No se encontró city en custom claims');
+          window.location.href = '/login.html';
+          return;
+        }
+        
+        // Iniciar la aplicación DESPUÉS de estar autenticado y tener ciudad
+        // Disparar evento personalizado para que DOMContentLoaded sepa que está listo
+        window.authReady = true;
+        window.dispatchEvent(new Event('authReady'));
       });
     } catch (error) {
       console.error('❌ Firebase initialization error:', error);
@@ -931,6 +936,13 @@
   // ========================================
   document.addEventListener('DOMContentLoaded', async () => {
     console.log('📱 DOMContentLoaded disparado');
+    
+    // ESPERAR a que la autenticación esté lista
+    if (!window.authReady) {
+      console.log('⏳ Esperando a que la autenticación esté lista...');
+      await new Promise(resolve => window.addEventListener('authReady', resolve, { once: true }));
+      console.log('✅ Autenticación lista, continuando...');
+    }
     
     // Asignar listeners de botones del control bar (siempre disponibles)
     const btnClearMessages = document.getElementById('btn-clear-messages');
