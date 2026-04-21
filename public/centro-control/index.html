@@ -380,7 +380,8 @@
         // Validar que sea centro-control
         if (userData.rol !== 'centro-control' && !userData.admin) {
           alert('Acceso denegado - Solo centro de control');
-          await auth.signOut();
+          window.close();
+          setTimeout(() => { window.location.href = '/login.html'; }, 500);
           return;
         }
 
@@ -546,9 +547,8 @@
 
     btnLogout.addEventListener('click', () => {
       if (unsubscribe) unsubscribe();
-      auth.signOut().then(() => {
-        location.href = '/';
-      });
+      window.close();
+      setTimeout(() => { window.location.href = '/'; }, 500);
     });
   </script>
 </body>

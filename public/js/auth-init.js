@@ -77,8 +77,8 @@ function getUserRole() {
 // Logout
 async function logout() {
   try {
-    await auth.signOut();
-    window.location.href = '/login.html';
+    window.close();
+    setTimeout(() => { window.location.href = '/login.html'; }, 500);
   } catch (error) {
     console.error('Logout error:', error);
   }

@@ -73,12 +73,12 @@ const AuthManager = (() => {
      */
     async logout() {
       try {
-        await auth.signOut();
         currentUser = null;
         userRole = null;
         localStorage.removeItem('currentUser');
         console.log('✅ Logged out');
-        window.location.href = '/login.html';
+        window.close();
+        setTimeout(() => { window.location.href = '/login.html'; }, 500);
       } catch (error) {
         console.error('❌ Logout failed:', error);
         throw error;

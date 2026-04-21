@@ -1116,7 +1116,8 @@ auth.onAuthStateChanged((user) => {
     
     // Event listeners
     document.getElementById('logout-btn').addEventListener('click', () => {
-      auth.signOut();
+      window.close();
+      setTimeout(() => { window.location.href = '/login.html'; }, 500);
     });
     
     // Selector de mapa base
