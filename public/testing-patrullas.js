@@ -50,11 +50,24 @@ async function crearPatrullasPrueba() {
   console.log(`📍 Ciudad actual: ${currentCity}`);
 
   // Datos de patrullas de prueba
+  // Obtener coordenadas base según la ciudad
+  let latBase, lngBase;
+  if (currentCity === 'cordoba') {
+    latBase = -31.415;
+    lngBase = -64.189;
+  } else if (currentCity === 'la-plata') {
+    latBase = -34.92;
+    lngBase = -57.945;
+  } else {
+    latBase = -38.0;   // Mar del Plata por defecto
+    lngBase = -57.55;
+  }
+  
   const patrullasPrueba = [
     {
       patente: 'PATRULLA_01',
-      lat: currentCity === 'cordoba' ? -31.415 : -38.0,
-      lng: currentCity === 'cordoba' ? -64.189 : -57.55,
+      lat: latBase,
+      lng: lngBase,
       online: true,
       emergencia: false,
       estado: 'activo',
@@ -64,8 +77,8 @@ async function crearPatrullasPrueba() {
     },
     {
       patente: 'PATRULLA_02',
-      lat: currentCity === 'cordoba' ? -31.42 : -38.01,
-      lng: currentCity === 'cordoba' ? -64.19 : -57.54,
+      lat: latBase + 0.01,
+      lng: lngBase + 0.01,
       online: true,
       emergencia: false,
       estado: 'activo',
@@ -75,8 +88,8 @@ async function crearPatrullasPrueba() {
     },
     {
       patente: 'PATRULLA_03',
-      lat: currentCity === 'cordoba' ? -31.41 : -37.99,
-      lng: currentCity === 'cordoba' ? -64.18 : -57.56,
+      lat: latBase - 0.01,
+      lng: lngBase - 0.01,
       online: true,
       emergencia: true, // Una en emergencia
       estado: 'emergencia',
@@ -86,8 +99,8 @@ async function crearPatrullasPrueba() {
     },
     {
       patente: 'PATRULLA_04',
-      lat: currentCity === 'cordoba' ? -31.42 : -38.02,
-      lng: currentCity === 'cordoba' ? -64.20 : -57.53,
+      lat: latBase + 0.005,
+      lng: lngBase - 0.015,
       online: false, // Una offline
       emergencia: false,
       estado: 'offline',
@@ -161,6 +174,20 @@ async function simularMovimiento() {
 
   const firebaseDb = getFirebaseDatabase();
   const coleccion = `patrullas_${currentCity.replace(/-/g, '')}`;
+  
+  // Obtener coordenadas base según la ciudad
+  let latBase, lngBase;
+  if (currentCity === 'cordoba') {
+    latBase = -31.415;
+    lngBase = -64.189;
+  } else if (currentCity === 'la-plata') {
+    latBase = -34.92;
+    lngBase = -57.945;
+  } else {
+    latBase = -38.0;   // Mar del Plata por defecto
+    lngBase = -57.55;
+  }
+  
   let movimiento = 0;
 
   simulacionIntervalo = setInterval(async () => {
@@ -171,16 +198,16 @@ async function simularMovimiento() {
 
     // PATRULLA_02: Moviéndose
     await firebaseDb.collection(coleccion).doc('PATRULLA_02').update({
-      lat: (currentCity === 'cordoba' ? -31.42 : -38.01) + Math.sin(movimiento) * 0.01,
-      lng: (currentCity === 'cordoba' ? -64.19 : -57.54) + Math.cos(movimiento) * 0.01,
+      lat: latBase + 0.01 + Math.sin(movimiento) * 0.01,
+      lng: lngBase + 0.01 + Math.cos(movimiento) * 0.01,
       speed: Math.abs(Math.sin(movimiento) * 50),
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 
     // PATRULLA_03: Moviéndose rápido (emergencia)
     await firebaseDb.collection(coleccion).doc('PATRULLA_03').update({
-      lat: (currentCity === 'cordoba' ? -31.41 : -37.99) + Math.sin(movimiento * 2) * 0.02,
-      lng: (currentCity === 'cordoba' ? -64.18 : -57.56) + Math.cos(movimiento * 2) * 0.02,
+      lat: latBase - 0.01 + Math.sin(movimiento * 2) * 0.02,
+      lng: lngBase - 0.01 + Math.cos(movimiento * 2) * 0.02,
       speed: 60,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
