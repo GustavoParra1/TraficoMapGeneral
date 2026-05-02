@@ -98,7 +98,8 @@ async function crearPatrullasPrueba() {
   ];
 
   try {
-    const coleccion = `patrullas_${currentCity}`;
+    // Remover guiones del nombre de la ciudad (la-plata → laplata)
+    const coleccion = `patrullas_${currentCity.replace(/-/g, '')}`;
     console.log(`\n📝 Insertando en colección: ${coleccion}`);
 
     for (const patrulla of patrullasPrueba) {
@@ -159,7 +160,7 @@ async function simularMovimiento() {
   }
 
   const firebaseDb = getFirebaseDatabase();
-  const coleccion = `patrullas_${currentCity}`;
+  const coleccion = `patrullas_${currentCity.replace(/-/g, '')}`;
   let movimiento = 0;
 
   simulacionIntervalo = setInterval(async () => {
@@ -234,7 +235,7 @@ async function limpiarPatrullasPrueba() {
   }
 
   const firebaseDb = getFirebaseDatabase();
-  const coleccion = `patrullas_${currentCity}`;
+  const coleccion = `patrullas_${currentCity.replace(/-/g, '')}`;
   const patentes = ['PATRULLA_01', 'PATRULLA_02', 'PATRULLA_03', 'PATRULLA_04'];
 
   try {
