@@ -91,7 +91,16 @@ service cloud.firestore {
       }
     }
 
-    // ========== PATRULLAS LA PLATA ==========
+    // ========== PATRULLAS LA PLATA (con y sin guiones) ==========
+    match /patrullas_la-plata/{patrolId} {
+      allow read: if isAuthenticated();
+      allow write: if isPatullaOrAdmin();
+      match /gps_history/{entry} {
+        allow read: if isAuthenticated();
+        allow write: if isPatullaOrAdmin();
+      }
+    }
+
     match /patrullas_laplata/{patrolId} {
       allow read: if isAuthenticated();
       allow write: if isPatullaOrAdmin();
@@ -134,7 +143,13 @@ service cloud.firestore {
       allow delete: if isOperadorOrAdmin();
     }
 
-    // ========== CHAT LA PLATA ==========
+    // ========== CHAT LA PLATA (con y sin guiones) ==========
+    match /chat_la-plata/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
+    }
+
     match /chat_laplata/{document=**} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated();
@@ -182,6 +197,14 @@ service cloud.firestore {
       allow update: if isAuthenticated();
       allow delete: if isOperadorOrAdmin();
     }
+
+    match /messages_la-plata/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
+    }
+
     // ========== WEBRTC MAR DEL PLATA (con y sin guiones) ==========
     match /webrtc_mar-del-plata/{document=**} {
       allow read: if isAuthenticated();
@@ -215,7 +238,16 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated();
     }
+    // ========== WEBRTC LA PLATA (con y sin guiones) ==========
+    match /webrtc_laplata/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
 
+    match /webrtc_la-plata/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
     // ========== ROBOS (Siniestros) ==========
     match /robos/{document=**} {
       allow read: if isOperadorOrAdmin();
