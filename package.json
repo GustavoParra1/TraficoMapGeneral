@@ -9,7 +9,9 @@
     "dev": "node server.js --dev",
     "test": "jest",
     "build": "echo 'Build process here'",
-    "firebase:deploy": "firebase deploy --only hosting"
+    "firebase:deploy": "firebase deploy --only hosting",
+    "setup-users": "node setup-users.js",
+    "create-city": "node create-city.js"
   },
   "keywords": [
     "traffic",
