@@ -52,6 +52,8 @@ const CityUsersGenerator = (() => {
   const createUsersInFirebase = async (users) => {
     const createdUsers = [];
     const errors = [];
+    let createdCount = 0;
+    let reusingCount = 0;
 
     for (const user of users) {
       try {
@@ -72,6 +74,7 @@ const CityUsersGenerator = (() => {
         });
         
         console.log(`✅ Datos guardados en Firestore para: ${user.email}`);
+        createdCount++;
 
         createdUsers.push({
           ...user,
@@ -80,28 +83,50 @@ const CityUsersGenerator = (() => {
           createdAt: new Date()
         });
       } catch (error) {
-        console.error(`❌ Error creando ${user.email}:`, error.message);
-        
-        errors.push({
-          email: user.email,
-          error: error.message
-        });
-        
-        createdUsers.push({
-          ...user,
-          status: `Error: ${error.message}`,
-          error: true
-        });
+        // Manejar emails duplicados
+        if (error.code === 'auth/email-already-in-use') {
+          console.log(`♻️ Usuario ya existe, reutilizando: ${user.email}`);
+          reusingCount++;
+          
+          // Intentar obtener el UID del usuario existente desde Firestore
+          const existingUser = await db.collection('users')
+            .where('email', '==', user.email)
+            .limit(1)
+            .get();
+          
+          const uid = existingUser.docs.length > 0 ? existingUser.docs[0].id : 'unknown';
+          
+          createdUsers.push({
+            ...user,
+            uid: uid,
+            status: 'Reutilizado ♻️',
+            reusingExisting: true
+          });
+        } else {
+          console.error(`❌ Error creando ${user.email}:`, error.message);
+          
+          errors.push({
+            email: user.email,
+            error: error.message
+          });
+          
+          createdUsers.push({
+            ...user,
+            status: `Error: ${error.message}`,
+            error: true
+          });
+        }
       }
     }
 
-    console.log(`📊 Resumen: ${createdUsers.length - errors.length} creados, ${errors.length} errores`);
+    console.log(`📊 Resumen: ${createdCount} creados, ${reusingCount} reutilizados, ${errors.length} errores`);
     return { createdUsers, errors };
   };
 
   // Mostrar modal con credenciales
   const showCredentialsModal = (users, cityName) => {
-    const successCount = users.filter(u => !u.error).length;
+    const successCount = users.filter(u => !u.error && !u.reusingExisting).length;
+    const reusingCount = users.filter(u => u.reusingExisting).length;
     const errorCount = users.filter(u => u.error).length;
     
     const modalHtml = `
@@ -129,9 +154,10 @@ const CityUsersGenerator = (() => {
         ">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div>
-              <h2 style="margin: 0 0 10px 0; color: #333;">📋 Credenciales Generadas - ${cityName}</h2>
+              <h2 style="margin: 0 0 10px 0; color: #333;">📋 Credenciales - ${cityName}</h2>
               <p style="margin: 0; color: #666; font-size: 13px;">
-                ${successCount > 0 ? `✅ ${successCount} usuarios creados` : ''} 
+                ${successCount > 0 ? `✅ ${successCount} creados` : ''} 
+                ${reusingCount > 0 ? `♻️ ${reusingCount} reutilizados` : ''} 
                 ${errorCount > 0 ? `❌ ${errorCount} errores` : ''}
               </p>
             </div>
@@ -155,15 +181,24 @@ const CityUsersGenerator = (() => {
                 <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Rol</th>
                 <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Email</th>
                 <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Contraseña</th>
-                <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 80px;">Estado</th>
+                <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 90px;">Estado</th>
               </tr>
             </thead>
             <tbody id="credentials-table-body">
               ${users.map((user, idx) => {
-                const isError = user.error;
-                const statusColor = isError ? '#ffebee' : '#f9f9f9';
-                const statusBg = isError ? '#ffcdd2' : '#d4edda';
-                const statusText = isError ? '❌ Error' : '✅ OK';
+                let statusColor = '#f9f9f9';
+                let statusBg = '#d4edda';
+                let statusText = '✅ OK';
+                
+                if (user.error) {
+                  statusColor = '#ffebee';
+                  statusBg = '#ffcdd2';
+                  statusText = '❌ Error';
+                } else if (user.reusingExisting) {
+                  statusColor = '#f3e5f5';
+                  statusBg = '#e1bee7';
+                  statusText = '♻️ Existe';
+                }
                 
                 return `
                   <tr style="background: ${statusColor};">
@@ -187,7 +222,7 @@ const CityUsersGenerator = (() => {
               cursor: pointer;
               font-size: 14px;
               font-weight: 600;
-            ">📋 Copiar Todo</button>
+            ">📋 Copiar Nuevos</button>
 
             <button id="download-credentials-btn" style="
               padding: 12px 20px;
@@ -221,8 +256,10 @@ const CityUsersGenerator = (() => {
             font-size: 13px;
             color: #0d47a1;
           ">
-            ℹ️ <strong>Importante:</strong> Los usuarios marcados con ✅ ya pueden acceder a la app.
-            Guarda estas credenciales en un lugar seguro. Si hay ❌ errores, intenta crear esos usuarios manualmente desde setup-users.js.
+            ℹ️ <strong>Estados:</strong><br>
+            • ✅ OK = Usuario nuevo, listo para usar<br>
+            • ♻️ Existe = Usuario ya existía, se reutiliza (contraseña no cambia)<br>
+            • ❌ Error = Problema al verificar usuario
           </div>
         </div>
       </div>
@@ -233,17 +270,25 @@ const CityUsersGenerator = (() => {
 
     // Event listeners
     document.getElementById('copy-credentials-btn').addEventListener('click', () => {
-      const successUsers = users.filter(u => !u.error);
-      const text = successUsers.map(u => `${u.rol}\t${u.email}\t${u.password}`).join('\n');
+      const newUsers = users.filter(u => !u.error && !u.reusingExisting);
+      if (newUsers.length === 0) {
+        alert('❌ No hay usuarios nuevos para copiar. Solo usuarios reutilizados.');
+        return;
+      }
+      const text = newUsers.map(u => `${u.rol}\t${u.email}\t${u.password}`).join('\n');
       navigator.clipboard.writeText(text).then(() => {
-        alert('✅ Credenciales copiadas al portapapeles');
+        alert(`✅ ${newUsers.length} credenciales copiadas al portapapeles`);
       });
     });
 
     document.getElementById('download-credentials-btn').addEventListener('click', () => {
-      const successUsers = users.filter(u => !u.error);
+      const newUsers = users.filter(u => !u.error && !u.reusingExisting);
+      if (newUsers.length === 0) {
+        alert('❌ No hay usuarios nuevos para descargar.');
+        return;
+      }
       const csv = 'Rol,Email,Contraseña\n' + 
-                  successUsers.map(u => `"${u.rol}","${u.email}","${u.password}"`).join('\n');
+                  newUsers.map(u => `"${u.rol}","${u.email}","${u.password}"`).join('\n');
       
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
