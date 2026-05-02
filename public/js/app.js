@@ -2931,6 +2931,51 @@ const setupImportCities = () => {
       
       console.log('✅ Ciudad importada exitosamente:', cityData);
 
+      // ===== SOLICITAR PATRULLAS Y OPERADORES =====
+      const userConfig = await CityUsersGenerator.showCityUsersForm(cityName, cityData.id);
+      
+      if (userConfig.generate && (userConfig.patrullasCount > 0 || userConfig.operadoresCount > 0)) {
+        status.textContent = '⏳ Generando usuarios...';
+        
+        try {
+          const generatedUsers = await CityUsersGenerator.generateUsersLocally(
+            cityData.id, 
+            userConfig.patrullasCount, 
+            userConfig.operadoresCount
+          );
+
+          console.log('✅ Usuarios generados:', generatedUsers);
+
+          // Mostrar credenciales
+          CityUsersGenerator.showCredentialsModal(generatedUsers, cityName);
+
+          // Actualizar cityData con sección de patrullas
+          cityData.patrullas = {
+            enabled: true,
+            dataCollection: `patrullas_${cityData.id}`,
+            chatCollection: `chat_${cityData.id}`,
+            webrtcCollection: `webrtc_${cityData.id}`,
+            patrullasGeneradas: userConfig.patrullasCount,
+            operadoresGenerados: userConfig.operadoresCount
+          };
+
+          // Guardar actualización en localStorage
+          const userCities = JSON.parse(localStorage.getItem('userCities') || '{}');
+          userCities[cityData.id] = cityData;
+          localStorage.setItem('userCities', JSON.stringify(userCities));
+
+          console.log('✅ Configuración de patrullas guardada:', cityData.patrullas);
+          status.textContent = '✅ Ciudad y usuarios creados exitosamente';
+        } catch (err) {
+          console.error('Error generando usuarios:', err);
+          status.style.backgroundColor = '#fff3cd';
+          status.style.color = '#856404';
+          status.textContent = '⚠️ Ciudad creada pero hubo error generando usuarios';
+        }
+      } else {
+        status.textContent = '✅ Ciudad importada exitosamente. Omitidas patrullas.';
+      }
+
       // ===== PROCESAR LÍNEAS DE COLECTIVOS =====
       if (lineasFiles.length > 0) {
         console.log(`📥 Procesando ${lineasFiles.length} líneas de colectivos...`);
