@@ -100,6 +100,40 @@
         "chatCollection": "chat_cordoba",
         "webrtcCollection": "webrtc_cordoba"
       }
+    },
+    {
+      "id": "la-plata",
+      "name": "La Plata",
+      "country": "Argentina",
+      "province": "Buenos Aires",
+      "coordinates": {
+        "lat": -34.9213,
+        "lng": -57.9460
+      },
+      "zoom": 13,
+      "files": {
+        "barrios": null,
+        "siniestros": null,
+        "cameras": null,
+        "private_cameras": null
+      },
+      "optionalLayers": {
+        "semaforos": null,
+        "colegios": null,
+        "corredores": null,
+        "aforos": null,
+        "colectivos": null,
+        "flujo": null,
+        "robo": null,
+        "alertas": null,
+        "zonas": null
+      },
+      "patrullas": {
+        "enabled": true,
+        "dataCollection": "patrullas_la-plata",
+        "chatCollection": "chat_la-plata",
+        "webrtcCollection": "webrtc_la-plata"
+      }
     }
   ]
 }

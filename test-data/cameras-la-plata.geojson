@@ -1,0 +1,53 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Cámara Centro 1",
+        "id": "cam-001",
+        "tipo": "pública"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-57.9450, -34.9200]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Cámara Centro 2",
+        "id": "cam-002",
+        "tipo": "pública"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-57.9440, -34.9210]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Cámara Norte",
+        "id": "cam-003",
+        "tipo": "pública"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-57.9450, -34.9050]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Cámara Sur",
+        "id": "cam-004",
+        "tipo": "pública"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-57.9420, -34.9350]
+      }
+    }
+  ]
+}

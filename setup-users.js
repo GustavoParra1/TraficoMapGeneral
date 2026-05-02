@@ -122,6 +122,29 @@ const DEMO_USERS = [
     role: 'operador',
     city: 'mardelplata'
   },
+  // Patrullas La Plata
+  {
+    email: 'patrulla-laplata-01@seguridad.com',
+    password: 'patrulla123',
+    displayName: 'Patrulla La Plata 01',
+    role: 'patrulla',
+    city: 'laplata'
+  },
+  {
+    email: 'patrulla-laplata-02@seguridad.com',
+    password: 'patrulla123',
+    displayName: 'Patrulla La Plata 02',
+    role: 'patrulla',
+    city: 'laplata'
+  },
+  // Operadores La Plata
+  {
+    email: 'operador-la-plata-01@seguridad.com',
+    password: 'control123',
+    displayName: 'Operador La Plata 01',
+    role: 'operador',
+    city: 'laplata'
+  },
   // Admin (acceso a todas las ciudades)
   {
     email: 'admin@seguridad-mdp.com',

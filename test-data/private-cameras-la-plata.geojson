@@ -1,0 +1,44 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Cámara Privada Banco",
+        "id": "cam-priv-001",
+        "tipo": "privada",
+        "lugar": "Banco Centro"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-57.9455, -34.9215]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Cámara Privada Supermercado",
+        "id": "cam-priv-002",
+        "tipo": "privada",
+        "lugar": "Supermercado Norte"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-57.9445, -34.9060]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Cámara Privada Comercio",
+        "id": "cam-priv-003",
+        "tipo": "privada",
+        "lugar": "Local Comercial Sur"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-57.9425, -34.9340]
+      }
+    }
+  ]
+}

@@ -12,7 +12,7 @@ const AuthManager = (() => {
   const ROLE_PATTERNS = {
     'patrulla': (email) => email.startsWith('patrulla'),
     'operador': (email) => {
-      const operatorDomains = ['capa-norte@', 'capa-sur@', 'mac@', 'uppl@', 'multiagencia@', 'encargado-sala@'];
+      const operatorDomains = ['capa-norte@', 'capa-sur@', 'mac@', 'uppl@', 'multiagencia@', 'encargado-sala@', 'operador-'];
       return operatorDomains.some(domain => email.includes(domain));
     },
     'admin': (email) => email === 'admin@seguridad-mdp.com'
@@ -30,12 +30,12 @@ const AuthManager = (() => {
       this.restoreSession();
       
       // Listener de cambios de autenticación
-      auth.onAuthStateChanged((user) => {
+      auth.onAuthStateChanged(async (user) => {
         currentUser = user;
         
         if (user) {
           console.log('✅ Usuario autenticado:', user.email);
-          userRole = this.getUserRole(user.email);
+          userRole = await this.getUserRole(user.email);
           console.log('👤 Rol detectado:', userRole);
           
           // Guardar en localStorage para acceso offline
@@ -95,11 +95,23 @@ const AuthManager = (() => {
     /**
      * Obtener rol del usuario actual
      */
-    getUserRole() {
+    async getUserRole(email) {
       if (!currentUser) return null;
       
+      // Primero intentar obtener el rol desde custom claims de Firebase
+      try {
+        const idTokenResult = await currentUser.getIdTokenResult();
+        if (idTokenResult.claims.role) {
+          console.log('📋 Rol desde custom claims:', idTokenResult.claims.role);
+          return idTokenResult.claims.role;
+        }
+      } catch (error) {
+        console.warn('⚠️ No se pudieron leer custom claims:', error.message);
+      }
+      
+      // Fallback: usar email patterns
       for (const [role, matcher] of Object.entries(ROLE_PATTERNS)) {
-        if (matcher(currentUser.email)) {
+        if (matcher(email || currentUser.email)) {
           return role;
         }
       }
@@ -117,9 +129,10 @@ const AuthManager = (() => {
     /**
      * Verificar si tiene cierto rol
      */
-    hasRole(requiredRole) {
+    async hasRole(requiredRole) {
       if (!currentUser) return false;
-      return this.getUserRole(currentUser.email) === requiredRole;
+      const role = await this.getUserRole(currentUser.email);
+      return role === requiredRole;
     },
 
     /**
@@ -162,13 +175,13 @@ const AuthManager = (() => {
     /**
      * Redirigir según el rol del usuario
      */
-    redirectByRole(user) {
+    async redirectByRole(user) {
       if (!user) {
         window.location.href = '/login.html';
         return;
       }
 
-      const role = this.getUserRole(user.email);
+      const role = await this.getUserRole(user.email);
       console.log(`🔀 Redirigiendo a ${role}...`);
 
       const redirectMap = {

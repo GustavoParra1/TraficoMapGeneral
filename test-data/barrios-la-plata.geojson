@@ -1,0 +1,56 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Centro",
+        "id": 1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-57.95, -34.92],
+          [-57.94, -34.92],
+          [-57.94, -34.93],
+          [-57.95, -34.93],
+          [-57.95, -34.92]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Zona Norte",
+        "id": 2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-57.95, -34.91],
+          [-57.94, -34.91],
+          [-57.94, -34.90],
+          [-57.95, -34.90],
+          [-57.95, -34.91]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Zona Sur",
+        "id": 3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-57.95, -34.93],
+          [-57.94, -34.93],
+          [-57.94, -34.94],
+          [-57.95, -34.94],
+          [-57.95, -34.93]
+        ]]
+      }
+    }
+  ]
+}

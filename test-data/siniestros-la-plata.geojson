@@ -1,0 +1,44 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Siniestro Centro",
+        "causa": "Choque",
+        "fecha": "2026-05-01",
+        "participantes": "2 vehículos"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-57.945, -34.920]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Siniestro Norte",
+        "causa": "Vuelco",
+        "fecha": "2026-05-02",
+        "participantes": "1 vehículo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-57.945, -34.905]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Siniestro Sur",
+        "causa": "Atropello",
+        "fecha": "2026-04-30",
+        "participantes": "1 peatón"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-57.942, -34.935]
+      }
+    }
+  ]
+}

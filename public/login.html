@@ -328,8 +328,8 @@
         
         showSuccess('¡Sesión iniciada! Redirigiendo...');
         
-        setTimeout(() => {
-          AuthManager.redirectByRole(result.user);
+        setTimeout(async () => {
+          await AuthManager.redirectByRole(result.user);
         }, 800);
         
       } catch (error) {
