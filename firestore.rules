@@ -91,6 +91,16 @@ service cloud.firestore {
       }
     }
 
+    // ========== PATRULLAS LA PLATA ==========
+    match /patrullas_laplata/{patrolId} {
+      allow read: if isAuthenticated();
+      allow write: if isPatullaOrAdmin();
+      match /gps_history/{entry} {
+        allow read: if isAuthenticated();
+        allow write: if isPatullaOrAdmin();
+      }
+    }
+
     // ========== CHAT MAR DEL PLATA (con y sin guiones) ==========
     match /chat_mar-del-plata/{document=**} {
       allow read: if isAuthenticated();
@@ -119,6 +129,13 @@ service cloud.firestore {
 
     // ========== CHAT CORDOBA ==========
     match /chat_cordoba/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
+    }
+
+    // ========== CHAT LA PLATA ==========
+    match /chat_laplata/{document=**} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated();
       allow delete: if isOperadorOrAdmin();
@@ -159,7 +176,12 @@ service cloud.firestore {
       allow update: if isAuthenticated();
       allow delete: if isOperadorOrAdmin();
     }
-
+    match /messages_laplata/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
+    }
     // ========== WEBRTC MAR DEL PLATA (con y sin guiones) ==========
     match /webrtc_mar-del-plata/{document=**} {
       allow read: if isAuthenticated();
@@ -184,6 +206,12 @@ service cloud.firestore {
 
     // ========== WEBRTC CORDOBA ==========
     match /webrtc_cordoba/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // ========== WEBRTC LA PLATA ==========
+    match /webrtc_laplata/{document=**} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated();
     }
