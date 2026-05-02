@@ -2935,19 +2935,24 @@ const setupImportCities = () => {
       const userConfig = await CityUsersGenerator.showCityUsersForm(cityName, cityData.id);
       
       if (userConfig.generate && (userConfig.patrullasCount > 0 || userConfig.operadoresCount > 0)) {
-        status.textContent = '⏳ Generando usuarios...';
+        status.textContent = '⏳ Generando usuarios en Firebase...';
         
         try {
+          // Generar usuarios localmente
           const generatedUsers = await CityUsersGenerator.generateUsersLocally(
             cityData.id, 
             userConfig.patrullasCount, 
             userConfig.operadoresCount
           );
 
-          console.log('✅ Usuarios generados:', generatedUsers);
+          console.log('✅ Usuarios generados localmente:', generatedUsers);
 
-          // Mostrar credenciales
-          CityUsersGenerator.showCredentialsModal(generatedUsers, cityName);
+          // Crear usuarios en Firebase Auth y Firestore
+          const firebaseResult = await CityUsersGenerator.createUsersInFirebase(generatedUsers);
+          console.log('✅ Usuarios creados en Firebase:', firebaseResult);
+
+          // Mostrar credenciales con resultado de Firebase
+          CityUsersGenerator.showCredentialsModal(firebaseResult.createdUsers, cityName);
 
           // Actualizar cityData con sección de patrullas
           cityData.patrullas = {
@@ -2956,7 +2961,8 @@ const setupImportCities = () => {
             chatCollection: `chat_${cityData.id}`,
             webrtcCollection: `webrtc_${cityData.id}`,
             patrullasGeneradas: userConfig.patrullasCount,
-            operadoresGenerados: userConfig.operadoresCount
+            operadoresGenerados: userConfig.operadoresCount,
+            createdAt: new Date().toISOString()
           };
 
           // Guardar actualización en localStorage
@@ -2965,14 +2971,25 @@ const setupImportCities = () => {
           localStorage.setItem('userCities', JSON.stringify(userCities));
 
           console.log('✅ Configuración de patrullas guardada:', cityData.patrullas);
-          status.textContent = '✅ Ciudad y usuarios creados exitosamente';
+          
+          if (firebaseResult.errors.length > 0) {
+            status.style.backgroundColor = '#fff3cd';
+            status.style.color = '#856404';
+            status.textContent = `⚠️ ${firebaseResult.createdUsers.length} usuarios creados, ${firebaseResult.errors.length} con errores`;
+          } else {
+            status.style.backgroundColor = '#d4edda';
+            status.style.color = '#155724';
+            status.textContent = '✅ Ciudad y todos los usuarios creados exitosamente en Firebase';
+          }
         } catch (err) {
-          console.error('Error generando usuarios:', err);
-          status.style.backgroundColor = '#fff3cd';
-          status.style.color = '#856404';
-          status.textContent = '⚠️ Ciudad creada pero hubo error generando usuarios';
+          console.error('❌ Error generando usuarios:', err);
+          status.style.backgroundColor = '#f8d7da';
+          status.style.color = '#721c24';
+          status.textContent = `❌ Error: ${err.message}`;
         }
       } else {
+        status.style.backgroundColor = '#d4edda';
+        status.style.color = '#155724';
         status.textContent = '✅ Ciudad importada exitosamente. Omitidas patrullas.';
       }
 

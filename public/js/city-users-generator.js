@@ -55,8 +55,11 @@ const CityUsersGenerator = (() => {
 
     for (const user of users) {
       try {
+        console.log(`🔐 Creando usuario en Firebase: ${user.email}`);
+        
         // Crear usuario en Firebase Auth
-        const userCredential = await firebase.auth().createUserWithEmailAndPassword(user.email, user.password);
+        const userCredential = await auth.createUserWithEmailAndPassword(user.email, user.password);
+        console.log(`✅ Usuario creado en Auth: ${user.email} (UID: ${userCredential.user.uid})`);
         
         // Guardar datos adicionales en Firestore
         await db.collection('users').doc(userCredential.user.uid).set({
@@ -67,29 +70,40 @@ const CityUsersGenerator = (() => {
           createdAt: new Date(),
           active: true
         });
+        
+        console.log(`✅ Datos guardados en Firestore para: ${user.email}`);
 
         createdUsers.push({
           ...user,
           uid: userCredential.user.uid,
-          status: 'Creado ✓'
+          status: 'Creado ✓',
+          createdAt: new Date()
         });
       } catch (error) {
+        console.error(`❌ Error creando ${user.email}:`, error.message);
+        
         errors.push({
           email: user.email,
           error: error.message
         });
+        
         createdUsers.push({
           ...user,
-          status: `Error: ${error.message}`
+          status: `Error: ${error.message}`,
+          error: true
         });
       }
     }
 
+    console.log(`📊 Resumen: ${createdUsers.length - errors.length} creados, ${errors.length} errores`);
     return { createdUsers, errors };
   };
 
   // Mostrar modal con credenciales
   const showCredentialsModal = (users, cityName) => {
+    const successCount = users.filter(u => !u.error).length;
+    const errorCount = users.filter(u => u.error).length;
+    
     const modalHtml = `
       <div id="credentials-modal" style="
         position: fixed;
@@ -114,7 +128,13 @@ const CityUsersGenerator = (() => {
           padding: 30px;
         ">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin: 0; color: #333;">📋 Credenciales Generadas - ${cityName}</h2>
+            <div>
+              <h2 style="margin: 0 0 10px 0; color: #333;">📋 Credenciales Generadas - ${cityName}</h2>
+              <p style="margin: 0; color: #666; font-size: 13px;">
+                ${successCount > 0 ? `✅ ${successCount} usuarios creados` : ''} 
+                ${errorCount > 0 ? `❌ ${errorCount} errores` : ''}
+              </p>
+            </div>
             <button onclick="document.getElementById('credentials-modal').remove()" style="
               background: none;
               border: none;
@@ -123,10 +143,6 @@ const CityUsersGenerator = (() => {
               color: #999;
             ">✕</button>
           </div>
-
-          <p style="color: #666; margin-bottom: 20px;">
-            ✅ Se han creado ${users.length} usuarios automáticamente. Copia o descarga las credenciales:
-          </p>
 
           <table style="
             width: 100%;
@@ -139,16 +155,25 @@ const CityUsersGenerator = (() => {
                 <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Rol</th>
                 <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Email</th>
                 <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Contraseña</th>
+                <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 80px;">Estado</th>
               </tr>
             </thead>
             <tbody id="credentials-table-body">
-              ${users.map((user, idx) => `
-                <tr style="background: ${idx % 2 === 0 ? '#f9f9f9' : 'white'};">
-                  <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">${user.rol}</td>
-                  <td style="padding: 12px; border: 1px solid #ddd; font-family: monospace;">${user.email}</td>
-                  <td style="padding: 12px; border: 1px solid #ddd; font-family: monospace; font-weight: bold;">${user.password}</td>
-                </tr>
-              `).join('')}
+              ${users.map((user, idx) => {
+                const isError = user.error;
+                const statusColor = isError ? '#ffebee' : '#f9f9f9';
+                const statusBg = isError ? '#ffcdd2' : '#d4edda';
+                const statusText = isError ? '❌ Error' : '✅ OK';
+                
+                return `
+                  <tr style="background: ${statusColor};">
+                    <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">${user.rol}</td>
+                    <td style="padding: 12px; border: 1px solid #ddd; font-family: monospace; font-size: 12px;">${user.email}</td>
+                    <td style="padding: 12px; border: 1px solid #ddd; font-family: monospace; font-weight: bold; font-size: 12px;">${user.password || user.status}</td>
+                    <td style="padding: 12px; border: 1px solid #ddd; text-align: center; background: ${statusBg}; font-weight: bold; font-size: 12px;">${statusText}</td>
+                  </tr>
+                `;
+              }).join('')}
             </tbody>
           </table>
 
@@ -196,8 +221,8 @@ const CityUsersGenerator = (() => {
             font-size: 13px;
             color: #0d47a1;
           ">
-            ℹ️ <strong>Importante:</strong> Estos usuarios ya pueden acceder a la app de patrullas y al centro de control.
-            Guarda estas credenciales en un lugar seguro.
+            ℹ️ <strong>Importante:</strong> Los usuarios marcados con ✅ ya pueden acceder a la app.
+            Guarda estas credenciales en un lugar seguro. Si hay ❌ errores, intenta crear esos usuarios manualmente desde setup-users.js.
           </div>
         </div>
       </div>
@@ -208,15 +233,17 @@ const CityUsersGenerator = (() => {
 
     // Event listeners
     document.getElementById('copy-credentials-btn').addEventListener('click', () => {
-      const text = users.map(u => `${u.rol}\t${u.email}\t${u.password}`).join('\n');
+      const successUsers = users.filter(u => !u.error);
+      const text = successUsers.map(u => `${u.rol}\t${u.email}\t${u.password}`).join('\n');
       navigator.clipboard.writeText(text).then(() => {
         alert('✅ Credenciales copiadas al portapapeles');
       });
     });
 
     document.getElementById('download-credentials-btn').addEventListener('click', () => {
+      const successUsers = users.filter(u => !u.error);
       const csv = 'Rol,Email,Contraseña\n' + 
-                  users.map(u => `"${u.rol}","${u.email}","${u.password}"`).join('\n');
+                  successUsers.map(u => `"${u.rol}","${u.email}","${u.password}"`).join('\n');
       
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
