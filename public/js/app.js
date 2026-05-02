@@ -1138,6 +1138,8 @@ auth.onAuthStateChanged((user) => {
         console.log(`\n========================================`);
         console.log(`🏙️ EVENTO CAMBIAR CIUDAD DISPARADO: ${newCity}`);
         console.log(`========================================`);
+        // Guardar inmediatamente en localStorage pa que el Control Center lo encuentre
+        localStorage.setItem('selectedCity', newCity);
         
         currentCity = newCity;
         
@@ -1879,9 +1881,12 @@ auth.onAuthStateChanged((user) => {
     if (btnOpenControlCenter) {
       btnOpenControlCenter.addEventListener('click', () => {
         console.log('🎛️ Abriendo Control Center v2');
-        console.log('💾 currentCity ANTES de guardar:', currentCity);
-        console.log('💾 Tipo de currentCity:', typeof currentCity);
-        localStorage.setItem('selectedCity', currentCity);
+        // Obtener la ciudad directamente del selector en lugar de usar currentCity
+        const citySelector = document.getElementById('city-selector');
+        const selectedCity = citySelector?.value || currentCity || 'mar-del-plata';
+        console.log('💾 Ciudad seleccionada del selector:', selectedCity);
+        console.log('💾 currentCity global:', currentCity);
+        localStorage.setItem('selectedCity', selectedCity);
         const verificar = localStorage.getItem('selectedCity');
         console.log('💾 Verificación localStorage.getItem():', verificar);
         window.open('control-center-v2/', '_blank');
