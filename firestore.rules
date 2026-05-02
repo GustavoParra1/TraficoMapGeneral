@@ -46,67 +46,67 @@ service cloud.firestore {
     // ========== PATRULLAS MAR DEL PLATA (con y sin guiones) ==========
     match /patrullas_mar-del-plata/{patrolId} {
       allow read: if isAuthenticated();
-      allow write: if isPatullaOrAdmin();
+      allow write: if isOperadorOrAdmin();
       match /gps_history/{entry} {
         allow read: if isAuthenticated();
-        allow write: if isPatullaOrAdmin();
+        allow write: if isOperadorOrAdmin();
       }
     }
 
     match /patrullas_mardelplata/{patrolId} {
       allow read: if isAuthenticated();
-      allow write: if isPatullaOrAdmin();
+      allow write: if isOperadorOrAdmin();
       match /gps_history/{entry} {
         allow read: if isAuthenticated();
-        allow write: if isPatullaOrAdmin();
+        allow write: if isOperadorOrAdmin();
       }
     }
 
     // ========== PATRULLAS SAN MARTIN DEL MAR (con y sin guiones) ==========
     match /patrullas_san-martin-del-mar/{patrolId} {
       allow read: if isAuthenticated();
-      allow write: if isPatullaOrAdmin();
+      allow write: if isOperadorOrAdmin();
       match /gps_history/{entry} {
         allow read: if isAuthenticated();
-        allow write: if isPatullaOrAdmin();
+        allow write: if isOperadorOrAdmin();
       }
     }
 
     match /patrullas_sanmartindelmmar/{patrolId} {
       allow read: if isAuthenticated();
-      allow write: if isPatullaOrAdmin();
+      allow write: if isOperadorOrAdmin();
       match /gps_history/{entry} {
         allow read: if isAuthenticated();
-        allow write: if isPatullaOrAdmin();
+        allow write: if isOperadorOrAdmin();
       }
     }
 
     // ========== PATRULLAS CORDOBA ==========
     match /patrullas_cordoba/{patrolId} {
       allow read: if isAuthenticated();
-      allow write: if isPatullaOrAdmin();
+      allow write: if isOperadorOrAdmin();
       match /gps_history/{entry} {
         allow read: if isAuthenticated();
-        allow write: if isPatullaOrAdmin();
+        allow write: if isOperadorOrAdmin();
       }
     }
 
     // ========== PATRULLAS LA PLATA (con y sin guiones) ==========
     match /patrullas_la-plata/{patrolId} {
       allow read: if isAuthenticated();
-      allow write: if isPatullaOrAdmin();
+      allow write: if isOperadorOrAdmin();
       match /gps_history/{entry} {
         allow read: if isAuthenticated();
-        allow write: if isPatullaOrAdmin();
+        allow write: if isOperadorOrAdmin();
       }
     }
 
     match /patrullas_laplata/{patrolId} {
       allow read: if isAuthenticated();
-      allow write: if isPatullaOrAdmin();
+      allow write: if isOperadorOrAdmin();
       match /gps_history/{entry} {
         allow read: if isAuthenticated();
-        allow write: if isPatullaOrAdmin();
+        allow write: if isOperadorOrAdmin();
       }
     }
 
