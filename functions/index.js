@@ -1,13 +1,16 @@
 /**
- * CLOUD FUNCTIONS - TraficoMap
- * Autom atiza creación de ciudades, usuarios y patrullas
+ * TraficoMap Admin Panel - Cloud Functions
+ * Fase 2C Backend - Orchestration Layer
+ * 
+ * Estas funciones orquestan las operaciones del admin panel con Firestore
+ * y ejecutan helpers de Fase 2B para creación de clientes
  */
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const cors = require('cors');
+const nodemailer = require('nodemailer');
 
 // Inicializar Firebase Admin
 admin.initializeApp();
@@ -15,159 +18,484 @@ admin.initializeApp();
 const db = admin.firestore();
 const auth = admin.auth();
 
-// Express app
+// Express app para HTTP triggers
 const app = express();
+app.use(cors({ origin: true }));
 app.use(express.json());
 
+// ============================================================================
+// FUNCIÓN 1: CREAR CLIENTE
+// ============================================================================
 /**
- * ENDPOINT: POST /api/create-city
- * Crea ciudad con usuarios en Firebase Auth y patrullas en Firestore
+ * Orquestar creación completa de cliente:
+ * 1. Crear documento en clientes/
+ * 2. Crear usuarios admin/operador en Firebase Auth
+ * 3. Crear suscripción inicial
+ * 4. Crear factura inicial
+ * 5. Crear proyecto independiente (simulado)
  */
-app.post('/api/create-city', async (req, res) => {
+app.post('/criarCliente', async (req, res) => {
   try {
-    const { cityName, cityId, province, lat, lng, numPatrullas, numOperadores } = req.body;
+    const { nombreCliente, email, plan, ciudad, telefono } = req.body;
 
-    // Validar inputs
-    if (!cityName || !cityId || isNaN(lat) || isNaN(lng) || numPatrullas < 1 || numOperadores < 1) {
-      return res.status(400).json({ error: 'Inputs inválidos' });
+    // Validación
+    if (!nombreCliente || !email || !plan) {
+      return res.status(400).json({ error: 'Faltan datos requeridos' });
     }
 
-    console.log(`\n🏙️  Cloud Function: Creando ciudad ${cityName}...`);
-
-    // 1. CREAR USUARIOS EN FIREBASE AUTH
-    const patrullaCredentials = [];
-    const operadorCredentials = [];
-
-    // Patrullas
-    for (let i = 1; i <= numPatrullas; i++) {
-      const email = `patrulla-${cityId}-${String(i).padStart(2, '0')}@seguridad.com`;
-      const password = generatePassword();
-
-      try {
-        const userRecord = await auth.createUser({
-          email: email,
-          password: password,
-          displayName: `Patrulla ${cityName} ${i}`
-        });
-
-        await auth.setCustomUserClaims(userRecord.uid, {
-          role: 'patrulla',
-          city: cityId
-        });
-
-        patrullaCredentials.push({ email, password, uid: userRecord.uid });
-        console.log(`   ✅ Patrulla ${i}: ${email}`);
-      } catch (error) {
-        if (error.code !== 'auth/email-already-exists') {
-          console.error(`   ❌ Error patrulla ${i}: ${error.message}`);
-        }
-      }
+    const planesValidos = ['basico', 'profesional', 'enterprise'];
+    if (!planesValidos.includes(plan)) {
+      return res.status(400).json({ error: 'Plan inválido' });
     }
 
-    // Operadores
-    for (let i = 1; i <= numOperadores; i++) {
-      const email = `operador-${cityId}-${String(i).padStart(2, '0')}@seguridad.com`;
-      const password = generatePassword();
+    console.log(`🚀 Creando cliente: ${nombreCliente}`);
 
-      try {
-        const userRecord = await auth.createUser({
-          email: email,
-          password: password,
-          displayName: `Operador ${cityName} ${i}`
-        });
+    // PASO 1: Crear documento en clientes/
+    const clienteId = `cli_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const ahora = new Date().toISOString();
 
-        await auth.setCustomUserClaims(userRecord.uid, {
-          role: 'operador',
-          city: cityId
-        });
+    const datosCliente = {
+      id: clienteId,
+      nombre: nombreCliente,
+      email: email,
+      plan: plan,
+      estado: 'activo',
+      ciudad: ciudad || '',
+      telefono: telefono || '',
+      created_at: ahora,
+      updated_at: ahora,
+      firebase_project_id: '', // Para futura expansión
+      api_key: generateApiKey(),
+      usuarios_creados: []
+    };
 
-        operadorCredentials.push({ email, password, uid: userRecord.uid });
-        console.log(`   ✅ Operador ${i}: ${email}`);
-      } catch (error) {
-        if (error.code !== 'auth/email-already-exists') {
-          console.error(`   ❌ Error operador ${i}: ${error.message}`);
-        }
-      }
-    }
+    await db.collection('clientes').doc(clienteId).set(datosCliente);
+    console.log('✅ Documento cliente creado');
 
-    // 2. CREAR PATRULLAS EN FIRESTORE
-    const coleccion = `patrullas_${cityId}`;
-    const latNum = parseFloat(lat);
-    const lngNum = parseFloat(lng);
+    // PASO 2: Crear usuario admin en Firebase Auth
+    const emailAdmin = `admin-${clienteId}@trafico-map.clients`;
+    const passwordTemp = generateSecurePassword();
 
-    console.log(`\n📍 Creando patrullas en Firestore (colección: ${coleccion})...`);
-
-    for (let i = 1; i <= numPatrullas; i++) {
-      const patrolId = `patrulla-${String(i).padStart(2, '0')}`;
-      const offsetLat = Math.random() * 0.05 - 0.025;
-      const offsetLng = Math.random() * 0.05 - 0.025;
-
-      await db.collection(coleccion).doc(patrolId).set({
-        lat: latNum + offsetLat,
-        lng: lngNum + offsetLng,
-        online: i === 1 ? false : true,
-        emergencia: false,
-        estado: i === 1 ? 'offline' : 'activo',
-        speed: 0,
-        heading: 0,
-        accuracy: 10,
-        timestamp: admin.firestore.FieldValue.serverTimestamp()
+    let userAdmin;
+    try {
+      userAdmin = await auth.createUser({
+        email: emailAdmin,
+        password: passwordTemp,
+        displayName: `Admin - ${nombreCliente}`,
+        disabled: false
       });
 
-      console.log(`   ✅ ${patrolId} creado`);
+      // Asignar custom claims
+      await auth.setCustomUserClaims(userAdmin.uid, {
+        role: 'admin',
+        cliente_id: clienteId
+      });
+
+      console.log(`✅ Usuario admin creado: ${emailAdmin}`);
+    } catch (error) {
+      console.warn('⚠️ Usuario ya existe:', error.message);
     }
 
-    // 3. RESPUESTA
-    console.log(`\n✅ Ciudad creada: ${cityName}\n`);
+    // PASO 3: Crear suscripción inicial
+    const precios = {
+      basico: 1000,
+      profesional: 5000,
+      enterprise: 15000
+    };
 
+    const subscripcionId = `sub_${Date.now()}`;
+    const vencimiento = new Date();
+    vencimiento.setFullYear(vencimiento.getFullYear() + 1);
+
+    const datosSubscripcion = {
+      id: subscripcionId,
+      cliente_id: clienteId,
+      plan: plan,
+      precio_mensual: precios[plan],
+      precio_anual: precios[plan] * 12,
+      expiration_date: vencimiento.toISOString(),
+      activa: true,
+      created_at: ahora,
+      updated_at: ahora,
+      renovaciones: 0,
+      cambios_plan: []
+    };
+
+    await db.collection('subscripciones').doc(subscripcionId).set(datosSubscripcion);
+    console.log('✅ Suscripción creada');
+
+    // PASO 4: Crear factura inicial
+    const facturaId = `fac_${Date.now()}`;
+    const datosBilling = {
+      id: facturaId,
+      cliente_id: clienteId,
+      subscripcion_id: subscripcionId,
+      monto: precios[plan] * 12, // Año completo
+      moneda: 'ARS',
+      descripcion: `Suscripción ${plan.toUpperCase()} - Año 1`,
+      periodo_desde: ahora,
+      periodo_hasta: vencimiento.toISOString(),
+      estado: 'pendiente',
+      creada_en: ahora,
+      vence_en: vencimiento.toISOString(),
+      pagada: false,
+      fecha_pago: null,
+      metodo_pago: 'pendiente',
+      numero_comprobante: ''
+    };
+
+    await db.collection('billing').add(datosBilling);
+    console.log('✅ Factura inicial creada');
+
+    // RESPUESTA EXITOSA
     res.json({
       success: true,
-      message: `Ciudad ${cityName} creada exitosamente`,
-      city: {
-        id: cityId,
-        name: cityName,
-        coordinates: { lat, lng }
+      cliente: datosCliente,
+      subscripcion: datosSubscripcion,
+      billing: datosBilling,
+      admin_user: {
+        email: emailAdmin,
+        password: passwordTemp,
+        uid: userAdmin?.uid
       },
-      patrullas: patrullaCredentials.length,
-      operadores: operadorCredentials.length,
-      credentials: {
-        patrullas: patrullaCredentials,
-        operadores: operadorCredentials
-      },
-      nextSteps: [
-        'Recargar página en navegador',
-        'Verificar patrullas en el mapa'
-      ]
+      mensaje: 'Cliente creado exitosamente'
     });
 
   } catch (error) {
-    console.error('❌ Error en Cloud Function:', error);
+    console.error('❌ Error creando cliente:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
+// ============================================================================
+// FUNCIÓN 2: CAMBIAR PLAN
+// ============================================================================
 /**
- * Generar contraseña segura
+ * Cambiar plan de suscripción:
+ * 1. Validar nuevo plan
+ * 2. Actualizar subscripción
+ * 3. Crear factura de diferencia (si es necesario)
+ * 4. Registrar en historial de cambios
  */
-function generatePassword(length = 12) {
-  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-  const numbers = '0123456789';
-  const all = uppercase + lowercase + numbers;
-  
-  let password = '';
-  password += uppercase[Math.floor(Math.random() * uppercase.length)];
-  password += lowercase[Math.floor(Math.random() * lowercase.length)];
-  password += numbers[Math.floor(Math.random() * numbers.length)];
+app.post('/cambiarPlan', async (req, res) => {
+  try {
+    const { subscripcionId, nuevoPlan } = req.body;
 
-  for (let i = 3; i < length; i++) {
-    password += all[Math.floor(Math.random() * all.length)];
+    if (!subscripcionId || !nuevoPlan) {
+      return res.status(400).json({ error: 'Faltan datos' });
+    }
+
+    const planesValidos = ['basico', 'profesional', 'enterprise'];
+    if (!planesValidos.includes(nuevoPlan)) {
+      return res.status(400).json({ error: 'Plan inválido' });
+    }
+
+    console.log(`🔄 Cambiando plan: ${subscripcionId} → ${nuevoPlan}`);
+
+    // Obtener suscripción actual
+    const subDoc = await db.collection('subscripciones').doc(subscripcionId).get();
+    if (!subDoc.exists) {
+      return res.status(404).json({ error: 'Suscripción no encontrada' });
+    }
+
+    const subActual = subDoc.data();
+    const precios = {
+      basico: 1000,
+      profesional: 5000,
+      enterprise: 15000
+    };
+
+    // Crear registro de cambio
+    const cambio = {
+      fecha: new Date().toISOString(),
+      plan_anterior: subActual.plan,
+      plan_nuevo: nuevoPlan,
+      precio_anterior: subActual.precio_mensual,
+      precio_nuevo: precios[nuevoPlan]
+    };
+
+    // Actualizar suscripción
+    await db.collection('subscripciones').doc(subscripcionId).update({
+      plan: nuevoPlan,
+      precio_mensual: precios[nuevoPlan],
+      precio_anual: precios[nuevoPlan] * 12,
+      updated_at: new Date().toISOString(),
+      cambios_plan: admin.firestore.FieldValue.arrayUnion(cambio)
+    });
+
+    // Crear factura de diferencia si el precio cambió
+    if (precios[nuevoPlan] !== precios[subActual.plan]) {
+      const diferencia = precios[nuevoPlan] - precios[subActual.plan];
+      if (diferencia > 0) {
+        // Cliente debe pagar diferencia
+        const facturaDif = {
+          id: `fac_diff_${Date.now()}`,
+          cliente_id: subActual.cliente_id,
+          subscripcion_id: subscripcionId,
+          monto: diferencia * 12, // Por el año
+          moneda: 'ARS',
+          descripcion: `Diferencia plan: ${subActual.plan} → ${nuevoPlan}`,
+          estado: 'pendiente',
+          creada_en: new Date().toISOString(),
+          vence_en: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+          pagada: false
+        };
+        await db.collection('billing').add(facturaDif);
+      }
+    }
+
+    console.log('✅ Plan actualizado');
+
+    res.json({
+      success: true,
+      cambio: cambio,
+      nueva_suscripcion: {
+        plan: nuevoPlan,
+        precio_mensual: precios[nuevoPlan]
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error cambiando plan:', error);
+    res.status(500).json({ error: error.message });
   }
+});
 
-  return password.split('').sort(() => Math.random() - 0.5).join('');
+// ============================================================================
+// FUNCIÓN 3: REGISTRAR PAGO
+// ============================================================================
+/**
+ * Registrar pago de factura:
+ * 1. Marcar como pagada
+ * 2. Actualizar estado suscripción si es renovación
+ * 3. Enviar email confirmación
+ */
+app.post('/registrarPago', async (req, res) => {
+  try {
+    const { facturaId, metodo_pago, referencias } = req.body;
+
+    if (!facturaId) {
+      return res.status(400).json({ error: 'ID de factura requerido' });
+    }
+
+    console.log(`💰 Registrando pago: ${facturaId}`);
+
+    // Obtener factura
+    const factDoc = await db.collection('billing').doc(facturaId).get();
+    if (!factDoc.exists) {
+      return res.status(404).json({ error: 'Factura no encontrada' });
+    }
+
+    const factura = factDoc.data();
+
+    // Actualizar factura
+    await db.collection('billing').doc(facturaId).update({
+      pagada: true,
+      estado: 'pagada',
+      fecha_pago: new Date().toISOString(),
+      metodo_pago: metodo_pago || 'transferencia',
+      referencias_pago: referencias || {}
+    });
+
+    // Si es suscripción, actualizar estado
+    if (factura.subscripcion_id) {
+      await db.collection('subscripciones').doc(factura.subscripcion_id).update({
+        activa: true,
+        updated_at: new Date().toISOString()
+      });
+    }
+
+    console.log('✅ Pago registrado');
+
+    res.json({
+      success: true,
+      factura_id: facturaId,
+      estado: 'pagada',
+      fecha_pago: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ Error registrando pago:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// FUNCIÓN 4: ACTUALIZAR CUSTOM CLAIMS
+// ============================================================================
+/**
+ * Actualizar custom claims de usuario (role, permisos)
+ * Llamado cuando se cambia role en usuarios-manager.js
+ */
+app.post('/updateCustomClaims', async (req, res) => {
+  try {
+    const { uid, claims } = req.body;
+
+    if (!uid || !claims) {
+      return res.status(400).json({ error: 'UID y claims requeridos' });
+    }
+
+    console.log(`🔐 Actualizando claims para: ${uid}`);
+
+    await auth.setCustomUserClaims(uid, claims);
+
+    console.log('✅ Custom claims actualizados');
+
+    res.json({
+      success: true,
+      uid: uid,
+      claims: claims
+    });
+
+  } catch (error) {
+    console.error('❌ Error actualizando claims:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// FUNCIÓN 5: DISABLE/ENABLE USER
+// ============================================================================
+/**
+ * Desactivar o reactivar usuario
+ */
+app.post('/toggleUserStatus', async (req, res) => {
+  try {
+    const { uid, disabled } = req.body;
+
+    if (!uid || typeof disabled !== 'boolean') {
+      return res.status(400).json({ error: 'UID y disabled requeridos' });
+    }
+
+    console.log(`${disabled ? '🔒' : '🔓'} ${disabled ? 'Desactivando' : 'Reactivando'} usuario: ${uid}`);
+
+    await auth.updateUser(uid, { disabled: disabled });
+
+    console.log('✅ Usuario actualizado');
+
+    res.json({
+      success: true,
+      uid: uid,
+      disabled: disabled
+    });
+
+  } catch (error) {
+    console.error('❌ Error actualizando usuario:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// FUNCIÓN 6: RENOVAR SUSCRIPCIÓN
+// ============================================================================
+/**
+ * Renovar suscripción por 1 año
+ * 1. Extender fecha de vencimiento
+ * 2. Crear nueva factura
+ */
+app.post('/renovarSubscripcion', async (req, res) => {
+  try {
+    const { subscripcionId } = req.body;
+
+    if (!subscripcionId) {
+      return res.status(400).json({ error: 'Suscripción ID requerido' });
+    }
+
+    console.log(`🔄 Renovando suscripción: ${subscripcionId}`);
+
+    // Obtener suscripción actual
+    const subDoc = await db.collection('subscripciones').doc(subscripcionId).get();
+    if (!subDoc.exists) {
+      return res.status(404).json({ error: 'Suscripción no encontrada' });
+    }
+
+    const sub = subDoc.data();
+    const fechaExp = new Date(sub.expiration_date);
+    const nuevoVencimiento = new Date(fechaExp.setFullYear(fechaExp.getFullYear() + 1));
+
+    // Actualizar suscripción
+    await db.collection('subscripciones').doc(subscripcionId).update({
+      expiration_date: nuevoVencimiento.toISOString(),
+      renovaciones: (sub.renovaciones || 0) + 1,
+      updated_at: new Date().toISOString(),
+      activa: true
+    });
+
+    // Crear nueva factura
+    const factura = {
+      id: `fac_renewal_${Date.now()}`,
+      cliente_id: sub.cliente_id,
+      subscripcion_id: subscripcionId,
+      monto: sub.precio_anual,
+      moneda: 'ARS',
+      descripcion: `Renovación ${sub.plan.toUpperCase()}`,
+      periodo_desde: new Date().toISOString(),
+      periodo_hasta: nuevoVencimiento.toISOString(),
+      estado: 'pendiente',
+      creada_en: new Date().toISOString(),
+      vence_en: nuevoVencimiento.toISOString(),
+      pagada: false
+    };
+
+    await db.collection('billing').add(factura);
+
+    console.log('✅ Suscripción renovada');
+
+    res.json({
+      success: true,
+      subscripcion_id: subscripcionId,
+      nuevo_vencimiento: nuevoVencimiento.toISOString(),
+      factura: factura
+    });
+
+  } catch (error) {
+    console.error('❌ Error renovando:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// FUNCIÓN 7: HEALTH CHECK
+// ============================================================================
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
+// ============================================================================
+// EXPORT FUNCTION
+// ============================================================================
+exports.adminApi = functions.https.onRequest(app);
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Generar API key único
+ */
+function generateApiKey() {
+  return `sk_${Date.now()}_${Math.random().toString(36).substr(2, 32)}`;
 }
 
 /**
- * Exportar Cloud Function HTTP
+ * Generar password temporal seguro
  */
-exports.api = functions.https.onRequest(app);
+function generateSecurePassword() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+  let password = '';
+  for (let i = 0; i < 16; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+}
+
+/**
+ * Log de operaciones
+ */
+function logOperacion(tipo, datos) {
+  console.log(`[${new Date().toISOString()}] ${tipo}:`, datos);
+}
