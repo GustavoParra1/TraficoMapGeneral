@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "cliente": "NOMBRE_MUNICIPIO",
+    "fecha_creacion": "2026-05-03",
+    "version": "1.0",
+    "soporte": "contacto@traficomap.app"
+  },
+
+  "ciudad": {
+    "id": "cordoba",
+    "nombre": "Córdoba",
+    "provincia": "Córdoba",
+    "pais": "Argentina",
+    "dominio_registrado": "cordoba-traficomap.netlify.app",
+    "coordenadas": {
+      "lat": -31.415,
+      "lng": -64.189,
+      "zoom": 12
+    }
+  },
+
+  "suscripcion": {
+    "id": "cordoba_001_202605",
+    "plan": "profesional",
+    "fecha_inicio": "2026-05-03",
+    "fecha_expiracion": "2026-06-03",
+    "estado": "activo",
+    "stripe_id": "sub_cordoba_xxxxx"
+  },
+
+  "firebase_cliente": {
+    "apiKey": "AIzaSyXXXXXXXXXXXXXXXXX_GENERADO_AUTOMATICAMENTE",
+    "authDomain": "cordoba-traficomap-2024.firebaseapp.com",
+    "projectId": "cordoba-traficomap-2024",
+    "storageBucket": "cordoba-traficomap-2024.appspot.com",
+    "messagingSenderId": "123456789",
+    "appId": "1:123456789:web:abcdefg123456",
+    "databaseURL": "https://cordoba-traficomap-2024-default-rtdb.firebaseio.com"
+  },
+
+  "firebase_verificacion": {
+    "projectId": "trafico-map-general-v2",
+    "apiKey": "AIzaSyYYYYYYYYYYYYYYYYY_PARA_VERIFICAR",
+    "messagingSenderId": "987654321",
+    "appId": "1:987654321:web:xyzabc987654"
+  },
+
+  "caracteristicas": {
+    "patrullas_enabled": true,
+    "chat_enabled": true,
+    "video_streaming": false,
+    "analíticos_enabled": true,
+    "máximo_usuarios": 50,
+    "máximo_patrullas": 200,
+    "almacenamiento_gb": 10
+  },
+
+  "admin": {
+    "email": "admin@municipal.com.ar",
+    "nombre": "Administrador Local"
+  }
+}

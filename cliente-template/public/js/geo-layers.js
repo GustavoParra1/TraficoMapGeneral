@@ -1,0 +1,309 @@
+// Módulo para gestionar capas geográficas
+const GeoLayers = (() => {
+  let map;
+  let geoJsonLayers = {};
+  let highlightedBarrio = null; // Guardar barrio resaltado
+
+  // Colores por zona (Norte, Sur, Centro, Oeste)
+  const zoneColors = {
+    'Norte': '#0066FF',      // Azul
+    'Sur': '#FF0000',        // Rojo
+    'Centro': '#FF1493',     // Fucsia
+    'Oeste': '#00AA00'       // Verde
+  };
+
+  // Listas de barrios por zona (exactas según requisitos)
+  const zoneBarrios = {
+    norte: [
+      'constitucion', 'estrada', 'zacagnini', 'parque luro', 'aeroparque', 'la florida',
+      'los tilos', 'estacion camet', 'camet felix', 'felix u.', 'dos de abril', 'parque camet',
+      'fray luis beltran', 'virgen de lujan', 'malvinas argentinas', 'lopez de gomara',
+      'los pinares', 'villa primera', 'estacion norte', 'nueve de julio', 'sarmiento',
+      'mitre', 'roca norte', 'alem norte', 'san martin norte',
+      'parque montemar', 'el grosellar', 'las margaritas', 'el casal'
+    ],
+    sur: [
+      'puerto', 'punta mogotes', 'faro norte', 'alfar',
+      'del puerto', 'punta mogotes oeste', 'colinas de peralta ramos', 'el progreso',
+      'peralta ramos oeste', 'juramento', 'serena', 'acantilados',
+      'cabo corrientes', 'punta mogotes alta', 'corrientes', 'balneario sur', 'playa serena',
+      'marquesado', 'san eduardo del mar', 'san eduardo de chapadmalal', 'arroyo chapadmalal',
+      'playa chapadmalal', 'playa los lobos', 'san patricio', 'san jacinto',
+      'bosque peralta ramos', 'el jardin de peralta ramos', 'santa rosa del mar',
+      'quebradas de peralta ramos',
+      'termas huinco', 'termas  huinco', 'nuevo golf', 'parque independencia', 'loma del golf', 'lomas del golf', 'santa celina',
+      'general san martin', 'florencio sanchez', 'villa lourdes', 'las avenidas',
+      'cerrito y san salvador', 'cerrito sur', 'el jardin de stella maris'
+    ],
+    centro: [
+      'centro', 'la perla', 'nueva pompeya', 'don bosco',
+      'area centro', 'plaza peralta ramos', 'san fernando',
+      'bolivar', 'bv maritima', 'mitre centro', 'roca centro',
+      'los andes', 'bernardino rivadavia', 'estacion terminal', 'san juan',
+      'primera junta', 'san jose', 'funes', 'san lorenzo',
+      'divino rostro', 'general roca',
+      'pinos de anchorena', 'santa monica', 'playa grande', 'lomas de stella maris',
+      'los troncos', 'leandro l alem', 'leandro n. alem', 'll alem', 'alem sur', 'san carlos'
+    ]
+  };
+
+  // Obtener nombre del barrio (flexible para diferentes fuentes)
+  function getBarrioName(feature) {
+    return feature.properties?.nombre || feature.properties?.soc_fomen || 'Sin nombre';
+  }
+
+  // Detectar si es un barrio de Mar del Plata (tiene propiedad soc_fomen)
+  function isMarDelPlata(feature) {
+    return feature.properties?.soc_fomen !== undefined;
+  }
+
+  // Determinar zona según nombre del barrio (SOLO para Mar del Plata)
+  function getZoneForFeature(feature) {
+    // Si no es Mar del Plata, no tiene zona
+    if (!isMarDelPlata(feature)) {
+      return null;
+    }
+
+    const barrioName = getBarrioName(feature);
+    if (!barrioName) return 'Oeste';
+    
+    const lower = barrioName.toLowerCase()
+      .replace(/á/g, 'a').replace(/é/g, 'e').replace(/í/g, 'i')
+      .replace(/ó/g, 'o').replace(/ú/g, 'u');
+    
+    // Buscar en las listas
+    if (zoneBarrios.norte.some(n => lower.includes(n))) return 'Norte';
+    if (zoneBarrios.sur.some(s => lower.includes(s))) return 'Sur';
+    if (zoneBarrios.centro.some(c => lower.includes(c))) return 'Centro';
+    
+    return 'Oeste';
+  }
+
+  // Obtener color de una feature según su zona
+  function getColor(feature) {
+    const zone = getZoneForFeature(feature);
+    // Si no tiene zona (ej: Córdoba), usar color gris neutral
+    if (!zone) {
+      return '#6B8E23';  // Olive green para Córdoba
+    }
+    return zoneColors[zone] || zoneColors['Oeste'];
+  }
+
+  // Estilo para GeoJSON - igual a MapaTraficoFinal
+  function styleFeature(feature) {
+    return {
+      fillColor: getColor(feature),
+      weight: 3,           // Bordes más gruesos (de 2 a 3)
+      opacity: 1,          // Opacidad de borde al máximo (de 0.8 a 1)
+      color: getColor(feature),  // Borde del mismo color que el relleno
+      dashArray: '',
+      fillOpacity: 0.3     // Relleno más visible
+    };
+  }
+
+  // Popup content
+  function getPopupContent(feature) {
+    const props = feature.properties;
+    const barrioName = getBarrioName(feature);
+    const zone = getZoneForFeature(feature);
+    const isMDP = isMarDelPlata(feature);
+    
+    let content = `<div class="geo-popup"><h4>${barrioName}</h4>`;
+    
+    if (isMDP) {
+      // Mar del Plata: mostrar zona, area, id
+      if (zone) content += `<p><strong>Zona:</strong> ${zone}</p>`;
+      if (props.hectares) content += `<p><strong>Área:</strong> ${props.hectares.toFixed(2)} hectáreas</p>`;
+      if (props.id) content += `<p><strong>ID:</strong> ${props.id}</p>`;
+    } else {
+      // Córdoba: mostrar tipo y antecedentes
+      if (props.tipo) content += `<p><strong>Tipo:</strong> ${props.tipo}</p>`;
+      if (props.antecedentes) content += `<p><strong>Antecedentes:</strong> ${props.antecedentes}</p>`;
+    }
+    
+    content += `</div>`;
+    return content;
+  }
+
+  // Handlers for interaction
+  function onEachFeature(feature, layer) {
+    // Popup
+    const barrioName = getBarrioName(feature);
+    if (barrioName && barrioName !== 'Sin nombre') {
+      layer.bindPopup(getPopupContent(feature));
+    }
+
+    // Highlight on hover - DESHABILITADO si hay un barrio resaltado
+    layer.on('mouseover', function() {
+      // NO hacer nada si hay un barrio resaltado
+      if (highlightedBarrio) {
+        return;
+      }
+      
+      this.setStyle({
+        weight: 4,
+        opacity: 1,
+        fillOpacity: 0.6
+      });
+      this.bringToFront();
+    });
+
+    layer.on('mouseout', function() {
+      // NO hacer nada si hay un barrio resaltado
+      if (highlightedBarrio) {
+        return;
+      }
+      
+      this.setStyle(styleFeature(feature));
+    });
+  }
+
+  return {
+    init: (mapInstance) => {
+      map = mapInstance;
+    },
+
+    // Load GeoJSON from URL
+    loadGeoJson: async (name, url) => {
+      try {
+        const response = await fetch(url);
+        const geojsonData = await response.json();
+        
+        const geoJsonLayer = L.geoJSON(geojsonData, {
+          style: styleFeature,
+          onEachFeature: onEachFeature
+        }).addTo(map);
+
+        geoJsonLayers[name] = geoJsonLayer;
+        console.log(`✓ Capa "${name}" cargada exitosamente`);
+        return geoJsonLayer;
+      } catch (error) {
+        console.error(`Error cargando ${name}:`, error);
+        return null;
+      }
+    },
+
+    // Load embedded GeoJSON data (sin mostrar en mapa por defecto)
+    loadEmbeddedGeoJson: (name, geojsonData, addToMap = false) => {
+      try {
+        const geoJsonLayer = L.geoJSON(geojsonData, {
+          style: styleFeature,
+          onEachFeature: onEachFeature
+        });
+
+        // Solo añadir al mapa si se especifica
+        if (addToMap) {
+          geoJsonLayer.addTo(map);
+        }
+
+        geoJsonLayers[name] = geoJsonLayer;
+        console.log(`✓ Capa embedida "${name}" cargada`);
+        return geoJsonLayer;
+      } catch (error) {
+        console.error(`Error cargando datos embedidos ${name}:`, error);
+        return null;
+      }
+    },
+
+    // Toggle layer visibility
+    toggleLayer: (name) => {
+      if (geoJsonLayers[name]) {
+        if (map.hasLayer(geoJsonLayers[name])) {
+          map.removeLayer(geoJsonLayers[name]);
+          return false;
+        } else {
+          geoJsonLayers[name].addTo(map);
+          return true;
+        }
+      }
+    },
+
+    // Check if layer is visible
+    isLayerVisible: (name) => {
+      if (geoJsonLayers[name]) {
+        return map.hasLayer(geoJsonLayers[name]);
+      }
+      return false;
+    },
+
+    // Get all layers
+    getLayers: () => geoJsonLayers,
+
+    // Clear all layers
+    clearLayers: () => {
+      Object.keys(geoJsonLayers).forEach(name => {
+        map.removeLayer(geoJsonLayers[name]);
+      });
+      geoJsonLayers = {};
+    },
+
+    // Fit bounds to layer
+    fitLayerBounds: (name) => {
+      if (geoJsonLayers[name]) {
+        map.fitBounds(geoJsonLayers[name].getBounds());
+      }
+    },
+
+    // Resaltar un barrio específico
+    highlightBarrio: (barrioNombre) => {
+      const zonasLayer = geoJsonLayers['Zonas / Barrios'];
+      if (!zonasLayer) {
+        console.warn('⚠️ Capa de Zonas/Barrios no encontrada');
+        return;
+      }
+
+      // Guardar barrio resaltado
+      highlightedBarrio = barrioNombre;
+
+      let found = false;
+      zonasLayer.eachLayer(layer => {
+        if (layer.feature && layer.feature.properties) {
+          const propBarrio = getBarrioName(layer.feature);
+          
+          if (propBarrio.toLowerCase() === barrioNombre.toLowerCase()) {
+            found = true;
+            // Resaltar este barrio - MUCHO MÁS VISIBLE
+            layer.setStyle({
+              weight: 4,
+              color: '#FFD700',      // Borde dorado BIEN VISIBLE
+              opacity: 1,
+              fillColor: '#FFFF00',  // Amarillo BRILLANTE
+              fillOpacity: 0.5       // MUCHO MÁS OPACO
+            });
+            layer.bringToFront();
+            console.log(`✅ Barrio resaltado: ${barrioNombre}`);
+          } else {
+            // Oscurecer otros barrios
+            layer.setStyle({
+              weight: 1,
+              color: '#999',
+              opacity: 0.3,
+              fillColor: '#CCC',
+              fillOpacity: 0.05
+            });
+          }
+        }
+      });
+      
+      if (!found) {
+        console.warn(`⚠️ No se encontró barrio: ${barrioNombre}`);
+      }
+    },
+
+    // Limpiar resaltado
+    clearHighlight: () => {
+      const zonasLayer = geoJsonLayers['Zonas / Barrios'];
+      if (!zonasLayer) return;
+
+      // Limpiar barrio resaltado
+      highlightedBarrio = null;
+
+      zonasLayer.eachLayer(layer => {
+        if (layer.feature && layer.feature.properties) {
+          layer.setStyle(styleFeature(layer.feature));
+        }
+      });
+      console.log('✅ Resaltado limpiado');
+    }
+  };
+})();
