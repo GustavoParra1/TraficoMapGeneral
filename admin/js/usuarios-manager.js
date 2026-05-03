@@ -196,17 +196,24 @@ class UsuariosManager {
       }
 
       const usuario = await this.getUsuario(usuarioId);
-      const roleAnterior = usuario.role;
+      const claims = {
+        role: nuevoRole,
+        permisos: this.getPermisosDefault(nuevoRole)
+      };
 
+      console.log('Actualizando custom claims con Cloud Function:', usuarioId);
+
+      const resultado = await adminApi.updateCustomClaims(usuario.uid, claims);
+
+      console.log('Custom claims actualizados:', resultado);
+
+      // Actualizar tabla local también
       await db.collection('usuarios_admin').doc(usuarioId).update({
         role: nuevoRole,
-        permisos: this.getPermisosDefault(nuevoRole),
+        permisos: claims.permisos,
         updated_at: new Date().toISOString()
       });
 
-      console.log(`⚙️  Role cambió: ${roleAnterior} → ${nuevoRole}`);
-
-      // TODO: Actualizar custom claims en Firebase Auth via Cloud Function
       await this.loadUsuarios();
       this.showSuccess(`Role de ${usuarioId} actualizado a ${nuevoRole}`);
 
@@ -218,16 +225,23 @@ class UsuariosManager {
   }
 
   /**
-   * Desactiva un usuario
+   * Desactiva un usuario usando Cloud Function
    */
   async desactivarUsuario(usuarioId) {
     try {
+      const usuario = await this.getUsuario(usuarioId);
+
+      console.log('Desactivando usuario con Cloud Function:', usuarioId);
+
+      const resultado = await adminApi.toggleUserStatus(usuario.uid, true);
+
+      console.log('Usuario desactivado en Firebase:', resultado);
+
       await db.collection('usuarios_admin').doc(usuarioId).update({
         activo: false,
         desactivado_en: new Date().toISOString()
       });
 
-      console.log('⏸️  Usuario desactivado:', usuarioId);
       await this.loadUsuarios();
       this.showSuccess('Usuario desactivado');
 
@@ -239,16 +253,23 @@ class UsuariosManager {
   }
 
   /**
-   * Reactiva un usuario
+   * Reactiva un usuario usando Cloud Function
    */
   async reactivarUsuario(usuarioId) {
     try {
+      const usuario = await this.getUsuario(usuarioId);
+
+      console.log('Reactivando usuario con Cloud Function:', usuarioId);
+
+      const resultado = await adminApi.toggleUserStatus(usuario.uid, false);
+
+      console.log('Usuario reactivado en Firebase:', resultado);
+
       await db.collection('usuarios_admin').doc(usuarioId).update({
         activo: true,
         desactivado_en: null
       });
 
-      console.log('▶️  Usuario reactivado:', usuarioId);
       await this.loadUsuarios();
       this.showSuccess('Usuario reactivado');
 

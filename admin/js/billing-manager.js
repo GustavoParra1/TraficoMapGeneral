@@ -189,17 +189,11 @@ class BillingManager {
    */
   async registrarPago(facturaId, metodo_pago, referencias) {
     try {
-      const factura = await this.getFactura(facturaId);
+      console.log('Registrando pago con Cloud Function:', facturaId);
 
-      await db.collection('billing').doc(facturaId).update({
-        pagada: true,
-        estado: 'pagada',
-        fecha_pago: new Date().toISOString(),
-        metodo_pago: metodo_pago,
-        referencias_pago: referencias
-      });
+      const resultado = await adminApi.registrarPago(facturaId, metodo_pago, referencias);
 
-      console.log('✅ Pago registrado:', facturaId);
+      console.log('Pago registrado por Cloud Function:', resultado);
       await this.loadFacturas();
       await this.generateReports();
       this.showSuccess('Pago registrado');

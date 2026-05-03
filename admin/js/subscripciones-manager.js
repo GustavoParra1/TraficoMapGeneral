@@ -187,30 +187,11 @@ class SubscripcionesManager {
         throw new Error('Plan inválido');
       }
 
-      const subscripcion = await this.getSubscripcion(subscripcionId);
-      const precios = {
-        basico: 1000,
-        profesional: 5000,
-        enterprise: 15000
-      };
+      console.log('🔄 Cambiando plan con Cloud Function:', subscripcionId, '→', nuevoPlan);
 
-      const cambio = {
-        fecha: new Date().toISOString(),
-        plan_anterior: subscripcion.plan,
-        plan_nuevo: nuevoPlan,
-        precio_anterior: subscripcion.precio_mensual,
-        precio_nuevo: precios[nuevoPlan]
-      };
+      const resultado = await adminApi.cambiarPlan(subscripcionId, nuevoPlan);
 
-      await db.collection('subscripciones').doc(subscripcionId).update({
-        plan: nuevoPlan,
-        precio_mensual: precios[nuevoPlan],
-        precio_anual: precios[nuevoPlan] * 12,
-        updated_at: new Date().toISOString(),
-        cambios_plan: [...(subscripcion.cambios_plan || []), cambio]
-      });
-
-      console.log('✅ Plan cambiado:', subscripcionId);
+      console.log('✅ Plan cambiado por Cloud Function:', resultado);
       await this.loadSubscripciones();
       this.showSuccess(`Plan actualizado a ${nuevoPlan}`);
 
@@ -222,28 +203,15 @@ class SubscripcionesManager {
   }
 
   /**
-   * Renueva una suscripción (extiende 1 año)
+   * Renueva una suscripción (extiende 1 año) usando Cloud Function
    */
   async renovarSubscripcion(subscripcionId) {
     try {
-      const subscripcion = await this.getSubscripcion(subscripcionId);
-      const fechaExpiracion = new Date(subscripcion.expiration_date);
-      const nuevoVencimiento = new Date(fechaExpiracion.setFullYear(fechaExpiracion.getFullYear() + 1));
+      console.log('🔄 Renovando suscripción con Cloud Function:', subscripcionId);
 
-      await db.collection('subscripciones').doc(subscripcionId).update({
-        expiration_date: nuevoVencimiento.toISOString(),
-        renovaciones: (subscripcion.renovaciones || 0) + 1,
-        updated_at: new Date().toISOString(),
-        activa: true
-      });
+      const resultado = await adminApi.renovarSubscripcion(subscripcionId);
 
-      console.log('✅ Suscripción renovada:', subscripcionId);
-
-      // Crear nueva factura
-      await this.createBillingEntry(subscripcionId, {
-        ...subscripcion,
-        expiration_date: nuevoVencimiento.toISOString()
-      });
+      console.log('✅ Suscripción renovada por Cloud Function:', resultado);
 
       await this.loadSubscripciones();
       this.showSuccess('Suscripción renovada por 1 año');

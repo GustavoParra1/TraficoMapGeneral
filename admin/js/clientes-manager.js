@@ -1,7 +1,7 @@
 /**
- * Clientes Manager
+ * Clientes Manager (v2)
  * Gestiona todas las operaciones CRUD para clientes en Firestore
- * Integración con helpers de Fase 2B para creación automatizada
+ * Integración con Cloud Functions admin API
  */
 
 class ClientesManager {
@@ -88,8 +88,7 @@ class ClientesManager {
   }
 
   /**
-   * Crea un nuevo cliente
-   * Llamará a helper de Fase 2B o crear-cliente.ps1
+   * Crea un nuevo cliente usando Cloud Function
    */
   async createCliente(clienteData) {
     try {
@@ -102,90 +101,33 @@ class ClientesManager {
         throw new Error('Email inválido');
       }
 
-      // Validar plan
       const planesValidos = ['basico', 'profesional', 'enterprise'];
       if (!planesValidos.includes(clienteData.plan)) {
         throw new Error('Plan inválido');
       }
 
-      console.log('🚀 Creando cliente:', clienteData.nombre);
+      console.log('🚀 Creando cliente con Cloud Function:', clienteData.nombre);
 
-      // Crear documento en Firestore
-      const clienteId = generateId('cli');
-      const ahora = new Date().toISOString();
+      // Llamada a Cloud Function
+      const resultado = await adminApi.criarCliente(
+        clienteData.nombre,
+        clienteData.email,
+        clienteData.plan,
+        clienteData.ciudad || '',
+        clienteData.telefono || ''
+      );
 
-      const nuevoCliente = {
-        id: clienteId,
-        nombre: clienteData.nombre,
-        email: clienteData.email,
-        plan: clienteData.plan,
-        estado: 'activo',
-        ciudad: clienteData.ciudad || '',
-        telefono: clienteData.telefono || '',
-        created_at: ahora,
-        updated_at: ahora,
-        firebase_project_id: '', // Se llenará después por helper
-        api_key: '', // Se llenará después por helper
-        usuarios_creados: []
-      };
-
-      // Guardar en Firestore
-      await db.collection('clientes').doc(clienteId).set(nuevoCliente);
-      console.log('✅ Cliente creado en Firestore:', clienteId);
-
-      // Llamar helper para crear usuarios y stuff (FASE 2B)
-      // TODO: Implementar integración con crear-cliente.ps1
-      await this.executeClienteHelper(clienteId, nuevoCliente);
+      console.log('✅ Cliente creado por Cloud Function:', resultado);
 
       // Recargar tabla
       await this.loadClientes();
+      
       this.showSuccess(`Cliente "${clienteData.nombre}" creado exitosamente`);
 
-      return { id: clienteId, ...nuevoCliente };
+      return resultado.cliente;
     } catch (error) {
       console.error('Error creando cliente:', error);
       throw error;
-    }
-  }
-
-  /**
-   * Ejecuta helper de Fase 2B para completar creación
-   */
-  async executeClienteHelper(clienteId, clienteData) {
-    try {
-      // Llamar endpoint que ejecuta crear-cliente.ps1
-      // Este endpoint debe estar en Cloud Functions o servidor Node.js
-      
-      const response = await fetch('/api/clientes/crear-helper', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clienteId,
-          nombre: clienteData.nombre,
-          plan: clienteData.plan,
-          email: clienteData.email
-        })
-      });
-
-      if (!response.ok) {
-        console.warn('Helper no disponible, continuando sin.');
-        return;
-      }
-
-      const result = await response.json();
-      console.log('✅ Helper completado:', result);
-
-      // Actualizar cliente con datos del helper
-      if (result.firebase_project_id) {
-        await db.collection('clientes').doc(clienteId).update({
-          firebase_project_id: result.firebase_project_id,
-          api_key: result.api_key,
-          usuarios_creados: result.usuarios_creados || []
-        });
-      }
-    } catch (error) {
-      console.warn('Warning: Helper ejecutado parcialmente:', error.message);
-      // No fallamos la creación si helper falla
     }
   }
 
@@ -196,7 +138,6 @@ class ClientesManager {
     try {
       if (!clienteId) throw new Error('Cliente ID requerido');
 
-      // Validar datos si se modifican campos sensibles
       if (updateData.email && !isValidEmail(updateData.email)) {
         throw new Error('Email inválido');
       }
@@ -216,7 +157,6 @@ class ClientesManager {
       await db.collection('clientes').doc(clienteId).update(updateWithTimestamp);
       console.log('✅ Cliente actualizado:', clienteId);
 
-      // Recargar datos
       await this.loadClientes();
       this.showSuccess('Cliente actualizado exitosamente');
 
@@ -289,17 +229,14 @@ class ClientesManager {
   applyFilters() {
     let filtered = [...this.clientesData];
 
-    // Filtrar por estado
     if (this.filters.estado !== 'todos') {
       filtered = filtered.filter(c => c.estado === this.filters.estado);
     }
 
-    // Filtrar por plan
     if (this.filters.plan !== 'todos') {
       filtered = filtered.filter(c => c.plan === this.filters.plan);
     }
 
-    // Buscar por nombre o email
     if (this.searchQuery) {
       filtered = filtered.filter(c =>
         c.nombre.toLowerCase().includes(this.searchQuery) ||
@@ -319,61 +256,29 @@ class ClientesManager {
     if (!container) return;
 
     if (this.filteredData.length === 0) {
-      container.innerHTML = `
-        <div class="alert alert-info">
-          <i class="bi bi-info-circle"></i> No hay clientes para mostrar
-        </div>
-      `;
+      container.innerHTML = '<div class="alert alert-info"><i class="bi bi-info-circle"></i> No hay clientes</div>';
       return;
     }
 
-    const rows = this.filteredData.map(cliente => `
+    const rows = this.filteredData.map(c => `
       <tr>
+        <td><strong>${c.nombre}</strong><br/><small class="text-muted">${c.id}</small></td>
+        <td>${c.email}</td>
+        <td><span class="badge bg-info">${c.plan}</span></td>
+        <td><span class="badge ${c.estado === 'activo' ? 'bg-success' : 'bg-warning'}">${c.estado}</span></td>
+        <td>${formatDate(c.created_at)}</td>
         <td>
-          <strong>${cliente.nombre}</strong>
-          <br/>
-          <small class="text-muted">${cliente.id}</small>
-        </td>
-        <td>${cliente.email}</td>
-        <td>
-          <span class="badge bg-info">${cliente.plan}</span>
-        </td>
-        <td>
-          <span class="badge ${cliente.estado === 'activo' ? 'bg-success' : 'bg-warning'}">
-            ${cliente.estado}
-          </span>
-        </td>
-        <td>${formatDate(cliente.created_at)}</td>
-        <td>
-          <button class="btn btn-sm btn-primary" onclick="clientesManager.handleVerCliente('${cliente.id}')">
-            <i class="bi bi-eye"></i> Ver
-          </button>
-          <button class="btn btn-sm btn-warning" onclick="clientesManager.handleEditarCliente('${cliente.id}')">
-            <i class="bi bi-pencil"></i> Editar
-          </button>
-          <button class="btn btn-sm btn-${cliente.estado === 'activo' ? 'outline-danger' : 'outline-success'}" 
-                  onclick="clientesManager.handleToggleSuspender('${cliente.id}')">
-            <i class="bi bi-${cliente.estado === 'activo' ? 'pause' : 'play'}"></i>
-          </button>
+          <button class="btn btn-sm btn-primary" onclick="clientesManager.handleVerCliente('${c.id}')"><i class="bi bi-eye"></i></button>
+          <button class="btn btn-sm btn-warning" onclick="clientesManager.handleEditarCliente('${c.id}')"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm btn-${c.estado === 'activo' ? 'outline-danger' : 'outline-success'}" onclick="clientesManager.handleToggleSuspender('${c.id}')"><i class="bi bi-${c.estado === 'activo' ? 'pause' : 'play'}"></i></button>
         </td>
       </tr>
     `).join('');
 
     container.innerHTML = `
       <table class="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th>Nombre / ID</th>
-            <th>Email</th>
-            <th>Plan</th>
-            <th>Estado</th>
-            <th>Creado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows}
-        </tbody>
+        <thead><tr><th>Nombre</th><th>Email</th><th>Plan</th><th>Estado</th><th>Creado</th><th>Acciones</th></tr></thead>
+        <tbody>${rows}</tbody>
       </table>
     `;
   }
@@ -382,7 +287,6 @@ class ClientesManager {
    * Attach event listeners
    */
   attachEvents() {
-    // Buscador
     const searchInput = document.getElementById('searchClientes');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
@@ -391,7 +295,6 @@ class ClientesManager {
       });
     }
 
-    // Filtro estado
     const filterEstado = document.getElementById('filterEstado');
     if (filterEstado) {
       filterEstado.addEventListener('change', (e) => {
@@ -401,7 +304,6 @@ class ClientesManager {
       });
     }
 
-    // Filtro plan
     const filterPlan = document.getElementById('filterPlan');
     if (filterPlan) {
       filterPlan.addEventListener('change', (e) => {
@@ -411,13 +313,11 @@ class ClientesManager {
       });
     }
 
-    // Botón crear cliente
     const btnCrear = document.getElementById('btnCrearCliente');
     if (btnCrear) {
       btnCrear.addEventListener('click', () => this.handleCrearCliente());
     }
 
-    // Form submit crear cliente
     const formCrear = document.getElementById('formCrearCliente');
     if (formCrear) {
       formCrear.addEventListener('submit', (e) => this.handleSubmitCrear(e));
@@ -429,9 +329,7 @@ class ClientesManager {
    */
   handleCrearCliente() {
     const modal = document.getElementById('modalCrearCliente');
-    if (modal) {
-      modal.style.display = 'block';
-    }
+    if (modal) modal.style.display = 'block';
   }
 
   /**
@@ -446,25 +344,14 @@ class ClientesManager {
       const nombre = document.getElementById('nombreCliente').value;
       const email = document.getElementById('emailCliente').value;
       const plan = document.getElementById('planCliente').value;
-      const ciudad = document.getElementById('ciudadCliente').value;
-      const telefono = document.getElementById('telefonoCliente').value;
+      const ciudad = document.getElementById('ciudadCliente').value || '';
+      const telefono = document.getElementById('telefonoCliente').value || '';
 
-      await this.createCliente({
-        nombre,
-        email,
-        plan,
-        ciudad,
-        telefono
-      });
+      await this.createCliente({ nombre, email, plan, ciudad, telefono });
 
-      // Limpiar formulario
       document.getElementById('formCrearCliente').reset();
-
-      // Cerrar modal
       const modal = document.getElementById('modalCrearCliente');
       if (modal) modal.style.display = 'none';
-
-      // Renderizar tabla
       this.renderClientesTable();
 
       hideLoading();
@@ -481,11 +368,7 @@ class ClientesManager {
     try {
       const cliente = await this.getCliente(clienteId);
       const suscripcion = await this.getClienteSuscripcion(clienteId);
-
-      // Guardar para editar
       this.currentCliente = cliente;
-
-      // Mostrar modal detalle
       this.showClienteDetailModal(cliente, suscripcion);
     } catch (error) {
       this.showError('Error: ' + error.message);
@@ -496,53 +379,28 @@ class ClientesManager {
    * Modal detalle cliente
    */
   showClienteDetailModal(cliente, suscripcion) {
-    const modalContent = document.getElementById('clienteDetailContent');
-    if (!modalContent) return;
+    const content = document.getElementById('clienteDetailContent');
+    if (!content) return;
 
-    const estado_color = cliente.estado === 'activo' ? 'success' : 'warning';
-    const suscripcion_text = suscripcion 
+    const sub_text = suscripcion 
       ? `${suscripcion.plan.toUpperCase()} - Vence: ${formatDate(suscripcion.expiration_date)}`
       : 'Sin suscripción activa';
 
-    modalContent.innerHTML = `
+    content.innerHTML = `
       <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">${cliente.nombre}</h5>
-        </div>
+        <div class="card-header bg-primary text-white"><h5 class="mb-0">${cliente.nombre}</h5></div>
         <div class="card-body">
           <div class="row mb-3">
-            <div class="col-md-6">
-              <strong>ID:</strong> ${cliente.id}
-            </div>
-            <div class="col-md-6">
-              <strong>Email:</strong> ${cliente.email}
-            </div>
+            <div class="col-md-6"><strong>ID:</strong> ${cliente.id}</div>
+            <div class="col-md-6"><strong>Email:</strong> ${cliente.email}</div>
           </div>
           <div class="row mb-3">
-            <div class="col-md-6">
-              <strong>Ciudad:</strong> ${cliente.ciudad || '-'}
-            </div>
-            <div class="col-md-6">
-              <strong>Teléfono:</strong> ${cliente.telefono || '-'}
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <strong>Estado:</strong>
-              <span class="badge bg-${estado_color}">${cliente.estado}</span>
-            </div>
-            <div class="col-md-6">
-              <strong>Suscripción:</strong>
-              <span class="badge bg-info">${suscripcion_text}</span>
-            </div>
+            <div class="col-md-6"><strong>Ciudad:</strong> ${cliente.ciudad || '-'}</div>
+            <div class="col-md-6"><strong>Teléfono:</strong> ${cliente.telefono || '-'}</div>
           </div>
           <div class="row">
-            <div class="col-md-6">
-              <strong>Creado:</strong> ${formatDate(cliente.created_at)}
-            </div>
-            <div class="col-md-6">
-              <strong>Actualizado:</strong> ${formatDate(cliente.updated_at)}
-            </div>
+            <div class="col-md-6"><strong>Estado:</strong> <span class="badge bg-${cliente.estado === 'activo' ? 'success' : 'warning'}">${cliente.estado}</span></div>
+            <div class="col-md-6"><strong>Suscripción:</strong> <span class="badge bg-info">${sub_text}</span></div>
           </div>
         </div>
       </div>
@@ -556,7 +414,6 @@ class ClientesManager {
    * Editar cliente
    */
   handleEditarCliente(clienteId) {
-    // TODO: Implementar formulario de edición
     alert('Edición de cliente - próximamente implementado');
   }
 
@@ -586,10 +443,7 @@ class ClientesManager {
     if (container) {
       const alert = document.createElement('div');
       alert.className = 'alert alert-danger alert-dismissible fade show';
-      alert.innerHTML = `
-        <i class="bi bi-exclamation-circle"></i> ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      `;
+      alert.innerHTML = `<i class="bi bi-exclamation-circle"></i> ${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
       container.appendChild(alert);
       setTimeout(() => alert.remove(), 5000);
     }
@@ -604,10 +458,7 @@ class ClientesManager {
     if (container) {
       const alert = document.createElement('div');
       alert.className = 'alert alert-success alert-dismissible fade show';
-      alert.innerHTML = `
-        <i class="bi bi-check-circle"></i> ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      `;
+      alert.innerHTML = `<i class="bi bi-check-circle"></i> ${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
       container.appendChild(alert);
       setTimeout(() => alert.remove(), 5000);
     }
