@@ -720,8 +720,7 @@ const ColectivosUI = (() => {
     // Obtener ciudades predefinidas y del usuario
     const predefinedCities = [
       { id: 'cordoba', name: 'Córdoba', type: 'predefinida' },
-      { id: 'mar-del-plata', name: 'Mar del Plata', type: 'predefinida' },
-      { id: 'san-martin-del-mar', name: 'San Martín del Mar', type: 'predefinida' }
+      { id: 'mar-del-plata', name: 'Mar del Plata', type: 'predefinida' }
     ];
 
     const userCities = ImportCities?.getUserCities?.() || {};

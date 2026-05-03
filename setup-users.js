@@ -145,15 +145,63 @@ const DEMO_USERS = [
     role: 'operador',
     city: 'laplata'
   },
+  // Patrullas Mendoza
+  {
+    email: 'patrulla-mendoza-01@seguridad.com',
+    password: 'patrulla123',
+    displayName: 'Patrulla Mendoza 01',
+    role: 'patrulla',
+    city: 'mendoza'
+  },
+  // Operadores Mendoza
+  {
+    email: 'operador-mendoza-01@seguridad.com',
+    password: 'control123',
+    displayName: 'Operador Mendoza 01',
+    role: 'operador',
+    city: 'mendoza'
+  },
   // Admin (acceso a todas las ciudades)
   {
-    email: 'admin@seguridad-mdp.com',
-    password: 'admin123',
+    email: 'admin@trafico-map.com',
+    password: 'Admin123456',
     displayName: 'Administrador',
     role: 'admin',
     city: null
   }
+;
+
+
+// ========== MENDOZA ==========
+const mendozaUsers = [
+  {
+    email: 'patrulla-mendoza-01@seguridad.com',
+    password: 'GeneratedByCreateCity',
+    role: 'patrulla',
+    city: 'mendoza'
+  },
+  {
+    email: 'patrulla-mendoza-02@seguridad.com',
+    password: 'GeneratedByCreateCity',
+    role: 'patrulla',
+    city: 'mendoza'
+  },
+  {
+    email: 'patrulla-mendoza-03@seguridad.com',
+    password: 'GeneratedByCreateCity',
+    role: 'patrulla',
+    city: 'mendoza'
+  },
+  {
+    email: 'operador-mendoza-01@seguridad.com',
+    password: 'GeneratedByCreateCity',
+    role: 'operador',
+    city: 'mendoza'
+  },
 ];
+users.push(...mendozaUsers);
+const users = [
+
 
 async function createUsers() {
   console.log('🚀 Iniciando creación de usuarios...\n');

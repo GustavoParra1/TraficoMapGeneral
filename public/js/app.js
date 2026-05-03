@@ -119,13 +119,14 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
   
   // Buscar en ciudades del usuario primero
   let cityConfig = null;
-  const userCities = ImportCities.getUserCities();
+  const userCities = typeof ImportCities !== 'undefined' ? ImportCities.getUserCities() : {};
   
   if (userCities[cityId]) {
     cityConfig = userCities[cityId];
     console.log(`✓ Ciudad del usuario encontrada: ${cityConfig.name}`);
   } else {
-    cityConfig = citiesConfig.cities.find(c => c.id === cityId);
+    // citiesConfig es un array, no un objeto con .cities
+    cityConfig = citiesConfig.find(c => c.id === cityId);
     if (cityConfig) {
       console.log(`✓ Ciudad predefinida encontrada: ${cityConfig.name}`);
     }
@@ -756,7 +757,6 @@ auth.onAuthStateChanged((user) => {
         <select id="city-selector" style="width: 100%; padding: 10px; border: 2px solid #0066ff; border-radius: 4px; background-color: #fff; color: #333; font-size: 13px; font-weight: 500;">
           <option value="mar-del-plata" selected>Mar del Plata</option>
           <option value="cordoba">Córdoba</option>
-          <option value="san-martin-del-mar">San Martín del Mar</option>
         </select>
         <div style="font-size: 11px; color: #888; margin-top: 8px;">
           Selecciona una ciudad para cambiar los datos
@@ -1078,8 +1078,7 @@ auth.onAuthStateChanged((user) => {
     // VERIFICACIÓN: Asegurar que ciudades predefinidas existan
     const predefinedCities = [
       { id: 'cordoba', name: 'Córdoba' },
-      { id: 'mar-del-plata', name: 'Mar del Plata' },
-      { id: 'san-martin-del-mar', name: 'San Martín del Mar' }
+      { id: 'mar-del-plata', name: 'Mar del Plata' }
     ];
     
     if (citySelector) {
@@ -1965,8 +1964,8 @@ auth.onAuthStateChanged((user) => {
       
       // 1. Resetear vista del mapa a la ciudad actual
       if (map && citiesConfig) {
-        // Buscar la configuración de la ciudad en citiesConfig
-        const cityConfig = citiesConfig.cities.find(c => c.id === currentCity);
+        // Buscar la configuración de la ciudad en citiesConfig (que es un array)
+        const cityConfig = citiesConfig.find(c => c.id === currentCity);
         if (cityConfig && cityConfig.coordinates) {
           const lat = cityConfig.coordinates.lat;
           const lng = cityConfig.coordinates.lng;
@@ -2808,29 +2807,24 @@ const setupImportCities = () => {
   }
 
   // Actualizar selector con ciudades del usuario
-  const updateCitySelector = () => {
-    if (!citySelector || typeof ImportCities === 'undefined') return;
+  const updateCitySelector = async () => {
+    if (!citySelector || !citiesConfig) return;
     
-    const userCities = ImportCities.getUserCities();
+    const userCities = typeof ImportCities !== 'undefined' ? ImportCities.getUserCities() : {};
     const currentOptions = Array.from(citySelector.options).map(o => o.value);
     
-    // ASEGURAR que ciudades predefinidas siempre existan
-    const predefinedCities = [
-      { id: 'cordoba', name: 'Córdoba' },
-      { id: 'mar-del-plata', name: 'Mar del Plata' },
-      { id: 'san-martin-del-mar', name: 'San Martín del Mar' }
-    ];
+    // Cargar ciudades predefinidas desde citiesConfig
+    const predefinedCities = citiesConfig;
     
-    // Verificar que todas las ciudades predefinidas existan como opciones
+    // Agregar ciudades predefinidas de citiesConfig
     predefinedCities.forEach(city => {
       const existingOption = Array.from(citySelector.options).find(o => o.value === city.id);
       if (!existingOption) {
         const option = document.createElement('option');
         option.value = city.id;
         option.textContent = city.name;
-        // Insertar al principio
-        citySelector.insertBefore(option, citySelector.firstChild);
-        console.log(`🔧 Re-agregada ciudad predefinida: ${city.name}`);
+        citySelector.appendChild(option);
+        console.log(`🔧 Agregada ciudad predefinida: ${city.name}`);
       }
     });
     
@@ -2940,26 +2934,57 @@ const setupImportCities = () => {
       const userConfig = await CityUsersGenerator.showCityUsersForm(cityName, cityData.id);
       
       if (userConfig.generate && (userConfig.patrullasCount > 0 || userConfig.operadoresCount > 0)) {
-        status.textContent = '⏳ Generando usuarios en Firebase...';
+        status.textContent = '⏳ Creando usuarios y patrullas en Firebase...';
         
         try {
-          // Generar usuarios localmente
-          const generatedUsers = await CityUsersGenerator.generateUsersLocally(
-            cityData.id, 
-            userConfig.patrullasCount, 
-            userConfig.operadoresCount
-          );
+          // Llamar endpoint para crear ciudad automáticamente
+          // En desarrollo local (http://localhost): usa servidor local
+          // En producción: usa Firebase Hosting
+          const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? `http://${window.location.host}/api/create-city`
+            : '/api/create-city';
+          
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              cityName: cityName,
+              cityId: cityData.id,
+              province: cityData.province || 'Sin especificar',
+              lat: cityData.coordinates.lat,
+              lng: cityData.coordinates.lng,
+              numPatrullas: userConfig.patrullasCount,
+              numOperadores: userConfig.operadoresCount
+            })
+          });
 
-          console.log('✅ Usuarios generados localmente:', generatedUsers);
+          const result = await response.json();
 
-          // Crear usuarios en Firebase Auth y Firestore
-          const firebaseResult = await CityUsersGenerator.createUsersInFirebase(generatedUsers);
-          console.log('✅ Usuarios creados en Firebase:', firebaseResult);
+          if (!response.ok || !result.success) {
+            throw new Error(result.error || 'Error creando ciudad');
+          }
 
-          // Mostrar credenciales con resultado de Firebase
-          CityUsersGenerator.showCredentialsModal(firebaseResult.createdUsers, cityName);
+          console.log('✅ Ciudad y usuarios creados en Firebase:', result);
 
-          // Actualizar cityData con sección de patrullas
+          // Mostrar credenciales
+          const credentialsForModal = [
+            ...result.credentials.patrullas.map(p => ({
+              rol: 'Patrulla',
+              email: p.email,
+              password: p.password,
+              status: 'Creado ✓'
+            })),
+            ...result.credentials.operadores.map(o => ({
+              rol: 'Operador (Centro Control)',
+              email: o.email,
+              password: o.password,
+              status: 'Creado ✓'
+            }))
+          ];
+
+          CityUsersGenerator.showCredentialsModal(credentialsForModal, cityName);
+
+          // Actualizar cityData
           cityData.patrullas = {
             enabled: true,
             dataCollection: `patrullas_${cityData.id}`,
@@ -2970,24 +2995,19 @@ const setupImportCities = () => {
             createdAt: new Date().toISOString()
           };
 
-          // Guardar actualización en localStorage
+          // Guardar en localStorage
           const userCities = JSON.parse(localStorage.getItem('userCities') || '{}');
           userCities[cityData.id] = cityData;
           localStorage.setItem('userCities', JSON.stringify(userCities));
 
+
           console.log('✅ Configuración de patrullas guardada:', cityData.patrullas);
           
-          if (firebaseResult.errors.length > 0) {
-            status.style.backgroundColor = '#fff3cd';
-            status.style.color = '#856404';
-            status.textContent = `⚠️ ${firebaseResult.createdUsers.length} usuarios creados, ${firebaseResult.errors.length} con errores`;
-          } else {
-            status.style.backgroundColor = '#d4edda';
-            status.style.color = '#155724';
-            status.textContent = '✅ Ciudad y todos los usuarios creados exitosamente en Firebase';
-          }
+          status.style.backgroundColor = '#d4edda';
+          status.style.color = '#155724';
+          status.textContent = `✅ ${result.credentials.patrullas.length} patrullas y ${result.credentials.operadores.length} operadores creados. ⚠️ Próximo: firebase deploy --only firestore:rules,hosting`;
         } catch (err) {
-          console.error('❌ Error generando usuarios:', err);
+          console.error('❌ Error creando ciudad:', err);
           status.style.backgroundColor = '#f8d7da';
           status.style.color = '#721c24';
           status.textContent = `❌ Error: ${err.message}`;
@@ -3080,7 +3100,10 @@ const setupImportCities = () => {
   });
 
   // Cargar ciudades guardadas al iniciar
-  setTimeout(() => {
+  setTimeout(async () => {
+    if (!citiesConfig) {
+      citiesConfig = await loadCitiesConfig();
+    }
     updateCitySelector();
   }, 500);
 };

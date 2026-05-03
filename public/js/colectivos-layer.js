@@ -51,9 +51,17 @@ const ColectivosLayer = (() => {
         const response = await fetch('data/colectivos-manifest.json');
         if (response.ok) {
           const manifest = await response.json();
+          console.log(`📋 Manifest disponible con ciudades:`, Object.keys(manifest));
+          console.log(`🔍 Buscando entrada en manifest para: "${cityId}" (type: ${typeof cityId})`);
+          
           // Buscar la ciudad específica, si no existe usar 'default'
           lineasAIntentarCargar = manifest[cityId] || manifest['default'] || [];
-          console.log(`📋 Manifest cargado - ${lineasAIntentarCargar.length} líneas para: ${cityId}`);
+          
+          if (manifest[cityId]) {
+            console.log(`✅ Encontrada entrada EXACTA para "${cityId}" - ${lineasAIntentarCargar.length} líneas`);
+          } else {
+            console.warn(`⚠️ NO ENCONTRADA entrada exacta para "${cityId}" - usando "default" (${lineasAIntentarCargar.length} líneas)`);
+          }
         }
       } catch (err) {
         console.warn(`⚠️ Manifest no encontrado, usando fallback`);

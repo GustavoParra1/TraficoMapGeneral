@@ -15,7 +15,7 @@ const AuthManager = (() => {
       const operatorDomains = ['capa-norte@', 'capa-sur@', 'mac@', 'uppl@', 'multiagencia@', 'encargado-sala@', 'operador-'];
       return operatorDomains.some(domain => email.includes(domain));
     },
-    'admin': (email) => email === 'admin@seguridad-mdp.com'
+    'admin': (email) => email === 'admin@trafico-map.com' || email === 'admin@seguridad-mdp.com'
   };
 
   return {
@@ -187,7 +187,7 @@ const AuthManager = (() => {
       const redirectMap = {
         'patrulla': '/patrulla-app/index.html',
         'operador': '/control-center-v2/index.html',
-        'admin': '/control-center-v2/index.html'
+        'admin': '/index.html'
       };
 
       const targetUrl = redirectMap[role] || '/index.html';

@@ -27,12 +27,10 @@ service cloud.firestore {
       return request.auth.token.email;
     }
 
-    // Solo patrullas o admins
     function isOperadorOrAdmin() {
       return isOperador() || isAdmin();
     }
 
-    // Solo patrullas o admins
     function isPatullaOrAdmin() {
       return isPatrulla() || isAdmin();
     }
@@ -62,46 +60,8 @@ service cloud.firestore {
       }
     }
 
-    // ========== PATRULLAS SAN MARTIN DEL MAR (con y sin guiones) ==========
-    match /patrullas_san-martin-del-mar/{patrolId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      match /gps_history/{entry} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
-    }
-
-    match /patrullas_sanmartindelmmar/{patrolId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      match /gps_history/{entry} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
-    }
-
     // ========== PATRULLAS CORDOBA ==========
     match /patrullas_cordoba/{patrolId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      match /gps_history/{entry} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
-    }
-
-    // ========== PATRULLAS LA PLATA (con y sin guiones) ==========
-    match /patrullas_la-plata/{patrolId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      match /gps_history/{entry} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
-    }
-
-    match /patrullas_laplata/{patrolId} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated();
       match /gps_history/{entry} {
@@ -123,19 +83,6 @@ service cloud.firestore {
       allow delete: if isOperadorOrAdmin();
     }
 
-    // ========== CHAT SAN MARTIN DEL MAR (con y sin guiones) ==========
-    match /chat_san-martin-del-mar/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
-    match /chat_sanmartindelmmar/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
     // ========== CHAT CORDOBA ==========
     match /chat_cordoba/{document=**} {
       allow read: if isAuthenticated();
@@ -143,20 +90,7 @@ service cloud.firestore {
       allow delete: if isOperadorOrAdmin();
     }
 
-    // ========== CHAT LA PLATA (con y sin guiones) ==========
-    match /chat_la-plata/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
-    match /chat_laplata/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
-    // ========== MESSAGES - Nueva colección centralizada ==========
+    // ========== MESSAGES MAR DEL PLATA Y CORDOBA ==========
     match /messages_mar-del-plata/{messageId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated();
@@ -178,33 +112,6 @@ service cloud.firestore {
       allow delete: if isOperadorOrAdmin();
     }
 
-    match /messages_san-martin-del-mar/{messageId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
-    match /messages_sanmartindelmmar/{messageId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-    match /messages_laplata/{messageId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
-    match /messages_la-plata/{messageId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
     // ========== WEBRTC MAR DEL PLATA (con y sin guiones) ==========
     match /webrtc_mar-del-plata/{document=**} {
       allow read: if isAuthenticated();
@@ -216,38 +123,12 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
 
-    // ========== WEBRTC SAN MARTIN DEL MAR (con y sin guiones) ==========
-    match /webrtc_san-martin-del-mar/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-    }
-
-    match /webrtc_sanmartindelmmar/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-    }
-
     // ========== WEBRTC CORDOBA ==========
     match /webrtc_cordoba/{document=**} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated();
     }
 
-    // ========== WEBRTC LA PLATA ==========
-    match /webrtc_laplata/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-    }
-    // ========== WEBRTC LA PLATA (con y sin guiones) ==========
-    match /webrtc_laplata/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-    }
-
-    match /webrtc_la-plata/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-    }
     // ========== ROBOS (Siniestros) ==========
     match /robos/{document=**} {
       allow read: if isOperadorOrAdmin();

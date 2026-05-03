@@ -1,6 +1,8 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import admin from 'firebase-admin';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,6 +15,41 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware para parsear JSON
 app.use(express.json());
+
+// ==================== INICIALIZAR FIREBASE ADMIN ====================
+let db = null;
+let auth = null;
+let firebaseInitialized = false;
+
+function initializeFirebaseAdmin() {
+  if (firebaseInitialized) return;
+  
+  try {
+    const serviceAccountPath = path.join(__dirname, 'trafico-map-general-v2-firebase-adminsdk-key.json');
+    
+    if (!fs.existsSync(serviceAccountPath)) {
+      console.warn('⚠️  No se encontró Firebase Admin SDK key. Algunos endpoints no funcionarán.');
+      return;
+    }
+
+    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      projectId: 'trafico-map-general-v2'
+    });
+
+    db = admin.firestore();
+    auth = admin.auth();
+    firebaseInitialized = true;
+    console.log('✅ Firebase Admin SDK inicializado');
+  } catch (error) {
+    console.error('❌ Error inicializando Firebase Admin:', error.message);
+  }
+}
+
+// Inicializar
+initializeFirebaseAdmin();
 
 // Endpoint de prueba
 app.get('/api/health', (req, res) => {
@@ -339,6 +376,236 @@ app.get('/api/geocode-stats-all', (req, res) => {
     municipios: allMunicipios
   });
 });
+
+// Cualquier otra ruta devuelve index.html (para SPA)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ==================== CREAR CIUDAD CON USUARIOS Y PATRULLAS ====================
+app.post('/api/create-city', async (req, res) => {
+  try {
+    if (!firebaseInitialized) {
+      return res.status(500).json({ error: 'Firebase Admin no inicializado' });
+    }
+
+    const { cityName, cityId, province, lat, lng, numPatrullas, numOperadores } = req.body;
+
+    // Validar inputs
+    if (!cityName || !cityId || isNaN(lat) || isNaN(lng) || numPatrullas < 1 || numOperadores < 1) {
+      return res.status(400).json({ error: 'Inputs inválidos' });
+    }
+
+    // 🔧 Normalizar cityId: remover guiones para consistencia con cliente
+    const normalizedCityId = cityId.replace(/-/g, '');
+
+    console.log(`\n🏙️  Creando ciudad: ${cityName} (cityId: ${cityId} -> ${normalizedCityId})`);
+
+    // 1. ACTUALIZAR cities-config.json
+    const citiesConfigPath = path.join(__dirname, 'public', 'data', 'cities-config.json');
+    let citiesConfig = JSON.parse(fs.readFileSync(citiesConfigPath, 'utf8'));
+
+    if (!citiesConfig.some(c => c.id === cityId)) {
+      citiesConfig.push({
+        id: cityId,
+        name: cityName,
+        country: 'Argentina',
+        province: province || 'Sin especificar',
+        coordinates: { lat: parseFloat(lat), lng: parseFloat(lng) },
+        zoom: 13,
+        files: {
+          barrios: null,
+          siniestros: null,
+          cameras: null,
+          private_cameras: null
+        },
+        optionalLayers: {
+          semaforos: null,
+          colegios: null,
+          corredores: null,
+          aforos: null,
+          colectivos: null,
+          flujo: null,
+          robo: null,
+          alertas: null,
+          zonas: null
+        },
+        patrullas: {
+          enabled: true,
+          dataCollection: `patrullas_${normalizedCityId}`,
+          chatCollection: `chat_${normalizedCityId}`,
+          webrtcCollection: `webrtc_${normalizedCityId}`
+        }
+      });
+      fs.writeFileSync(citiesConfigPath, JSON.stringify(citiesConfig, null, 2));
+    }
+
+    // 2. ACTUALIZAR firestore.rules
+    const rulesPath = path.join(__dirname, 'firestore.rules');
+    let rulesContent = fs.readFileSync(rulesPath, 'utf8');
+
+    if (!rulesContent.includes(`patrullas_${normalizedCityId}`)) {
+      const rulesBlock = `
+    // ========== PATRULLAS ${normalizedCityId.toUpperCase()} ==========
+    match /patrullas_${normalizedCityId}/{patrolId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+      match /gps_history/{entry} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
+    }
+
+    // ========== CHAT ${normalizedCityId.toUpperCase()} ==========
+    match /chat_${normalizedCityId}/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
+    }
+
+    // ========== MESSAGES ${normalizedCityId.toUpperCase()} ==========
+    match /messages_${normalizedCityId}/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isOperadorOrAdmin();
+    }
+
+    // ========== WEBRTC ${normalizedCityId.toUpperCase()} ==========
+    match /webrtc_${normalizedCityId}/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+`;
+
+      const robosIndex = rulesContent.indexOf('// ========== ROBOS');
+      if (robosIndex !== -1) {
+        rulesContent = rulesContent.slice(0, robosIndex) + rulesBlock + '\n    ' + rulesContent.slice(robosIndex);
+        fs.writeFileSync(rulesPath, rulesContent);
+      }
+    }
+
+    // 3. CREAR USUARIOS EN FIREBASE AUTH
+    const patrullaCredentials = [];
+    const operadorCredentials = [];
+
+    for (let i = 1; i <= numPatrullas; i++) {
+      const email = `patrulla-${cityId}-${String(i).padStart(2, '0')}@seguridad.com`;
+      const password = generatePassword();
+
+      try {
+        const userRecord = await auth.createUser({
+          email: email,
+          password: password,
+          displayName: `Patrulla ${cityName} ${i}`
+        });
+
+        await auth.setCustomUserClaims(userRecord.uid, {
+          role: 'patrulla',
+          city: cityId
+        });
+
+        patrullaCredentials.push({ email, password, uid: userRecord.uid });
+      } catch (error) {
+        if (error.code !== 'auth/email-already-exists') {
+          console.error(`Error creando patrulla ${i}:`, error.message);
+        }
+      }
+    }
+
+    for (let i = 1; i <= numOperadores; i++) {
+      const email = `operador-${cityId}-${String(i).padStart(2, '0')}@seguridad.com`;
+      const password = generatePassword();
+
+      try {
+        const userRecord = await auth.createUser({
+          email: email,
+          password: password,
+          displayName: `Operador ${cityName} ${i}`
+        });
+
+        await auth.setCustomUserClaims(userRecord.uid, {
+          role: 'operador',
+          city: cityId
+        });
+
+        operadorCredentials.push({ email, password, uid: userRecord.uid });
+      } catch (error) {
+        if (error.code !== 'auth/email-already-exists') {
+          console.error(`Error creando operador ${i}:`, error.message);
+        }
+      }
+    }
+
+    // 4. CREAR PATRULLAS EN FIRESTORE
+    const coleccion = `patrullas_${normalizedCityId}`;
+    const latNum = parseFloat(lat);
+    const lngNum = parseFloat(lng);
+
+    for (let i = 1; i <= numPatrullas; i++) {
+      const patrolId = `patrulla-${String(i).padStart(2, '0')}`;
+      const offsetLat = Math.random() * 0.05 - 0.025;
+      const offsetLng = Math.random() * 0.05 - 0.025;
+
+      await db.collection(coleccion).doc(patrolId).set({
+        lat: latNum + offsetLat,
+        lng: lngNum + offsetLng,
+        online: i === 1 ? false : true,
+        emergencia: false,
+        estado: i === 1 ? 'offline' : 'activo',
+        speed: 0,
+        heading: 0,
+        accuracy: 10,
+        timestamp: admin.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    // 5. DESPLEGAR REGLAS (llamar firebase CLI)
+    console.log('📤 Deploy de firestore.rules...');
+
+    res.json({
+      success: true,
+      message: `Ciudad ${cityName} creada exitosamente`,
+      city: {
+        id: cityId,
+        name: cityName,
+        coordinates: { lat, lng }
+      },
+      patrullas: patrullaCredentials.length,
+      operadores: operadorCredentials.length,
+      credentials: {
+        patrullas: patrullaCredentials,
+        operadores: operadorCredentials
+      },
+      nextSteps: [
+        'firebase deploy --only firestore:rules,hosting',
+        'Recargar página en navegador'
+      ]
+    });
+
+  } catch (error) {
+    console.error('❌ Error en /api/create-city:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+function generatePassword(length = 12) {
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const numbers = '0123456789';
+  const all = uppercase + lowercase + numbers;
+  
+  let password = '';
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += numbers[Math.floor(Math.random() * numbers.length)];
+
+  for (let i = 3; i < length; i++) {
+    password += all[Math.floor(Math.random() * all.length)];
+  }
+
+  return password.split('').sort(() => Math.random() - 0.5).join('');
+}
 
 // Cualquier otra ruta devuelve index.html (para SPA)
 app.get('*', (req, res) => {

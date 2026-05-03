@@ -75,8 +75,8 @@ const AforosLayer = (() => {
       let camerasPath = 'data/cameras.geojson';
       
       // Buscar la ciudad en el array cities para obtener la ruta correcta de cámaras
-      if (citiesConfig && citiesConfig.cities && Array.isArray(citiesConfig.cities)) {
-        const cityConfig = citiesConfig.cities.find(c => c.id === currentCityKey);
+      if (citiesConfig && Array.isArray(citiesConfig)) {
+        const cityConfig = citiesConfig.find(c => c.id === currentCityKey);
         if (cityConfig && cityConfig.files && cityConfig.files.cameras) {
           camerasPath = cityConfig.files.cameras;
         }

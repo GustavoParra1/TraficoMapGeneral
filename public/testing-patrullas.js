@@ -50,18 +50,29 @@ async function crearPatrullasPrueba() {
   console.log(`📍 Ciudad actual: ${currentCity}`);
 
   // Datos de patrullas de prueba
-  // Obtener coordenadas base según la ciudad
+  // Obtener coordenadas base según la ciudad (soporta variaciones con guiones y sufijos)
   let latBase, lngBase;
-  if (currentCity === 'cordoba') {
+  const cityLower = currentCity.toLowerCase();
+  
+  if (cityLower.includes('cordoba')) {
     latBase = -31.415;
     lngBase = -64.189;
-  } else if (currentCity === 'la-plata') {
+  } else if (cityLower.includes('la-plata') || cityLower.includes('laplata')) {
     latBase = -34.92;
     lngBase = -57.945;
+  } else if (cityLower.includes('mendoza')) {
+    latBase = -32.8895;
+    lngBase = -68.8458;
+  } else if (cityLower.includes('mar-del-plata') || cityLower.includes('mardelplata')) {
+    latBase = -38.0;
+    lngBase = -57.55;
   } else {
-    latBase = -38.0;   // Mar del Plata por defecto
+    // Por defecto: Mar del Plata (centro de la provincia)
+    latBase = -38.0;
     lngBase = -57.55;
   }
+  
+  console.log(`📍 Coordenadas base detectadas: lat=${latBase}, lng=${lngBase}`);
   
   const patrullasPrueba = [
     {
@@ -183,6 +194,9 @@ async function simularMovimiento() {
   } else if (currentCity === 'la-plata') {
     latBase = -34.92;
     lngBase = -57.945;
+  } else if (currentCity === 'mendoza') {
+    latBase = -32.8895;
+    lngBase = -68.8458;
   } else {
     latBase = -38.0;   // Mar del Plata por defecto
     lngBase = -57.55;

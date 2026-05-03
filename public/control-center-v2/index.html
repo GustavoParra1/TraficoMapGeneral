@@ -541,7 +541,7 @@
             console.log('📦 localStorage.getItem("selectedCity"):', storedCity);
             console.log('📦 Tipo:', typeof storedCity);
             if (storedCity) {
-              // Convertir mar-del-plata a mardelplata
+              // Las colecciones en Firestore están sin guiones
               municipio = storedCity.replace(/-/g, '');
               console.log(`📍 Ciudad del localStorage: ${storedCity} → ${municipio}`);
             } else {
@@ -579,7 +579,8 @@
     'mardelplata': [-38.0, -57.55],
     'cordoba': [-31.4201, -64.1888],
     'laplata': [-34.9213, -57.9460],
-    'san-martin-del-mar': [-38.05, -57.6]
+    'sanmartindelmmar': [-38.05, -57.6],
+    'mendoza': [-32.8895, -68.8458]
   };
 
   // ========================================

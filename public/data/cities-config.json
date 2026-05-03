@@ -1,139 +1,70 @@
-{
-  "cities": [
-    {
-      "id": "mar-del-plata",
-      "name": "Mar del Plata",
-      "country": "Argentina",
-      "province": "Buenos Aires",
-      "coordinates": {
-        "lat": -38.0,
-        "lng": -57.55
-      },
-      "zoom": 12,
-      "files": {
-        "barrios": "data/barrios.json",
-        "siniestros": "data/siniestros_con_ubicacion.geojson",
-        "cameras": "data/cameras.geojson",
-        "private_cameras": "data/private-cameras.geojson"
-      },
-      "optionalLayers": {
-        "semaforos": "data/semaforos.geojson",
-        "colegios": "colegios_escuelas.geojson",
-        "corredores": "corredores_escolares.geojson",
-        "aforos": "data/aforos-mar-del-plata.csv",
-        "colectivos": null,
-        "flujo": null,
-        "robo": "data/robos_final.csv",
-        "alertas": null,
-        "zonas": null
-      },
-      "patrullas": {
-        "enabled": true,
-        "dataCollection": "patrullas_mar-del-plata",
-        "chatCollection": "chat_mar-del-plata",
-        "webrtcCollection": "webrtc_mar-del-plata"
-      }
+[
+  {
+    "id": "mar-del-plata",
+    "name": "Mar del Plata",
+    "country": "Argentina",
+    "province": "Buenos Aires",
+    "coordinates": {
+      "lat": -38,
+      "lng": -57.55
     },
-    {
-      "id": "san-martin-del-mar",
-      "name": "San Martín del Mar",
-      "country": "Argentina",
-      "province": "Corrientes",
-      "coordinates": {
-        "lat": -29.8,
-        "lng": -58.1
-      },
-      "zoom": 13,
-      "files": {
-        "barrios": "data/san-martin/barrios.json",
-        "siniestros": "data/san-martin/siniestros.geojson",
-        "cameras": "data/san-martin/cameras.geojson",
-        "private_cameras": "data/san-martin/private-cameras.geojson"
-      },
-      "optionalLayers": {
-        "semaforos": null,
-        "colegios": null,
-        "colectivos": null,
-        "corredores": null,
-        "flujo": null,
-        "robo": null,
-        "alertas": null,
-        "zonas": null
-      },
-      "patrullas": {
-        "enabled": true,
-        "dataCollection": "patrullas_san-martin-del-mar",
-        "chatCollection": "chat_san-martin-del-mar",
-        "webrtcCollection": "webrtc_san-martin-del-mar"
-      }
+    "zoom": 12,
+    "files": {
+      "barrios": "data/barrios.json",
+      "siniestros": "data/siniestros_con_ubicacion.geojson",
+      "cameras": "data/cameras.geojson",
+      "private_cameras": "data/private-cameras.geojson"
     },
-    {
-      "id": "cordoba",
-      "name": "Córdoba",
-      "country": "Argentina",
-      "province": "Córdoba",
-      "coordinates": {
-        "lat": -31.415,
-        "lng": -64.189
-      },
-      "zoom": 12,
-      "files": {
-        "barrios": "data/barrios_cordoba_ejemplo.geojson",
-        "siniestros": "data/siniestros_cordoba.geojson",
-        "cameras": "data/cameras_cordoba.geojson",
-        "private_cameras": "data/private_cameras_cordoba.geojson"
-      },
-      "optionalLayers": {
-        "semaforos": "data/semaforos_cordoba_ejemplo.csv",
-        "colegios": "data/colegios_escuelas_cordoba_ejemplo.geojson",
-        "corredores": "data/corredores_escolares_cordoba_ejemplo.geojson",
-        "aforos": "data/aforos_cordoba_ejemplo.csv",
-        "colectivos": null,
-        "flujo": null,
-        "robo": "data/EJEMPLO_robos_cordoba.csv",
-        "alertas": null,
-        "zonas": null
-      },
-      "patrullas": {
-        "enabled": true,
-        "dataCollection": "patrullas_cordoba",
-        "chatCollection": "chat_cordoba",
-        "webrtcCollection": "webrtc_cordoba"
-      }
+    "optionalLayers": {
+      "semaforos": "data/semaforos.geojson",
+      "colegios": "colegios_escuelas.geojson",
+      "corredores": "corredores_escolares.geojson",
+      "aforos": "data/aforos-mar-del-plata.csv",
+      "colectivos": null,
+      "flujo": null,
+      "robo": "data/robos_final.csv",
+      "alertas": null,
+      "zonas": null
     },
-    {
-      "id": "la-plata",
-      "name": "La Plata",
-      "country": "Argentina",
-      "province": "Buenos Aires",
-      "coordinates": {
-        "lat": -34.9213,
-        "lng": -57.9460
-      },
-      "zoom": 13,
-      "files": {
-        "barrios": null,
-        "siniestros": null,
-        "cameras": null,
-        "private_cameras": null
-      },
-      "optionalLayers": {
-        "semaforos": null,
-        "colegios": null,
-        "corredores": null,
-        "aforos": null,
-        "colectivos": null,
-        "flujo": null,
-        "robo": null,
-        "alertas": null,
-        "zonas": null
-      },
-      "patrullas": {
-        "enabled": true,
-        "dataCollection": "patrullas_la-plata",
-        "chatCollection": "chat_la-plata",
-        "webrtcCollection": "webrtc_la-plata"
-      }
+    "patrullas": {
+      "enabled": true,
+      "dataCollection": "patrullas_mar-del-plata",
+      "chatCollection": "chat_mar-del-plata",
+      "webrtcCollection": "webrtc_mar-del-plata"
     }
-  ]
-}
+  },
+  {
+    "id": "cordoba",
+    "name": "Córdoba",
+    "country": "Argentina",
+    "province": "Córdoba",
+    "coordinates": {
+      "lat": -31.415,
+      "lng": -64.189
+    },
+    "zoom": 12,
+    "files": {
+      "barrios": "data/barrios_cordoba_ejemplo.geojson",
+      "siniestros": "data/siniestros_cordoba.geojson",
+      "cameras": "data/cameras_cordoba.geojson",
+      "private_cameras": "data/private_cameras_cordoba.geojson"
+    },
+    "optionalLayers": {
+      "semaforos": "data/semaforos_cordoba_ejemplo.csv",
+      "colegios": "data/colegios_escuelas_cordoba_ejemplo.geojson",
+      "corredores": "data/corredores_escolares_cordoba_ejemplo.geojson",
+      "aforos": "data/aforos_cordoba_ejemplo.csv",
+      "colectivos": null,
+      "flujo": null,
+      "robo": "data/EJEMPLO_robos_cordoba.csv",
+      "alertas": null,
+      "zonas": null
+    },
+    "patrullas": {
+      "enabled": true,
+      "dataCollection": "patrullas_cordoba",
+      "chatCollection": "chat_cordoba",
+      "webrtcCollection": "webrtc_cordoba"
+    }
+  }
+]
