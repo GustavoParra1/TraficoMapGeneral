@@ -106,25 +106,114 @@ class ClientesManager {
         throw new Error('Plan inválido');
       }
 
-      console.log('🚀 Creando cliente con Cloud Function:', clienteData.nombre);
+      console.log('🚀 Creando cliente (directo en Firestore - SIN Cloud Functions):', clienteData.nombre);
 
-      // Llamada a Cloud Function
-      const resultado = await adminApi.criarCliente(
-        clienteData.nombre,
-        clienteData.email,
-        clienteData.plan,
-        clienteData.ciudad || '',
-        clienteData.telefono || ''
-      );
+      // PASO 1: Crear documento cliente
+      const clienteId = generateId('cli');
+      const ahora = new Date().toISOString();
 
-      console.log('✅ Cliente creado por Cloud Function:', resultado);
+      const datosCliente = {
+        id: clienteId,
+        nombre: clienteData.nombre,
+        email: clienteData.email,
+        plan: clienteData.plan,
+        estado: 'activo',
+        ciudad: clienteData.ciudad || '',
+        telefono: clienteData.telefono || '',
+        created_at: ahora,
+        updated_at: ahora,
+        api_key: generateApiKey()
+      };
+
+      await db.collection('clientes').doc(clienteId).set(datosCliente);
+      console.log('✅ Cliente creado en Firestore');
+
+      // PASO 2: Crear suscripción
+      const precios = {
+        basico: 1000,
+        profesional: 5000,
+        enterprise: 15000
+      };
+
+      const subscripcionId = generateId('sub');
+      const vencimiento = new Date();
+      vencimiento.setFullYear(vencimiento.getFullYear() + 1);
+
+      const datosSubscripcion = {
+        id: subscripcionId,
+        cliente_id: clienteId,
+        plan: clienteData.plan,
+        precio_mensual: precios[clienteData.plan],
+        precio_anual: precios[clienteData.plan] * 12,
+        expiration_date: vencimiento.toISOString(),
+        activa: true,
+        created_at: ahora,
+        updated_at: ahora,
+        renovaciones: 0,
+        cambios_plan: []
+      };
+
+      await db.collection('subscripciones').doc(subscripcionId).set(datosSubscripcion);
+      console.log('✅ Suscripción creada');
+
+      // PASO 3: Crear factura inicial
+      const datosBilling = {
+        id: generateId('fac'),
+        cliente_id: clienteId,
+        subscripcion_id: subscripcionId,
+        monto: precios[clienteData.plan] * 12,
+        moneda: 'ARS',
+        descripcion: `Suscripción ${clienteData.plan.toUpperCase()} - Año 1`,
+        periodo_desde: ahora,
+        periodo_hasta: vencimiento.toISOString(),
+        estado: 'pendiente',
+        creada_en: ahora,
+        vence_en: vencimiento.toISOString(),
+        pagada: false,
+        fecha_pago: null,
+        metodo_pago: 'pendiente'
+      };
+
+      await db.collection('billing').add(datosBilling);
+      console.log('✅ Factura inicial creada');
+
+      // PASO 4: Crear usuario admin en Firebase Auth
+      const emailAdmin = `admin-${clienteId}@trafico-map.clients`;
+      const passwordTemp = generateSecurePassword();
+
+      let userAdmin;
+      try {
+        userAdmin = await auth.createUser({
+          email: emailAdmin,
+          password: passwordTemp,
+          displayName: `Admin - ${clienteData.nombre}`,
+          disabled: false
+        });
+
+        // Asignar custom claims
+        await auth.setCustomUserClaims(userAdmin.uid, {
+          role: 'admin',
+          cliente_id: clienteId
+        });
+
+        console.log('✅ Usuario admin creado en Firebase Auth');
+      } catch (error) {
+        console.warn('⚠️ Error creando usuario admin:', error.message);
+      }
+
+      // Actualizar cliente con datos del usuario
+      if (userAdmin) {
+        await db.collection('clientes').doc(clienteId).update({
+          usuario_admin_uid: userAdmin.uid
+        });
+      }
 
       // Recargar tabla
       await this.loadClientes();
       
       this.showSuccess(`Cliente "${clienteData.nombre}" creado exitosamente`);
 
-      return resultado.cliente;
+      return datosCliente;
     } catch (error) {
       console.error('Error creando cliente:', error);
       throw error;

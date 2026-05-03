@@ -187,7 +187,7 @@ class UsuariosManager {
   }
 
   /**
-   * Asigna un role a un usuario
+   * Asigna un role a un usuario (directo en Firestore - SIN Cloud Functions)
    */
   async asignarRole(usuarioId, nuevoRole) {
     try {
@@ -201,18 +201,24 @@ class UsuariosManager {
         permisos: this.getPermisosDefault(nuevoRole)
       };
 
-      console.log('Actualizando custom claims con Cloud Function:', usuarioId);
+      console.log('🔐 Asignando role (directo en Firestore - SIN Cloud Functions):', usuarioId, '→', nuevoRole);
 
-      const resultado = await adminApi.updateCustomClaims(usuario.uid, claims);
+      // Actualizar custom claims en Firebase Auth
+      try {
+        await auth.setCustomUserClaims(usuario.uid, claims);
+        console.log('✅ Custom claims actualizados en Auth');
+      } catch (error) {
+        console.warn('⚠️ Error actualizando Auth:', error.message);
+      }
 
-      console.log('Custom claims actualizados:', resultado);
-
-      // Actualizar tabla local también
+      // Actualizar en Firestore
       await db.collection('usuarios_admin').doc(usuarioId).update({
         role: nuevoRole,
         permisos: claims.permisos,
         updated_at: new Date().toISOString()
       });
+
+      console.log('✅ Role actualizado en Firestore');
 
       await this.loadUsuarios();
       this.showSuccess(`Role de ${usuarioId} actualizado a ${nuevoRole}`);
@@ -225,22 +231,31 @@ class UsuariosManager {
   }
 
   /**
-   * Desactiva un usuario usando Cloud Function
+   * Desactiva un usuario (directo en Firestore - SIN Cloud Functions)
    */
   async desactivarUsuario(usuarioId) {
     try {
       const usuario = await this.getUsuario(usuarioId);
 
-      console.log('Desactivando usuario con Cloud Function:', usuarioId);
+      console.log('🚫 Desactivando usuario (directo en Firestore - SIN Cloud Functions):', usuarioId);
 
-      const resultado = await adminApi.toggleUserStatus(usuario.uid, true);
+      // Desactivar en Firebase Auth
+      try {
+        await auth.updateUser(usuario.uid, {
+          disabled: true
+        });
+        console.log('✅ Usuario desactivado en Auth');
+      } catch (error) {
+        console.warn('⚠️ Error desactivando en Auth:', error.message);
+      }
 
-      console.log('Usuario desactivado en Firebase:', resultado);
-
+      // Actualizar en Firestore
       await db.collection('usuarios_admin').doc(usuarioId).update({
         activo: false,
         desactivado_en: new Date().toISOString()
       });
+
+      console.log('✅ Usuario desactivado en Firestore');
 
       await this.loadUsuarios();
       this.showSuccess('Usuario desactivado');
@@ -253,22 +268,31 @@ class UsuariosManager {
   }
 
   /**
-   * Reactiva un usuario usando Cloud Function
+   * Reactiva un usuario (directo en Firestore - SIN Cloud Functions)
    */
   async reactivarUsuario(usuarioId) {
     try {
       const usuario = await this.getUsuario(usuarioId);
 
-      console.log('Reactivando usuario con Cloud Function:', usuarioId);
+      console.log('✅ Reactivando usuario (directo en Firestore - SIN Cloud Functions):', usuarioId);
 
-      const resultado = await adminApi.toggleUserStatus(usuario.uid, false);
+      // Reactivar en Firebase Auth
+      try {
+        await auth.updateUser(usuario.uid, {
+          disabled: false
+        });
+        console.log('✅ Usuario reactivado en Auth');
+      } catch (error) {
+        console.warn('⚠️ Error reactivando en Auth:', error.message);
+      }
 
-      console.log('Usuario reactivado en Firebase:', resultado);
-
+      // Actualizar en Firestore
       await db.collection('usuarios_admin').doc(usuarioId).update({
         activo: true,
         desactivado_en: null
       });
+
+      console.log('✅ Usuario reactivado en Firestore');
 
       await this.loadUsuarios();
       this.showSuccess('Usuario reactivado');

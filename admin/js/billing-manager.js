@@ -185,18 +185,55 @@ class BillingManager {
   }
 
   /**
-   * Registra un pago
+   * Registra un pago (directo en Firestore - SIN Cloud Functions)
    */
   async registrarPago(facturaId, metodo_pago, referencias) {
     try {
-      console.log('Registrando pago con Cloud Function:', facturaId);
+      console.log('💳 Registrando pago (directo en Firestore - SIN Cloud Functions):', facturaId);
 
-      const resultado = await adminApi.registrarPago(facturaId, metodo_pago, referencias);
+      const factura = await db.collection('billing').doc(facturaId).get();
+      if (!factura.exists) {
+        throw new Error('Factura no encontrada');
+      }
 
-      console.log('Pago registrado por Cloud Function:', resultado);
+      const ahora = new Date().toISOString();
+      const datosFactura = factura.data();
+
+      // Actualizar factura con datos de pago
+      await db.collection('billing').doc(facturaId).update({
+        pagada: true,
+        estado: 'pagada',
+        fecha_pago: ahora,
+        metodo_pago: metodo_pago,
+        referencias_pago: referencias || [],
+        updated_at: ahora
+      });
+
+      console.log('✅ Pago registrado en Firestore');
+
+      // Crear registro de auditoría
+      const auditoria = {
+        id: generateId('aud'),
+        tipo: 'pago_registrado',
+        factura_id: facturaId,
+        cliente_id: datosFactura.cliente_id,
+        monto: datosFactura.monto,
+        metodo_pago: metodo_pago,
+        usuario_id: getCurrentUserId?.() || 'sistema',
+        fecha: ahora,
+        detalles: {
+          referencias: referencias,
+          estado_anterior: 'pendiente',
+          estado_nuevo: 'pagada'
+        }
+      };
+
+      await db.collection('auditoria').add(auditoria);
+      console.log('✅ Registro de auditoría creado');
+
       await this.loadFacturas();
       await this.generateReports();
-      this.showSuccess('Pago registrado');
+      this.showSuccess('Pago registrado correctamente');
 
       return true;
     } catch (error) {

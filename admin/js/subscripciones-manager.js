@@ -187,11 +187,54 @@ class SubscripcionesManager {
         throw new Error('Plan inválido');
       }
 
-      console.log('🔄 Cambiando plan con Cloud Function:', subscripcionId, '→', nuevoPlan);
+      console.log('🔄 Cambiando plan (directo en Firestore - SIN Cloud Functions):', subscripcionId, '→', nuevoPlan);
 
-      const resultado = await adminApi.cambiarPlan(subscripcionId, nuevoPlan);
+      const subscripcion = await this.getSubscripcion(subscripcionId);
+      const precios = {
+        basico: 1000,
+        profesional: 5000,
+        enterprise: 15000
+      };
 
-      console.log('✅ Plan cambiado por Cloud Function:', resultado);
+      const ahora = new Date().toISOString();
+      const cambio = {
+        fecha: ahora,
+        plan_anterior: subscripcion.plan,
+        plan_nuevo: nuevoPlan,
+        precio_anterior: subscripcion.precio_mensual,
+        precio_nuevo: precios[nuevoPlan]
+      };
+
+      // Actualizar suscripción
+      await db.collection('subscripciones').doc(subscripcionId).update({
+        plan: nuevoPlan,
+        precio_mensual: precios[nuevoPlan],
+        precio_anual: precios[nuevoPlan] * 12,
+        cambios_plan: firebase.firestore.FieldValue.arrayUnion(cambio),
+        updated_at: ahora
+      });
+
+      console.log('✅ Plan actualizado:', cambio);
+
+      // Crear factura de cambio de plan
+      const facuraAjuste = {
+        id: generateId('fac'),
+        subscripcion_id: subscripcionId,
+        cliente_id: subscripcion.cliente_id,
+        tipo: 'cambio_plan',
+        monto: (precios[nuevoPlan] - precios[subscripcion.plan]) * 12,
+        moneda: 'ARS',
+        descripcion: `Cambio de plan ${subscripcion.plan} → ${nuevoPlan}`,
+        plan_anterior: subscripcion.plan,
+        plan_nuevo: nuevoPlan,
+        creada_en: ahora,
+        estado: 'pendiente',
+        pagada: false
+      };
+
+      await db.collection('billing').add(facuraAjuste);
+      console.log('✅ Factura de ajuste creada');
+
       await this.loadSubscripciones();
       this.showSuccess(`Plan actualizado a ${nuevoPlan}`);
 
@@ -207,11 +250,43 @@ class SubscripcionesManager {
    */
   async renovarSubscripcion(subscripcionId) {
     try {
-      console.log('🔄 Renovando suscripción con Cloud Function:', subscripcionId);
+      console.log('🔄 Renovando suscripción (directo en Firestore - SIN Cloud Functions):', subscripcionId);
 
-      const resultado = await adminApi.renovarSubscripcion(subscripcionId);
+      const subscripcion = await this.getSubscripcion(subscripcionId);
+      const ahora = new Date().toISOString();
+      
+      // Calcular nueva fecha de vencimiento (+1 año)
+      const vencimientoPrev = new Date(subscripcion.expiration_date);
+      const vencimientoNuevo = new Date(vencimientoPrev);
+      vencimientoNuevo.setFullYear(vencimientoNuevo.getFullYear() + 1);
 
-      console.log('✅ Suscripción renovada por Cloud Function:', resultado);
+      // Actualizar suscripción
+      await db.collection('subscripciones').doc(subscripcionId).update({
+        expiration_date: vencimientoNuevo.toISOString(),
+        renovaciones: firebase.firestore.FieldValue.increment(1),
+        updated_at: ahora
+      });
+
+      console.log('✅ Suscripción renovada hasta:', vencimientoNuevo.toISOString());
+
+      // Crear factura de renovación
+      const facuraRenovacion = {
+        id: generateId('fac'),
+        subscripcion_id: subscripcionId,
+        cliente_id: subscripcion.cliente_id,
+        tipo: 'renovacion',
+        monto: subscripcion.precio_anual,
+        moneda: 'ARS',
+        descripcion: `Renovación suscripción ${subscripcion.plan} - Año ${subscripcion.renovaciones + 1}`,
+        periodo_desde: ahora,
+        periodo_hasta: vencimientoNuevo.toISOString(),
+        creada_en: ahora,
+        estado: 'pendiente',
+        pagada: false
+      };
+
+      await db.collection('billing').add(facuraRenovacion);
+      console.log('✅ Factura de renovación creada');
 
       await this.loadSubscripciones();
       this.showSuccess('Suscripción renovada por 1 año');

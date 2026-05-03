@@ -154,6 +154,35 @@ function isValidUrl(url) {
   }
 }
 
+// Generar API Key (32 caracteres aleatorios)
+function generateApiKey() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let key = 'sk_';
+  for (let i = 0; i < 32; i++) {
+    key += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return key;
+}
+
+// Generar contraseña segura (16 caracteres)
+function generateSecurePassword() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+  let password = '';
+  for (let i = 0; i < 16; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+}
+
+// Obtener ID del usuario actual (desde Firebase Auth)
+function getCurrentUserId() {
+  try {
+    return auth.currentUser?.uid || 'sistema';
+  } catch (e) {
+    return 'sistema';
+  }
+}
+
 // Delay promise
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
