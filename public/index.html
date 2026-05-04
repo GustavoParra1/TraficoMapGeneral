@@ -449,13 +449,23 @@ if (!firebase.apps.length) {
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Require authentication to access main map
-auth.onAuthStateChanged((user) => {
-  if (!user) {
-    console.warn('⚠️ No authenticated user. Redirecting to login...');
-    window.location.href = '/login.html';
-  }
-});
+// Detectar si estamos en modo cliente
+const urlParams = new URLSearchParams(window.location.search);
+const isClientMode = urlParams.has('client');
+
+console.log('🔐 Verificación de autenticación - Modo cliente:', isClientMode ? 'SÍ' : 'NO');
+
+// Require authentication to access main map (excepto en modo cliente)
+if (!isClientMode) {
+  auth.onAuthStateChanged((user) => {
+    if (!user) {
+      console.warn('⚠️ No authenticated user. Redirecting to login...');
+      window.location.href = '/login.html';
+    }
+  });
+} else {
+  console.log('🔓 Modo cliente: Permitiendo acceso sin autenticación');
+}
 </script>
 
 <!-- Verificación de Firebase Initialization -->

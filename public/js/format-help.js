@@ -10,6 +10,7 @@ const FormatHelp = (() => {
       description: 'Representan áreas/polígonos geográficos',
       format: 'GeoJSON (Polygon o MultiPolygon)',
       csvColumns: ['NO - Se requiere GeoJSON'],
+      geoJsonColumns: ['nombre (obligatorio)', 'descripcion (opcional)', 'otros (opcional)'],
       example: `{
   "type": "FeatureCollection",
   "features": [{
@@ -20,6 +21,14 @@ const FormatHelp = (() => {
       "coordinates": [[[lng, lat], [lng, lat], ...]]
     }
   }]
+}`,
+      geoJsonExample: `{
+  "type": "Feature",
+  "properties": { "nombre": "Barrio Centro", "descripcion": "Zona central" },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[[-57.95, -34.92], [-57.94, -34.92], [-57.94, -34.93], [-57.95, -34.93], [-57.95, -34.92]]]
+  }
 }`
     },
     siniestros: {
@@ -179,6 +188,7 @@ const FormatHelp = (() => {
       description: 'Rutas seguras cercanas a escuelas',
       format: 'GeoJSON (LineString o MultiLineString)',
       csvColumns: ['NO - Se requiere GeoJSON con rutas'],
+      geoJsonColumns: ['nombre', 'escuela', 'extension_km (opcionales)'],
       geoJsonExample: `{
   "type": "Feature",
   "properties": { "nombre": "Corredor Escuela 1", "escuela": "Escuela X", "extension_km": "2.5" },
@@ -275,6 +285,68 @@ const FormatHelp = (() => {
   "type": "Feature",
   "properties": { "fecha": "2023-01-01", "resultado": "Asiste Policia y Libera", "observaciones": "Centro", "año": 2023 },
   "geometry": { "type": "Point", "coordinates": [-57.5876566, -38.032577] }
+}`
+    },
+    'lineas-colectivos': {
+      title: '🚌 LÍNEAS DE COLECTIVOS',
+      description: 'Rutas de transporte público - múltiples líneas con paradas y trazado',
+      format: 'GeoJSON (Multiple Features con Points y LineString)',
+      csvColumns: ['NO - Se requiere GeoJSON'],
+      geoJsonColumns: ['numero (obligatorio)', 'nombre (obligatorio)', 'origen (opt)', 'destino (opt)', 'otros campos (opt)'],
+      csvInfo: `
+        <p style="background: #e3f2fd; padding: 12px; margin: 10px 0; border-radius: 4px; border-left: 4px solid #0066ff;">
+          <strong>📌 Estructura de Líneas de Colectivos:</strong>
+          <div style="margin: 8px 0; padding-left: 20px; font-size: 12px; line-height: 1.8;">
+            <p><strong>• Paradas (Points):</strong> Cada parada es una Feature con tipo Point</p>
+            <p><strong>• Ruta (LineString):</strong> Una Feature con tipo LineString que conecta todas las paradas</p>
+            <p><strong>• Propiedades:</strong> Información de la línea (número, nombre, origen, destino)</p>
+          </div>
+        </p>
+        <p><strong>✅ Reglas importantes:</strong></p>
+        <ul style="font-size: 12px; padding-left: 20px;">
+          <li>El archivo se nomina: <code>linea{numero}.geojson</code> (ej: linea542.geojson, linea1.geojson)</li>
+          <li>Puede contener múltiples Features (paradas + ruta) en un solo archivo</li>
+          <li>Las coordenadas están en formato [longitude, latitude]</li>
+          <li>El LineString define la ruta visual en el mapa</li>
+          <li>Los Points opcional (pueden ser null en properties)</li>
+          <li>Subir TODOS los archivos linea*.geojson juntos - El sistema los procesa automáticamente</li>
+        </ul>
+      `,
+      geoJsonExample: `{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-57.608124, -37.991]
+      },
+      "properties": null
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-57.5776077, -37.96721]
+      },
+      "properties": null
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-57.608124, -37.991],
+          [-57.608107, -37.991136],
+          [-57.597806, -37.998924],
+          [-57.596991, -37.999119],
+          [-57.579972, -37.95733],
+          [-57.583795, -37.910799]
+        ]
+      },
+      "properties": null
+    }
+  ]
 }`
     }
   };

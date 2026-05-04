@@ -78,6 +78,136 @@ function iniciarMapa() {
 }
 
 // ============================
+// MODO CLIENTE vs ADMIN
+// ============================
+// Detectar parámetro ?client= para modo cliente
+const urlParams = new URLSearchParams(window.location.search);
+let clientMode = false;
+let clientId = null;
+
+if (urlParams.has('client')) {
+  clientId = urlParams.get('client');
+  clientMode = true;
+  console.log(`🔵 MODO CLIENTE DETECTADO: ${clientId}`);
+} else {
+  console.log('🔴 MODO ADMIN');
+}
+
+// ============================
+// CARGAR DATOS DEL CLIENTE DESDE FIRESTORE
+// ============================
+async function loadClientDataFromFirestore() {
+  if (!clientMode || !clientId) {
+    console.log('ℹ️ Modo admin o clientId no especificado, saltando carga de Firestore');
+    return;
+  }
+
+  console.log(`📡 Cargando datos del cliente ${clientId} desde Firestore...`);
+
+  try {
+    // Cámaras públicas
+    const camerasRef = firebase.firestore().collection(`clientes/${clientId}/cameras`);
+    const camerasSnap = await camerasRef.get();
+    if (!camerasSnap.empty) {
+      const camerasGeoJson = {
+        type: 'FeatureCollection',
+        features: camerasSnap.docs.map(doc => ({
+          type: 'Feature',
+          id: doc.id,
+          properties: doc.data(),
+          geometry: {
+            type: 'Point',
+            coordinates: [doc.data().lng, doc.data().lat]
+          }
+        }))
+      };
+      await CamerasLayer.loadCamerasFromGeoJson(camerasGeoJson);
+      console.log(`✅ ${camerasGeoJson.features.length} cámaras públicas cargadas`);
+    }
+
+    // Cámaras privadas
+    const privateCamerasRef = firebase.firestore().collection(`clientes/${clientId}/cameras_privadas`);
+    const privateCamerasSnap = await privateCamerasRef.get();
+    if (!privateCamerasSnap.empty) {
+      const privateCamerasGeoJson = {
+        type: 'FeatureCollection',
+        features: privateCamerasSnap.docs.map(doc => ({
+          type: 'Feature',
+          id: doc.id,
+          properties: doc.data(),
+          geometry: {
+            type: 'Point',
+            coordinates: [doc.data().lng, doc.data().lat]
+          }
+        }))
+      };
+      await PrivateCamerasLayer.loadCamerasFromGeoJson(privateCamerasGeoJson);
+      console.log(`✅ ${privateCamerasGeoJson.features.length} cámaras privadas cargadas`);
+    }
+
+    // Siniestros
+    const siniestrosRef = firebase.firestore().collection(`clientes/${clientId}/siniestros`);
+    const siniestrosSnap = await siniestrosRef.get();
+    if (!siniestrosSnap.empty) {
+      const siniestrosGeoJson = {
+        type: 'FeatureCollection',
+        features: siniestrosSnap.docs.map(doc => ({
+          type: 'Feature',
+          id: doc.id,
+          properties: doc.data(),
+          geometry: {
+            type: 'Point',
+            coordinates: [doc.data().lng, doc.data().lat]
+          }
+        }))
+      };
+      SiniestrosLayer.loadSinistrosFromGeoJson(siniestrosGeoJson);
+      console.log(`✅ ${siniestrosGeoJson.features.length} siniestros cargados`);
+    }
+
+    // Barrios (Polygons)
+    const barriosRef = firebase.firestore().collection(`clientes/${clientId}/barrios`);
+    const barriosSnap = await barriosRef.get();
+    if (!barriosSnap.empty) {
+      const barriosGeoJson = {
+        type: 'FeatureCollection',
+        features: barriosSnap.docs.map(doc => {
+          const data = doc.data();
+          let geometry = data.geometry;
+          
+          // Si la geometría está almacenada como string JSON, parsearla
+          if (typeof geometry === 'string') {
+            try {
+              geometry = JSON.parse(geometry);
+            } catch (e) {
+              console.warn(`⚠️ No se pudo parsear geometría para barrio ${doc.id}`);
+              geometry = null;
+            }
+          }
+          
+          return {
+            type: 'Feature',
+            id: doc.id,
+            properties: data,
+            geometry: geometry
+          };
+        }).filter(f => f.geometry)
+      };
+      
+      // En modo cliente, pasar barrios a GeoLayers si es necesario
+      if (typeof GeoLayers !== 'undefined' && GeoLayers.loadGeoJSON) {
+        console.log(`📍 Pasando ${barriosGeoJson.features.length} barrios a GeoLayers`);
+        GeoLayers.loadGeoJSON(barriosGeoJson);
+      }
+    }
+
+    console.log('✅ Todos los datos del cliente cargados desde Firestore');
+  } catch (error) {
+    console.error('❌ Error cargando datos del cliente:', error);
+  }
+}
+
+// ============================
 // CONFIGURACIÓN DE CIUDADES
 // ============================
 let currentCity = 'mar-del-plata'; // Cambiar a mar-del-plata para usar datos reales con propiedades LPR
@@ -681,8 +811,215 @@ let authInitialized = false;
 auth.onAuthStateChanged((user) => {
   const sidebar = document.getElementById('sidebar');
   
+  // En modo cliente, permitir sin autenticación
+  if (clientMode && clientId && !user && !authInitialized) {
+    console.log(`🔵 Modo cliente: Inicializando sidebar sin autenticación`);
+    authInitialized = true;
+    
+    // Mostrar sidebar del cliente sin requerir login
+    sidebar.innerHTML = `
+      <div id="logo">🗺️ TraficoMap - Cliente</div>
+      <div class="sidebar-section" style="background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 4px; padding: 12px;">
+        <div style="font-size: 13px; color: #1565c0; font-weight: 600;">
+          🔵 Modo Visualización
+        </div>
+        <div style="font-size: 11px; color: #0d47a1; margin-top: 6px;">
+          Cliente: ${clientId}
+        </div>
+      </div>
+      
+      <div class="sidebar-section">
+        <div class="sidebar-title">Mapa Base</div>
+        <select id="base-map-selector" style="width: 100%; padding: 8px; border: none; border-radius: 4px;">
+          <option value="osm" selected>OpenStreetMap</option>
+          <option value="satellite">Satélite (Esri)</option>
+        </select>
+      </div>
+      
+      <div class="sidebar-section">
+        <div class="sidebar-title">Filtro Global por Barrio</div>
+        <select id="global-barrio-filter" style="width: 100%; padding: 8px; border: none; border-radius: 4px;">
+          <option value="all">Todos los Barrios</option>
+        </select>
+      </div>
+
+      <div class="sidebar-section" style="position: relative; z-index: 100;">
+        <div class="sidebar-title">Capas Geográficas</div>
+        <div class="button-group" style="position: relative; z-index: 100;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; position: relative; z-index: 100;">
+            <input type="checkbox" id="toggle-barrios" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">Zonas / Barrios</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="siniestros-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">Mostrar Siniestros (<span id="total-siniestros-count">0</span>)</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="cameras-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">Mostrar Cámaras (<span id="total-cameras-count">0</span>)</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="private-cameras-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">Cámaras Privadas (<span id="total-private-cameras-count">0</span>)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">Controles</div>
+        <div class="button-group">
+          <button id="center-map-btn">
+            <i class="fas fa-crosshairs"></i> Centrar Mapa
+          </button>
+          <button id="reset-view-btn" class="secondary">
+            <i class="fas fa-redo"></i> Resetear Vista
+          </button>
+        </div>
+      </div>
+      
+      <div class="sidebar-section">
+        <div class="sidebar-title">Información</div>
+        <div id="municipio-info" style="font-size: 12px; line-height: 1.6;">
+          <strong>TraficoMap</strong><br>
+          Sistema de Monitoreo<br>
+          <small>Modo Visualización</small>
+        </div>
+      </div>
+    `;
+    
+    // Mostrar mapa
+    document.getElementById('map').style.opacity = '1';
+    
+    // Inicializar mapa si no existe
+    if (!map) {
+      iniciarMapa();
+    }
+    
+    // Configurar event listeners para cliente
+    setTimeout(() => {
+      const centerMapBtn = document.getElementById('center-map-btn');
+      if (centerMapBtn) {
+        centerMapBtn.addEventListener('click', () => {
+          if (map) {
+            map.setView([-38.0, -57.55], 12);
+            console.log('✅ Mapa centrado');
+          }
+        });
+      }
+      
+      const resetViewBtn = document.getElementById('reset-view-btn');
+      if (resetViewBtn) {
+        resetViewBtn.addEventListener('click', () => {
+          const sinCheckbox = document.getElementById('siniestros-checkbox');
+          const camCheckbox = document.getElementById('cameras-checkbox');
+          const privCamCheckbox = document.getElementById('private-cameras-checkbox');
+          const toggleBarrios = document.getElementById('toggle-barrios');
+          
+          if (sinCheckbox) sinCheckbox.checked = false;
+          if (camCheckbox) camCheckbox.checked = false;
+          if (privCamCheckbox) privCamCheckbox.checked = false;
+          if (toggleBarrios) toggleBarrios.checked = false;
+          
+          const globalBarrioSelect = document.getElementById('global-barrio-filter');
+          if (globalBarrioSelect) globalBarrioSelect.value = 'all';
+          
+          // Ocultar capas
+          if (typeof SiniestrosLayer !== 'undefined') SiniestrosLayer.toggle(false);
+          if (typeof CamerasLayer !== 'undefined') CamerasLayer.toggle(false);
+          if (typeof PrivateCamerasLayer !== 'undefined') PrivateCamerasLayer.toggle(false);
+          if (typeof GeoLayers !== 'undefined' && GeoLayers.isLayerVisible('Zonas / Barrios')) {
+            GeoLayers.toggleLayer('Zonas / Barrios');
+          }
+          
+          console.log('✅ Vista reseteada');
+        });
+      }
+      
+      const baseMapSelector = document.getElementById('base-map-selector');
+      if (baseMapSelector) {
+        baseMapSelector.addEventListener('change', (e) => {
+          if (e.target.value === 'osm') {
+            if (map && layers.satellite && map.hasLayer(layers.satellite)) {
+              map.removeLayer(layers.satellite);
+            }
+            if (map && layers.osm && !map.hasLayer(layers.osm)) {
+              layers.osm.addTo(map);
+            }
+          } else if (e.target.value === 'satellite') {
+            if (map && layers.osm && map.hasLayer(layers.osm)) {
+              map.removeLayer(layers.osm);
+            }
+            if (map && layers.satellite && !map.hasLayer(layers.satellite)) {
+              layers.satellite.addTo(map);
+            }
+          }
+        });
+      }
+      
+      // Configurar checkboxes para cliente
+      const setupClientLayerCheckboxes = () => {
+        const sinCheckbox = document.getElementById('siniestros-checkbox');
+        const camCheckbox = document.getElementById('cameras-checkbox');
+        const privCamCheckbox = document.getElementById('private-cameras-checkbox');
+        const toggleBarrios = document.getElementById('toggle-barrios');
+        const globalBarrioSelect = document.getElementById('global-barrio-filter');
+        
+        if (sinCheckbox) {
+          sinCheckbox.addEventListener('change', (e) => {
+            if (typeof SiniestrosLayer !== 'undefined') {
+              SiniestrosLayer.toggle(e.target.checked);
+            }
+          });
+        }
+        
+        if (camCheckbox) {
+          camCheckbox.addEventListener('change', (e) => {
+            if (typeof CamerasLayer !== 'undefined') {
+              CamerasLayer.toggle(e.target.checked);
+            }
+          });
+        }
+        
+        if (privCamCheckbox) {
+          privCamCheckbox.addEventListener('change', (e) => {
+            if (typeof PrivateCamerasLayer !== 'undefined') {
+              PrivateCamerasLayer.toggle(e.target.checked);
+            }
+          });
+        }
+        
+        if (toggleBarrios) {
+          toggleBarrios.addEventListener('change', (e) => {
+            if (typeof GeoLayers !== 'undefined') {
+              GeoLayers.toggleLayer('Zonas / Barrios');
+            }
+          });
+        }
+        
+        if (globalBarrioSelect) {
+          globalBarrioSelect.addEventListener('change', (e) => {
+            const barrio = e.target.value;
+            if (typeof SiniestrosLayer !== 'undefined' && sinCheckbox && sinCheckbox.checked) {
+              SiniestrosLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
+            }
+            if (typeof CamerasLayer !== 'undefined' && camCheckbox && camCheckbox.checked) {
+              CamerasLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
+            }
+            if (typeof PrivateCamerasLayer !== 'undefined' && privCamCheckbox && privCamCheckbox.checked) {
+              PrivateCamerasLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
+            }
+          });
+        }
+      };
+      
+      setupClientLayerCheckboxes();
+    }, 500);
+    
+    return;  // Salir del auth handler, no mostrar UI de admin
+  }
+  
   if (!user) {
-    // Usuario NO autenticado
+    // Usuario NO autenticado (modo admin o cliente sin ID)
     // Solo si es la primera carga, mostrar login
     // Si pierde sesión después (logout en otra ventana), mantener el mapa funcionando
     if (!authInitialized) {
@@ -733,6 +1070,7 @@ auth.onAuthStateChanged((user) => {
     }
     
   } else {
+
     // Usuario autenticado - mostrar panel
     sidebar.innerHTML = `
       <div id="logo">🗺️ TraficoMap</div>
@@ -752,6 +1090,7 @@ auth.onAuthStateChanged((user) => {
         </select>
       </div>
 
+      ${!clientMode ? `
       <div class="sidebar-section">
         <div class="sidebar-title">Ciudad</div>
         <select id="city-selector" style="width: 100%; padding: 10px; border: 2px solid #0066ff; border-radius: 4px; background-color: #fff; color: #333; font-size: 13px; font-weight: 500;">
@@ -767,6 +1106,16 @@ auth.onAuthStateChanged((user) => {
           ➕ Importar Nueva Ciudad
         </button>
       </div>
+      ` : `
+      <div class="sidebar-section" style="background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 4px; padding: 12px;">
+        <div style="font-size: 13px; color: #1565c0; font-weight: 600;">
+          🔵 Modo Cliente
+        </div>
+        <div style="font-size: 11px; color: #0d47a1; margin-top: 6px;">
+          ID: ${clientId}
+        </div>
+      </div>
+      `}
       
       <div class="sidebar-section">
         <div class="sidebar-title">🗺️ Buscar Dirección</div>
@@ -3111,11 +3460,19 @@ const setupImportCities = () => {
 // Inicializar mapa al cargar
 iniciarMapa();
 
-// Inicializar sistema de importación de ciudades (CON DELAY para asegurar que el sidebar esté listo)
-setTimeout(() => {
-  console.log('⏳ Ejecutando setupImportCities() después del delay');
-  setupImportCities();
-}, 1000);
+// Si está en modo cliente, cargar datos desde Firestore
+if (clientMode && clientId) {
+  console.log(`🔵 Cargando datos del cliente: ${clientId}`);
+  setTimeout(() => {
+    loadClientDataFromFirestore();
+  }, 1000);  // Dar tiempo a que se inicialicen los módulos
+} else {
+  // Si está en modo admin, inicializar el sistema de importación
+  setTimeout(() => {
+    console.log('⏳ Ejecutando setupImportCities() después del delay');
+    setupImportCities();
+  }, 1000);
+}
 
 // ============================
 // TOGGLE DE STREET VIEW

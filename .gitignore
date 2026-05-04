@@ -24,4 +24,6 @@ __pycache__/
 htmlcov/
 test-results/
 coverage/
-serviceAccountKey.json
+serviceAccountKey.jsonservice-account-key.json
+trafico-map-general-v2-firebase-adminsdk-key.json
+*-firebase-adminsdk*.json

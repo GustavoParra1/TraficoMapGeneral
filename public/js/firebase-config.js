@@ -1,48 +1,23 @@
 /**
- * Firebase Configuration Module
- * Carga la configuración de Firebase desde el archivo de configuración
- * Permite múltiples instancias para diferentes municipios
+ * Firebase Configuration (Compat)
+ * Inicializa Firebase usando scripts CDN de compat
  */
 
-export let firebaseConfig = null;
-export let database = null;
-export let auth = null;
+// Configuración de Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA",
+  authDomain: "trafico-map-general-v2.firebaseapp.com",
+  projectId: "trafico-map-general-v2",
+  storageBucket: "trafico-map-general-v2.appspot.com",
+  messagingSenderId: "555701169844",
+  appId: "1:555701169844:web:0df09c7d73ef0de19f88b2"
+};
 
-/**
- * Inicializa Firebase con la configuración específica del municipio
- * @param {Object} config - Objeto de configuración desde config.json
- */
-export async function initializeFirebase(config) {
-  firebaseConfig = config.firebase;
-  
-  // Importar dinámicamente Firebase (solo en el cliente)
-  if (typeof window !== 'undefined') {
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js');
-    const { getDatabase } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js');
-    const { getAuth } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js');
-    
-    const app = initializeApp(firebaseConfig);
-    database = getDatabase(app);
-    auth = getAuth(app);
-    
-    console.log('✅ Firebase initialized for:', config.municipio.nombre);
-  }
-}
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
 
-export function getFirebaseConfig() {
-  return firebaseConfig;
-}
+// Variables globales de Firebase
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-export function getDatabase() {
-  if (!database) {
-    throw new Error('Firebase no inicializado. Llama a initializeFirebase() primero.');
-  }
-  return database;
-}
-
-export function getAuth() {
-  if (!auth) {
-    throw new Error('Firebase no inicializado. Llama a initializeFirebase() primero.');
-  }
-  return auth;
-}
+console.log('✅ Firebase Admin Config Loaded');

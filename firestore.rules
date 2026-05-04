@@ -35,7 +35,91 @@ service cloud.firestore {
       return isPatrulla() || isAdmin();
     }
 
-    // ========== USERS - Solo admins ==========
+    // ========== SAAS: CLIENTES ==========
+    // Obtener el ID del cliente desde los custom claims del token
+    function getClientId() {
+      return request.auth.token.cliente_id;
+    }
+
+    function isClient() {
+      return isAuthenticated() && request.auth.token.role == 'client';
+    }
+
+    function isSameClient(clientId) {
+      return isClient() && getClientId() == clientId;
+    }
+
+    function clientCanRead(clientId) {
+      return isAdmin() || (isAuthenticated() && request.auth.token.cliente_id == clientId);
+    }
+
+    function clientCanWrite(clientId) {
+      return isAdmin() || (isAuthenticated() && request.auth.token.cliente_id == clientId);
+    }
+
+    // ========== COLECCIÓN: CLIENTES (Admin Panel) ==========
+    match /clientes/{clientId} {
+      allow read: if isAdmin() || clientCanRead(clientId);
+      allow create, update, delete: if isAdmin();
+      
+      // Subcollecciones para datos del cliente - DATOS PRINCIPALES
+      match /barrios/{barrio} {
+        allow read, write: if isAdmin() || clientCanRead(clientId);
+      }
+
+      match /cameras/{cameraId} {
+        allow read, write: if isAdmin() || clientCanRead(clientId);
+      }
+
+      match /cameras_privadas/{cameraId} {
+        allow read, write: if isAdmin() || clientCanRead(clientId);
+      }
+
+      match /siniestros/{siniestroId} {
+        allow read, write: if isAdmin() || clientCanRead(clientId);
+      }
+
+      match /alertas/{alertaId} {
+        allow read, write: if isAdmin() || clientCanRead(clientId);
+      }
+
+      // Subcollecciones para datos del cliente - CAPAS OPCIONALES
+      match /semaforos/{id} {
+        allow read, write: if isAdmin() || clientCanRead(clientId);
+      }
+
+      match /colegios_escuelas/{id} {
+        allow read, write: if isAdmin() || clientCanRead(clientId);
+      }
+
+      match /corredores_escolares/{id} {
+        allow read, write: if isAdmin() || clientCanRead(clientId);
+      }
+
+      match /colectivos/{id} {
+        allow read, write: if isAdmin() || clientCanRead(clientId);
+      }
+
+      match /flujo/{id} {
+        allow read, write: if isAdmin() || clientCanRead(clientId);
+      }
+
+      match /robo/{id} {
+        allow read, write: if isAdmin() || clientCanRead(clientId);
+      }
+    }
+    
+    // ========== COLECCIÓN: SUBSCRIPCIONES (Admin Panel) ==========
+    match /subscripciones/{suscripcionId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // ========== COLECCIÓN: BILLING (Admin Panel + Clients) ==========
+    match /billing/{facturaId} {
+      allow read: if isAdmin() || (isClient() && resource.data.cliente_id == getClientId());
+      allow write: if isAdmin();
+    }
     match /users/{userId} {
       allow read: if isAuthenticated();
       allow create, update, delete: if isAdmin();
@@ -139,6 +223,59 @@ service cloud.firestore {
     match /audit_logs/{document=**} {
       allow read: if isAdmin();
       allow write: if isAuthenticated();
+    }
+
+    // ========== ADMIN PANEL: CLIENTES ==========
+    match /clientes/{clienteId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /clientes/{clienteId}/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // ========== ADMIN PANEL: SUBSCRIPCIONES ==========
+    match /subscripciones/{subscripcionId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /subscripciones/{subscripcionId}/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // ========== ADMIN PANEL: BILLING ==========
+    match /billing/{invoiceId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /billing/{invoiceId}/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // ========== ADMIN PANEL: USUARIOS ADMIN ==========
+    match /usuarios_admin/{userId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /usuarios_admin/{userId}/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // ========== ADMIN PANEL: AUDITORIA ==========
+    match /auditoria/{auditId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+    }
+
+    match /auditoria/{auditId}/{document=**} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+    }
+
+    // ========== CONFIG (pública para lectura) ==========
+    match /config/{param} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // ========== DEFAULT: DENY ==========
