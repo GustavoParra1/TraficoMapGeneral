@@ -583,21 +583,6 @@ class Dashboard {
       });
     }
   }
-        <table class="table table-hover">
-          <thead class="table-light">
-            <tr>
-              <th>Municipio</th>
-              <th>Email</th>
-              <th>Ingresos Anuales</th>
-              <th>Estado</th>
-              <th>Creado</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-    }
-  }
 
   // ===== PÁGINA: SUBSCRIPCIONES =====
   getSubscripcionesPageHTML() {
