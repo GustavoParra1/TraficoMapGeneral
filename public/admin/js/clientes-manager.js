@@ -378,6 +378,7 @@ class ClientesManager {
           <button class="btn btn-sm btn-primary" onclick="clientesManager.handleVerCliente('${c.id}')"><i class="bi bi-eye"></i></button>
           <button class="btn btn-sm btn-warning" onclick="clientesManager.handleEditarCliente('${c.id}')"><i class="bi bi-pencil"></i></button>
           <button class="btn btn-sm btn-${c.estado === 'activo' ? 'outline-danger' : 'outline-success'}" onclick="clientesManager.handleToggleSuspender('${c.id}')"><i class="bi bi-${c.estado === 'activo' ? 'pause' : 'play'}"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="clientesManager.handleEliminarCliente('${c.id}', '${c.nombre}')"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
     `).join('');
@@ -574,6 +575,72 @@ class ClientesManager {
       this.renderClientesTable();
     } catch (error) {
       this.showError('Error: ' + error.message);
+    }
+  }
+
+  /**
+   * Eliminar cliente
+   */
+  async handleEliminarCliente(clienteId, nombreCliente) {
+    // Pedir confirmación
+    const confirmacion = confirm(
+      `⚠️ ADVERTENCIA: ¿Deseas eliminar el cliente "${nombreCliente}"?\n\n` +
+      `Esto eliminará:\n` +
+      `- El cliente\n` +
+      `- Su suscripción\n` +
+      `- Sus facturas\n\n` +
+      `Esta acción NO se puede deshacer.`
+    );
+
+    if (!confirmacion) {
+      console.log('Eliminación cancelada');
+      return;
+    }
+
+    try {
+      console.log(`🗑️ Eliminando cliente: ${clienteId}`);
+      
+      showLoading(document.body);
+
+      // Eliminar cliente
+      await db.collection('clientes').doc(clienteId).delete();
+      console.log('✅ Cliente eliminado');
+
+      // Eliminar suscripciones
+      const subSnapshot = await db.collection('subscripciones')
+        .where('cliente_id', '==', clienteId)
+        .get();
+      
+      const batch = db.batch();
+      subSnapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+      console.log('✅ Suscripciones eliminadas');
+
+      // Eliminar facturas
+      const billSnapshot = await db.collection('billing')
+        .where('cliente_id', '==', clienteId)
+        .get();
+      
+      const batch2 = db.batch();
+      billSnapshot.docs.forEach(doc => {
+        batch2.delete(doc.ref);
+      });
+      await batch2.commit();
+      console.log('✅ Facturas eliminadas');
+
+      hideLoading();
+      this.showSuccess(`Cliente "${nombreCliente}" eliminado correctamente`);
+      
+      // Recargar tabla
+      await this.loadClientes();
+      this.renderClientesTable();
+
+    } catch (error) {
+      hideLoading();
+      console.error('❌ Error eliminando cliente:', error);
+      this.showError('Error al eliminar cliente: ' + error.message);
     }
   }
 
