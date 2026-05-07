@@ -36,11 +36,25 @@ app.use(express.json());
  */
 app.post('/criarCliente', async (req, res) => {
   try {
-    const { nombreCliente, email, plan, ciudad, telefono } = req.body;
+    const { 
+      nombreCliente, 
+      email, 
+      plan, 
+      ciudad, 
+      telefono,
+      firebaseConfig  // ✅ NUEVO: Credenciales de Firebase del cliente
+    } = req.body;
 
     // Validación
     if (!nombreCliente || !email || !plan) {
       return res.status(400).json({ error: 'Faltan datos requeridos' });
+    }
+
+    // ✅ Validar que Firebase config esté presente
+    if (!firebaseConfig || !firebaseConfig.projectId) {
+      return res.status(400).json({ 
+        error: 'Credenciales de Firebase requeridas (projectId, apiKey, etc.)' 
+      });
     }
 
     const planesValidos = ['basico', 'profesional', 'enterprise'];
@@ -49,9 +63,10 @@ app.post('/criarCliente', async (req, res) => {
     }
 
     console.log(`🚀 Creando cliente: ${nombreCliente}`);
+    console.log(`📱 Firebase Project: ${firebaseConfig.projectId}`);
 
-    // PASO 1: Crear documento en clientes/
-    const clienteId = `cli_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // PASO 1: Crear documento en clientes/ (con credenciales de Firebase)
+    const clienteId = firebaseConfig.projectId; // Usar projectId como cliente ID
     const ahora = new Date().toISOString();
 
     const datosCliente = {
@@ -64,36 +79,65 @@ app.post('/criarCliente', async (req, res) => {
       telefono: telefono || '',
       created_at: ahora,
       updated_at: ahora,
-      firebase_project_id: '', // Para futura expansión
+      firebase_project_id: firebaseConfig.projectId,
+      
+      // ✅ GUARDAR CREDENCIALES DEL CLIENTE
+      firebase_cliente: {
+        apiKey: firebaseConfig.apiKey,
+        authDomain: firebaseConfig.authDomain,
+        projectId: firebaseConfig.projectId,
+        storageBucket: firebaseConfig.storageBucket,
+        messagingSenderId: firebaseConfig.messagingSenderId,
+        appId: firebaseConfig.appId,
+        databaseURL: firebaseConfig.databaseURL || ''
+      },
+      
       api_key: generateApiKey(),
-      usuarios_creados: []
+      usuarios_creados: [],
+      
+      // Suscripción info
+      suscripcion: {
+        plan: plan,
+        estado: 'activo',
+        expiration_date: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()
+      }
     };
 
     await db.collection('clientes').doc(clienteId).set(datosCliente);
-    console.log('✅ Documento cliente creado');
+    console.log('✅ Documento cliente creado con credenciales de Firebase');
 
-    // PASO 2: Crear usuario admin en Firebase Auth
-    const emailAdmin = `admin-${clienteId}@trafico-map.clients`;
-    const passwordTemp = generateSecurePassword();
-
+    // PASO 2: Crear usuario en Firebase Auth DEL CLIENTE (no en general)
+    // Crear en Firebase General para autenticación inicial
+    const emailAdmin = email;
     let userAdmin;
     try {
       userAdmin = await auth.createUser({
         email: emailAdmin,
-        password: passwordTemp,
         displayName: `Admin - ${nombreCliente}`,
         disabled: false
       });
 
-      // Asignar custom claims
+      // ✅ ASIGNAR CUSTOM CLAIMS con cliente_id
       await auth.setCustomUserClaims(userAdmin.uid, {
         role: 'admin',
-        cliente_id: clienteId
+        cliente_id: clienteId  // Este es el projectId del cliente
       });
 
       console.log(`✅ Usuario admin creado: ${emailAdmin}`);
+      console.log(`✅ Custom claims asignados: cliente_id=${clienteId}`);
     } catch (error) {
-      console.warn('⚠️ Usuario ya existe:', error.message);
+      if (error.code === 'auth/email-already-exists') {
+        console.log('⚠️ Usuario ya existe, actualizando custom claims...');
+        // Obtener el UID del usuario existente
+        const existingUser = await auth.getUserByEmail(emailAdmin);
+        await auth.setCustomUserClaims(existingUser.uid, {
+          role: 'admin',
+          cliente_id: clienteId
+        });
+        userAdmin = existingUser;
+      } else {
+        throw error;
+      }
     }
 
     // PASO 3: Crear suscripción inicial
@@ -155,10 +199,9 @@ app.post('/criarCliente', async (req, res) => {
       billing: datosBilling,
       admin_user: {
         email: emailAdmin,
-        password: passwordTemp,
         uid: userAdmin?.uid
       },
-      mensaje: 'Cliente creado exitosamente'
+      mensaje: 'Cliente creado exitosamente con credenciales de Firebase'
     });
 
   } catch (error) {
@@ -350,6 +393,83 @@ app.post('/updateCustomClaims', async (req, res) => {
   } catch (error) {
     console.error('❌ Error actualizando claims:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// FUNCIÓN 4B: OBTENER CREDENCIALES DE FIREBASE DEL CLIENTE (SEGURO)
+// ============================================================================
+/**
+ * Cloud Function Callable para obtener credenciales de Firebase del cliente
+ * SOLO devuelve credenciales a usuario autenticado con cliente_id en claims
+ * Llamado desde client-auth.js después de autenticarse
+ */
+exports.getClientFirebaseConfig = functions.https.onCall(async (data, context) => {
+  try {
+    // ✅ Validar que usuario esté autenticado
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        'unauthenticated',
+        'Usuario no autenticado'
+      );
+    }
+
+    const uid = context.auth.uid;
+    const userEmail = context.auth.token.email;
+
+    console.log(`🔐 Solicitando credenciales: ${userEmail}`);
+
+    // ✅ Obtener custom claims del usuario
+    const user = await admin.auth().getUser(uid);
+    const clienteId = user.customClaims?.cliente_id;
+
+    if (!clienteId) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'Usuario sin acceso a cliente. Contacta administración.'
+      );
+    }
+
+    console.log(`✅ Cliente ID extraído: ${clienteId}`);
+
+    // ✅ Leer credenciales de Firebase del cliente desde Firestore
+    const clienteDoc = await db.collection('clientes').doc(clienteId).get();
+
+    if (!clienteDoc.exists) {
+      throw new functions.https.HttpsError(
+        'not-found',
+        'Cliente no encontrado en sistema'
+      );
+    }
+
+    const clienteData = clienteDoc.data();
+
+    // ✅ Validar que existan credenciales
+    if (!clienteData.firebase_cliente) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'Credenciales de Firebase no configuradas. Contacta administración.'
+      );
+    }
+
+    console.log(`✅ Credenciales devueltas para ${clienteId}`);
+
+    // ✅ DEVOLVER SOLO credenciales necesarias
+    return {
+      success: true,
+      firebaseConfig: clienteData.firebase_cliente,
+      clienteId: clienteId,
+      nombre: clienteData.nombre,
+      suscripcion: {
+        plan: clienteData.plan,
+        estado: clienteData.estado,
+        expiration_date: clienteData.suscripcion?.expiration_date
+      }
+    };
+
+  } catch (error) {
+    console.error('❌ Error obteniendo credenciales:', error.message);
+    throw error;
   }
 });
 

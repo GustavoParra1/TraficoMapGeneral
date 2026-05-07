@@ -234,14 +234,106 @@
               </select>
             </div>
 
+            <hr>
+            <h6 class="mb-3">Credenciales de Firebase del Cliente *</h6>
+            <div class="mb-3">
+              <label for="firebaseProjectId" class="form-label">Project ID *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="firebaseProjectId" 
+                placeholder="laplatamaps-52a3b"
+                required 
+              />
+              <small class="text-muted">De Firebase Console: Project Settings → Project ID</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="firebaseApiKey" class="form-label">API Key *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="firebaseApiKey" 
+                placeholder="AIzaSy..."
+                required 
+              />
+              <small class="text-muted">De Firebase Console: Web app config</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="firebaseAuthDomain" class="form-label">Auth Domain *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="firebaseAuthDomain" 
+                placeholder="laplatamaps-52a3b.firebaseapp.com"
+                required 
+              />
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="firebaseStorageBucket" class="form-label">Storage Bucket *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="firebaseStorageBucket" 
+                  placeholder="laplatamaps-52a3b.appspot.com"
+                  required 
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="firebaseMessagingSenderId" class="form-label">Messaging Sender ID *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="firebaseMessagingSenderId" 
+                  placeholder="9948736453"
+                  required 
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="firebaseAppId" class="form-label">App ID *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="firebaseAppId" 
+                  placeholder="1:9948736453:web:..."
+                  required 
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="firebaseDatabaseURL" class="form-label">Database URL (Opcional)</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="firebaseDatabaseURL" 
+                  placeholder="https://laplatamaps-52a3b-default-rtdb.firebaseio.com"
+                />
+              </div>
+            </div>
+
             <div class="alert alert-info">
               <i class="bi bi-info-circle"></i>
+              <strong>¿Cómo obtener estas credenciales?</strong>
+              <ol class="mb-0 mt-2">
+                <li>El cliente crea su proyecto en <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a></li>
+                <li>Crea una aplicación web</li>
+                <li>Copia el objeto <code>firebaseConfig</code> mostrado</li>
+                <li>Pega los valores en los campos arriba</li>
+              </ol>
+            </div>
+
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle"></i>
               Se ejecutará el script de creación de cliente para:
               <ul class="mb-0 mt-2">
-                <li>Crear proyecto Firebase independiente</li>
-                <li>Generar usuarios admin y operadores</li>
+                <li>Crear usuarios admin en Firebase General</li>
+                <li>Asignar custom claims (cliente_id)</li>
                 <li>Configurar suscripción inicial</li>
-                <li>Initializar Git repository del cliente</li>
               </ul>
             </div>
           </div>

@@ -101,53 +101,62 @@ class ClientesManager {
         throw new Error('Email inválido');
       }
 
+      // ✅ VALIDAR FIREBASE CONFIG
+      if (!clienteData.firebaseConfig) {
+        throw new Error('Credenciales de Firebase requeridas');
+      }
+
       const planesValidos = ['basico', 'profesional', 'enterprise'];
       if (!planesValidos.includes(clienteData.plan)) {
         throw new Error('Plan inválido');
       }
 
-      console.log('🚀 Creando cliente (directo en Firestore - SIN Cloud Functions):', clienteData.nombre);
+      console.log('🚀 Llamando Cloud Function criarCliente:', clienteData.nombre);
+      console.log('📱 Firebase Project:', clienteData.firebaseConfig.projectId);
 
-      // PASO 1: Crear documento cliente
-      const clienteId = generateId('cli');
-      const ahora = new Date().toISOString();
+      // ✅ Llamar Cloud Function con credenciales de Firebase
+      const response = await fetch(
+        'https://us-central1-trafico-map-general-v2.cloudfunctions.net/criarCliente',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            nombreCliente: clienteData.nombre,
+            email: clienteData.email,
+            plan: clienteData.plan,
+            ciudad: clienteData.ciudad || '',
+            telefono: clienteData.telefono || '',
+            firebaseConfig: clienteData.firebaseConfig  // ✅ ENVIAR CREDENCIALES
+          })
+        }
+      );
 
-      const datosCliente = {
-        id: clienteId,
-        nombre: clienteData.nombre,
-        email: clienteData.email,
-        plan: clienteData.plan,
-        estado: 'activo',
-        ciudad: clienteData.ciudad || '',
-        telefono: clienteData.telefono || '',
-        dominio: clienteData.dominio || '',
-        created_at: ahora,
-        updated_at: ahora,
-        api_key: generateApiKey()
-      };
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error creando cliente');
+      }
 
-      await db.collection('clientes').doc(clienteId).set(datosCliente);
-      console.log('✅ Cliente creado en Firestore');
+      const resultado = await response.json();
 
-      // PASO 2: Crear suscripción
-      const precios = {
-        basico: 1000,
-        profesional: 5000,
-        enterprise: 15000
-      };
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Error en respuesta de servidor');
+      }
 
-      const subscripcionId = generateId('sub');
-      const vencimiento = new Date();
-      vencimiento.setFullYear(vencimiento.getFullYear() + 1);
+      console.log('✅ Cliente creado exitosamente:', resultado.cliente.id);
+      this.showSuccess(`Cliente ${clienteData.nombre} creado exitosamente`);
 
-      const datosSubscripcion = {
-        id: subscripcionId,
-        cliente_id: clienteId,
-        plan: clienteData.plan,
-        precio_mensual: precios[clienteData.plan],
-        precio_anual: precios[clienteData.plan] * 12,
-        expiration_date: vencimiento.toISOString(),
-        activa: true,
+      // Recargar tabla
+      await this.loadClientes();
+
+      return resultado;
+
+    } catch (error) {
+      console.error('❌ Error creando cliente:', error);
+      throw error;
+    }
+  }
         created_at: ahora,
         updated_at: ahora,
         renovaciones: 0,
@@ -446,7 +455,42 @@ class ClientesManager {
       const telefono = document.getElementById('telefonoCliente').value || '';
       const dominio = document.getElementById('dominioCliente').value || '';
 
-      await this.createCliente({ nombre, email, plan, ciudad, telefono, dominio });
+      // ✅ NUEVO: Recolectar credenciales de Firebase
+      const firebaseProjectId = document.getElementById('firebaseProjectId').value;
+      const firebaseApiKey = document.getElementById('firebaseApiKey').value;
+      const firebaseAuthDomain = document.getElementById('firebaseAuthDomain').value;
+      const firebaseStorageBucket = document.getElementById('firebaseStorageBucket').value;
+      const firebaseMessagingSenderId = document.getElementById('firebaseMessagingSenderId').value;
+      const firebaseAppId = document.getElementById('firebaseAppId').value;
+      const firebaseDatabaseURL = document.getElementById('firebaseDatabaseURL').value || '';
+
+      // Validar Firebase config
+      if (!firebaseProjectId || !firebaseApiKey || !firebaseAuthDomain || !firebaseStorageBucket) {
+        throw new Error('Faltan credenciales de Firebase requeridas');
+      }
+
+      // Construir objeto firebaseConfig
+      const firebaseConfig = {
+        apiKey: firebaseApiKey,
+        authDomain: firebaseAuthDomain,
+        projectId: firebaseProjectId,
+        storageBucket: firebaseStorageBucket,
+        messagingSenderId: firebaseMessagingSenderId,
+        appId: firebaseAppId,
+        databaseURL: firebaseDatabaseURL
+      };
+
+      console.log('📱 Credenciales de Firebase a enviar:', firebaseConfig);
+
+      await this.createCliente({ 
+        nombre, 
+        email, 
+        plan, 
+        ciudad, 
+        telefono, 
+        dominio,
+        firebaseConfig  // ✅ NUEVO: Enviar firebaseConfig
+      });
 
       document.getElementById('formCrearCliente').reset();
       const modal = document.getElementById('modalCrearCliente');

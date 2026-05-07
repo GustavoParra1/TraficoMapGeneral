@@ -1,54 +1,81 @@
 // js/client-auth.js
-// Autenticación para clientes (municipios)
+// Autenticación SEGURA para clientes (municipios)
+// 
+// FLUJO:
+// 1. Auth contra Firebase GENERAL (trafico-map-general-v2)
+// 2. Obtener credenciales de Firebase del CLIENTE via Cloud Function
+// 3. Instanciar Firebase del CLIENTE dinámicamente
+// 4. Cargar datos del cliente desde su Firebase
 
 class ClientAuth {
   constructor() {
     this.user = null;
     this.clientData = null;
+    this.clientFirebaseApp = null;      // Instancia de Firebase del cliente
+    this.clientAuth = null;             // Auth del cliente
+    this.clientDb = null;               // Firestore del cliente
   }
 
   async init() {
     console.log("🔐 ClientAuth inicializando...");
     
-    // Escuchar cambios de autenticación
+    // ✅ PASO 1: Escuchar autenticación contra Firebase GENERAL
     firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
-        console.log("✅ Usuario autenticado:", user.email);
+        console.log("✅ Usuario autenticado en Firebase General:", user.email);
         this.user = user;
         
-        // Obtener datos del cliente
         try {
-          // Obtener token con claims
-          const tokenResult = await user.getIdTokenResult();
-          const clienteId = tokenResult.claims.cliente_id;
+          // ✅ PASO 2: Obtener credenciales de Firebase del cliente
+          console.log("📡 Solicitando credenciales del cliente...");
+          const getConfigFn = firebase.functions().httpsCallable('getClientFirebaseConfig');
+          const response = await getConfigFn({});
           
-          if (!clienteId) {
-            console.error("❌ No hay cliente_id en custom claims");
-            this.showError("Error de configuración. Contacta al administrador.");
-            this.logout();
-            return;
+          if (!response.data.success) {
+            throw new Error("No se pudieron obtener credenciales");
           }
           
-          console.log("🔑 Cliente ID del token:", clienteId);
+          const { firebaseConfig, clienteId, nombre, suscripcion } = response.data;
           
-          // Leer directamente el cliente por su ID
-          const clienteDoc = await firebase.firestore().collection('clientes').doc(clienteId).get();
+          console.log(`✅ Credenciales recibidas para: ${nombre} (${clienteId})`);
           
-          if (clienteDoc.exists) {
-            this.clientData = clienteDoc.data();
-            this.clientData.id = clienteDoc.id;
-            console.log("📋 Datos del cliente:", this.clientData);
-            
-            // Mostrar dashboard
-            this.showClientPanel();
-          } else {
-            console.error("❌ Cliente no encontrado en Firestore");
-            this.showError("Cliente no encontrado. Contacta al administrador.");
-            this.logout();
+          // ✅ PASO 3: Instanciar Firebase del CLIENTE dinámicamente
+          console.log("🔧 Instanciando Firebase del cliente...");
+          
+          // Si ya existe una app, eliminarla
+          if (this.clientFirebaseApp) {
+            firebase.app(this.clientFirebaseApp.name).delete();
           }
+          
+          // Crear instancia nueva de Firebase con credenciales del cliente
+          this.clientFirebaseApp = firebase.initializeApp(firebaseConfig, `client-${clienteId}`);
+          this.clientAuth = this.clientFirebaseApp.auth();
+          this.clientDb = this.clientFirebaseApp.firestore();
+          
+          console.log("✅ Firebase del cliente instanciado");
+          
+          // ✅ PASO 4: Guardar datos del cliente
+          this.clientData = {
+            id: clienteId,
+            nombre: nombre,
+            plan: suscripcion.plan,
+            estado: suscripcion.estado
+          };
+          
+          // ✅ Verificar que suscripción esté activa
+          if (suscripcion.estado !== 'activo') {
+            throw new Error(`Suscripción ${suscripcion.estado}. Contacta administración.`);
+          }
+          
+          console.log("📋 Datos del cliente:", this.clientData);
+          
+          // ✅ Mostrar panel del cliente
+          this.showClientPanel();
+          
         } catch (error) {
-          console.error("❌ Error cargando datos del cliente:", error);
-          this.showError("Error al cargar datos: " + error.message);
+          console.error("❌ Error obteniendo credenciales:", error);
+          this.showError(`Error: ${error.message}`);
+          this.logout();
         }
       } else {
         console.log("👤 Usuario NO autenticado");
@@ -106,13 +133,57 @@ class ClientAuth {
     const password = document.getElementById('loginPassword').value;
     
     try {
-      console.log("🔐 Intentando login:", email);
+      console.log("🔐 Intentando login en Firebase General:", email);
+      // Autenticar contra Firebase GENERAL (trafico-map-general-v2)
       await firebase.auth().signInWithEmailAndPassword(email, password);
-      console.log("✅ Login exitoso");
+      console.log("✅ Login exitoso en Firebase General");
+      // El onAuthStateChanged lo maneja automáticamente
     } catch (error) {
       console.error("❌ Error de login:", error);
       this.showError(this.getErrorMessage(error.code));
     }
+  }
+
+  showLoginForm() {
+    console.log("🎨 Mostrando formulario de login...");
+    const app = document.getElementById('app');
+    app.innerHTML = `
+      <div class="login-container">
+        <div class="login-card">
+          <h1><i class="bi bi-map"></i> TraficoMap</h1>
+          <p class="text-muted">Panel del Cliente</p>
+          
+          <form id="loginForm">
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="loginEmail" placeholder="admin@municipio.gov.ar" required>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Contraseña</label>
+              <input type="password" class="form-control" id="loginPassword" placeholder="Contraseña" required>
+            </div>
+            
+            <button type="submit" class="btn btn-login mb-3">
+              <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+            </button>
+          </form>
+          
+          <div id="loginAlert"></div>
+          
+          <hr>
+          <small class="text-muted">
+            ¿Problemas para acceder? Contacta con el equipo administrativo.
+          </small>
+        </div>
+      </div>
+    `;
+    
+    // Adjuntar evento del formulario
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.handleLogin();
+    });
   }
 
   showClientPanel() {
@@ -216,7 +287,17 @@ class ClientAuth {
   async logout() {
     try {
       console.log("👋 Cerrando sesión...");
+      
+      // Cerrar sesión de Firebase General
       await firebase.auth().signOut();
+      
+      // Limpiar datos
+      this.user = null;
+      this.clientData = null;
+      this.clientFirebaseApp = null;
+      this.clientAuth = null;
+      this.clientDb = null;
+      
       console.log("✅ Sesión cerrada");
     } catch (error) {
       console.error("❌ Error al cerrar sesión:", error);
