@@ -848,7 +848,6 @@ class Dashboard {
 
 // Instancia global
 const dashboard = new Dashboard();
-const clientesManager = new ClientesManager();
 
 // Cargar dashboard
 function loadDashboard() {
