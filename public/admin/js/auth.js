@@ -140,7 +140,11 @@ class AdminAuth {
 
   // Mostrar interfaz admin
   showAdminUI() {
-    loadDashboard();
+    if (typeof dashboard !== 'undefined') {
+      dashboard.init();
+    } else {
+      console.error('Dashboard no está disponible');
+    }
   }
 
   // Show error
