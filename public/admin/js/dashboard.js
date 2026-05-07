@@ -534,6 +534,35 @@ class Dashboard {
                     <option value="enterprise">Enterprise (Personalizado)</option>
                   </select>
                 </div>
+
+                <hr>
+                <h6 class="mb-3"><i class="bi bi-shield-lock"></i> Credenciales Firebase del Cliente</h6>
+                
+                <div class="mb-3">
+                  <label class="form-label">Project ID *</label>
+                  <input type="text" class="form-control" id="firebaseProjectId" placeholder="ej: laplatamaps-52a3b" required>
+                  <small class="text-muted">De Firebase Console → Project Settings</small>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">API Key *</label>
+                  <input type="text" class="form-control" id="firebaseApiKey" placeholder="AIzaSy..." required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Auth Domain *</label>
+                  <input type="text" class="form-control" id="firebaseAuthDomain" placeholder="laplatamaps-52a3b.firebaseapp.com" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Storage Bucket *</label>
+                  <input type="text" class="form-control" id="firebaseStorageBucket" placeholder="laplatamaps-52a3b.appspot.com" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Messaging Sender ID *</label>
+                  <input type="text" class="form-control" id="firebaseMessagingSenderId" placeholder="123456789" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">App ID *</label>
+                  <input type="text" class="form-control" id="firebaseAppId" placeholder="1:123456789:web:abc..." required>
+                </div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -569,10 +598,39 @@ class Dashboard {
         const plan = document.getElementById('planCliente').value;
         const dominio = document.getElementById('dominioCliente').value || '';
 
+        // ✅ NUEVO: Recolectar credenciales de Firebase
+        const firebaseProjectId = document.getElementById('firebaseProjectId').value;
+        const firebaseApiKey = document.getElementById('firebaseApiKey').value;
+        const firebaseAuthDomain = document.getElementById('firebaseAuthDomain').value;
+        const firebaseStorageBucket = document.getElementById('firebaseStorageBucket').value;
+        const firebaseMessagingSenderId = document.getElementById('firebaseMessagingSenderId').value;
+        const firebaseAppId = document.getElementById('firebaseAppId').value;
+
         try {
+          // Validar Firebase config
+          if (!firebaseProjectId || !firebaseApiKey || !firebaseAuthDomain || !firebaseStorageBucket) {
+            throw new Error('Faltan credenciales de Firebase requeridas');
+          }
+
+          // Construir objeto firebaseConfig
+          const firebaseConfig = {
+            apiKey: firebaseApiKey,
+            authDomain: firebaseAuthDomain,
+            projectId: firebaseProjectId,
+            storageBucket: firebaseStorageBucket,
+            messagingSenderId: firebaseMessagingSenderId,
+            appId: firebaseAppId
+          };
+
           // Llamar al manager
           if (typeof clientesManager !== 'undefined') {
-            await clientesManager.createCliente({ nombre, email, plan, dominio });
+            await clientesManager.createCliente({ 
+              nombre, 
+              email, 
+              plan, 
+              dominio,
+              firebaseConfig  // ✅ NUEVO: Enviar credenciales
+            });
             formCrear.reset();
             bootstrap.Modal.getInstance(document.getElementById('modalCrearCliente')).hide();
             adminAuth.showSuccess('Cliente creado exitosamente');
