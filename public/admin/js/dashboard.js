@@ -496,7 +496,7 @@ class Dashboard {
             <h5 class="mb-0"><i class="bi bi-table"></i> Listado de Clientes</h5>
           </div>
           <div class="card-body">
-            <div id="clientesTableContainer" class="table-responsive">
+            <div id="clientesTable">
               <p class="text-muted">Cargando clientes...</p>
             </div>
           </div>
@@ -548,6 +548,9 @@ class Dashboard {
 
   // Eventos de la página de clientes
   attachClientesPageEvents() {
+    // Inicializar ClientesManager
+    clientesManager.init();
+    
     const btnCrear = document.getElementById('btnCrearCliente');
     if (btnCrear) {
       btnCrear.addEventListener('click', () => {
@@ -573,31 +576,13 @@ class Dashboard {
             formCrear.reset();
             bootstrap.Modal.getInstance(document.getElementById('modalCrearCliente')).hide();
             adminAuth.showSuccess('Cliente creado exitosamente');
-            // Recargar lista
-            this.loadClienteCount();
           }
         } catch (error) {
           adminAuth.showError('Error: ' + error.message);
         }
       });
     }
-
-    // Renderizar tabla
-    const container = document.getElementById('clientesTableContainer');
-    if (this.clientesData.length === 0) {
-      container.innerHTML = '<p class="text-muted">No hay clientes creados aún</p>';
-    } else {
-      const rows = this.clientesData.map(c => `
-        <tr>
-          <td>${c.nombre}</td>
-          <td>${c.email}</td>
-          <td>${formatCurrency(0)}</td>
-          <td><span class="badge bg-success">${capitalize(c.estado)}</span></td>
-          <td>${formatDate(c.created_at)}</td>
-        </tr>
-      `).join('');
-
-      container.innerHTML = `
+  }
         <table class="table table-hover">
           <thead class="table-light">
             <tr>
@@ -820,6 +805,7 @@ class Dashboard {
 
 // Instancia global
 const dashboard = new Dashboard();
+const clientesManager = new ClientesManager();
 
 // Cargar dashboard
 function loadDashboard() {
