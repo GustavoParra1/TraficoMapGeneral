@@ -1,0 +1,37 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Corredor Escolar Centro",
+        "corredor_id": "corredor_centro",
+        "city": "la-plata"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-34.92, -57.95],
+          [-34.93, -57.94],
+          [-34.92, -57.93]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Corredor Escolar Tolosa",
+        "corredor_id": "corredor_tolosa",
+        "city": "la-plata"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-34.96, -57.96],
+          [-34.96, -57.94],
+          [-34.95, -57.93]
+        ]
+      }
+    }
+  ]
+}

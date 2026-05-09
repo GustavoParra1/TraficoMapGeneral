@@ -36,94 +36,12 @@ async function verificarSuscripcion() {
       return verificacionCache.valida;
     }
 
-    // 3. Inicializar Firebase Administrativo (tu Firebase)
-    const tuFirebaseConfig = window.CONFIG?.firebase_verificacion;
-    if (!tuFirebaseConfig?.projectId) {
-      console.warn('⚠️ No hay firebase_verificacion en CONFIG');
-      return true; // Permitir en modo demo
-    }
-
-    // Crear app secundaria para verificación
-    const adminApp = firebase.initializeApp(tuFirebaseConfig, 'admin-verificacion');
-    const adminAuth = adminApp.auth();
-    const adminDb = adminApp.firestore();
-
-    // Obtener token del usuario actual
-    const currentUser = firebase.auth().currentUser;
-    if (!currentUser) {
-      console.warn('⚠️ Usuario no autenticado');
-      guardarVerificacion(false);
-      return false;
-    }
-
-    const idToken = await currentUser.getIdToken();
-
-    // 4. Realizar consulta a Firestore administrativo
-    console.log('📋 Buscando datos de suscripción:', suscripcionId);
-    
-    const subscripcionRef = await adminDb
-      .collection('subscripciones')
-      .doc(suscripcionId)
-      .get();
-
-    if (!subscripcionRef.exists) {
-      console.error('❌ Suscripción NO ENCONTRADA:', suscripcionId);
-      mostrarMensajeError(
-        'Suscripción no válida',
-        'No pudimos encontrar tu suscripción en nuestros registros. Contacta al soporte.'
-      );
-      guardarVerificacion(false);
-      return false;
-    }
-
-    const suscripcionData = subscripcionRef.data();
-    console.log('📋 Datos de suscripción encontrados:', suscripcionData);
-
-    // 5. Verificar estado
-    if (suscripcionData.estado !== 'activo') {
-      console.error('❌ Suscripción NO ACTIVA. Estado:', suscripcionData.estado);
-      mostrarMensajeError(
-        `Suscripción ${suscripcionData.estado}`,
-        `Tu suscripción está ${suscripcionData.estado}. Por favor contacta al administrador.`
-      );
-      guardarVerificacion(false);
-      return false;
-    }
-
-    // 6. Verificar fecha de expiración
-    const fechaExpiracion = suscripcionData.fecha_expiracion?.toDate?.() || 
-                            new Date(suscripcionData.fecha_expiracion);
-    
-    if (fechaExpiracion < new Date()) {
-      console.error('❌ Suscripción EXPIRADA', { fecha: fechaExpiracion });
-      mostrarMensajeError(
-        'Suscripción expirada',
-        'Tu suscripción ha expirado. Por favor renuévala para continuar.'
-      );
-      guardarVerificacion(false);
-      return false;
-    }
-
-    // 7. Calcular días hasta expiración
-    const diasRestantes = Math.ceil(
-      (fechaExpiracion - new Date()) / (1000 * 60 * 60 * 24)
-    );
-    console.log(`✅ Suscripción VÁLIDA. ${diasRestantes} días restantes`, {
-      fecha_expiracion: fechaExpiracion.toLocaleDateString('es-AR'),
-      plan: suscripcionData.plan
-    });
-
-    // 8. Alerta si está por vencer
-    if (diasRestantes < 7) {
-      console.warn(`⚠️ ALERTA: Tu suscripción vence en ${diasRestantes} días`);
-      mostrarAlerta(`Tu suscripción vence en ${diasRestantes} días. Renuévala pronto.`);
-    }
-
-    // 9. Mostrar indicador visual
-    mostrarIndicadorSuscripcion(suscripcionData, diasRestantes);
-
-    guardarVerificacion(true);
+    // 3. No usar verificación administrativo en cliente
+    // La verificación debe hacerse en el backend mediante Firebase Admin SDK
+    console.log('ℹ️ Verificación de suscripción deshabilitada en cliente (se valida en backend)');
     return true;
+
+
 
   } catch (error) {
     console.error('❌ Error verificando suscripción:', error);

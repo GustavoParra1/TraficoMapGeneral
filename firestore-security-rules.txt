@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ============================================
+    // CLIENTES - Zona para datos de cada cliente
+    // Estructura: clientes/{clientId}/cameras/{docId}
+    //             clientes/{clientId}/siniestros/{docId}
+    //             clientes/{clientId}/semaforos/{docId}
+    //             etc...
+    // ============================================
+    match /clientes/{clientId} {
+      // Lectura de datos del cliente
+      allow read: if request.auth != null && request.auth.uid != null;
+      // Escritura: solo backend/admin
+      allow write: if request.auth.token.admin == true;
+      
+      // ✅ PERMITIR TODAS LAS SUBCOLLECTIONS - Cualquier colección bajo clientes/{clientId}/
+      match /{collection}/{docId} {
+        // Lectura: Cliente autenticado puede leer TODO
+        allow read: if request.auth != null;
+        
+        // Escritura: Cliente autenticado puede escribir TODO
+        // Esto permite: cameras, cameras_privadas, siniestros, semaforos, colegios_escuelas, robo, etc.
+        allow write: if request.auth != null && request.size < 1000000;
+        
+        allow delete: if request.auth != null;
+      }
+      
+      // Permitir niveles más profundos de subcollections
+      match /{collection}/{docId}/{subcollection}/{subDocId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.size < 1000000;
+        allow delete: if request.auth != null;
+      }
+    }
+    
+    // ============================================
+    // CIUDADES - Acceso público de lectura
+    // ============================================
+    match /ciudades/{cityId} {
+      allow read: if true;
+      allow write: if request.auth.token.admin == true;
+    }
+    
+    // ============================================
+    // PATRULLAS - Tiempo real
+    // ============================================
+    match /patrullas/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // ============================================
+    // ADMIN USERS
+    // ============================================
+    match /admin_users/{userId} {
+      allow read: if request.auth.token.admin == true;
+      allow write: if request.auth.token.admin == true;
+    }
+  }
+}

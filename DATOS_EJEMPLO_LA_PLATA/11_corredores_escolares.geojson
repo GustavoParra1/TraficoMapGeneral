@@ -1,0 +1,215 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -58.00477857053319,
+            -35.05793771055649
+          ],
+          [
+            -58.00506552718777,
+            -35.00807628291716
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Corredor Escolar 1",
+        "tipo": "Corredor Escolar",
+        "escuelas": "Escuela 225, Escuela 16"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -57.988389248724744,
+            -34.80708379320287
+          ],
+          [
+            -57.965284760787554,
+            -34.830715291909186
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Corredor Escolar 2",
+        "tipo": "Corredor Escolar",
+        "escuelas": "Escuela 123, Escuela 458"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -58.07556989940138,
+            -34.91838786515485
+          ],
+          [
+            -58.02746789717331,
+            -34.9535579442633
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Corredor Escolar 3",
+        "tipo": "Corredor Escolar",
+        "escuelas": "Escuela 182, Escuela 462"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -57.86992893772997,
+            -34.839382872230146
+          ],
+          [
+            -57.90730267575838,
+            -34.84323075821592
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Corredor Escolar 4",
+        "tipo": "Corredor Escolar",
+        "escuelas": "Escuela 155, Escuela 74"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -57.982381916187734,
+            -35.024154105966176
+          ],
+          [
+            -58.01283317202623,
+            -34.986236356560205
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Corredor Escolar 5",
+        "tipo": "Corredor Escolar",
+        "escuelas": "Escuela 188, Escuela 263"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -58.0971960547912,
+            -34.85341654744996
+          ],
+          [
+            -58.14481374199502,
+            -34.88329926448541
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Corredor Escolar 6",
+        "tipo": "Corredor Escolar",
+        "escuelas": "Escuela 180, Escuela 441"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -57.853983043358596,
+            -34.8729638920158
+          ],
+          [
+            -57.88035558170023,
+            -34.897938183078715
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Corredor Escolar 7",
+        "tipo": "Corredor Escolar",
+        "escuelas": "Escuela 148, Escuela 225"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -58.09086467973539,
+            -35.068645682898975
+          ],
+          [
+            -58.08769588165866,
+            -35.04770994099928
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Corredor Escolar 8",
+        "tipo": "Corredor Escolar",
+        "escuelas": "Escuela 432, Escuela 157"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -58.098037484532,
+            -35.02186246161101
+          ],
+          [
+            -58.130133754401164,
+            -35.00301057372977
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Corredor Escolar 9",
+        "tipo": "Corredor Escolar",
+        "escuelas": "Escuela 80, Escuela 16"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -58.01308314812617,
+            -34.84606504808241
+          ],
+          [
+            -57.96865366016735,
+            -34.81252437216733
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Corredor Escolar 10",
+        "tipo": "Corredor Escolar",
+        "escuelas": "Escuela 340, Escuela 453"
+      }
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -57.94,
+              -34.91
+            ],
+            [
+              -57.93,
+              -34.91
+            ],
+            [
+              -57.93,
+              -34.92
+            ],
+            [
+              -57.94,
+              -34.92
+            ],
+            [
+              -57.94,
+              -34.91
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Centro",
+        "zona": "Centro",
+        "color": "#7e877c"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -57.94,
+              -34.88
+            ],
+            [
+              -57.93,
+              -34.88
+            ],
+            [
+              -57.93,
+              -34.9
+            ],
+            [
+              -57.94,
+              -34.9
+            ],
+            [
+              -57.94,
+              -34.88
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Zona Norte",
+        "zona": "Zona Norte",
+        "color": "#c5b86c"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -57.94,
+              -34.93
+            ],
+            [
+              -57.93,
+              -34.93
+            ],
+            [
+              -57.93,
+              -34.95
+            ],
+            [
+              -57.94,
+              -34.95
+            ],
+            [
+              -57.94,
+              -34.93
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Zona Sur",
+        "zona": "Zona Sur",
+        "color": "#d1f5ec"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -57.92,
+              -34.91
+            ],
+            [
+              -57.91,
+              -34.91
+            ],
+            [
+              -57.91,
+              -34.92
+            ],
+            [
+              -57.92,
+              -34.92
+            ],
+            [
+              -57.92,
+              -34.91
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Este",
+        "zona": "Este",
+        "color": "#5c67e7"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -57.96,
+              -34.91
+            ],
+            [
+              -57.95,
+              -34.91
+            ],
+            [
+              -57.95,
+              -34.92
+            ],
+            [
+              -57.96,
+              -34.92
+            ],
+            [
+              -57.96,
+              -34.91
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "nombre": "Oeste",
+        "zona": "Oeste",
+        "color": "#fbe4ae"
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+id,nombre,lat,lng,barrio,type,corridor,camera_type
+CAM001,Cámara Centro Plaza Independencia,-32.8890,-68.8575,Centro,Pública (Municipal),Avenida Sarmiento,dome
+CAM002,Cámara Parque San Martín,-32.8875,-68.8585,Centro,Pública (Municipal),Avenida San Martín,fixed
+CAM003,Cámara Zona Dorrego,-32.8910,-68.8570,Dorrego,Pública (Municipal),Calle Mitre,dome
+CAM004,Cámara Godoy Cruz,-32.8865,-68.8595,Godoy Cruz,Pública (Municipal),Avenida Las Heras,fixed
+CAM005,Cámara Maipú Centro,-32.8905,-68.8585,Maipú,Pública (Municipal),Calle Belgrano,dome
+CAM006,Cámara España,-32.8885,-68.8560,Centro,Pública (Municipal),Avenida España,fixed
+CAM007,Cámara Colón,-32.8895,-68.8580,Centro,Pública (Municipal),Avenida Colón,dome
+CAM008,Cámara San Juan,-32.8880,-68.8575,Centro,Pública (Municipal),Calle San Juan,fixed
+CAM009,Cámara Dorrego Este,-32.8920,-68.8565,Dorrego,Pública (Municipal),Avenida Mitre,dome
+CAM010,Cámara Godoy Cruz Sur,-32.8860,-68.8600,Godoy Cruz,Pública (Municipal),Calle Patricias Mendocinas,fixed

@@ -1,0 +1,19 @@
+{
+  "apiKey": "AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA",
+  "authDomain": "trafico-map-general-v2.firebaseapp.com",
+  "projectId": "trafico-map-general-v2",
+  "storageBucket": "trafico-map-general-v2.firebasestorage.app",
+  "messagingSenderId": "540631719751",
+  "appId": "1:540631719751:web:bd410f1bbee18e9fabb662",
+  "clienteConfig": {
+    "apiKey": "AIzaSyAY2jYGrXdwv3eyH19r8p7sw7iy5V5ApXg",
+    "authDomain": "laplatamaps-52a3b.firebaseapp.com",
+    "projectId": "laplatamaps-52a3b",
+    "storageBucket": "laplatamaps-52a3b.firebasestorage.app",
+    "messagingSenderId": "9948736453",
+    "appId": "1:9948736453:web:0f607caf88bb9478bdf9ac"
+  },
+  "ciudad": "La Plata",
+  "clientId": "laplatamaps-52a3b",
+  "modeDebug": true
+}

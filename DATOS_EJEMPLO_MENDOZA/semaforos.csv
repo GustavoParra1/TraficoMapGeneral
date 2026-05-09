@@ -1,0 +1,9 @@
+nombre,ubicacion,tipo,barrio,estado,lat,lng
+Semáforo 1,Avenida Sarmiento y Avenida España,Vehicular,Centro,activo,-32.8890,-68.8575
+Semáforo 2,Avenida San Martín y Calle Mitre,Vehicular,Centro,activo,-32.8895,-68.8580
+Semáforo 3,Calle Moreno y Avenida Colón,Vehicular,Centro,activo,-32.8885,-68.8565
+Semáforo 4,Avenida Las Heras y Calle Belgrano,Vehicular,Godoy Cruz,activo,-32.8875,-68.8590
+Semáforo 5,Calle San Juan y Avenida España,Vehicular,Centro,activo,-32.8880,-68.8570
+Semáforo 6,Avenida Mitre y Calle Patricias Mendocinas,Vehicular,Dorrego,activo,-32.8920,-68.8565
+Semáforo 7,Avenida Tomás Godoy Cruz y Calle Belgrano,Vehicular,Maipú,activo,-32.8900,-68.8600
+Semáforo 8,9 de Julio y Avenida Sarmiento,Vehicular,Centro,activo,-32.8895,-68.8560

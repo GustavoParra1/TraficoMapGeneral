@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa Cliente - TraficoMap</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+  
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #map-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    #sidebar {
+      width: 320px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      z-index: 100;
+      padding: 15px;
+    }
+
+    #map {
+      flex: 1;
+      z-index: 1;
+    }
+
+    .sidebar-header {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .client-info {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+    }
+
+    .client-info-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .client-info-label {
+      color: #6c757d;
+      font-weight: 500;
+    }
+
+    .client-info-value {
+      color: #212529;
+      font-weight: 600;
+    }
+
+    .layer-control {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    .layer-control h6 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+      margin-top: 0;
+    }
+
+    .form-check {
+      margin-bottom: 8px;
+    }
+
+    .form-check-input {
+      cursor: pointer;
+    }
+
+    .form-check-label {
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-bottom: 0;
+    }
+
+    .stats {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .stat-item:last-child {
+      border-bottom: none;
+    }
+
+    .stat-label {
+      color: #6c757d;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .btn-custom {
+      width: 100%;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .navbar-top {
+      position: fixed;
+      top: 0;
+      left: 320px;
+      right: 0;
+      height: 50px;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      padding: 0 15px;
+      z-index: 50;
+    }
+
+    #map {
+      margin-top: 50px;
+    }
+
+    @media (max-width: 768px) {
+      #sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 50vh;
+        margin-bottom: 10px;
+      }
+
+      .navbar-top {
+        left: 0;
+      }
+
+      #map-container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="map-container">
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div class="sidebar-header">
+      <i class="fas fa-map"></i> TraficoMap
+    </div>
+
+    <!-- Info Cliente -->
+    <div class="client-info" id="client-info">
+      <div class="client-info-item">
+        <span class="client-info-label">Cliente:</span>
+        <span class="client-info-value" id="info-ciudad">-</span>
+      </div>
+      <div class="client-info-item">
+        <span class="client-info-label">Usuario:</span>
+        <span class="client-info-value" id="info-usuario">-</span>
+      </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-label"><i class="fas fa-video"></i> Cámaras</span>
+        <span class="stat-value" id="stat-camaras">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label"><i class="fas fa-exclamation"></i> Siniestros</span>
+        <span class="stat-value" id="stat-siniestros">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label"><i class="fas fa-users"></i> Operadores</span>
+        <span class="stat-value" id="stat-operadores">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label"><i class="fas fa-car"></i> Patrullas</span>
+        <span class="stat-value" id="stat-patrullas">0</span>
+      </div>
+    </div>
+
+    <!-- Control de Capas -->
+    <div class="layer-control">
+      <h6><i class="fas fa-layer-group"></i> Capas</h6>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="toggle-camaras" checked>
+        <label class="form-check-label" for="toggle-camaras">
+          <i class="fas fa-video" style="color: #28a745;"></i> Cámaras
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="toggle-siniestros" checked>
+        <label class="form-check-label" for="toggle-siniestros">
+          <i class="fas fa-exclamation-circle" style="color: #dc3545;"></i> Siniestros
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="toggle-operadores" checked>
+        <label class="form-check-label" for="toggle-operadores">
+          <i class="fas fa-users" style="color: #007bff;"></i> Operadores
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="toggle-patrullas" checked>
+        <label class="form-check-label" for="toggle-patrullas">
+          <i class="fas fa-car" style="color: #ffc107;"></i> Patrullas
+        </label>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <button class="btn btn-primary btn-custom btn-sm" onclick="cargarDatos()">
+      <i class="fas fa-sync"></i> Actualizar
+    </button>
+    <button class="btn btn-secondary btn-custom btn-sm" onclick="volverAlPanel()">
+      <i class="fas fa-arrow-left"></i> Volver
+    </button>
+  </div>
+
+  <!-- Navbar Superior -->
+  <div class="navbar-top">
+    <span class="ms-auto">
+      <button class="btn btn-outline-danger btn-sm" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Salir
+      </button>
+    </span>
+  </div>
+
+  <!-- Mapa -->
+  <div id="map"></div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA",
+    authDomain: "trafico-map-general-v2.firebaseapp.com",
+    projectId: "trafico-map-general-v2",
+    storageBucket: "trafico-map-general-v2.firebasestorage.app",
+    messagingSenderId: "540631719751",
+    appId: "1:540631719751:web:bd410f1bbee18e9fabb662"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  let map;
+  let currentClienteId = null;
+  let layers = {
+    camaras: null,
+    siniestros: null,
+    operadores: null,
+    patrullas: null
+  };
+
+  // Inicializar
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+      window.location.href = '/login.html';
+      return;
+    }
+
+    document.getElementById('info-usuario').textContent = user.email;
+
+    // Obtener clienteId desde custom claims
+    const idTokenResult = await user.getIdTokenResult();
+    currentClienteId = idTokenResult.claims.clienteId;
+
+    if (!currentClienteId) {
+      alert('⚠️ Usuario sin acceso a cliente');
+      window.location.href = '/';
+      return;
+    }
+
+    console.log('✅ Cliente ID:', currentClienteId);
+    inicializarMapa();
+    cargarInfoCliente();
+    setupEventListeners();
+    cargarDatos();
+  });
+
+  function inicializarMapa() {
+    map = L.map('map').setView([-34.9, -57.5], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 19
+    }).addTo(map);
+
+    console.log('✅ Mapa inicializado');
+  }
+
+  async function cargarInfoCliente() {
+    try {
+      const doc = await db.collection('clientes').doc(currentClienteId).get();
+      if (doc.exists) {
+        const data = doc.data();
+        document.getElementById('info-ciudad').textContent = data.ciudad || currentClienteId;
+        map.setView([data.config?.lat || -34.9, data.config?.lng || -57.5], data.config?.zoom || 12);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  async function cargarDatos() {
+    try {
+      console.log('📦 Cargando datos...');
+
+      // Cámaras
+      const camarasSnap = await db.collection('clientes').doc(currentClienteId).collection('camaras').get();
+      const camaras = camarasSnap.docs
+        .filter(d => d.id !== '_placeholder')
+        .map(d => ({ id: d.id, ...d.data() }));
+      mostrarCamaras(camaras);
+      document.getElementById('stat-camaras').textContent = camaras.length;
+
+      // Siniestros
+      const siniestrosSnap = await db.collection('clientes').doc(currentClienteId).collection('siniestros').get();
+      const siniestros = siniestrosSnap.docs
+        .filter(d => d.id !== '_placeholder')
+        .map(d => ({ id: d.id, ...d.data() }));
+      mostrarSiniestros(siniestros);
+      document.getElementById('stat-siniestros').textContent = siniestros.length;
+
+      // Operadores
+      const operadoresSnap = await db.collection('clientes').doc(currentClienteId).collection('operadores').get();
+      const count_ops = operadoresSnap.docs.filter(d => d.id !== '_placeholder').length;
+      document.getElementById('stat-operadores').textContent = count_ops;
+
+      // Patrullas
+      const patrullasSnap = await db.collection('clientes').doc(currentClienteId).collection('patrullas').get();
+      const count_pat = patrullasSnap.docs.filter(d => d.id !== '_placeholder').length;
+      document.getElementById('stat-patrullas').textContent = count_pat;
+
+      console.log('✅ Datos cargados');
+    } catch (error) {
+      console.error('❌ Error cargando datos:', error);
+    }
+  }
+
+  function mostrarCamaras(camaras) {
+    if (layers.camaras) {
+      map.removeLayer(layers.camaras);
+    }
+
+    layers.camaras = L.featureGroup();
+
+    camaras.forEach(cam => {
+      if (cam.lat && cam.lng) {
+        L.marker([parseFloat(cam.lat), parseFloat(cam.lng)], {
+          icon: L.icon({
+            iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjMjhhNzQ1IiBkPSJNMTIgMmM1LjUyIDAgMTAgNC40OCAx MCAxMHMtNCA4LTEwIDgtMTAtNDQ4LTEwIDEweiIvPjwvc3ZnPg==',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+          })
+        }).addTo(layers.camaras).bindPopup(`<strong>${cam.nombre || 'Cámara'}</strong><br>${cam.lat}, ${cam.lng}`);
+      }
+    });
+
+    layers.camaras.addTo(map);
+  }
+
+  function mostrarSiniestros(siniestros) {
+    if (layers.siniestros) {
+      map.removeLayer(layers.siniestros);
+    }
+
+    layers.siniestros = L.featureGroup();
+
+    siniestros.forEach(sin => {
+      if (sin.lat && sin.lng) {
+        L.marker([parseFloat(sin.lat), parseFloat(sin.lng)], {
+          icon: L.icon({
+            iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjZGMzNTQ1IiBkPSJNMTIgMmM1LjUyIDAgMTAgNC40OCAxMCAxMHMtNCA4LTEwIDgtMTAtNDQ4LTEwIDEweiIvPjwvc3ZnPg==',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+          })
+        }).addTo(layers.siniestros).bindPopup(`<strong>${sin.tipo || 'Siniestro'}</strong><br>${sin.fecha || ''}`);
+      }
+    });
+
+    layers.siniestros.addTo(map);
+  }
+
+  function setupEventListeners() {
+    document.getElementById('toggle-camaras').addEventListener('change', (e) => {
+      if (e.target.checked && layers.camaras) {
+        map.addLayer(layers.camaras);
+      } else if (layers.camaras) {
+        map.removeLayer(layers.camaras);
+      }
+    });
+
+    document.getElementById('toggle-siniestros').addEventListener('change', (e) => {
+      if (e.target.checked && layers.siniestros) {
+        map.addLayer(layers.siniestros);
+      } else if (layers.siniestros) {
+        map.removeLayer(layers.siniestros);
+      }
+    });
+  }
+
+  function volverAlPanel() {
+    window.location.href = '/client-data-panel.html';
+  }
+
+  function logout() {
+    auth.signOut().then(() => {
+      window.location.href = '/login.html';
+    });
+  }
+</script>
+
+</body>
+</html>

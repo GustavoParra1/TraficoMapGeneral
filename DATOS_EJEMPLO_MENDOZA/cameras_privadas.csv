@@ -1,0 +1,9 @@
+nombre,tipo,direccion,barrio,propietario,lat,lng,estado
+Cámara Privada Banco Centro,dome,Avenida Sarmiento 800,Centro,Banco Provincia,-32.8890,-68.8575,activa
+Cámara Privada Empresa Tech,fixed,Avenida San Martín 550,Centro,TechCorp,-32.8895,-68.8580,activa
+Cámara Privada Shopping Dorrego,dome,Calle Mitre 420,Dorrego,Shopping Dorrego,-32.8910,-68.8570,activa
+Cámara Privada Hotel Godoy Cruz,fixed,Avenida Las Heras 300,Godoy Cruz,Hotel Godoy Cruz,-32.8875,-68.8590,activa
+Cámara Privada Comercio Maipú,dome,Calle Belgrano 450,Maipú,Comercio Local,-32.8905,-68.8585,activa
+Cámara Privada Farmacia Centro,fixed,Avenida España 650,Centro,Farmacia Mendoza,-32.8885,-68.8560,activa
+Cámara Privada Supermercado,dome,Avenida Colón 900,Centro,Supermercado Regional,-32.8895,-68.8580,activa
+Cámara Privada Restaurante,fixed,Calle San Juan 380,Centro,Restaurante Buenos Aires,-32.8880,-68.8575,activa

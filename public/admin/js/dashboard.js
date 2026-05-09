@@ -33,18 +33,41 @@ class Dashboard {
     console.log("✅ Listener de hashchange agregado");
   }
 
-  async loadClienteCount() {
+  async loadClienteCount(retryCount = 0) {
     try {
-      // showLoading("metricas"); // Removido - el elemento no existe en el DOM
+      console.log("📥 Iniciando carga de clientes desde Firestore...");
       const snapshot = await db.collection("clientes").get();
       this.clientesData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      console.log("Clientes loaded:", this.clientesData.length);
+      console.log("✅ Clientes cargados exitosamente:", this.clientesData.length);
+      
+      // Debug: Mostrar los clientes cargados
+      this.clientesData.forEach(c => {
+        console.log(`   - ${c.nombre} (${c.id}) - ${c.estado}`);
+      });
+      
+      return true;
     } catch (error) {
-      console.error("Error loading clientes:", error);
-      adminAuth.showError("Error al cargar clientes");
+      console.error("❌ Error al cargar clientes:", error.message);
+      console.error("Error code:", error.code);
+      
+      if (error.code === 'permission-denied') {
+        console.error("❌ ERROR DE PERMISOS - Verifica las Firestore Rules");
+        adminAuth.showError("Error de permisos: No puedes leer clientes. Contacta al administrador.");
+        this.clientesData = []; // Continuar sin datos
+        return false;
+      } else if (retryCount < 3) {
+        console.log(`🔄 Reintentando [${retryCount + 1}/3] en 2 segundos...`);
+        await new Promise(r => setTimeout(r, 2000));
+        return this.loadClienteCount(retryCount + 1);
+      } else {
+        console.error("❌ Máximo de reintentos alcanzado");
+        adminAuth.showError("Error al cargar clientes después de 3 intentos: " + error.message);
+        this.clientesData = []; // Continuar sin datos
+        return false;
+      }
     }
   }
 
@@ -130,8 +153,12 @@ class Dashboard {
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse ms-auto" id="navbarNav">
-            <div class="ms-auto d-flex align-items-center">
-              <span class="text-white me-3">${adminAuth.user?.email}</span>
+            <div class="ms-auto d-flex align-items-center gap-3">
+              <button class="btn btn-map-demo btn-sm d-flex align-items-center gap-2" title="Abrir vista previa del mapa en una nueva ventana" onclick="openMapDemo()">
+                <i class="bi bi-map"></i> Ver Demo del Mapa
+              </button>
+              <span class="text-white">|</span>
+              <span class="text-white">${adminAuth.user?.email}</span>
               <button class="btn btn-light btn-sm" onclick="logoutAdmin()">Logout</button>
             </div>
           </div>
@@ -197,6 +224,40 @@ class Dashboard {
               ${createMetricCard("Clientes Activos", activeClientes, "En plan activo", "success")}
               ${createMetricCard("Ingresos mes", formatCurrency(totalIngresos), "MES ACTUAL", "warning")}
               ${createMetricCard("Próximos a vencer", proximosAVencer, "en los próximos 30 días", "danger")}
+            </div>
+
+            <!-- Clientes Próximos a Vencer -->
+            <div class="card mb-4">
+              <div class="card-header bg-success text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">
+                    <i class="bi bi-map"></i> 📺 Vista Previa del Sistema
+                  </h5>
+                  <button class="btn btn-light btn-sm" onclick="openMapDemo()">
+                    <i class="bi bi-play-circle"></i> Abrir Demo
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <p class="mb-3">Haz clic en el botón de arriba para ver cómo se ve el sistema TraficoMap con los datos de ejemplo cargados (Mar del Plata y Córdoba).</p>
+                <div class="row align-items-center">
+                  <div class="col-md-6">
+                    <h6 class="fw-bold mb-2">Características incluidas:</h6>
+                    <ul class="list-unstyled">
+                      <li><i class="bi bi-check-circle text-success"></i> Mapa interactivo en tiempo real</li>
+                      <li><i class="bi bi-check-circle text-success"></i> Visualización de múltiples ciudades</li>
+                      <li><i class="bi bi-check-circle text-success"></i> Gestión de datos geoespaciales</li>
+                      <li><i class="bi bi-check-circle text-success"></i> Panel de control completo</li>
+                    </ul>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="alert alert-info mb-0">
+                      <strong>💡 Para clientes:</strong><br>
+                      Este es el sistema que verán con los datos de su municipio una vez activados.
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Clientes Próximos a Vencer -->
@@ -535,33 +596,21 @@ class Dashboard {
                   </select>
                 </div>
 
-                <hr>
-                <h6 class="mb-3"><i class="bi bi-shield-lock"></i> Credenciales Firebase del Cliente</h6>
-                
-                <div class="mb-3">
-                  <label class="form-label">Project ID *</label>
-                  <input type="text" class="form-control" id="firebaseProjectId" placeholder="ej: laplatamaps-52a3b" required>
-                  <small class="text-muted">De Firebase Console → Project Settings</small>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Latitud (opcional)</label>
+                    <input type="number" class="form-control" id="latCliente" placeholder="-38.0" step="0.0001">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Longitud (opcional)</label>
+                    <input type="number" class="form-control" id="lngCliente" placeholder="-57.5" step="0.0001">
+                  </div>
                 </div>
+
                 <div class="mb-3">
-                  <label class="form-label">API Key *</label>
-                  <input type="text" class="form-control" id="firebaseApiKey" placeholder="AIzaSy..." required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Auth Domain *</label>
-                  <input type="text" class="form-control" id="firebaseAuthDomain" placeholder="laplatamaps-52a3b.firebaseapp.com" required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Storage Bucket *</label>
-                  <input type="text" class="form-control" id="firebaseStorageBucket" placeholder="laplatamaps-52a3b.appspot.com" required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Messaging Sender ID *</label>
-                  <input type="text" class="form-control" id="firebaseMessagingSenderId" placeholder="123456789" required>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">App ID *</label>
-                  <input type="text" class="form-control" id="firebaseAppId" placeholder="1:123456789:web:abc..." required>
+                  <label class="form-label">Contraseña Temporal *</label>
+                  <input type="password" class="form-control" id="passwordCliente" placeholder="Contraseña para admin" required>
+                  <small class="text-muted">El cliente deberá cambiarla en primer login</small>
                 </div>
               </div>
               <div class="modal-footer">
@@ -597,48 +646,134 @@ class Dashboard {
         const email = document.getElementById('emailCliente').value;
         const plan = document.getElementById('planCliente').value;
         const dominio = document.getElementById('dominioCliente').value || '';
+        const password = document.getElementById('passwordCliente').value;
+        const lat = parseFloat(document.getElementById('latCliente').value) || null;
+        const lng = parseFloat(document.getElementById('lngCliente').value) || null;
 
-        // ✅ NUEVO: Recolectar credenciales de Firebase
-        const firebaseProjectId = document.getElementById('firebaseProjectId').value;
-        const firebaseApiKey = document.getElementById('firebaseApiKey').value;
-        const firebaseAuthDomain = document.getElementById('firebaseAuthDomain').value;
-        const firebaseStorageBucket = document.getElementById('firebaseStorageBucket').value;
-        const firebaseMessagingSenderId = document.getElementById('firebaseMessagingSenderId').value;
-        const firebaseAppId = document.getElementById('firebaseAppId').value;
+        if (!nombre || !email || !plan || !password) {
+          adminAuth.showError('Completa todos los campos requeridos');
+          return;
+        }
 
         try {
-          // Validar Firebase config
-          if (!firebaseProjectId || !firebaseApiKey || !firebaseAuthDomain || !firebaseStorageBucket) {
-            throw new Error('Faltan credenciales de Firebase requeridas');
-          }
+          console.log('📤 Creando cliente:', { nombre, email, plan, lat, lng });
+          
+          // Llamar a función para crear cliente
+          await this.crearClienteAPI({ 
+            nombre, 
+            email, 
+            plan, 
+            dominio,
+            password,
+            lat,
+            lng
+          });
 
-          // Construir objeto firebaseConfig
-          const firebaseConfig = {
-            apiKey: firebaseApiKey,
-            authDomain: firebaseAuthDomain,
-            projectId: firebaseProjectId,
-            storageBucket: firebaseStorageBucket,
-            messagingSenderId: firebaseMessagingSenderId,
-            appId: firebaseAppId
-          };
-
-          // Llamar al manager
-          if (typeof clientesManager !== 'undefined') {
-            await clientesManager.createCliente({ 
-              nombre, 
-              email, 
-              plan, 
-              dominio,
-              firebaseConfig  // ✅ NUEVO: Enviar credenciales
-            });
-            formCrear.reset();
-            bootstrap.Modal.getInstance(document.getElementById('modalCrearCliente')).hide();
-            adminAuth.showSuccess('Cliente creado exitosamente');
-          }
+          formCrear.reset();
+          bootstrap.Modal.getInstance(document.getElementById('modalCrearCliente')).hide();
+          adminAuth.showSuccess('✅ Cliente creado exitosamente. Recargando...');
+          
+          // Recargar lista de clientes
+          setTimeout(() => {
+            location.reload();
+          }, 2000);
         } catch (error) {
+          console.error('❌ Error crear cliente:', error);
           adminAuth.showError('Error: ' + error.message);
         }
       });
+    }
+  }
+
+  // Llamar API para crear cliente (llama a Python backend)
+  async crearClienteAPI(clientData) {
+    showLoading('Preparando provisión de cliente...');
+    
+    try {
+      const { nombre, email, plan, password, lat, lng } = clientData;
+      
+      // Generar comando Python
+      const latLng = lat && lng ? ` ${lat} ${lng}` : '';
+      const comando = `python create-new-client.py "${nombre}" "${email}" "${plan}" "${password}"${latLng}`;
+      
+      const mensaje = `
+✅ CLIENTE LISTO PARA PROVISIONAR
+
+📋 DATOS DEL CLIENTE:
+   Nombre: ${nombre}
+   Email: ${email}
+   Plan: ${plan}
+   Ubicación: (${lat || '-38.0'}, ${lng || '-57.5'})
+
+🔐 INSTRUCCIONES:
+
+1. Abre una terminal/PowerShell
+2. Ve a la carpeta del proyecto
+3. Ejecuta este comando:
+
+${comando}
+
+⏳ El script provisará:
+   ✓ Usuario en Firebase Auth
+   ✓ Colección cliente en Firestore
+   ✓ Custom claims para autenticación
+   ✓ Colecciones de datos (cámaras, siniestros, etc)
+   ✓ Configuración del mapa
+
+Luego el cliente podrá entrar en:
+   https://trafico-map-general-v2.web.app/login.html
+   Con email: ${email}
+   Y contraseña: ${password}
+      `;
+      
+      hideLoading();
+      
+      // Mostrar modal con instrucciones
+      const modalContent = document.createElement('div');
+      modalContent.innerHTML = `
+        <div class="alert alert-info mb-3">
+          <h5>✅ Cliente listo para provisionar</h5>
+          <p class="small mb-0">Copia el comando de abajo y ejecútalo en una terminal</p>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label">📊 Datos del Cliente:</label>
+          <div class="bg-light p-3 rounded small">
+            <div><strong>Nombre:</strong> ${nombre}</div>
+            <div><strong>Email:</strong> ${email}</div>
+            <div><strong>Plan:</strong> ${plan}</div>
+            <div><strong>Ubicación:</strong> (${lat || '-38.0'}, ${lng || '-57.5'})</div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label">🖥️ Comando a ejecutar:</label>
+          <textarea class="form-control font-monospace small" rows="3" readonly>${comando}</textarea>
+          <button class="btn btn-sm btn-secondary mt-2" onclick="navigator.clipboard.writeText('${comando}'); alert('✅ Comando copiado')">
+            <i class="bi bi-clipboard"></i> Copiar comando
+          </button>
+        </div>
+        
+        <div class="alert alert-warning small mb-0">
+          <strong>ℹ️ Nota:</strong> 
+          <ul class="mb-0 mt-2">
+            <li>Ejecuta el comando en la carpeta raíz del proyecto</li>
+            <li>Requiere Python 3 y firebase-admin instalados</li>
+            <li>El cliente podrá ingresar inmediatamente después</li>
+          </ul>
+        </div>
+      `;
+      
+      // Mostrar en un alert elegante o modal
+      adminAuth.showSuccess(mensaje);
+      
+      return { success: true, comando };
+      
+    } catch (error) {
+      console.error('❌ Error preparar cliente:', error);
+      throw error;
+    } finally {
+      hideLoading();
     }
   }
 
@@ -857,6 +992,15 @@ function loadDashboard() {
 // Función para renovar suscripción (placeholder)
 function renovarSuscripcion(clienteId) {
   alert("Renovar suscripción para: " + clienteId);
+}
+
+/**
+ * Abre la página de demostración del mapa en una nueva ventana
+ * Permite que el admin muestre el sistema de forma profesional
+ */
+function openMapDemo() {
+  const demoUrl = '/admin/demo.html';
+  window.open(demoUrl, 'mapaDemo', 'width=1400,height=900,left=100,top=100');
 }
 
 console.log("Dashboard loaded");

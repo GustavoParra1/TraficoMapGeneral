@@ -1,0 +1,9 @@
+nombre,tipo,direccion,barrio,ciclo_educativo,lat,lng,estado
+Escuela Primaria República Argentina,Primaria,Avenida Sarmiento 850,Centro,Primaria,-32.8888,-68.8572,activo
+Colegio Secundario Gral. San Martín,Secundaria,Calle Mitre 500,Dorrego,Secundaria,-32.8912,-68.8568,activo
+Instituto Técnico Mendoza,Técnico,Avenida San Martín 600,Centro,Técnico,-32.8892,-68.8578,activo
+Escuela Primaria Maipú,Primaria,Calle Belgrano 480,Maipú,Primaria,-32.8903,-68.8583,activo
+Colegio Privado Immaculada,Primaria/Secundaria,Avenida Las Heras 350,Godoy Cruz,Primaria/Secundaria,-32.8873,-68.8592,activo
+Escuela Primaria 20 de Febrero,Primaria,Avenida España 700,Centro,Primaria,-32.8883,-68.8558,activo
+Instituto Superior Mendoza,Superior,Avenida Colón 950,Centro,Superior,-32.8897,-68.8582,activo
+Liceo Técnico Provincial,Técnico,Calle San Juan 420,Centro,Técnico,-32.8878,-68.8573,activo

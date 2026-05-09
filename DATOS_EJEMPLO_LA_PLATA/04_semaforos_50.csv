@@ -1,0 +1,51 @@
+nombre,lat,lng,estado,barrio
+Semáforo 1,-34.838343,-58.010042,inactivo,Oeste
+Semáforo 2,-35.014672,-57.909832,inactivo,Zona Norte
+Semáforo 3,-35.001502,-58.099816,mantenimiento,Ringuelet
+Semáforo 4,-34.991047,-58.062856,mantenimiento,Barrio Universitario
+Semáforo 5,-35.051441,-58.085874,mantenimiento,Zona Norte
+Semáforo 6,-35.028241,-57.870020,mantenimiento,Zona Sur
+Semáforo 7,-34.831784,-57.977489,inactivo,Barrio Universitario
+Semáforo 8,-34.785134,-58.003272,mantenimiento,Villa Elvira
+Semáforo 9,-35.062338,-58.098528,activo,Oeste
+Semáforo 10,-35.021922,-58.082097,inactivo,Nueva República
+Semáforo 11,-34.975693,-57.829575,mantenimiento,Abella
+Semáforo 12,-35.061325,-57.903600,activo,Villa Elvira
+Semáforo 13,-34.841445,-57.854084,inactivo,Gonnet
+Semáforo 14,-34.831732,-57.925045,mantenimiento,Centro
+Semáforo 15,-34.908837,-57.868102,mantenimiento,Los Hornos
+Semáforo 16,-34.967331,-58.069020,mantenimiento,Los Hornos
+Semáforo 17,-34.942559,-57.945992,inactivo,Ringuelet
+Semáforo 18,-34.934747,-57.956544,inactivo,Parque Saavedra
+Semáforo 19,-34.782726,-57.919562,inactivo,Los Hornos
+Semáforo 20,-34.838534,-57.843593,mantenimiento,Ángel Etcheverry
+Semáforo 21,-35.056765,-57.834015,mantenimiento,Ángel Etcheverry
+Semáforo 22,-35.021480,-57.980619,mantenimiento,Gonnet
+Semáforo 23,-34.878597,-58.103092,mantenimiento,Barrio Universitario
+Semáforo 24,-34.983687,-58.044488,activo,Villa Elvira
+Semáforo 25,-34.800776,-57.886777,mantenimiento,Villa Elvira
+Semáforo 26,-35.010813,-57.812216,mantenimiento,Villa Elvira
+Semáforo 27,-34.930538,-57.982887,activo,Zona Sur
+Semáforo 28,-35.002577,-57.832366,mantenimiento,Zona Norte
+Semáforo 29,-34.890203,-58.065699,mantenimiento,Zona Norte
+Semáforo 30,-35.027753,-57.825014,inactivo,Zona Sur
+Semáforo 31,-34.933490,-58.059824,mantenimiento,Zona Sur
+Semáforo 32,-34.882489,-57.946330,inactivo,Los Hornos
+Semáforo 33,-35.067035,-57.805607,mantenimiento,Centro
+Semáforo 34,-34.980181,-57.827307,inactivo,San Carlos
+Semáforo 35,-34.796438,-58.078089,inactivo,Villa Elvira
+Semáforo 36,-34.848054,-58.080703,mantenimiento,Zona Sur
+Semáforo 37,-34.849034,-58.082598,inactivo,Parque Saavedra
+Semáforo 38,-34.896905,-58.003647,activo,Villa Elvira
+Semáforo 39,-34.939845,-57.883307,mantenimiento,Zona Norte
+Semáforo 40,-35.059684,-57.858279,mantenimiento,Este
+Semáforo 41,-34.985119,-58.042899,mantenimiento,Barrio Universitario
+Semáforo 42,-34.937151,-57.980345,inactivo,Este
+Semáforo 43,-34.959295,-57.858574,inactivo,San Carlos
+Semáforo 44,-34.825784,-58.094444,mantenimiento,Los Hornos
+Semáforo 45,-34.853698,-57.925283,activo,Barrio Universitario
+Semáforo 46,-34.965327,-57.980507,inactivo,Zona Norte
+Semáforo 47,-35.047558,-57.970715,mantenimiento,Ringuelet
+Semáforo 48,-35.039827,-58.074159,mantenimiento,Oeste
+Semáforo 49,-35.052552,-57.968811,inactivo,Este
+Semáforo 50,-34.879755,-57.819222,activo,Este

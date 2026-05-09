@@ -66,5 +66,73 @@
       "chatCollection": "chat_cordoba",
       "webrtcCollection": "webrtc_cordoba"
     }
+  },
+  {
+    "id": "la-plata",
+    "name": "La Plata",
+    "country": "Argentina",
+    "province": "Buenos Aires",
+    "coordinates": {
+      "lat": -34.9205,
+      "lng": -57.9544
+    },
+    "zoom": 15,
+    "files": {
+      "barrios": "data/barrios.json",
+      "siniestros": "data/siniestros_con_ubicacion.geojson",
+      "cameras": "data/cameras.geojson",
+      "private_cameras": "data/private-cameras.geojson"
+    },
+    "optionalLayers": {
+      "semaforos": "data/semaforos.geojson",
+      "colegios": "colegios_escuelas.geojson",
+      "corredores": "corredores_escolares.geojson",
+      "aforos": null,
+      "colectivos": null,
+      "flujo": null,
+      "robo": null,
+      "alertas": null,
+      "zonas": null
+    },
+    "patrullas": {
+      "enabled": true,
+      "dataCollection": "patrullas_la-plata",
+      "chatCollection": "chat_la-plata",
+      "webrtcCollection": "webrtc_la-plata"
+    }
+  },
+  {
+    "id": "mendoza",
+    "name": "Mendoza",
+    "country": "Argentina",
+    "province": "Mendoza",
+    "coordinates": {
+      "lat": -32.8895,
+      "lng": -68.8575
+    },
+    "zoom": 14,
+    "files": {
+      "barrios": "data/barrios.json",
+      "siniestros": "data/siniestros_con_ubicacion.geojson",
+      "cameras": "data/cameras.geojson",
+      "private_cameras": "data/private-cameras.geojson"
+    },
+    "optionalLayers": {
+      "semaforos": "data/semaforos.geojson",
+      "colegios": "colegios_escuelas.geojson",
+      "corredores": "corredores_escolares.geojson",
+      "aforos": null,
+      "colectivos": null,
+      "flujo": null,
+      "robo": null,
+      "alertas": null,
+      "zonas": null
+    },
+    "patrullas": {
+      "enabled": true,
+      "dataCollection": "patrullas_mendoza",
+      "chatCollection": "chat_mendoza",
+      "webrtcCollection": "webrtc_mendoza"
+    }
   }
 ]

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Cliente - TraficoMap</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: white !important;
+    }
+
+    .navbar {
+      background: rgba(0, 0, 0, 0.3) !important;
+      backdrop-filter: blur(5px);
+    }
+
+    .card {
+      border: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1.5rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+
+    .tab-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 0 0 8px 8px;
+    }
+
+    .nav-tabs {
+      border-bottom: none;
+      background: white;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .nav-tabs .nav-link {
+      color: #6c757d;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-weight: 500;
+    }
+
+    .nav-tabs .nav-link.active {
+      color: #667eea;
+      background: white;
+      border-bottom: 3px solid #667eea;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .user-info {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-area {
+      border: 2px dashed #667eea;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #f8f9fa;
+    }
+
+    .upload-area:hover {
+      border-color: #764ba2;
+      background: #f0f0ff;
+    }
+
+    .upload-area.dragover {
+      border-color: #764ba2;
+      background: #e8e8ff;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-top: 0.5rem;
+    }
+
+    .btn-logout {
+      background: #dc3545;
+    }
+
+    .btn-logout:hover {
+      background: #c82333;
+    }
+
+    .table-container {
+      max-height: 400px;
+      overflow-y: auto;
+      border-radius: 8px;
+    }
+
+    .alert-info {
+      background: #e7f3ff;
+      border: 1px solid #b3d9ff;
+      color: #004085;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <span class="navbar-brand">🚗 TraficoMap - Panel Cliente</span>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <span id="user-email" style="color: white; margin-right: 20px;">Cargando...</span>
+          </li>
+          <li class="nav-item">
+            <button class="btn btn-danger btn-logout" onclick="logout()">Cerrar Sesión</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- User Info Card -->
+    <div class="user-info">
+      <div class="row">
+        <div class="col-md-6">
+          <h5>Cliente: <strong id="info-cliente">Cargando...</strong></h5>
+          <p>ID: <code id="info-id">-</code></p>
+          <p>Email: <code id="info-email">-</code></p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <button class="btn btn-primary" onclick="goToMap()">📍 Ir al Mapa</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-number" id="stat-camaras">0</div>
+        <div class="stat-label">Cámaras</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-siniestros">0</div>
+        <div class="stat-label">Siniestros</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-operadores">0</div>
+        <div class="stat-label">Operadores</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-patrullas">0</div>
+        <div class="stat-label">Patrullas</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="card">
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" href="#datos" data-bs-toggle="tab">📊 Cargar Datos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#listas" data-bs-toggle="tab">📋 Listas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#operadores" data-bs-toggle="tab">👨‍💼 Operadores</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#patrullas" data-bs-toggle="tab">🚙 Patrullas</a>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- Tab: Datos -->
+        <div class="tab-pane fade show active" id="datos">
+          <h5 class="mb-3">Cargar Datos CSV</h5>
+          <p class="text-muted">Arrastra un archivo CSV o haz clic para seleccionar. Se aceptan: Siniestros, Cámaras, Operadores, Patrullas</p>
+          
+          <div class="upload-area" id="uploadArea" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #667eea; margin-bottom: 1rem;"></i>
+            <p><strong>Arrastra aquí tu archivo CSV</strong></p>
+            <p class="text-muted" style="font-size: 0.9rem;">o haz clic para seleccionar</p>
+            <input type="file" id="fileInput" accept=".csv" style="display: none;" onchange="handleFileSelect(event)">
+          </div>
+
+          <div id="progressContainer" class="progress-container" style="display: none;">
+            <div class="progress">
+              <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+            </div>
+            <p id="progressText" class="text-muted mt-2">Cargando...</p>
+          </div>
+
+          <div id="resultMessage" class="alert mt-3" style="display: none;"></div>
+
+          <div id="previewTable" style="display: none; margin-top: 2rem;">
+            <h6>Vista Previa de Datos:</h6>
+            <div class="table-container">
+              <table class="table table-sm">
+                <thead>
+                  <tr id="tableHead"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Listas -->
+        <div class="tab-pane fade" id="listas">
+          <h5 class="mb-3">Listas de Zonas/Barrios</h5>
+          <div id="listasContent">
+            <p class="text-muted">Cargando listas...</p>
+          </div>
+        </div>
+
+        <!-- Tab: Operadores -->
+        <div class="tab-pane fade" id="operadores">
+          <h5 class="mb-3">Gestión de Operadores</h5>
+          <div id="operadoresContent">
+            <p class="text-muted">Cargando operadores...</p>
+          </div>
+        </div>
+
+        <!-- Tab: Patrullas -->
+        <div class="tab-pane fade" id="patrullas">
+          <h5 class="mb-3">Gestión de Patrullas</h5>
+          <div id="patrullasContent">
+            <p class="text-muted">Cargando patrullas...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA",
+      authDomain: "trafico-map-general-v2.firebaseapp.com",
+      projectId: "trafico-map-general-v2",
+      storageBucket: "trafico-map-general-v2.firebasestorage.app",
+      messagingSenderId: "540631719751",
+      appId: "1:540631719751:web:bd410f1bbee18e9fabb662"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentClienteId = null;
+    let currentUser = null;
+
+    // Inicializar
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById('user-email').textContent = user.email;
+
+      // Obtener clienteId desde custom claims
+      try {
+        const idTokenResult = await user.getIdTokenResult();
+        currentClienteId = idTokenResult.claims.clienteId;
+
+        if (!currentClienteId) {
+          alert('⚠️ Error: No se encontró clienteId en los custom claims');
+          return;
+        }
+
+        console.log('✅ Cliente ID:', currentClienteId);
+
+        // Cargar datos del cliente
+        const doc = await db.collection('clientes').doc(currentClienteId).get();
+        if (doc.exists) {
+          const data = doc.data();
+          document.getElementById('info-cliente').textContent = data.nombre;
+          document.getElementById('info-id').textContent = currentClienteId;
+          document.getElementById('info-email').textContent = user.email;
+
+          // Cargar estadísticas
+          const colecciones = ['camaras', 'siniestros', 'operadores', 'patrullas'];
+          for (const col of colecciones) {
+            const snap = await db.collection('clientes').doc(currentClienteId).collection(col).get();
+            const count = snap.size - (snap.docs.find(d => d.id === '_placeholder') ? 1 : 0);
+            document.getElementById(`stat-${col}`).textContent = count;
+          }
+        }
+      } catch (error) {
+        console.error('Error cargando cliente:', error);
+        alert('Error al cargar datos del cliente');
+      }
+    });
+
+    // Manejo de archivos
+    document.getElementById('uploadArea').addEventListener('click', () => {
+      document.getElementById('fileInput').click();
+    });
+
+    function handleDragOver(event) {
+      event.preventDefault();
+      document.getElementById('uploadArea').classList.add('dragover');
+    }
+
+    function handleDragLeave(event) {
+      event.preventDefault();
+      document.getElementById('uploadArea').classList.remove('dragover');
+    }
+
+    function handleDrop(event) {
+      event.preventDefault();
+      document.getElementById('uploadArea').classList.remove('dragover');
+      const files = event.dataTransfer.files;
+      if (files.length > 0) {
+        document.getElementById('fileInput').files = files;
+        handleFileSelect({ target: { files: files } });
+      }
+    }
+
+    async function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      console.log('📁 Archivo seleccionado:', file.name);
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const csv = e.target.result;
+          const lines = csv.split('\n');
+          const headers = lines[0].split(',').map(h => h.trim());
+
+          // Detectar tipo de colección
+          let tipo = null;
+          if (headers.some(h => h.toLowerCase().includes('camara'))) tipo = 'camaras';
+          else if (headers.some(h => h.toLowerCase().includes('siniestro'))) tipo = 'siniestros';
+          else if (headers.some(h => h.toLowerCase().includes('operador'))) tipo = 'operadores';
+          else if (headers.some(h => h.toLowerCase().includes('patrulla'))) tipo = 'patrullas';
+
+          if (!tipo) {
+            alert('No se pudo detectar el tipo de datos. Verifica los encabezados.');
+            return;
+          }
+
+          // Mostrar progreso
+          document.getElementById('progressContainer').style.display = 'block';
+
+          // Parsear y guardar datos
+          let count = 0;
+          const total = lines.length - 1;
+
+          for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+
+            const values = lines[i].split(',').map(v => v.trim());
+            const obj = {};
+            headers.forEach((h, idx) => {
+              obj[h.toLowerCase().replace(/[^\w]/g, '')] = values[idx] || '';
+            });
+
+            // Guardar en Firestore
+            await db.collection('clientes').document(currentClienteId).collection(tipo).add({
+              ...obj,
+              timestamp: new Date()
+            });
+
+            count++;
+            const progress = Math.round((count / total) * 100);
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `${count} de ${total} registros cargados`;
+          }
+
+          document.getElementById('progressContainer').style.display = 'none';
+          showResult('✅ Datos cargados exitosamente!', 'success');
+
+          // Recargar estadísticas
+          location.reload();
+
+        } catch (error) {
+          console.error('Error:', error);
+          showResult('❌ Error al procesar archivo: ' + error.message, 'danger');
+        }
+      };
+
+      reader.readAsText(file);
+    }
+
+    function showResult(message, type) {
+      const resultDiv = document.getElementById('resultMessage');
+      resultDiv.textContent = message;
+      resultDiv.className = `alert alert-${type}`;
+      resultDiv.style.display = 'block';
+    }
+
+    function goToMap() {
+      window.location.href = `/map-cliente.html?clienteId=${currentClienteId}`;
+    }
+
+    function logout() {
+      auth.signOut().then(() => {
+        localStorage.removeItem('clienteId');
+        localStorage.removeItem('rol');
+        window.location.href = '/login.html';
+      });
+    }
+  </script>
+</body>
+</html>

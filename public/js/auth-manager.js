@@ -18,40 +18,62 @@ const AuthManager = (() => {
     'admin': (email) => email === 'admin@trafico-map.com' || email === 'admin@seguridad-mdp.com'
   };
 
+  let isLoginPage = false;
+  let unsubscribe = null;
+
   return {
     /**
      * Inicializar el módulo de autenticación
+     * @param {Object} firebaseAuth - Firebase Auth instance
+     * @param {boolean} isLogin - Si es true, no usa listener persistente (Para login.html)
      */
-    init(firebaseAuth) {
+    init(firebaseAuth, isLogin = false) {
       auth = firebaseAuth;
-      console.log('📛 AuthManager initialized');
+      isLoginPage = isLogin;
+      console.log('📛 AuthManager initialized', isLogin ? '(Login Mode)' : '(App Mode)');
       
       // Restaurar sesión del localStorage
       this.restoreSession();
       
-      // Listener de cambios de autenticación
-      auth.onAuthStateChanged(async (user) => {
-        currentUser = user;
-        
-        if (user) {
-          console.log('✅ Usuario autenticado:', user.email);
-          userRole = await this.getUserRole(user.email);
-          console.log('👤 Rol detectado:', userRole);
+      // IMPORTANTE: En login.html NO usar listener persistente
+      // Los listeners de múltiples pestañas causan conflictos
+      if (!isLoginPage) {
+        // Listener de cambios de autenticación SOLO para páginas protegidas
+        unsubscribe = auth.onAuthStateChanged(async (user) => {
+          currentUser = user;
           
-          // Guardar en localStorage para acceso offline
-          localStorage.setItem('currentUser', JSON.stringify({
-            uid: user.uid,
-            email: user.email,
-            role: userRole,
-            timestamp: Date.now()
-          }));
-        } else {
-          console.log('❌ Usuario no autenticado');
-          currentUser = null;
-          userRole = null;
-          localStorage.removeItem('currentUser');
-        }
-      });
+          if (user) {
+            console.log('✅ Usuario autenticado:', user.email);
+            userRole = await this.getUserRole(user.email);
+            console.log('👤 Rol detectado:', userRole);
+            
+            // Guardar en localStorage para acceso offline
+            localStorage.setItem('currentUser', JSON.stringify({
+              uid: user.uid,
+              email: user.email,
+              role: userRole,
+              timestamp: Date.now()
+            }));
+          } else {
+            console.log('❌ Usuario no autenticado');
+            currentUser = null;
+            userRole = null;
+            localStorage.removeItem('currentUser');
+          }
+        });
+      } else {
+        console.log('⚠️ Login page: listener NO activado para evitar conflictos con otras pestañas');
+      }
+    },
+
+    /**
+     * Limpiar listeners (usar al cerrar sesión o descargar página)
+     */
+    cleanup() {
+      if (unsubscribe && typeof unsubscribe === 'function') {
+        unsubscribe();
+        console.log('🧹 AuthManager listeners limpiados');
+      }
     },
 
     /**
@@ -59,8 +81,20 @@ const AuthManager = (() => {
      */
     async login(email, password) {
       try {
+        if (!auth) {
+          throw new Error('Firebase Auth no está inicializado. Recarga la página e intenta de nuevo.');
+        }
         const result = await auth.signInWithEmailAndPassword(email, password);
         console.log('✅ Login successful:', email);
+        
+        // Forzar refresh del token para obtener custom claims actualizados
+        try {
+          await result.user.getIdTokenResult(true); // true = forceRefresh
+          console.log('✅ Token refreshed con custom claims');
+        } catch (err) {
+          console.warn('⚠️ No se pudo refrescar token:', err);
+        }
+        
         return result;
       } catch (error) {
         console.error('❌ Login failed:', error);
@@ -73,12 +107,14 @@ const AuthManager = (() => {
      */
     async logout() {
       try {
+        this.cleanup(); // Limpiar listeners
         currentUser = null;
         userRole = null;
         localStorage.removeItem('currentUser');
+        sessionStorage.clear();
         console.log('✅ Logged out');
-        window.close();
-        setTimeout(() => { window.location.href = '/login.html'; }, 500);
+        await auth.signOut();
+        window.location.href = '/login.html';
       } catch (error) {
         console.error('❌ Logout failed:', error);
         throw error;
@@ -100,11 +136,19 @@ const AuthManager = (() => {
       
       // Primero intentar obtener el rol desde custom claims de Firebase
       try {
-        const idTokenResult = await currentUser.getIdTokenResult();
+        const idTokenResult = await currentUser.getIdTokenResult(true); // Force refresh para obtener claims más recientes
+        console.log('🔍 Custom claims encontrados:', idTokenResult.claims);
+        
+        // Soportar ambos: "role" (legacy) y "rol" (multitenant)
         if (idTokenResult.claims.role) {
-          console.log('📋 Rol desde custom claims:', idTokenResult.claims.role);
+          console.log('📋 Rol desde custom claims (role):', idTokenResult.claims.role);
           return idTokenResult.claims.role;
         }
+        if (idTokenResult.claims.rol) {
+          console.log('📋 Rol desde custom claims (rol):', idTokenResult.claims.rol);
+          return idTokenResult.claims.rol;
+        }
+        console.warn('⚠️ No se encontraron custom claims role/rol');
       } catch (error) {
         console.warn('⚠️ No se pudieron leer custom claims:', error.message);
       }
@@ -174,26 +218,44 @@ const AuthManager = (() => {
 
     /**
      * Redirigir según el rol del usuario
+     * Si no hay usuario, redirige a login
+     * Si hay usuario y estamos en login.html, redirige al rol (POST-LOGIN)
+     * Si hay usuario y no estamos en login.html, no redirige (ya en app)
      */
     async redirectByRole(user) {
       if (!user) {
-        window.location.href = '/login.html';
+        // Sin usuario, ir a login (pero solo si no estamos ya allí)
+        if (!window.location.pathname.includes('login.html')) {
+          window.location.href = '/login.html';
+        }
         return;
       }
 
+      // Aquí hay usuario válido
       const role = await this.getUserRole(user.email);
-      console.log(`🔀 Redirigiendo a ${role}...`);
+      console.log(`🔀 Rol detectado: "${role}" para usuario: ${user.email}`);
 
       const redirectMap = {
         'patrulla': '/patrulla-app/index.html',
         'operador': '/control-center-v2/index.html',
-        'admin': '/index.html'
+        'super_admin': '/index.html',
+        'admin': '/admin',
+        'cliente': '/client/'
       };
 
       const targetUrl = redirectMap[role] || '/index.html';
-      setTimeout(() => {
-        window.location.href = targetUrl;
-      }, 500);
+      console.log(`📍 URL destino: ${targetUrl}`);
+      
+      // Redirigir si no estamos ya en la página destino
+      // Esto aplica tanto a login.html (POST-LOGIN) como a cualquier otra página
+      if (window.location.pathname !== targetUrl && !window.location.pathname.endsWith(targetUrl)) {
+        console.log(`📍 Actual: ${window.location.pathname}, Destino: ${targetUrl}`);
+        setTimeout(() => {
+          window.location.href = targetUrl;
+        }, 500);
+      } else {
+        console.log('✅ Ya estamos en la página correcta');
+      }
     },
 
     /**

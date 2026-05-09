@@ -1,0 +1,501 @@
+id_camara,lat,lng,address,barrio,direccion_lectura,resolucion,activa
+LPR_2000,-34.959335,-57.904510,Calle 10 esquina 42,Barrio Universitario,Este-Oeste,5MP,TRUE
+LPR_2001,-34.808496,-57.909002,Calle 101 esquina 27,Este,Este-Oeste,1080p,TRUE
+LPR_2002,-34.983228,-57.911128,Calle 105 esquina 19,Zona Norte,Sur-Norte,8MP,FALSE
+LPR_2003,-34.872968,-57.870008,Calle 22 esquina 69,Ringuelet,Este-Oeste,4K,TRUE
+LPR_2004,-34.940627,-58.032364,Calle 77 esquina 99,Barrio Universitario,Oeste-Este,2K,TRUE
+LPR_2005,-34.979572,-57.972364,Calle 83 esquina 133,Este,Norte-Sur,8MP,FALSE
+LPR_2006,-34.850731,-57.832812,Calle 23 esquina 141,Centro,Ambas,5MP,FALSE
+LPR_2007,-34.883655,-57.870671,Calle 77 esquina 23,Zona Sur,Sur-Norte,5MP,FALSE
+LPR_2008,-34.797513,-58.009400,Calle 42 esquina 94,Los Hornos,Este-Oeste,5MP,FALSE
+LPR_2009,-34.900221,-57.864631,Calle 11 esquina 51,Centro,Norte-Sur,5MP,TRUE
+LPR_2010,-34.809052,-57.813180,Calle 148 esquina 57,Oeste,Ambas,2K,FALSE
+LPR_2011,-34.943625,-57.994191,Calle 116 esquina 149,Tolosa,Ambas,4K,TRUE
+LPR_2012,-35.013205,-57.920164,Calle 112 esquina 135,Zona Sur,Ambas,1080p,TRUE
+LPR_2013,-34.880523,-57.835692,Calle 2 esquina 49,Centro,Oeste-Este,4K,FALSE
+LPR_2014,-35.023289,-58.005030,Calle 82 esquina 132,Gonnet,Ambas,5MP,TRUE
+LPR_2015,-34.848233,-57.887777,Calle 16 esquina 79,Gonnet,Norte-Sur,8MP,TRUE
+LPR_2016,-34.839725,-57.867420,Calle 58 esquina 26,Ringuelet,Oeste-Este,1080p,FALSE
+LPR_2017,-35.036608,-57.826069,Calle 134 esquina 103,Zona Norte,Sur-Norte,4K,TRUE
+LPR_2018,-34.883757,-57.839779,Calle 57 esquina 74,Zona Sur,Oeste-Este,2K,TRUE
+LPR_2019,-35.023334,-57.948089,Calle 127 esquina 36,Gonnet,Este-Oeste,2K,FALSE
+LPR_2020,-35.070091,-57.963824,Calle 95 esquina 81,Villa Elvira,Norte-Sur,4K,FALSE
+LPR_2021,-35.068327,-57.960247,Calle 87 esquina 45,Ringuelet,Este-Oeste,4K,FALSE
+LPR_2022,-34.800755,-58.008008,Calle 35 esquina 143,Este,Ambas,1080p,TRUE
+LPR_2023,-34.994228,-57.918477,Calle 128 esquina 112,San Carlos,Sur-Norte,5MP,FALSE
+LPR_2024,-34.923044,-57.829504,Calle 10 esquina 106,Ángel Etcheverry,Sur-Norte,8MP,FALSE
+LPR_2025,-34.897658,-57.861849,Calle 129 esquina 27,Centro,Este-Oeste,5MP,FALSE
+LPR_2026,-34.986923,-58.022484,Calle 96 esquina 147,Barrio Universitario,Oeste-Este,8MP,TRUE
+LPR_2027,-35.033473,-58.008126,Calle 40 esquina 129,Este,Este-Oeste,4K,TRUE
+LPR_2028,-34.917100,-58.021650,Calle 91 esquina 92,Centro,Este-Oeste,1080p,FALSE
+LPR_2029,-35.052700,-57.867151,Calle 90 esquina 123,Este,Norte-Sur,2K,TRUE
+LPR_2030,-34.986416,-58.103411,Calle 91 esquina 140,Este,Este-Oeste,2K,TRUE
+LPR_2031,-34.955215,-57.878588,Calle 57 esquina 16,Ringuelet,Ambas,4K,TRUE
+LPR_2032,-34.795490,-58.079070,Calle 88 esquina 124,Nueva República,Este-Oeste,4K,TRUE
+LPR_2033,-35.062595,-57.944127,Calle 49 esquina 57,Oeste,Oeste-Este,2K,TRUE
+LPR_2034,-35.028946,-57.841176,Calle 84 esquina 79,Tolosa,Sur-Norte,1080p,TRUE
+LPR_2035,-34.904918,-58.012061,Calle 130 esquina 63,San Carlos,Oeste-Este,1080p,TRUE
+LPR_2036,-34.877509,-57.910025,Calle 77 esquina 64,Abella,Este-Oeste,2K,TRUE
+LPR_2037,-34.850692,-57.905230,Calle 82 esquina 70,Tolosa,Ambas,8MP,TRUE
+LPR_2038,-35.069328,-57.848186,Calle 68 esquina 17,Zona Sur,Este-Oeste,8MP,TRUE
+LPR_2039,-34.898512,-57.917174,Calle 34 esquina 23,Ángel Etcheverry,Ambas,2K,TRUE
+LPR_2040,-34.950291,-58.045127,Calle 9 esquina 79,Ringuelet,Norte-Sur,1080p,TRUE
+LPR_2041,-34.859512,-58.097456,Calle 125 esquina 15,Los Hornos,Sur-Norte,5MP,TRUE
+LPR_2042,-35.003748,-57.931513,Calle 81 esquina 54,Oeste,Sur-Norte,5MP,FALSE
+LPR_2043,-35.010682,-57.813843,Calle 18 esquina 88,Barrio Universitario,Este-Oeste,1080p,TRUE
+LPR_2044,-35.009279,-58.085554,Calle 58 esquina 137,Ángel Etcheverry,Oeste-Este,5MP,TRUE
+LPR_2045,-34.959306,-57.896169,Calle 24 esquina 23,Gonnet,Sur-Norte,5MP,FALSE
+LPR_2046,-34.901300,-57.965549,Calle 90 esquina 93,Oeste,Sur-Norte,8MP,FALSE
+LPR_2047,-35.058943,-57.886771,Calle 55 esquina 75,San Carlos,Este-Oeste,5MP,FALSE
+LPR_2048,-34.917004,-57.912307,Calle 82 esquina 54,Ángel Etcheverry,Oeste-Este,8MP,TRUE
+LPR_2049,-35.067792,-57.832148,Calle 52 esquina 106,Villa Elvira,Ambas,1080p,TRUE
+LPR_2050,-35.069956,-58.096320,Calle 89 esquina 143,Nueva República,Norte-Sur,5MP,FALSE
+LPR_2051,-34.885461,-57.840632,Calle 49 esquina 102,Este,Oeste-Este,2K,FALSE
+LPR_2052,-34.896271,-57.828748,Calle 25 esquina 84,Este,Sur-Norte,1080p,TRUE
+LPR_2053,-35.028198,-57.849579,Calle 119 esquina 3,Centro,Este-Oeste,2K,FALSE
+LPR_2054,-34.960362,-57.901788,Calle 147 esquina 125,Villa Elvira,Sur-Norte,4K,TRUE
+LPR_2055,-34.946423,-57.849918,Calle 26 esquina 8,San Carlos,Norte-Sur,4K,FALSE
+LPR_2056,-34.844226,-58.004123,Calle 141 esquina 72,Los Hornos,Norte-Sur,8MP,TRUE
+LPR_2057,-34.942337,-58.081355,Calle 53 esquina 49,Este,Ambas,4K,TRUE
+LPR_2058,-34.885538,-57.948292,Calle 45 esquina 124,Zona Sur,Ambas,8MP,FALSE
+LPR_2059,-35.025445,-57.809181,Calle 55 esquina 44,San Carlos,Oeste-Este,2K,TRUE
+LPR_2060,-34.779417,-57.956400,Calle 94 esquina 106,Gonnet,Ambas,4K,TRUE
+LPR_2061,-34.975574,-58.054334,Calle 67 esquina 106,San Carlos,Sur-Norte,8MP,FALSE
+LPR_2062,-34.821356,-57.947406,Calle 23 esquina 81,Tolosa,Oeste-Este,4K,FALSE
+LPR_2063,-34.970220,-57.988861,Calle 24 esquina 116,Nueva República,Este-Oeste,2K,TRUE
+LPR_2064,-34.859723,-58.038329,Calle 74 esquina 148,Ángel Etcheverry,Oeste-Este,5MP,TRUE
+LPR_2065,-34.925160,-57.813033,Calle 132 esquina 122,Centro,Norte-Sur,1080p,FALSE
+LPR_2066,-35.045538,-57.954241,Calle 45 esquina 19,Zona Norte,Oeste-Este,8MP,FALSE
+LPR_2067,-34.981499,-57.952735,Calle 87 esquina 148,Zona Norte,Ambas,8MP,FALSE
+LPR_2068,-35.017620,-57.862872,Calle 23 esquina 138,Este,Este-Oeste,2K,TRUE
+LPR_2069,-35.010748,-57.932952,Calle 37 esquina 68,Este,Norte-Sur,4K,TRUE
+LPR_2070,-34.853365,-57.972829,Calle 82 esquina 73,Villa Elvira,Sur-Norte,5MP,TRUE
+LPR_2071,-34.876768,-57.808769,Calle 135 esquina 56,Zona Sur,Norte-Sur,4K,FALSE
+LPR_2072,-34.926501,-57.998789,Calle 20 esquina 97,Abella,Ambas,5MP,TRUE
+LPR_2073,-34.947139,-57.876244,Calle 93 esquina 11,Este,Este-Oeste,2K,FALSE
+LPR_2074,-34.872523,-57.824606,Calle 150 esquina 136,Ángel Etcheverry,Este-Oeste,1080p,TRUE
+LPR_2075,-34.878649,-57.931887,Calle 125 esquina 99,Barrio Universitario,Norte-Sur,1080p,TRUE
+LPR_2076,-34.891049,-58.041884,Calle 89 esquina 34,San Carlos,Ambas,2K,FALSE
+LPR_2077,-34.954134,-58.041056,Calle 90 esquina 15,San Carlos,Sur-Norte,1080p,FALSE
+LPR_2078,-35.035496,-57.929931,Calle 135 esquina 127,Nueva República,Oeste-Este,2K,TRUE
+LPR_2079,-35.067626,-58.095280,Calle 98 esquina 93,Centro,Sur-Norte,5MP,FALSE
+LPR_2080,-34.900295,-58.017510,Calle 42 esquina 144,Los Hornos,Norte-Sur,2K,FALSE
+LPR_2081,-34.930530,-57.969236,Calle 91 esquina 107,Los Hornos,Este-Oeste,8MP,TRUE
+LPR_2082,-34.782832,-58.065123,Calle 74 esquina 104,Los Hornos,Este-Oeste,4K,TRUE
+LPR_2083,-34.833454,-57.922504,Calle 148 esquina 3,Gonnet,Ambas,5MP,FALSE
+LPR_2084,-34.803872,-57.955515,Calle 97 esquina 10,Parque Saavedra,Sur-Norte,8MP,TRUE
+LPR_2085,-34.899709,-57.929380,Calle 76 esquina 127,Ringuelet,Norte-Sur,8MP,TRUE
+LPR_2086,-34.810877,-58.017613,Calle 2 esquina 106,Este,Sur-Norte,8MP,TRUE
+LPR_2087,-35.015663,-58.025180,Calle 31 esquina 88,Centro,Oeste-Este,1080p,TRUE
+LPR_2088,-34.999282,-57.975960,Calle 60 esquina 67,Zona Norte,Ambas,5MP,FALSE
+LPR_2089,-34.890056,-57.974628,Calle 74 esquina 147,Ángel Etcheverry,Sur-Norte,4K,FALSE
+LPR_2090,-34.883354,-57.869605,Calle 72 esquina 113,Los Hornos,Sur-Norte,5MP,TRUE
+LPR_2091,-35.011310,-57.974268,Calle 10 esquina 84,Ángel Etcheverry,Oeste-Este,4K,FALSE
+LPR_2092,-34.983029,-57.857516,Calle 30 esquina 32,Barrio Universitario,Oeste-Este,8MP,FALSE
+LPR_2093,-34.900997,-57.835982,Calle 117 esquina 128,Ringuelet,Este-Oeste,4K,FALSE
+LPR_2094,-34.880993,-57.873203,Calle 122 esquina 71,Barrio Universitario,Norte-Sur,5MP,FALSE
+LPR_2095,-34.946011,-57.924626,Calle 30 esquina 50,Parque Saavedra,Este-Oeste,5MP,TRUE
+LPR_2096,-35.045146,-58.102122,Calle 141 esquina 93,Ángel Etcheverry,Sur-Norte,8MP,TRUE
+LPR_2097,-34.991428,-57.851986,Calle 22 esquina 28,Zona Norte,Sur-Norte,4K,TRUE
+LPR_2098,-34.935629,-57.875462,Calle 30 esquina 149,Gonnet,Ambas,4K,TRUE
+LPR_2099,-35.040624,-57.988323,Calle 30 esquina 47,Oeste,Norte-Sur,4K,TRUE
+LPR_2100,-34.847048,-57.815016,Calle 25 esquina 53,Centro,Oeste-Este,1080p,TRUE
+LPR_2101,-34.886391,-58.078839,Calle 8 esquina 2,Este,Oeste-Este,4K,TRUE
+LPR_2102,-34.978238,-57.997228,Calle 67 esquina 35,Zona Sur,Ambas,5MP,FALSE
+LPR_2103,-34.865970,-57.903628,Calle 3 esquina 54,Ringuelet,Ambas,8MP,TRUE
+LPR_2104,-34.804031,-58.093449,Calle 13 esquina 69,Este,Ambas,2K,TRUE
+LPR_2105,-34.870737,-58.078683,Calle 76 esquina 142,Este,Oeste-Este,1080p,FALSE
+LPR_2106,-35.015155,-58.066865,Calle 12 esquina 110,Villa Elvira,Norte-Sur,4K,TRUE
+LPR_2107,-35.030133,-57.837833,Calle 34 esquina 80,Nueva República,Sur-Norte,2K,TRUE
+LPR_2108,-35.028279,-58.099466,Calle 74 esquina 33,Barrio Universitario,Este-Oeste,1080p,FALSE
+LPR_2109,-34.957385,-58.001247,Calle 33 esquina 49,Zona Norte,Sur-Norte,1080p,FALSE
+LPR_2110,-34.824153,-58.067509,Calle 79 esquina 31,Tolosa,Este-Oeste,1080p,FALSE
+LPR_2111,-34.852948,-57.978478,Calle 58 esquina 11,Zona Sur,Este-Oeste,2K,FALSE
+LPR_2112,-34.941551,-57.886160,Calle 22 esquina 7,San Carlos,Ambas,5MP,FALSE
+LPR_2113,-34.781366,-57.830229,Calle 18 esquina 137,Ringuelet,Sur-Norte,1080p,TRUE
+LPR_2114,-34.918281,-58.025153,Calle 12 esquina 133,Barrio Universitario,Norte-Sur,1080p,FALSE
+LPR_2115,-34.917316,-57.826644,Calle 57 esquina 38,Zona Sur,Este-Oeste,5MP,TRUE
+LPR_2116,-34.802954,-58.014862,Calle 103 esquina 105,San Carlos,Norte-Sur,1080p,TRUE
+LPR_2117,-34.837127,-57.976152,Calle 38 esquina 80,Tolosa,Sur-Norte,2K,FALSE
+LPR_2118,-34.780208,-57.872367,Calle 74 esquina 77,San Carlos,Este-Oeste,1080p,FALSE
+LPR_2119,-34.798753,-57.997726,Calle 70 esquina 116,Zona Norte,Este-Oeste,4K,TRUE
+LPR_2120,-34.842146,-58.033938,Calle 42 esquina 92,Villa Elvira,Norte-Sur,1080p,FALSE
+LPR_2121,-35.040824,-57.977271,Calle 79 esquina 24,Zona Norte,Ambas,5MP,FALSE
+LPR_2122,-34.778024,-58.088986,Calle 38 esquina 64,Oeste,Oeste-Este,4K,FALSE
+LPR_2123,-34.774738,-57.972015,Calle 146 esquina 10,Barrio Universitario,Este-Oeste,5MP,TRUE
+LPR_2124,-34.808218,-58.086075,Calle 103 esquina 66,Los Hornos,Este-Oeste,5MP,FALSE
+LPR_2125,-34.853763,-57.884071,Calle 29 esquina 57,Zona Norte,Este-Oeste,8MP,TRUE
+LPR_2126,-34.860733,-57.986260,Calle 124 esquina 82,Este,Este-Oeste,5MP,FALSE
+LPR_2127,-35.041054,-57.859074,Calle 39 esquina 52,Abella,Este-Oeste,8MP,TRUE
+LPR_2128,-35.027089,-58.089511,Calle 1 esquina 102,Barrio Universitario,Este-Oeste,8MP,FALSE
+LPR_2129,-34.928136,-58.080867,Calle 39 esquina 9,Ángel Etcheverry,Sur-Norte,8MP,TRUE
+LPR_2130,-34.840735,-58.036430,Calle 135 esquina 18,San Carlos,Este-Oeste,2K,FALSE
+LPR_2131,-34.916350,-58.013990,Calle 68 esquina 142,Este,Norte-Sur,8MP,FALSE
+LPR_2132,-34.976519,-57.943739,Calle 94 esquina 50,Tolosa,Sur-Norte,4K,TRUE
+LPR_2133,-35.019674,-57.914664,Calle 125 esquina 147,Zona Norte,Ambas,1080p,TRUE
+LPR_2134,-34.850382,-57.836954,Calle 131 esquina 89,Centro,Este-Oeste,5MP,TRUE
+LPR_2135,-34.899645,-57.805005,Calle 80 esquina 97,Gonnet,Sur-Norte,1080p,FALSE
+LPR_2136,-34.872066,-57.858195,Calle 101 esquina 7,Tolosa,Sur-Norte,4K,TRUE
+LPR_2137,-35.056402,-57.995804,Calle 26 esquina 10,Zona Norte,Sur-Norte,2K,FALSE
+LPR_2138,-34.824646,-58.028699,Calle 12 esquina 130,Este,Sur-Norte,1080p,TRUE
+LPR_2139,-35.003222,-58.028551,Calle 117 esquina 67,Parque Saavedra,Oeste-Este,8MP,FALSE
+LPR_2140,-34.931534,-57.882176,Calle 56 esquina 92,Centro,Oeste-Este,4K,TRUE
+LPR_2141,-35.066151,-57.966765,Calle 22 esquina 53,Centro,Oeste-Este,2K,FALSE
+LPR_2142,-34.895393,-57.850465,Calle 121 esquina 2,Abella,Norte-Sur,8MP,TRUE
+LPR_2143,-35.046177,-57.868102,Calle 61 esquina 128,Oeste,Este-Oeste,1080p,FALSE
+LPR_2144,-34.965425,-57.940545,Calle 48 esquina 40,Este,Oeste-Este,4K,TRUE
+LPR_2145,-34.868819,-57.896341,Calle 14 esquina 52,Abella,Norte-Sur,4K,FALSE
+LPR_2146,-34.908717,-57.830220,Calle 3 esquina 94,San Carlos,Este-Oeste,4K,TRUE
+LPR_2147,-34.930224,-57.964025,Calle 120 esquina 105,Barrio Universitario,Este-Oeste,5MP,TRUE
+LPR_2148,-34.819507,-57.907708,Calle 29 esquina 91,San Carlos,Este-Oeste,5MP,TRUE
+LPR_2149,-34.918287,-58.100763,Calle 57 esquina 32,Abella,Sur-Norte,2K,TRUE
+LPR_2150,-34.865313,-58.100137,Calle 139 esquina 121,Parque Saavedra,Este-Oeste,4K,TRUE
+LPR_2151,-34.911608,-58.060561,Calle 9 esquina 114,Villa Elvira,Norte-Sur,1080p,FALSE
+LPR_2152,-34.906549,-57.965198,Calle 2 esquina 131,Abella,Sur-Norte,2K,FALSE
+LPR_2153,-34.918115,-58.048788,Calle 116 esquina 59,Zona Sur,Oeste-Este,1080p,TRUE
+LPR_2154,-35.056728,-57.944665,Calle 115 esquina 148,Este,Ambas,5MP,TRUE
+LPR_2155,-34.817270,-57.854971,Calle 35 esquina 43,Tolosa,Ambas,1080p,FALSE
+LPR_2156,-35.070269,-57.857320,Calle 125 esquina 128,Los Hornos,Oeste-Este,8MP,TRUE
+LPR_2157,-34.905829,-58.017837,Calle 149 esquina 132,Centro,Sur-Norte,1080p,TRUE
+LPR_2158,-34.960398,-57.932283,Calle 36 esquina 30,Barrio Universitario,Norte-Sur,4K,FALSE
+LPR_2159,-34.876561,-58.010833,Calle 111 esquina 147,Nueva República,Sur-Norte,1080p,FALSE
+LPR_2160,-34.792082,-58.058490,Calle 8 esquina 38,Parque Saavedra,Este-Oeste,5MP,FALSE
+LPR_2161,-34.806033,-58.082954,Calle 83 esquina 70,Nueva República,Ambas,2K,TRUE
+LPR_2162,-34.805918,-57.852751,Calle 108 esquina 83,Zona Sur,Este-Oeste,8MP,TRUE
+LPR_2163,-34.883023,-57.837936,Calle 150 esquina 110,Parque Saavedra,Sur-Norte,4K,TRUE
+LPR_2164,-35.057103,-58.091188,Calle 60 esquina 137,Parque Saavedra,Ambas,1080p,TRUE
+LPR_2165,-34.840113,-57.830314,Calle 53 esquina 105,Ángel Etcheverry,Este-Oeste,8MP,TRUE
+LPR_2166,-34.802386,-58.034955,Calle 50 esquina 16,Abella,Este-Oeste,5MP,TRUE
+LPR_2167,-34.964100,-57.872845,Calle 116 esquina 18,Gonnet,Este-Oeste,8MP,TRUE
+LPR_2168,-34.971218,-57.825949,Calle 68 esquina 66,Zona Sur,Este-Oeste,5MP,TRUE
+LPR_2169,-34.823876,-57.830927,Calle 88 esquina 24,Abella,Norte-Sur,4K,FALSE
+LPR_2170,-35.036609,-57.815840,Calle 70 esquina 7,Zona Norte,Norte-Sur,4K,FALSE
+LPR_2171,-34.973701,-58.064209,Calle 47 esquina 85,San Carlos,Sur-Norte,2K,FALSE
+LPR_2172,-35.021781,-57.954528,Calle 9 esquina 21,Zona Norte,Este-Oeste,2K,TRUE
+LPR_2173,-34.974023,-58.065999,Calle 110 esquina 113,Villa Elvira,Sur-Norte,8MP,TRUE
+LPR_2174,-35.036670,-58.022548,Calle 77 esquina 93,Nueva República,Norte-Sur,2K,TRUE
+LPR_2175,-34.772237,-57.837037,Calle 85 esquina 57,Zona Norte,Este-Oeste,8MP,TRUE
+LPR_2176,-34.875013,-57.993307,Calle 130 esquina 59,Tolosa,Norte-Sur,5MP,TRUE
+LPR_2177,-35.033560,-57.901995,Calle 25 esquina 84,Ringuelet,Norte-Sur,4K,FALSE
+LPR_2178,-34.789069,-57.809437,Calle 131 esquina 120,Zona Norte,Oeste-Este,1080p,TRUE
+LPR_2179,-34.929974,-58.094000,Calle 65 esquina 50,Centro,Sur-Norte,2K,FALSE
+LPR_2180,-35.069181,-57.998191,Calle 21 esquina 129,Zona Sur,Este-Oeste,5MP,TRUE
+LPR_2181,-35.026223,-57.819215,Calle 13 esquina 56,Este,Norte-Sur,2K,TRUE
+LPR_2182,-34.919912,-57.831822,Calle 96 esquina 31,Zona Sur,Norte-Sur,8MP,TRUE
+LPR_2183,-35.034065,-57.880733,Calle 24 esquina 38,San Carlos,Ambas,4K,FALSE
+LPR_2184,-35.006476,-57.835724,Calle 43 esquina 4,Los Hornos,Sur-Norte,5MP,FALSE
+LPR_2185,-34.786309,-57.958562,Calle 110 esquina 60,Barrio Universitario,Oeste-Este,4K,FALSE
+LPR_2186,-34.859081,-57.934882,Calle 11 esquina 111,Villa Elvira,Sur-Norte,8MP,TRUE
+LPR_2187,-35.028950,-57.822535,Calle 25 esquina 16,Zona Norte,Ambas,2K,TRUE
+LPR_2188,-34.996950,-57.820034,Calle 86 esquina 146,San Carlos,Sur-Norte,8MP,FALSE
+LPR_2189,-34.817804,-57.879656,Calle 63 esquina 34,Gonnet,Ambas,1080p,FALSE
+LPR_2190,-34.928020,-58.049927,Calle 39 esquina 114,Abella,Este-Oeste,2K,TRUE
+LPR_2191,-35.021031,-58.001791,Calle 27 esquina 69,Ángel Etcheverry,Norte-Sur,2K,FALSE
+LPR_2192,-34.925952,-57.948865,Calle 78 esquina 51,Zona Sur,Oeste-Este,8MP,TRUE
+LPR_2193,-35.063517,-58.073046,Calle 14 esquina 91,Barrio Universitario,Oeste-Este,8MP,FALSE
+LPR_2194,-34.935976,-57.817251,Calle 102 esquina 12,Este,Sur-Norte,5MP,TRUE
+LPR_2195,-34.859244,-57.829607,Calle 75 esquina 60,Parque Saavedra,Oeste-Este,8MP,TRUE
+LPR_2196,-34.837529,-57.891970,Calle 126 esquina 127,Zona Sur,Este-Oeste,4K,TRUE
+LPR_2197,-35.008136,-57.813343,Calle 45 esquina 129,San Carlos,Oeste-Este,4K,FALSE
+LPR_2198,-34.872528,-57.881499,Calle 74 esquina 140,Villa Elvira,Norte-Sur,4K,FALSE
+LPR_2199,-34.954457,-57.835907,Calle 15 esquina 55,San Carlos,Norte-Sur,8MP,TRUE
+LPR_2200,-35.047962,-58.067407,Calle 103 esquina 76,Gonnet,Sur-Norte,8MP,TRUE
+LPR_2201,-34.855328,-57.809548,Calle 51 esquina 1,Barrio Universitario,Sur-Norte,1080p,FALSE
+LPR_2202,-34.879294,-58.038123,Calle 33 esquina 5,Ringuelet,Sur-Norte,5MP,FALSE
+LPR_2203,-34.881824,-57.882637,Calle 104 esquina 100,Ringuelet,Oeste-Este,2K,TRUE
+LPR_2204,-34.805670,-58.034619,Calle 26 esquina 18,Parque Saavedra,Sur-Norte,1080p,FALSE
+LPR_2205,-35.012535,-57.944592,Calle 105 esquina 38,Los Hornos,Ambas,2K,FALSE
+LPR_2206,-34.789580,-58.064589,Calle 115 esquina 49,Abella,Ambas,4K,FALSE
+LPR_2207,-34.895559,-58.072507,Calle 124 esquina 61,Villa Elvira,Oeste-Este,1080p,FALSE
+LPR_2208,-34.924419,-57.895805,Calle 38 esquina 15,Ringuelet,Ambas,2K,TRUE
+LPR_2209,-35.020569,-57.860816,Calle 69 esquina 66,Tolosa,Sur-Norte,4K,TRUE
+LPR_2210,-34.871532,-57.992644,Calle 59 esquina 39,Los Hornos,Sur-Norte,5MP,FALSE
+LPR_2211,-34.930057,-58.068186,Calle 147 esquina 89,Tolosa,Norte-Sur,1080p,TRUE
+LPR_2212,-34.929433,-58.031679,Calle 50 esquina 84,Este,Sur-Norte,2K,FALSE
+LPR_2213,-34.869507,-57.920741,Calle 22 esquina 95,Este,Ambas,4K,FALSE
+LPR_2214,-34.885234,-57.962485,Calle 108 esquina 90,Zona Norte,Norte-Sur,1080p,TRUE
+LPR_2215,-34.885284,-57.969273,Calle 102 esquina 91,Tolosa,Oeste-Este,5MP,FALSE
+LPR_2216,-34.865633,-58.009073,Calle 4 esquina 69,Nueva República,Sur-Norte,1080p,TRUE
+LPR_2217,-34.871291,-57.862749,Calle 144 esquina 85,Barrio Universitario,Ambas,4K,TRUE
+LPR_2218,-34.948843,-58.093804,Calle 137 esquina 65,Abella,Sur-Norte,2K,TRUE
+LPR_2219,-35.017269,-57.824616,Calle 76 esquina 85,Zona Sur,Sur-Norte,4K,FALSE
+LPR_2220,-34.864102,-57.836429,Calle 50 esquina 52,San Carlos,Sur-Norte,8MP,TRUE
+LPR_2221,-34.838250,-58.089572,Calle 18 esquina 61,Oeste,Este-Oeste,2K,FALSE
+LPR_2222,-34.904079,-58.009696,Calle 108 esquina 127,Nueva República,Este-Oeste,2K,TRUE
+LPR_2223,-34.942947,-57.992566,Calle 118 esquina 104,Ángel Etcheverry,Sur-Norte,8MP,FALSE
+LPR_2224,-34.985972,-57.845969,Calle 73 esquina 25,Ringuelet,Este-Oeste,5MP,TRUE
+LPR_2225,-35.053285,-58.048468,Calle 145 esquina 97,Barrio Universitario,Sur-Norte,8MP,FALSE
+LPR_2226,-35.060535,-57.885279,Calle 74 esquina 14,Oeste,Ambas,8MP,TRUE
+LPR_2227,-34.909402,-58.078116,Calle 131 esquina 2,Oeste,Oeste-Este,8MP,TRUE
+LPR_2228,-34.891291,-58.013649,Calle 14 esquina 5,Los Hornos,Ambas,5MP,FALSE
+LPR_2229,-34.981483,-58.089397,Calle 4 esquina 135,Tolosa,Norte-Sur,2K,TRUE
+LPR_2230,-34.905272,-58.052758,Calle 41 esquina 117,Barrio Universitario,Ambas,2K,TRUE
+LPR_2231,-35.070487,-58.028213,Calle 66 esquina 89,Gonnet,Sur-Norte,4K,TRUE
+LPR_2232,-34.883149,-58.062206,Calle 46 esquina 58,Ángel Etcheverry,Oeste-Este,1080p,TRUE
+LPR_2233,-35.031375,-57.884423,Calle 2 esquina 134,Zona Sur,Oeste-Este,2K,FALSE
+LPR_2234,-34.830959,-57.972925,Calle 55 esquina 40,Abella,Sur-Norte,5MP,FALSE
+LPR_2235,-35.016320,-58.067674,Calle 11 esquina 84,Villa Elvira,Norte-Sur,8MP,TRUE
+LPR_2236,-34.813925,-58.072134,Calle 146 esquina 103,Centro,Norte-Sur,4K,TRUE
+LPR_2237,-34.996332,-57.833148,Calle 114 esquina 112,Ringuelet,Este-Oeste,1080p,TRUE
+LPR_2238,-34.970716,-58.066708,Calle 55 esquina 87,Ringuelet,Ambas,5MP,FALSE
+LPR_2239,-35.036949,-57.900760,Calle 75 esquina 100,Villa Elvira,Sur-Norte,2K,FALSE
+LPR_2240,-34.925921,-57.893248,Calle 55 esquina 122,Tolosa,Este-Oeste,8MP,FALSE
+LPR_2241,-35.053078,-58.053720,Calle 65 esquina 2,Tolosa,Este-Oeste,8MP,FALSE
+LPR_2242,-34.978456,-57.880757,Calle 124 esquina 89,Zona Norte,Ambas,4K,FALSE
+LPR_2243,-34.903045,-57.847306,Calle 95 esquina 52,Este,Ambas,5MP,FALSE
+LPR_2244,-34.872502,-58.000121,Calle 7 esquina 44,Parque Saavedra,Este-Oeste,4K,TRUE
+LPR_2245,-34.931532,-58.005024,Calle 118 esquina 18,Zona Norte,Este-Oeste,4K,TRUE
+LPR_2246,-34.988795,-58.084451,Calle 115 esquina 129,Zona Norte,Norte-Sur,1080p,TRUE
+LPR_2247,-34.935091,-58.082387,Calle 101 esquina 66,Barrio Universitario,Sur-Norte,2K,FALSE
+LPR_2248,-35.045038,-57.830625,Calle 28 esquina 136,San Carlos,Ambas,4K,FALSE
+LPR_2249,-34.952698,-57.916231,Calle 112 esquina 126,Abella,Oeste-Este,1080p,FALSE
+LPR_2250,-34.856873,-57.939795,Calle 118 esquina 141,Oeste,Oeste-Este,2K,FALSE
+LPR_2251,-34.947574,-58.092347,Calle 39 esquina 107,Gonnet,Este-Oeste,8MP,TRUE
+LPR_2252,-35.061567,-57.920214,Calle 81 esquina 141,Ángel Etcheverry,Oeste-Este,1080p,FALSE
+LPR_2253,-34.847901,-57.956854,Calle 56 esquina 41,Oeste,Norte-Sur,2K,FALSE
+LPR_2254,-35.054966,-57.983143,Calle 20 esquina 30,Zona Sur,Norte-Sur,4K,FALSE
+LPR_2255,-35.009277,-57.856274,Calle 70 esquina 113,Zona Norte,Norte-Sur,8MP,TRUE
+LPR_2256,-34.934528,-58.028058,Calle 35 esquina 57,Los Hornos,Oeste-Este,1080p,FALSE
+LPR_2257,-34.955705,-58.073232,Calle 113 esquina 13,Nueva República,Sur-Norte,8MP,TRUE
+LPR_2258,-35.068590,-57.845096,Calle 142 esquina 6,Villa Elvira,Este-Oeste,2K,FALSE
+LPR_2259,-34.860492,-57.992546,Calle 77 esquina 141,Abella,Norte-Sur,5MP,TRUE
+LPR_2260,-34.902504,-57.943898,Calle 112 esquina 65,Abella,Sur-Norte,8MP,FALSE
+LPR_2261,-34.846683,-57.853420,Calle 128 esquina 112,Oeste,Ambas,8MP,TRUE
+LPR_2262,-34.791898,-57.896318,Calle 19 esquina 145,Centro,Ambas,8MP,FALSE
+LPR_2263,-34.971921,-57.986843,Calle 135 esquina 120,Los Hornos,Ambas,1080p,FALSE
+LPR_2264,-35.021447,-57.991576,Calle 2 esquina 117,Este,Sur-Norte,1080p,FALSE
+LPR_2265,-34.892544,-58.047175,Calle 86 esquina 10,Parque Saavedra,Sur-Norte,2K,FALSE
+LPR_2266,-34.890932,-58.071961,Calle 67 esquina 140,Zona Sur,Norte-Sur,2K,TRUE
+LPR_2267,-34.849279,-57.994948,Calle 75 esquina 93,Abella,Ambas,1080p,FALSE
+LPR_2268,-34.809491,-57.921054,Calle 70 esquina 65,Ringuelet,Norte-Sur,2K,TRUE
+LPR_2269,-35.019783,-58.046774,Calle 122 esquina 56,Villa Elvira,Norte-Sur,4K,TRUE
+LPR_2270,-35.048101,-58.044908,Calle 95 esquina 6,Parque Saavedra,Oeste-Este,2K,TRUE
+LPR_2271,-34.998095,-58.028854,Calle 83 esquina 62,Gonnet,Este-Oeste,4K,FALSE
+LPR_2272,-34.904561,-58.054216,Calle 51 esquina 12,Villa Elvira,Norte-Sur,2K,TRUE
+LPR_2273,-35.058620,-57.959816,Calle 46 esquina 11,Parque Saavedra,Ambas,4K,TRUE
+LPR_2274,-34.905671,-58.007702,Calle 10 esquina 14,Tolosa,Este-Oeste,4K,FALSE
+LPR_2275,-35.014605,-58.057689,Calle 94 esquina 45,Centro,Oeste-Este,5MP,FALSE
+LPR_2276,-34.996429,-58.057625,Calle 4 esquina 1,Zona Sur,Ambas,1080p,TRUE
+LPR_2277,-34.923761,-57.930369,Calle 54 esquina 12,Abella,Ambas,4K,FALSE
+LPR_2278,-34.825761,-58.024808,Calle 132 esquina 57,Los Hornos,Ambas,8MP,FALSE
+LPR_2279,-35.055847,-57.961295,Calle 100 esquina 141,Parque Saavedra,Norte-Sur,1080p,TRUE
+LPR_2280,-34.906888,-57.922469,Calle 121 esquina 96,Gonnet,Norte-Sur,1080p,TRUE
+LPR_2281,-34.966087,-57.953178,Calle 148 esquina 52,Abella,Ambas,4K,TRUE
+LPR_2282,-34.977467,-57.885162,Calle 40 esquina 4,Este,Ambas,2K,TRUE
+LPR_2283,-34.949458,-57.837481,Calle 96 esquina 122,San Carlos,Norte-Sur,1080p,FALSE
+LPR_2284,-35.050513,-58.083098,Calle 104 esquina 91,Tolosa,Este-Oeste,2K,FALSE
+LPR_2285,-35.014998,-58.092116,Calle 149 esquina 140,Zona Sur,Norte-Sur,5MP,FALSE
+LPR_2286,-34.906041,-57.833535,Calle 97 esquina 48,Ringuelet,Oeste-Este,8MP,TRUE
+LPR_2287,-34.952364,-58.066622,Calle 25 esquina 51,Zona Norte,Norte-Sur,4K,TRUE
+LPR_2288,-34.896891,-57.855860,Calle 139 esquina 101,Ringuelet,Ambas,8MP,TRUE
+LPR_2289,-34.909616,-57.838929,Calle 65 esquina 124,Ángel Etcheverry,Ambas,5MP,TRUE
+LPR_2290,-34.830327,-58.037274,Calle 132 esquina 126,Barrio Universitario,Norte-Sur,5MP,FALSE
+LPR_2291,-34.792560,-58.021740,Calle 62 esquina 102,Ringuelet,Sur-Norte,5MP,TRUE
+LPR_2292,-34.818063,-58.064641,Calle 32 esquina 115,Abella,Oeste-Este,2K,TRUE
+LPR_2293,-34.800604,-58.094774,Calle 107 esquina 29,Nueva República,Ambas,8MP,FALSE
+LPR_2294,-34.926826,-58.083224,Calle 131 esquina 93,Ángel Etcheverry,Sur-Norte,1080p,FALSE
+LPR_2295,-34.951924,-57.881442,Calle 104 esquina 82,Zona Sur,Este-Oeste,1080p,TRUE
+LPR_2296,-34.869595,-58.044963,Calle 148 esquina 123,Centro,Este-Oeste,1080p,FALSE
+LPR_2297,-34.815419,-58.044064,Calle 20 esquina 89,Villa Elvira,Sur-Norte,2K,TRUE
+LPR_2298,-34.883262,-57.995877,Calle 145 esquina 73,Ángel Etcheverry,Oeste-Este,4K,FALSE
+LPR_2299,-34.878996,-57.887152,Calle 1 esquina 78,Ángel Etcheverry,Sur-Norte,5MP,FALSE
+LPR_2300,-35.058995,-57.812409,Calle 124 esquina 52,Este,Norte-Sur,4K,FALSE
+LPR_2301,-34.906749,-57.846789,Calle 19 esquina 42,Centro,Este-Oeste,8MP,TRUE
+LPR_2302,-34.783415,-57.990609,Calle 28 esquina 8,Barrio Universitario,Sur-Norte,8MP,TRUE
+LPR_2303,-34.964966,-57.906385,Calle 63 esquina 103,Los Hornos,Oeste-Este,5MP,TRUE
+LPR_2304,-34.776876,-58.058429,Calle 104 esquina 72,Gonnet,Este-Oeste,1080p,FALSE
+LPR_2305,-34.863312,-58.053021,Calle 94 esquina 4,Zona Norte,Oeste-Este,4K,FALSE
+LPR_2306,-34.913078,-57.969792,Calle 94 esquina 111,Zona Norte,Oeste-Este,1080p,FALSE
+LPR_2307,-34.975848,-57.984105,Calle 140 esquina 76,Zona Norte,Ambas,5MP,TRUE
+LPR_2308,-34.959196,-58.090413,Calle 92 esquina 118,Villa Elvira,Oeste-Este,8MP,FALSE
+LPR_2309,-35.029402,-58.024906,Calle 12 esquina 40,Barrio Universitario,Norte-Sur,2K,TRUE
+LPR_2310,-34.833567,-58.030643,Calle 149 esquina 34,Zona Sur,Sur-Norte,8MP,FALSE
+LPR_2311,-34.866196,-57.832197,Calle 57 esquina 12,Nueva República,Norte-Sur,8MP,TRUE
+LPR_2312,-34.908537,-57.951091,Calle 54 esquina 41,Oeste,Este-Oeste,5MP,FALSE
+LPR_2313,-35.062734,-57.979415,Calle 110 esquina 136,Tolosa,Norte-Sur,2K,TRUE
+LPR_2314,-35.017460,-58.037362,Calle 143 esquina 113,Los Hornos,Oeste-Este,4K,FALSE
+LPR_2315,-34.800817,-58.025650,Calle 30 esquina 101,Nueva República,Este-Oeste,2K,FALSE
+LPR_2316,-34.941932,-58.017917,Calle 65 esquina 75,Este,Oeste-Este,8MP,FALSE
+LPR_2317,-34.893005,-58.017209,Calle 104 esquina 42,Barrio Universitario,Sur-Norte,8MP,FALSE
+LPR_2318,-34.930435,-57.868365,Calle 138 esquina 51,Centro,Sur-Norte,1080p,TRUE
+LPR_2319,-34.936503,-57.884328,Calle 28 esquina 17,Gonnet,Oeste-Este,2K,FALSE
+LPR_2320,-34.967608,-57.838520,Calle 84 esquina 26,Tolosa,Ambas,5MP,TRUE
+LPR_2321,-34.843220,-57.906349,Calle 43 esquina 147,Abella,Oeste-Este,4K,TRUE
+LPR_2322,-34.983454,-57.870105,Calle 47 esquina 35,Tolosa,Este-Oeste,5MP,FALSE
+LPR_2323,-34.820509,-57.981985,Calle 48 esquina 31,Villa Elvira,Oeste-Este,4K,FALSE
+LPR_2324,-35.010263,-57.984480,Calle 128 esquina 101,Villa Elvira,Oeste-Este,8MP,FALSE
+LPR_2325,-34.982373,-57.943858,Calle 105 esquina 17,Centro,Ambas,4K,FALSE
+LPR_2326,-35.051595,-58.055580,Calle 122 esquina 20,Este,Ambas,2K,TRUE
+LPR_2327,-34.832416,-58.018272,Calle 95 esquina 46,Barrio Universitario,Norte-Sur,4K,FALSE
+LPR_2328,-34.963544,-58.044335,Calle 67 esquina 30,Tolosa,Norte-Sur,8MP,FALSE
+LPR_2329,-34.926054,-57.856290,Calle 65 esquina 2,Oeste,Oeste-Este,2K,FALSE
+LPR_2330,-34.917889,-58.008327,Calle 147 esquina 118,Nueva República,Ambas,2K,TRUE
+LPR_2331,-34.841629,-57.838210,Calle 38 esquina 119,Este,Oeste-Este,4K,FALSE
+LPR_2332,-34.910599,-58.087240,Calle 105 esquina 89,Este,Ambas,4K,TRUE
+LPR_2333,-34.992071,-57.874965,Calle 118 esquina 19,Gonnet,Ambas,2K,FALSE
+LPR_2334,-34.846159,-57.881408,Calle 72 esquina 76,San Carlos,Norte-Sur,8MP,FALSE
+LPR_2335,-34.806822,-58.054305,Calle 103 esquina 51,Oeste,Este-Oeste,1080p,TRUE
+LPR_2336,-35.047648,-57.874689,Calle 46 esquina 60,Oeste,Ambas,8MP,FALSE
+LPR_2337,-35.037947,-57.814202,Calle 150 esquina 2,San Carlos,Ambas,2K,TRUE
+LPR_2338,-34.981121,-57.979101,Calle 148 esquina 146,Zona Sur,Este-Oeste,4K,TRUE
+LPR_2339,-34.997891,-57.872933,Calle 110 esquina 5,Ringuelet,Oeste-Este,4K,TRUE
+LPR_2340,-34.858003,-57.949752,Calle 55 esquina 69,Villa Elvira,Este-Oeste,1080p,TRUE
+LPR_2341,-35.062684,-58.041689,Calle 121 esquina 86,Zona Sur,Este-Oeste,2K,TRUE
+LPR_2342,-35.023518,-57.805346,Calle 106 esquina 96,Oeste,Sur-Norte,4K,TRUE
+LPR_2343,-34.997407,-57.869841,Calle 24 esquina 44,Barrio Universitario,Este-Oeste,1080p,FALSE
+LPR_2344,-34.998479,-57.980490,Calle 104 esquina 29,Villa Elvira,Norte-Sur,4K,TRUE
+LPR_2345,-35.008167,-58.014062,Calle 139 esquina 48,Zona Norte,Oeste-Este,4K,FALSE
+LPR_2346,-34.786897,-57.903182,Calle 119 esquina 53,Ángel Etcheverry,Sur-Norte,2K,FALSE
+LPR_2347,-34.787208,-58.086709,Calle 35 esquina 46,San Carlos,Sur-Norte,2K,TRUE
+LPR_2348,-34.922846,-58.079232,Calle 125 esquina 149,Abella,Sur-Norte,2K,TRUE
+LPR_2349,-34.984959,-57.866847,Calle 10 esquina 148,Parque Saavedra,Este-Oeste,1080p,FALSE
+LPR_2350,-34.776097,-57.941600,Calle 123 esquina 6,Gonnet,Oeste-Este,1080p,FALSE
+LPR_2351,-34.949359,-58.082074,Calle 87 esquina 137,Abella,Oeste-Este,8MP,TRUE
+LPR_2352,-34.998002,-57.880667,Calle 107 esquina 27,Barrio Universitario,Norte-Sur,4K,TRUE
+LPR_2353,-35.012803,-58.002342,Calle 135 esquina 62,Los Hornos,Ambas,8MP,TRUE
+LPR_2354,-35.055053,-57.856569,Calle 29 esquina 38,Oeste,Oeste-Este,8MP,FALSE
+LPR_2355,-34.776513,-58.052711,Calle 60 esquina 34,San Carlos,Sur-Norte,1080p,TRUE
+LPR_2356,-34.923938,-58.042208,Calle 30 esquina 121,Parque Saavedra,Este-Oeste,4K,FALSE
+LPR_2357,-34.938825,-57.967388,Calle 70 esquina 129,Los Hornos,Este-Oeste,2K,TRUE
+LPR_2358,-34.843849,-58.104677,Calle 121 esquina 130,Centro,Oeste-Este,4K,FALSE
+LPR_2359,-34.847116,-57.888144,Calle 101 esquina 144,Zona Sur,Norte-Sur,5MP,TRUE
+LPR_2360,-34.845700,-58.030024,Calle 69 esquina 113,Tolosa,Norte-Sur,4K,TRUE
+LPR_2361,-35.054593,-57.846112,Calle 104 esquina 143,Centro,Este-Oeste,1080p,FALSE
+LPR_2362,-34.920073,-58.085403,Calle 33 esquina 98,Tolosa,Este-Oeste,4K,FALSE
+LPR_2363,-34.873282,-57.896335,Calle 85 esquina 145,San Carlos,Norte-Sur,8MP,TRUE
+LPR_2364,-35.056934,-58.095580,Calle 89 esquina 133,Barrio Universitario,Norte-Sur,5MP,FALSE
+LPR_2365,-34.789637,-58.054697,Calle 133 esquina 79,Villa Elvira,Este-Oeste,1080p,FALSE
+LPR_2366,-34.974049,-57.965877,Calle 5 esquina 109,Zona Sur,Norte-Sur,1080p,FALSE
+LPR_2367,-35.010498,-57.885868,Calle 29 esquina 2,Zona Norte,Ambas,4K,TRUE
+LPR_2368,-35.019217,-58.086846,Calle 58 esquina 98,San Carlos,Sur-Norte,1080p,TRUE
+LPR_2369,-35.000905,-57.828299,Calle 43 esquina 5,Tolosa,Este-Oeste,5MP,TRUE
+LPR_2370,-35.060626,-57.888320,Calle 94 esquina 38,Ringuelet,Ambas,2K,FALSE
+LPR_2371,-34.848529,-58.001403,Calle 127 esquina 130,Los Hornos,Este-Oeste,8MP,FALSE
+LPR_2372,-34.844946,-57.979546,Calle 134 esquina 131,Barrio Universitario,Ambas,2K,FALSE
+LPR_2373,-34.863622,-58.068970,Calle 105 esquina 100,San Carlos,Ambas,8MP,TRUE
+LPR_2374,-34.935669,-57.874316,Calle 88 esquina 58,Parque Saavedra,Norte-Sur,1080p,FALSE
+LPR_2375,-34.952475,-58.015903,Calle 141 esquina 113,Ringuelet,Norte-Sur,8MP,TRUE
+LPR_2376,-34.802869,-57.831583,Calle 99 esquina 94,Los Hornos,Norte-Sur,1080p,TRUE
+LPR_2377,-35.007615,-57.917167,Calle 82 esquina 27,Nueva República,Ambas,8MP,FALSE
+LPR_2378,-35.012459,-58.042985,Calle 11 esquina 109,Centro,Sur-Norte,5MP,TRUE
+LPR_2379,-34.802853,-57.832467,Calle 65 esquina 132,Este,Este-Oeste,4K,TRUE
+LPR_2380,-35.024609,-57.973382,Calle 101 esquina 54,Zona Norte,Sur-Norte,4K,FALSE
+LPR_2381,-34.978663,-57.834496,Calle 19 esquina 150,Gonnet,Oeste-Este,2K,TRUE
+LPR_2382,-34.969998,-57.981800,Calle 95 esquina 106,Zona Sur,Oeste-Este,2K,TRUE
+LPR_2383,-34.866867,-58.011058,Calle 7 esquina 40,Parque Saavedra,Oeste-Este,2K,FALSE
+LPR_2384,-34.931223,-58.094706,Calle 120 esquina 52,Parque Saavedra,Este-Oeste,2K,FALSE
+LPR_2385,-34.906510,-57.961707,Calle 29 esquina 71,Ángel Etcheverry,Sur-Norte,4K,TRUE
+LPR_2386,-34.793822,-57.987011,Calle 89 esquina 102,Oeste,Ambas,5MP,FALSE
+LPR_2387,-34.890631,-57.820225,Calle 123 esquina 8,Abella,Norte-Sur,1080p,FALSE
+LPR_2388,-34.827301,-57.869065,Calle 87 esquina 102,Oeste,Oeste-Este,1080p,TRUE
+LPR_2389,-34.817290,-58.080826,Calle 9 esquina 120,Villa Elvira,Ambas,8MP,TRUE
+LPR_2390,-34.897597,-57.987365,Calle 13 esquina 40,Gonnet,Norte-Sur,8MP,TRUE
+LPR_2391,-34.949870,-57.888324,Calle 9 esquina 120,Zona Sur,Oeste-Este,2K,TRUE
+LPR_2392,-35.027836,-57.987451,Calle 29 esquina 61,Zona Sur,Este-Oeste,4K,TRUE
+LPR_2393,-35.000052,-57.810337,Calle 96 esquina 11,Tolosa,Norte-Sur,1080p,TRUE
+LPR_2394,-35.034098,-58.017411,Calle 144 esquina 110,Villa Elvira,Ambas,4K,FALSE
+LPR_2395,-34.993522,-58.013658,Calle 133 esquina 98,Parque Saavedra,Norte-Sur,2K,TRUE
+LPR_2396,-34.872182,-57.830265,Calle 77 esquina 20,Nueva República,Norte-Sur,2K,TRUE
+LPR_2397,-34.987326,-57.907072,Calle 148 esquina 13,Nueva República,Oeste-Este,4K,TRUE
+LPR_2398,-34.917662,-58.042378,Calle 51 esquina 49,Los Hornos,Norte-Sur,2K,TRUE
+LPR_2399,-34.900923,-57.829310,Calle 84 esquina 101,Parque Saavedra,Ambas,5MP,TRUE
+LPR_2400,-34.878369,-57.983758,Calle 24 esquina 7,Los Hornos,Este-Oeste,1080p,FALSE
+LPR_2401,-34.856881,-58.043369,Calle 31 esquina 30,Abella,Este-Oeste,5MP,FALSE
+LPR_2402,-34.857508,-57.902075,Calle 115 esquina 132,Nueva República,Este-Oeste,1080p,TRUE
+LPR_2403,-34.999313,-57.851091,Calle 131 esquina 95,Gonnet,Norte-Sur,2K,FALSE
+LPR_2404,-34.896100,-57.952394,Calle 136 esquina 38,Barrio Universitario,Este-Oeste,4K,TRUE
+LPR_2405,-35.027739,-57.966894,Calle 32 esquina 127,San Carlos,Norte-Sur,2K,TRUE
+LPR_2406,-35.028227,-57.867935,Calle 2 esquina 107,Tolosa,Norte-Sur,2K,FALSE
+LPR_2407,-34.899466,-57.957542,Calle 12 esquina 135,Barrio Universitario,Ambas,8MP,FALSE
+LPR_2408,-34.934237,-57.928183,Calle 3 esquina 21,Los Hornos,Ambas,1080p,FALSE
+LPR_2409,-35.016192,-57.836931,Calle 19 esquina 146,Este,Oeste-Este,8MP,FALSE
+LPR_2410,-34.978630,-57.875643,Calle 44 esquina 119,Ringuelet,Oeste-Este,4K,TRUE
+LPR_2411,-34.783114,-57.843876,Calle 28 esquina 93,Tolosa,Ambas,1080p,TRUE
+LPR_2412,-34.974004,-57.938334,Calle 139 esquina 1,Oeste,Ambas,2K,TRUE
+LPR_2413,-35.020366,-57.877599,Calle 72 esquina 54,Gonnet,Norte-Sur,1080p,FALSE
+LPR_2414,-34.969543,-57.858702,Calle 116 esquina 21,Zona Norte,Este-Oeste,1080p,TRUE
+LPR_2415,-34.896386,-57.921013,Calle 131 esquina 53,Zona Sur,Norte-Sur,1080p,FALSE
+LPR_2416,-34.825266,-57.982467,Calle 75 esquina 32,Ringuelet,Norte-Sur,5MP,FALSE
+LPR_2417,-34.972887,-57.927362,Calle 104 esquina 147,Nueva República,Este-Oeste,2K,FALSE
+LPR_2418,-34.795166,-57.851009,Calle 16 esquina 37,Zona Norte,Norte-Sur,4K,TRUE
+LPR_2419,-34.981354,-57.989938,Calle 6 esquina 101,Zona Sur,Norte-Sur,4K,FALSE
+LPR_2420,-35.016138,-57.998186,Calle 104 esquina 85,Los Hornos,Este-Oeste,2K,TRUE
+LPR_2421,-34.772869,-57.847050,Calle 8 esquina 88,Parque Saavedra,Norte-Sur,1080p,FALSE
+LPR_2422,-35.047554,-58.034876,Calle 84 esquina 42,Centro,Oeste-Este,4K,TRUE
+LPR_2423,-34.939365,-57.944564,Calle 19 esquina 69,Barrio Universitario,Oeste-Este,8MP,FALSE
+LPR_2424,-34.944991,-57.952513,Calle 27 esquina 112,Los Hornos,Oeste-Este,8MP,TRUE
+LPR_2425,-35.019515,-57.835276,Calle 103 esquina 10,San Carlos,Sur-Norte,1080p,FALSE
+LPR_2426,-35.041036,-58.052885,Calle 11 esquina 54,Tolosa,Oeste-Este,8MP,TRUE
+LPR_2427,-34.849003,-57.920016,Calle 135 esquina 41,Ángel Etcheverry,Este-Oeste,8MP,TRUE
+LPR_2428,-34.880409,-57.987697,Calle 121 esquina 36,Tolosa,Norte-Sur,2K,TRUE
+LPR_2429,-34.958242,-57.868935,Calle 142 esquina 64,Zona Norte,Norte-Sur,2K,TRUE
+LPR_2430,-34.911839,-57.915170,Calle 35 esquina 49,Ángel Etcheverry,Sur-Norte,5MP,TRUE
+LPR_2431,-34.996901,-57.828388,Calle 77 esquina 126,Oeste,Sur-Norte,5MP,FALSE
+LPR_2432,-34.821140,-57.818519,Calle 89 esquina 118,Villa Elvira,Este-Oeste,2K,FALSE
+LPR_2433,-34.859829,-57.967854,Calle 136 esquina 42,Gonnet,Ambas,5MP,TRUE
+LPR_2434,-34.898834,-57.950721,Calle 118 esquina 99,San Carlos,Ambas,2K,FALSE
+LPR_2435,-34.827861,-57.999278,Calle 137 esquina 59,San Carlos,Este-Oeste,2K,TRUE
+LPR_2436,-34.947728,-58.030717,Calle 47 esquina 57,San Carlos,Norte-Sur,1080p,TRUE
+LPR_2437,-34.917916,-57.957794,Calle 5 esquina 66,Este,Norte-Sur,8MP,TRUE
+LPR_2438,-35.032165,-57.856050,Calle 114 esquina 86,Barrio Universitario,Ambas,2K,TRUE
+LPR_2439,-34.817266,-57.944885,Calle 63 esquina 1,Villa Elvira,Oeste-Este,1080p,TRUE
+LPR_2440,-34.772605,-58.022588,Calle 63 esquina 21,Ángel Etcheverry,Norte-Sur,5MP,FALSE
+LPR_2441,-34.791154,-58.073588,Calle 65 esquina 56,Este,Sur-Norte,2K,TRUE
+LPR_2442,-34.892428,-58.100959,Calle 61 esquina 114,Este,Oeste-Este,4K,FALSE
+LPR_2443,-34.885017,-58.076518,Calle 144 esquina 23,Ringuelet,Oeste-Este,1080p,FALSE
+LPR_2444,-34.788887,-57.865579,Calle 95 esquina 48,Ángel Etcheverry,Oeste-Este,2K,TRUE
+LPR_2445,-34.986713,-57.912898,Calle 54 esquina 89,Ringuelet,Este-Oeste,1080p,FALSE
+LPR_2446,-34.853997,-58.072176,Calle 7 esquina 100,Nueva República,Norte-Sur,2K,FALSE
+LPR_2447,-35.059857,-57.984704,Calle 122 esquina 25,Zona Norte,Oeste-Este,8MP,FALSE
+LPR_2448,-34.809158,-57.924934,Calle 1 esquina 118,Tolosa,Norte-Sur,5MP,TRUE
+LPR_2449,-34.807234,-58.048764,Calle 4 esquina 16,Centro,Norte-Sur,4K,TRUE
+LPR_2450,-35.052846,-57.896898,Calle 30 esquina 16,Tolosa,Ambas,8MP,FALSE
+LPR_2451,-34.980390,-58.012351,Calle 85 esquina 148,Zona Sur,Norte-Sur,4K,FALSE
+LPR_2452,-34.945346,-57.924682,Calle 90 esquina 56,Zona Norte,Norte-Sur,2K,FALSE
+LPR_2453,-34.881411,-58.034258,Calle 73 esquina 42,Ángel Etcheverry,Norte-Sur,2K,FALSE
+LPR_2454,-34.873859,-57.825757,Calle 109 esquina 55,Centro,Este-Oeste,1080p,TRUE
+LPR_2455,-34.978730,-58.036027,Calle 118 esquina 103,Ángel Etcheverry,Sur-Norte,5MP,FALSE
+LPR_2456,-34.774889,-58.067878,Calle 149 esquina 34,Villa Elvira,Sur-Norte,2K,FALSE
+LPR_2457,-34.971441,-57.944579,Calle 71 esquina 103,Nueva República,Ambas,8MP,FALSE
+LPR_2458,-34.878402,-57.922142,Calle 115 esquina 42,Tolosa,Norte-Sur,4K,TRUE
+LPR_2459,-35.003235,-57.915236,Calle 58 esquina 99,Barrio Universitario,Norte-Sur,5MP,TRUE
+LPR_2460,-34.863564,-57.853741,Calle 65 esquina 75,Ringuelet,Ambas,2K,FALSE
+LPR_2461,-34.970100,-57.908320,Calle 87 esquina 121,Barrio Universitario,Sur-Norte,4K,FALSE
+LPR_2462,-35.000546,-57.918990,Calle 22 esquina 12,Ringuelet,Oeste-Este,8MP,FALSE
+LPR_2463,-35.053360,-57.948388,Calle 122 esquina 102,Nueva República,Ambas,4K,TRUE
+LPR_2464,-34.829220,-58.090829,Calle 9 esquina 2,Abella,Norte-Sur,2K,TRUE
+LPR_2465,-35.047578,-57.822387,Calle 80 esquina 135,Centro,Este-Oeste,4K,FALSE
+LPR_2466,-34.803075,-57.820027,Calle 31 esquina 42,Parque Saavedra,Norte-Sur,4K,TRUE
+LPR_2467,-34.989375,-57.817112,Calle 7 esquina 24,Oeste,Oeste-Este,8MP,FALSE
+LPR_2468,-34.948507,-58.047440,Calle 145 esquina 110,Parque Saavedra,Norte-Sur,5MP,TRUE
+LPR_2469,-34.905504,-58.040979,Calle 142 esquina 145,Villa Elvira,Este-Oeste,1080p,FALSE
+LPR_2470,-35.065962,-58.104001,Calle 28 esquina 27,Los Hornos,Oeste-Este,5MP,FALSE
+LPR_2471,-34.926843,-57.838401,Calle 110 esquina 133,Tolosa,Norte-Sur,5MP,TRUE
+LPR_2472,-34.815083,-57.852571,Calle 142 esquina 111,Nueva República,Oeste-Este,2K,FALSE
+LPR_2473,-34.911753,-57.924086,Calle 124 esquina 46,Ringuelet,Este-Oeste,2K,FALSE
+LPR_2474,-34.793104,-58.058556,Calle 53 esquina 37,Este,Norte-Sur,2K,FALSE
+LPR_2475,-35.043169,-58.003061,Calle 141 esquina 94,Ángel Etcheverry,Sur-Norte,4K,FALSE
+LPR_2476,-34.997027,-57.888840,Calle 92 esquina 126,Parque Saavedra,Ambas,2K,TRUE
+LPR_2477,-34.822012,-58.061770,Calle 17 esquina 70,Parque Saavedra,Ambas,8MP,FALSE
+LPR_2478,-34.848038,-58.014031,Calle 59 esquina 32,Ángel Etcheverry,Norte-Sur,8MP,TRUE
+LPR_2479,-34.941695,-57.809949,Calle 31 esquina 13,San Carlos,Ambas,1080p,FALSE
+LPR_2480,-34.779482,-57.946861,Calle 68 esquina 82,Nueva República,Oeste-Este,2K,TRUE
+LPR_2481,-34.863745,-58.005415,Calle 110 esquina 99,Zona Norte,Sur-Norte,2K,FALSE
+LPR_2482,-34.994924,-58.093001,Calle 64 esquina 7,Centro,Ambas,2K,FALSE
+LPR_2483,-35.046904,-57.959114,Calle 117 esquina 35,Ringuelet,Este-Oeste,8MP,TRUE
+LPR_2484,-34.904778,-57.993415,Calle 25 esquina 95,Abella,Sur-Norte,1080p,TRUE
+LPR_2485,-34.993447,-57.960221,Calle 115 esquina 17,Villa Elvira,Este-Oeste,4K,FALSE
+LPR_2486,-34.830620,-58.050546,Calle 94 esquina 126,Villa Elvira,Este-Oeste,1080p,FALSE
+LPR_2487,-34.820567,-57.843602,Calle 144 esquina 108,Ángel Etcheverry,Ambas,4K,FALSE
+LPR_2488,-34.908180,-57.849376,Calle 40 esquina 119,Este,Oeste-Este,1080p,FALSE
+LPR_2489,-34.787487,-58.087256,Calle 150 esquina 148,Abella,Este-Oeste,2K,TRUE
+LPR_2490,-34.864688,-57.868853,Calle 64 esquina 86,Nueva República,Sur-Norte,8MP,FALSE
+LPR_2491,-34.809169,-57.851987,Calle 58 esquina 101,Ángel Etcheverry,Sur-Norte,4K,FALSE
+LPR_2492,-35.018587,-57.983368,Calle 67 esquina 66,Zona Sur,Norte-Sur,5MP,TRUE
+LPR_2493,-34.944799,-57.865555,Calle 129 esquina 36,San Carlos,Este-Oeste,8MP,FALSE
+LPR_2494,-34.914449,-58.058065,Calle 43 esquina 5,Zona Sur,Oeste-Este,5MP,FALSE
+LPR_2495,-35.057136,-57.954703,Calle 59 esquina 58,Los Hornos,Norte-Sur,2K,TRUE
+LPR_2496,-34.843941,-57.912960,Calle 69 esquina 64,Tolosa,Este-Oeste,5MP,TRUE
+LPR_2497,-35.037264,-58.013322,Calle 8 esquina 148,Barrio Universitario,Este-Oeste,8MP,FALSE
+LPR_2498,-34.907713,-57.967884,Calle 97 esquina 57,Este,Sur-Norte,8MP,TRUE
+LPR_2499,-34.947662,-57.972555,Calle 129 esquina 1,Oeste,Este-Oeste,2K,TRUE

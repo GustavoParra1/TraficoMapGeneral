@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Usuarios Admin - TraficoMap</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+  <div id="app" class="d-flex">
+    <!-- Sidebar -->
+    <nav class="sidebar bg-light">
+      <div class="sidebar-header">
+        <h5>TraficoMap</h5>
+        <small>Admin Panel</small>
+      </div>
+
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a href="../index.html" class="nav-link">
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="../clientes/index.html" class="nav-link">
+            <i class="bi bi-people"></i> Clientes
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="../subscripciones/index.html" class="nav-link">
+            <i class="bi bi-credit-card"></i> Suscripciones
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="../billing/index.html" class="nav-link">
+            <i class="bi bi-file-earmark-pdf"></i> Billing
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link active" style="background-color: rgba(102, 126, 234, 0.2); border-left: 4px solid #667eea;">
+            <i class="bi bi-shield-lock"></i> Usuarios
+          </a>
+        </li>
+      </ul>
+
+      <hr />
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="btn btn-sm btn-outline-danger w-100">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content flex-grow-1">
+      <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container-fluid">
+          <span class="navbar-brand">
+            <i class="bi bi-shield-lock"></i> Gestión de Usuarios Admin
+          </span>
+          <div class="ms-auto">
+            <button id="navbarLogout" class="btn btn-sm btn-outline-danger">
+              Logout
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <div class="container-fluid p-4">
+        <div id="alertas"></div>
+
+        <div class="row mb-4">
+          <div class="col">
+            <h3>Usuarios Admin</h3>
+            <p class="text-muted">Gestiona usuarios y permisos del panel administrativo</p>
+          </div>
+          <div class="col-auto">
+            <button id="btnCrearUsuario" class="btn btn-primary btn-lg">
+              <i class="bi bi-person-plus"></i> Crear Usuario
+            </button>
+          </div>
+        </div>
+
+        <!-- Info Roles -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Roles Disponibles</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <h6><span class="badge bg-danger">Admin</span></h6>
+                <small>Acceso total al panel. Gestiona clientes, suscripciones, billing y usuarios.</small>
+              </div>
+              <div class="col-md-3">
+                <h6><span class="badge bg-warning text-dark">Operator</span></h6>
+                <small>Gestión de operaciones. Lectura y actualización de clientes y suscripciones.</small>
+              </div>
+              <div class="col-md-3">
+                <h6><span class="badge bg-info">Billing</span></h6>
+                <small>Gestión de facturación y pagos. Control total de billing.</small>
+              </div>
+              <div class="col-md-3">
+                <h6><span class="badge bg-secondary">Viewer</span></h6>
+                <small>Solo lectura. Acceso a reportes y Dashboard.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <label for="searchUsuarios" class="form-label">Buscar usuario</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="searchUsuarios" 
+                  placeholder="Email o nombre..."
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="card">
+          <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="bi bi-table"></i> Listado de Usuarios</h5>
+          </div>
+          <div class="card-body">
+            <div id="usuariosTable">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal: Crear Usuario -->
+  <div id="modalCrearUsuario" class="modal" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="bi bi-person-plus"></i> Crear Nuevo Usuario Admin
+          </h5>
+          <button type="button" class="btn-close btn-close-white" onclick="document.getElementById('modalCrearUsuario').style.display='none'"></button>
+        </div>
+
+        <form id="formCrearUsuario">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="nombreUsuario" class="form-label">Nombre *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="nombreUsuario" 
+                placeholder="Ej: Juan García"
+                required 
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="emailUsuario" class="form-label">Email *</label>
+              <input 
+                type="email" 
+                class="form-control" 
+                id="emailUsuario" 
+                placeholder="juan@trafico-map.admin"
+                required 
+              />
+              <small class="text-muted">Este será el nombre de usuario para login</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="roleUsuario" class="form-label">Role *</label>
+              <select class="form-select" id="roleUsuario" required>
+                <option value="">-- Seleccionar role --</option>
+                <option value="admin">Admin (Acceso total)</option>
+                <option value="operator">Operator (Operaciones)</option>
+                <option value="billing">Billing (Facturación)</option>
+                <option value="viewer">Viewer (Solo lectura)</option>
+              </select>
+            </div>
+
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle"></i>
+              <strong>Importante:</strong> El usuario recibirá un email con instrucciones para establece su contraseña.
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('modalCrearUsuario').style.display='none'">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-circle"></i> Crear Usuario
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Overlay Click Close -->
+  <script>
+    window.onclick = function(event) {
+      const modal = document.getElementById('modalCrearUsuario');
+      if (event.target === modal) modal.style.display = 'none';
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-analytics-compat.js"></script>
+
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/usuarios-manager.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        await new Promise((resolve) => {
+          const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            unsubscribe();
+            if (!user || !user.customClaims?.role === 'admin') {
+              window.location.href = '../index.html';
+              return;
+            }
+            await usuariosManager.init();
+            resolve();
+          });
+        });
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await auth.signOut();
+      window.location.href = '../index.html';
+    });
+
+    document.getElementById('navbarLogout').addEventListener('click', async () => {
+      await auth.signOut();
+      window.location.href = '../index.html';
+    });
+  </script>
+</body>
+</html>

@@ -35,14 +35,18 @@ const FormatHelp = (() => {
       title: '🚗 SINIESTROS',
       description: 'Puntos de accidentes/eventos viales',
       format: 'CSV o GeoJSON (Point)',
-      csvColumns: ['lat (OBLIGATORIO)', 'lng (OBLIGATORIO)', 'causa', 'participantes', 'fecha', 'descripcion'],
-      csvExample: `lat,lng,causa,participantes,fecha,descripcion
--38.0055,-57.5521,D,A/M,2024-01-15,Choque doble
--38.0060,-57.5525,A,M/P,2024-01-16,Caída de moto`,
+      csvColumns: ['lat (OBLIGATORIO)', 'lng (OBLIGATORIO)', 'hora (RECOMENDADO)', 'causa', 'participantes', 'fecha', 'descripcion'],
+      csvExample: `lat,lng,hora,causa,participantes,fecha,descripcion
+-38.0055,-57.5521,09:30,D,A/M,2024-01-15,Choque doble
+-38.0060,-57.5525,14:15,A,M/P,2024-01-16,Caída de moto`,
       csvInfo: `
         <p style="background: #ffe0e0; padding: 10px; border-radius: 4px; margin: 10px 0;">
           <strong>⚠️ IMPORTANTE:</strong> Las columnas <code>lat</code> y <code>lng</code> son <strong>OBLIGATORIAS</strong>.
           No se soporta lookup por cámara. Todos los siniestros deben tener coordenadas exactas.
+        </p>
+        <p style="background: #fff3cd; padding: 10px; border-radius: 4px; margin: 10px 0;">
+          <strong>🕐 Propiedad RECOMENDADA - hora:</strong> Formato <code>HH:MM</code> (ej: 09:30, 14:15, 23:59)
+          Si no se proporciona, el sistema generará horas automáticas basadas en el contenido del registro.
         </p>
         <p><strong>🔴 Códigos de Causas (obligatorio si tienes el dato):</strong></p>
         <ul style="font-size: 12px; column-count: 2;">
@@ -85,10 +89,10 @@ const FormatHelp = (() => {
         </ul>
         <p><strong>⚠️ Nota:</strong> Los códigos se separan por "/" si hay múltiples (ej: A/M = Auto y Moto, P/CAM = Peatón y Camión)</p>
       `,
-      geoJsonColumns: ['causa', 'participantes', 'fecha', 'descripcion (opcionales)'],
+      geoJsonColumns: ['hora (RECOMENDADO)', 'causa', 'participantes', 'fecha', 'descripcion (opcionales)'],
       geoJsonExample: `{
   "type": "Feature",
-  "properties": { "causa": "D", "participantes": "A/M", "fecha": "2024-01-15" },
+  "properties": { "hora": "09:30", "causa": "D", "participantes": "A/M", "fecha": "2024-01-15" },
   "geometry": { "type": "Point", "coordinates": [-57.5521, -38.0055] }
 }`
     },

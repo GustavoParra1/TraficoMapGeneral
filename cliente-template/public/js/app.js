@@ -80,7 +80,7 @@ function iniciarMapa() {
 // ============================
 // CONFIGURACIÓN DE CIUDADES
 // ============================
-let currentCity = window.CONFIG?.ciudad?.id || 'cordoba'; // Lee de window.CONFIG (configuración del cliente)
+let currentCity = window.CONFIG?.ciudad || 'la-plata'; // Lee de window.CONFIG (configuración del cliente)
 let citiesConfig = null;
 let patullaLayer = null; // Módulo de patrullas
 
@@ -678,10 +678,19 @@ function populateRoboFilters() {
 // Usar sessionStorage para que cada ventana tenga su propio estado
 let authInitialized = false;
 
-auth.onAuthStateChanged((user) => {
+firebase.auth().onAuthStateChanged((user) => {
   const sidebar = document.getElementById('sidebar');
   
   if (!user) {
+    // ✅ VERIFICAR SI HAY SESIÓN RESTAURADA EN MODO CLIENTE
+    const hasRestoredSession = window.restoredClienteId && window.restoredClienteData;
+    
+    if (hasRestoredSession) {
+      // Hay sesión restaurada - permitir acceso sin login
+      console.log('✅ Cliente con sesión restaurada - permitiendo acceso');
+      return;
+    }
+    
     // Usuario NO autenticado
     // Solo si es la primera carga, mostrar login
     // Si pierde sesión después (logout en otra ventana), mantener el mapa funcionando
@@ -1387,33 +1396,48 @@ auth.onAuthStateChanged((user) => {
         });
       }
 
-      const filters = ['year-filter', 'cause-filter', 'participant-filter', 'start-hour-filter', 'end-hour-filter'];
-      
-      filters.forEach(filterId => {
-        const element = document.getElementById(filterId);
-        if (element) {
-          element.addEventListener('change', (e) => {
-            const filterMap = {
-              'year-filter': 'year',
-              'cause-filter': 'cause',
-              'participant-filter': 'participant',
-              'start-hour-filter': 'startHour',
-              'end-hour-filter': 'endHour'
-            };
-            console.log('Filter changed:', filterId, '=', e.target.value);
-            SiniestrosLayer.setFilter(filterMap[filterId], e.target.value);
-          });
+      // ==========================================
+      // CONFIGURAR LISTENERS CON EVENT DELEGATION
+      // ==========================================
+      const filterMap = {
+        'year-filter': 'year',
+        'cause-filter': 'cause',
+        'participant-filter': 'participant',
+        'start-hour-filter': 'startHour',
+        'end-hour-filter': 'endHour'
+      };
+
+      console.log('🔷 Iniciando event delegation listeners para filtros...');
+      console.log(`🔷 SiniestrosLayer existe: ${!!SiniestrosLayer}`);
+
+      // Usar delegación de eventos en el document para que funcione con elementos creados dinámicamente
+      document.addEventListener('change', (e) => {
+        const allFilterIds = Object.keys(filterMap);
+        if (allFilterIds.includes(e.target.id)) {
+          const filterId = e.target.id;
+          const filterKey = filterMap[filterId];
+          console.log(`✅ EVENT DELEGADO DISPARADO - [${filterId}] valor: "${e.target.value}"`);
+          
+          if (!SiniestrosLayer) {
+            console.error('❌ SiniestrosLayer NO EXISTE');
+          } else if (!filterKey) {
+            console.error(`❌ filterKey no encontrada para ${filterId}`);
+          } else {
+            console.log(`✅ Llamando SiniestrosLayer.setFilter("${filterKey}", "${e.target.value}")`);
+            SiniestrosLayer.setFilter(filterKey, e.target.value);
+          }
         }
       });
-      
-      // Filtro de calle (text input)
-      const streetFilter = document.getElementById('street-filter');
-      if (streetFilter) {
-        streetFilter.addEventListener('input', (e) => {
+
+      // Filtro de calle (text input) - también con delegación
+      document.addEventListener('input', (e) => {
+        if (e.target.id === 'street-filter') {
           console.log('Street filter:', e.target.value);
-          SiniestrosLayer.setFilter('street', e.target.value);
-        });
-      }
+          if (SiniestrosLayer) {
+            SiniestrosLayer.setFilter('street', e.target.value);
+          }
+        }
+      });
       
       // Botón limpiar filtros
       const clearBtn = document.getElementById('clear-filters-btn');

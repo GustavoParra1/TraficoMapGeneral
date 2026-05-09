@@ -1,0 +1,28 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/client/**",
+        "destination": "/client/index.html"
+      },
+      {
+        "source": "/admin/**",
+        "destination": "/admin/index.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html",
+        "exclude": ["**/*.js", "**/*.css", "**/*.json", "**/*.ico", "**/*.png", "**/*.jpg", "**/*.gif", "**/*.svg", "**/*.woff", "**/*.woff2", "**/*.ttf", "**/*.eot"]
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Admin Panel - TraficoMap SaaS</title>
   
   <!-- Bootstrap 5 -->
@@ -42,9 +45,30 @@
     </div>
   </div>
 
+  <!-- Modal: Detalle Cliente -->
+  <div class="modal fade" id="modalClienteDetail" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title"><i class="bi bi-info-circle"></i> Detalle del Cliente</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="clienteDetailContent">
+            <p class="text-muted">Cargando...</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="js/firebase-config.js"></script>
   <script src="js/utils.js"></script>
+  <script src="js/diagnostico-admin.js"></script>
   <script src="js/clientes-manager.js"></script>
   <script src="js/client-setup.js"></script>
   <script src="js/dashboard.js"></script>

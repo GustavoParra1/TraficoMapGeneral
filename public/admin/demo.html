@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TraficoMap - Demo del Sistema</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .demo-container {
+      display: flex;
+      height: 100vh;
+      gap: 0;
+    }
+
+    .demo-sidebar {
+      width: 350px;
+      background: white;
+      padding: 30px;
+      overflow-y: auto;
+      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .demo-logo {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .demo-title {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .demo-content {
+      flex: 1;
+    }
+
+    .demo-header {
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .demo-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .demo-header p {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .demo-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #999;
+      font-weight: 600;
+      margin-top: 20px;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .demo-feature {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .demo-feature i {
+      color: #48bb78;
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .demo-feature-text {
+      color: #333;
+    }
+
+    .demo-feature-label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .demo-map {
+      flex: 1;
+      background: #e0e0e0;
+      position: relative;
+    }
+
+    .demo-map-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .demo-map-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+    }
+
+    .demo-map-loading .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .demo-footer {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      text-align: center;
+    }
+
+    .demo-footer button {
+      width: 100%;
+      padding: 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+
+    .demo-footer button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      .demo-container {
+        flex-direction: column;
+      }
+
+      .demo-sidebar {
+        width: 100%;
+        max-height: 40vh;
+      }
+
+      .demo-map {
+        min-height: 60vh;
+      }
+    }
+
+    .badge-demo {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <!-- Sidebar Information -->
+    <div class="demo-sidebar">
+      <div class="demo-content">
+        <div class="demo-header">
+          <div class="demo-logo">🗺️</div>
+          <div class="demo-title">Demo Sistema</div>
+          <h2>TraficoMap</h2>
+          <p>Sistema integral de monitoreo municipal de tráfico y seguridad vial con análisis en tiempo real.</p>
+        </div>
+
+        <div>
+          <div class="demo-section-title">🎯 Características</div>
+          
+          <div class="demo-feature">
+            <i class="bi bi-map"></i>
+            <div class="demo-feature-text">
+              <span class="demo-feature-label">Mapa Interactivo</span>
+              Visualización geoespacial completa en tiempo real
+            </div>
+          </div>
+
+          <div class="demo-feature">
+            <i class="bi bi-pin-map"></i>
+            <div class="demo-feature-text">
+              <span class="demo-feature-label">Marcadores Dinámicos</span>
+              Cámaras, semáforos, incidentes y eventos
+            </div>
+          </div>
+
+          <div class="demo-feature">
+            <i class="bi bi-bar-chart"></i>
+            <div class="demo-feature-text">
+              <span class="demo-feature-label">Estadísticas</span>
+              Análisis y reportes del tráfico municipal
+            </div>
+          </div>
+
+          <div class="demo-feature">
+            <i class="bi bi-database"></i>
+            <div class="demo-feature-text">
+              <span class="demo-feature-label">Datos Históricos</span>
+              Almacenamiento y análisis de datos históricos
+            </div>
+          </div>
+
+          <div class="demo-feature">
+            <i class="bi bi-shield-check"></i>
+            <div class="demo-feature-text">
+              <span class="demo-feature-label">Acceso Seguro</span>
+              Autenticación y permisos por municipio
+            </div>
+          </div>
+
+          <div class="demo-feature">
+            <i class="bi bi-cloud-check"></i>
+            <div class="demo-feature-text">
+              <span class="demo-feature-label">En la Nube</span>
+              Infraestructura escalable y confiable
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="demo-section-title">📊 Datos Incluidos</div>
+          
+          <div class="demo-feature">
+            <i class="bi bi-city"></i>
+            <div class="demo-feature-text">
+              <span class="demo-feature-label">Mar del Plata</span>
+              Datos completos de cámaras y eventos
+            </div>
+          </div>
+
+          <div class="demo-feature">
+            <i class="bi bi-city"></i>
+            <div class="demo-feature-text">
+              <span class="demo-feature-label">Córdoba</span>
+              Integración con sistema local
+            </div>
+          </div>
+        </div>
+
+        <div class="badge-demo">
+          ✨ Prueba la interfaz interactiva
+        </div>
+      </div>
+
+      <div class="demo-footer">
+        <button onclick="volverAlAdmin()">
+          <i class="bi bi-arrow-left"></i> Volver al Admin
+        </button>
+      </div>
+    </div>
+
+    <!-- Map Display -->
+    <div class="demo-map">
+      <div class="demo-map-loading" id="loadingIndicator">
+        <div class="spinner"></div>
+        <p>Cargando mapa del sistema...</p>
+      </div>
+      <iframe 
+        id="mapFrame"
+        class="demo-map-frame" 
+        src="https://trafico-map-general-v2.web.app/"
+        onload="document.getElementById('loadingIndicator').style.display = 'none';"
+        title="TraficoMap - Sistema de Monitoreo Municipal">
+      </iframe>
+    </div>
+  </div>
+
+  <script>
+    function volverAlAdmin() {
+      window.close();
+      // Si no se cierra la ventana (popup bloqueado), redirige
+      window.location.href = '/admin/';
+    }
+
+    // Detectar si el iFrame se cargó correctamente
+    document.getElementById('mapFrame').addEventListener('error', function() {
+      document.getElementById('loadingIndicator').innerHTML = `
+        <p>⚠️ No se pudo cargar el mapa</p>
+        <p style="font-size: 12px; margin-top: 10px;">Asegúrate de estar conectado a internet</p>
+      `;
+    });
+
+    // Cerrar ventana con ESC
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        volverAlAdmin();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,501 @@
+numero_linea,lat,lng,parada,barrio,empresa
+42,-34.786910,-57.826463,Parada 1,Nueva República,UALP
+3,-34.858647,-57.987081,Parada 2,Este,Líneas Urbanas
+28,-35.020299,-57.940525,Parada 3,Este,Transportes La Plata
+17,-34.814923,-57.882424,Parada 4,Ringuelet,Central de Transportes
+8,-34.972160,-57.883113,Parada 5,Tolosa,Central de Transportes
+22,-34.945220,-58.104895,Parada 6,Villa Elvira,Transportes La Plata
+6,-34.816719,-57.866876,Parada 7,Centro,UALP
+38,-34.815700,-57.945752,Parada 8,Abella,Transportes La Plata
+22,-34.986897,-57.842882,Parada 9,Parque Saavedra,Central de Transportes
+21,-34.903409,-58.102785,Parada 10,Este,Central de Transportes
+19,-34.840030,-57.944214,Parada 11,Barrio Universitario,UALP
+40,-35.021053,-58.074948,Parada 12,San Carlos,Transportes La Plata
+28,-34.849808,-58.072885,Parada 13,Ángel Etcheverry,Transportes La Plata
+22,-34.936903,-57.988680,Parada 14,Ringuelet,UALP
+27,-34.816423,-57.833697,Parada 15,Abella,Central de Transportes
+22,-35.007689,-57.915426,Parada 16,Parque Saavedra,Transportes La Plata
+17,-35.000906,-57.982867,Parada 17,Zona Sur,Líneas Urbanas
+38,-34.847373,-57.978054,Parada 18,Centro,Central de Transportes
+5,-34.895607,-57.866379,Parada 19,Parque Saavedra,Transportes La Plata
+38,-35.061732,-57.996220,Parada 20,Zona Sur,Líneas Urbanas
+12,-34.942808,-57.982991,Parada 21,Parque Saavedra,Líneas Urbanas
+1,-34.973980,-57.984648,Parada 22,San Carlos,Transportes La Plata
+39,-34.822518,-57.871642,Parada 23,Este,Transportes La Plata
+39,-34.890270,-58.096474,Parada 24,Gonnet,UALP
+15,-35.011937,-58.046233,Parada 25,Este,UALP
+41,-35.040479,-57.840486,Parada 26,Abella,Líneas Urbanas
+27,-35.054485,-57.865705,Parada 27,Ángel Etcheverry,Líneas Urbanas
+36,-34.882947,-57.814612,Parada 28,Centro,Líneas Urbanas
+21,-34.818436,-57.842904,Parada 29,Este,Transportes La Plata
+40,-35.010471,-58.032621,Parada 30,Ángel Etcheverry,Transportes La Plata
+15,-34.983540,-58.044821,Parada 31,Barrio Universitario,Transportes La Plata
+15,-34.942380,-58.053740,Parada 32,Zona Sur,Líneas Urbanas
+15,-34.830470,-57.842429,Parada 33,Villa Elvira,UALP
+38,-35.065570,-58.089515,Parada 34,Ángel Etcheverry,Transportes La Plata
+13,-34.866059,-57.874531,Parada 35,Ringuelet,Líneas Urbanas
+41,-34.987844,-58.101163,Parada 36,Ángel Etcheverry,UALP
+29,-34.919065,-58.011649,Parada 37,Nueva República,UALP
+3,-34.854697,-57.950221,Parada 38,Abella,Transportes La Plata
+1,-34.945050,-57.985941,Parada 39,Centro,UALP
+19,-34.828849,-57.865971,Parada 40,Villa Elvira,Transportes La Plata
+21,-34.830917,-58.094461,Parada 41,Nueva República,Líneas Urbanas
+5,-35.016644,-58.000848,Parada 42,Abella,Central de Transportes
+38,-34.850973,-57.958817,Parada 43,Zona Sur,Líneas Urbanas
+6,-34.853373,-58.022205,Parada 44,Ángel Etcheverry,UALP
+13,-34.848417,-57.831797,Parada 45,Abella,Líneas Urbanas
+34,-34.987473,-58.009585,Parada 46,Gonnet,Central de Transportes
+9,-34.831777,-58.082917,Parada 47,Centro,Transportes La Plata
+39,-34.959741,-57.919033,Parada 48,Ángel Etcheverry,UALP
+40,-34.906224,-57.905678,Parada 49,Centro,Central de Transportes
+9,-34.962176,-57.870923,Parada 50,Los Hornos,Líneas Urbanas
+19,-34.877589,-57.863887,Parada 51,Zona Sur,Transportes La Plata
+32,-34.843851,-57.810653,Parada 52,Tolosa,UALP
+42,-34.945846,-57.820454,Parada 53,Tolosa,UALP
+5,-34.842463,-57.992168,Parada 54,Ángel Etcheverry,Líneas Urbanas
+36,-34.992848,-58.028572,Parada 55,Abella,Transportes La Plata
+8,-35.017587,-58.070405,Parada 56,Este,UALP
+8,-34.962451,-57.954158,Parada 57,Villa Elvira,UALP
+32,-34.917799,-58.044799,Parada 58,San Carlos,UALP
+25,-34.903192,-57.865172,Parada 59,Ángel Etcheverry,UALP
+22,-34.873240,-57.908074,Parada 60,Villa Elvira,Transportes La Plata
+39,-35.022203,-57.920775,Parada 61,Ringuelet,Central de Transportes
+15,-35.021903,-58.078088,Parada 62,Abella,UALP
+17,-34.997275,-57.820248,Parada 63,San Carlos,Líneas Urbanas
+1,-34.975732,-57.975181,Parada 64,Gonnet,UALP
+34,-34.836872,-58.015298,Parada 65,Barrio Universitario,UALP
+22,-35.036967,-58.073829,Parada 66,Abella,UALP
+5,-34.905188,-57.924839,Parada 67,Zona Norte,Líneas Urbanas
+5,-34.934044,-57.975610,Parada 68,Tolosa,Central de Transportes
+39,-34.832207,-58.038925,Parada 69,Parque Saavedra,UALP
+29,-35.012179,-57.951732,Parada 70,Este,UALP
+20,-34.901149,-57.814224,Parada 71,Barrio Universitario,Transportes La Plata
+3,-34.880293,-58.066544,Parada 72,Centro,Líneas Urbanas
+6,-35.012629,-57.964758,Parada 73,Nueva República,UALP
+34,-34.994896,-57.823679,Parada 74,Barrio Universitario,UALP
+10,-34.818511,-57.859494,Parada 75,Gonnet,Líneas Urbanas
+41,-35.065836,-58.077823,Parada 76,Zona Norte,UALP
+23,-35.003959,-57.870174,Parada 77,Nueva República,Transportes La Plata
+23,-34.806950,-58.034900,Parada 78,Nueva República,Líneas Urbanas
+9,-34.803264,-57.936822,Parada 79,Centro,Líneas Urbanas
+9,-34.877455,-58.072660,Parada 80,San Carlos,Líneas Urbanas
+8,-34.822150,-57.953250,Parada 81,Gonnet,UALP
+1,-34.819465,-58.036962,Parada 82,Zona Norte,Transportes La Plata
+29,-34.884005,-57.949605,Parada 83,Ángel Etcheverry,Transportes La Plata
+9,-34.863054,-57.812015,Parada 84,Abella,Transportes La Plata
+29,-34.829384,-57.852218,Parada 85,Zona Norte,Transportes La Plata
+36,-35.009515,-58.033512,Parada 86,Tolosa,Transportes La Plata
+12,-34.806865,-57.999966,Parada 87,Zona Norte,Líneas Urbanas
+12,-34.986692,-57.939824,Parada 88,Villa Elvira,UALP
+7,-34.960177,-57.863768,Parada 89,Villa Elvira,Central de Transportes
+13,-34.841439,-57.815836,Parada 90,Zona Norte,UALP
+10,-34.926354,-58.043948,Parada 91,Abella,UALP
+20,-34.870266,-57.913614,Parada 92,Oeste,UALP
+1,-35.013983,-57.962138,Parada 93,Este,Líneas Urbanas
+40,-34.837752,-57.813980,Parada 94,Este,Líneas Urbanas
+7,-34.975236,-57.918529,Parada 95,Nueva República,Transportes La Plata
+21,-35.049048,-57.847776,Parada 96,Villa Elvira,Transportes La Plata
+20,-34.949267,-57.930262,Parada 97,Zona Norte,Transportes La Plata
+29,-34.874473,-57.964135,Parada 98,Nueva República,UALP
+29,-34.842117,-57.949166,Parada 99,Ringuelet,UALP
+42,-34.882854,-57.904775,Parada 100,Este,Transportes La Plata
+34,-34.879685,-57.818416,Parada 101,Oeste,Líneas Urbanas
+41,-34.984564,-57.963508,Parada 102,Oeste,UALP
+25,-34.780356,-57.878406,Parada 103,Tolosa,Líneas Urbanas
+13,-34.852961,-57.951326,Parada 104,Los Hornos,Transportes La Plata
+22,-34.799230,-57.814937,Parada 105,Parque Saavedra,Transportes La Plata
+7,-34.945221,-57.949556,Parada 106,Gonnet,Central de Transportes
+5,-35.032626,-58.093478,Parada 107,Este,Líneas Urbanas
+7,-34.881539,-57.997436,Parada 108,Este,Central de Transportes
+5,-34.901875,-58.095044,Parada 109,Zona Norte,Transportes La Plata
+15,-34.800045,-57.928467,Parada 110,Oeste,Transportes La Plata
+19,-35.051954,-58.090746,Parada 111,Ringuelet,Central de Transportes
+34,-34.867140,-57.950663,Parada 112,Parque Saavedra,Central de Transportes
+8,-34.994584,-58.036155,Parada 113,Ángel Etcheverry,Transportes La Plata
+1,-34.964791,-57.941854,Parada 114,Abella,UALP
+10,-34.842886,-58.006723,Parada 115,Villa Elvira,Líneas Urbanas
+1,-34.831024,-57.817560,Parada 116,San Carlos,UALP
+13,-35.066579,-57.890085,Parada 117,San Carlos,Central de Transportes
+30,-35.026655,-57.856215,Parada 118,Los Hornos,Líneas Urbanas
+27,-34.984031,-57.807783,Parada 119,Gonnet,UALP
+42,-34.905821,-58.063353,Parada 120,Parque Saavedra,UALP
+9,-34.938705,-57.894474,Parada 121,Nueva República,Central de Transportes
+10,-34.834181,-57.860554,Parada 122,Los Hornos,UALP
+9,-34.902877,-58.078096,Parada 123,Los Hornos,Transportes La Plata
+23,-34.998465,-57.853937,Parada 124,Villa Elvira,Transportes La Plata
+29,-34.811902,-57.965532,Parada 125,Ringuelet,UALP
+39,-34.979967,-57.892215,Parada 126,Parque Saavedra,UALP
+13,-35.045350,-58.083963,Parada 127,San Carlos,Líneas Urbanas
+10,-35.029198,-57.968074,Parada 128,Parque Saavedra,Central de Transportes
+13,-34.930900,-58.038848,Parada 129,Villa Elvira,Líneas Urbanas
+34,-35.027145,-57.854271,Parada 130,Barrio Universitario,Líneas Urbanas
+38,-34.859563,-58.012603,Parada 131,Zona Sur,Central de Transportes
+39,-34.861933,-57.944424,Parada 132,Zona Norte,Central de Transportes
+12,-34.788338,-58.075629,Parada 133,Villa Elvira,Transportes La Plata
+10,-35.054281,-58.035105,Parada 134,Este,Central de Transportes
+9,-35.030223,-57.896319,Parada 135,Villa Elvira,Central de Transportes
+20,-35.042602,-58.096543,Parada 136,Ángel Etcheverry,Central de Transportes
+30,-35.050742,-57.858563,Parada 137,Este,Central de Transportes
+6,-35.044542,-58.040067,Parada 138,Nueva República,Líneas Urbanas
+28,-34.871583,-58.103867,Parada 139,San Carlos,Transportes La Plata
+21,-34.882082,-57.831473,Parada 140,Zona Sur,Central de Transportes
+40,-34.849079,-58.028113,Parada 141,Ángel Etcheverry,Líneas Urbanas
+1,-34.970052,-57.916746,Parada 142,Zona Sur,UALP
+10,-35.014366,-57.925760,Parada 143,Barrio Universitario,Líneas Urbanas
+41,-34.929801,-58.044184,Parada 144,Oeste,Líneas Urbanas
+39,-34.920628,-58.083365,Parada 145,Villa Elvira,Líneas Urbanas
+21,-35.011565,-58.070171,Parada 146,Centro,Transportes La Plata
+32,-34.785217,-57.919167,Parada 147,Oeste,Transportes La Plata
+25,-34.800648,-57.832945,Parada 148,Oeste,UALP
+39,-34.846284,-57.916777,Parada 149,Este,Transportes La Plata
+34,-34.902214,-57.814492,Parada 150,Barrio Universitario,Líneas Urbanas
+36,-34.834700,-58.030903,Parada 151,Ringuelet,Líneas Urbanas
+32,-34.890197,-57.946809,Parada 152,Zona Norte,Central de Transportes
+17,-34.771567,-58.082891,Parada 153,Tolosa,Transportes La Plata
+42,-34.846242,-58.075140,Parada 154,Ringuelet,Central de Transportes
+17,-34.987779,-58.032725,Parada 155,Villa Elvira,Central de Transportes
+38,-34.911570,-57.833448,Parada 156,Ringuelet,Transportes La Plata
+30,-34.853610,-58.047613,Parada 157,San Carlos,Central de Transportes
+10,-34.926921,-57.990333,Parada 158,Tolosa,Líneas Urbanas
+17,-34.963968,-57.827945,Parada 159,Parque Saavedra,UALP
+5,-35.051359,-57.908993,Parada 160,Parque Saavedra,Transportes La Plata
+34,-34.812553,-58.025267,Parada 161,Tolosa,Líneas Urbanas
+5,-34.855544,-57.965954,Parada 162,Oeste,Central de Transportes
+23,-34.902039,-58.002519,Parada 163,Gonnet,UALP
+23,-34.772189,-58.046777,Parada 164,San Carlos,UALP
+5,-34.865792,-58.017935,Parada 165,Parque Saavedra,UALP
+17,-34.912832,-58.033086,Parada 166,Ángel Etcheverry,Central de Transportes
+40,-34.807607,-57.845027,Parada 167,Zona Norte,Central de Transportes
+7,-34.930735,-57.849410,Parada 168,Parque Saavedra,Líneas Urbanas
+6,-34.957225,-57.911916,Parada 169,Barrio Universitario,Líneas Urbanas
+38,-34.775293,-58.071443,Parada 170,Zona Norte,Transportes La Plata
+19,-35.063366,-57.895884,Parada 171,Los Hornos,Central de Transportes
+27,-34.971825,-57.951154,Parada 172,Gonnet,Central de Transportes
+19,-34.936350,-57.893019,Parada 173,Los Hornos,Transportes La Plata
+30,-34.800883,-57.833958,Parada 174,San Carlos,UALP
+38,-34.807835,-57.858631,Parada 175,Este,Líneas Urbanas
+9,-34.772718,-57.837834,Parada 176,Abella,Central de Transportes
+12,-34.833946,-58.093509,Parada 177,Oeste,Líneas Urbanas
+23,-34.950646,-58.103899,Parada 178,Oeste,UALP
+13,-35.065772,-57.832970,Parada 179,San Carlos,Líneas Urbanas
+21,-35.031151,-57.931073,Parada 180,Este,Líneas Urbanas
+9,-34.880093,-58.068567,Parada 181,Los Hornos,UALP
+3,-35.067713,-57.818107,Parada 182,San Carlos,Líneas Urbanas
+40,-34.924542,-57.903271,Parada 183,Oeste,Transportes La Plata
+19,-34.902398,-57.990495,Parada 184,Oeste,Central de Transportes
+39,-34.848630,-57.810611,Parada 185,Este,Central de Transportes
+6,-34.970973,-58.004070,Parada 186,Nueva República,Transportes La Plata
+29,-34.831582,-58.043923,Parada 187,Centro,Líneas Urbanas
+36,-34.980019,-57.870264,Parada 188,Oeste,Líneas Urbanas
+34,-34.875764,-57.940390,Parada 189,Ángel Etcheverry,Líneas Urbanas
+1,-34.955800,-57.896389,Parada 190,Los Hornos,Central de Transportes
+7,-35.002317,-58.014343,Parada 191,San Carlos,Líneas Urbanas
+23,-34.999516,-57.925204,Parada 192,Parque Saavedra,UALP
+42,-34.948105,-57.810773,Parada 193,Abella,Central de Transportes
+3,-35.055733,-58.069003,Parada 194,Abella,Transportes La Plata
+12,-35.007936,-58.057639,Parada 195,Los Hornos,Líneas Urbanas
+7,-34.913549,-57.849946,Parada 196,Gonnet,Central de Transportes
+19,-35.012381,-57.805282,Parada 197,Barrio Universitario,Líneas Urbanas
+21,-35.032909,-58.068337,Parada 198,San Carlos,Central de Transportes
+22,-35.028081,-57.953488,Parada 199,Zona Sur,Central de Transportes
+39,-34.945664,-58.095201,Parada 200,Este,Transportes La Plata
+22,-34.819979,-57.893310,Parada 201,Oeste,Central de Transportes
+25,-34.902069,-58.097163,Parada 202,Zona Sur,Central de Transportes
+23,-34.935182,-58.077414,Parada 203,Los Hornos,UALP
+20,-35.041615,-57.988443,Parada 204,Ringuelet,UALP
+12,-34.836041,-57.892948,Parada 205,Este,Líneas Urbanas
+12,-34.953372,-57.895683,Parada 206,Los Hornos,Central de Transportes
+40,-34.850793,-57.906905,Parada 207,Centro,Central de Transportes
+23,-34.802727,-58.049226,Parada 208,Tolosa,Líneas Urbanas
+21,-34.853769,-58.084884,Parada 209,Abella,Transportes La Plata
+20,-34.959288,-57.869535,Parada 210,Los Hornos,Líneas Urbanas
+23,-34.782792,-57.860897,Parada 211,Los Hornos,Transportes La Plata
+6,-34.785356,-58.086342,Parada 212,Abella,Líneas Urbanas
+23,-34.854002,-57.868255,Parada 213,Gonnet,UALP
+30,-34.966709,-58.030772,Parada 214,Ringuelet,Central de Transportes
+39,-35.016561,-58.008087,Parada 215,Nueva República,Central de Transportes
+39,-34.895114,-57.844333,Parada 216,Zona Norte,Transportes La Plata
+41,-34.790639,-58.065642,Parada 217,San Carlos,Transportes La Plata
+15,-34.912399,-57.822934,Parada 218,Zona Sur,Líneas Urbanas
+25,-34.903184,-58.078130,Parada 219,San Carlos,Central de Transportes
+25,-34.977963,-57.987761,Parada 220,Ángel Etcheverry,Líneas Urbanas
+1,-34.948902,-58.052019,Parada 221,Ringuelet,Transportes La Plata
+30,-35.005615,-57.910328,Parada 222,Tolosa,Central de Transportes
+12,-35.029071,-58.039344,Parada 223,Centro,Líneas Urbanas
+40,-34.845028,-58.067211,Parada 224,Zona Sur,UALP
+15,-34.980261,-57.815247,Parada 225,Ringuelet,Líneas Urbanas
+36,-34.872128,-57.830628,Parada 226,Villa Elvira,Transportes La Plata
+40,-34.879741,-57.809901,Parada 227,Ángel Etcheverry,Líneas Urbanas
+23,-35.060218,-57.904052,Parada 228,San Carlos,Transportes La Plata
+9,-34.904903,-57.857600,Parada 229,Oeste,Central de Transportes
+32,-34.966820,-57.985764,Parada 230,Este,UALP
+13,-34.929514,-57.938871,Parada 231,Barrio Universitario,UALP
+17,-34.841004,-57.903295,Parada 232,Villa Elvira,Central de Transportes
+27,-34.942010,-58.082929,Parada 233,Nueva República,Líneas Urbanas
+23,-34.821012,-58.093762,Parada 234,Barrio Universitario,Central de Transportes
+6,-34.913828,-58.085997,Parada 235,Parque Saavedra,Central de Transportes
+10,-34.817975,-57.899363,Parada 236,Ángel Etcheverry,UALP
+34,-34.882238,-57.870272,Parada 237,Zona Sur,Transportes La Plata
+21,-34.798391,-57.871489,Parada 238,Parque Saavedra,Líneas Urbanas
+7,-35.041983,-57.962785,Parada 239,Centro,UALP
+3,-34.987676,-57.847074,Parada 240,Oeste,UALP
+38,-34.927122,-57.942607,Parada 241,Parque Saavedra,Líneas Urbanas
+38,-34.971006,-57.880790,Parada 242,Tolosa,UALP
+25,-34.820799,-58.016188,Parada 243,Ringuelet,Líneas Urbanas
+38,-35.019579,-57.975504,Parada 244,Nueva República,UALP
+38,-35.018813,-58.104541,Parada 245,Oeste,Transportes La Plata
+36,-34.977100,-57.885651,Parada 246,Villa Elvira,Líneas Urbanas
+41,-34.834537,-57.902058,Parada 247,San Carlos,Central de Transportes
+8,-34.804265,-57.962656,Parada 248,Zona Norte,Líneas Urbanas
+27,-35.027804,-57.944669,Parada 249,Ángel Etcheverry,Central de Transportes
+13,-35.007544,-58.013011,Parada 250,Los Hornos,Líneas Urbanas
+21,-34.998068,-57.983613,Parada 251,Oeste,Transportes La Plata
+34,-35.004093,-57.840012,Parada 252,Gonnet,Central de Transportes
+25,-34.779789,-58.102645,Parada 253,Gonnet,Líneas Urbanas
+41,-34.943669,-57.846882,Parada 254,Ángel Etcheverry,Líneas Urbanas
+22,-34.798975,-57.954572,Parada 255,Abella,UALP
+25,-34.924904,-58.066795,Parada 256,Oeste,Central de Transportes
+21,-35.016232,-57.877073,Parada 257,San Carlos,Líneas Urbanas
+28,-35.023359,-58.015488,Parada 258,Tolosa,Líneas Urbanas
+30,-34.817804,-58.045427,Parada 259,Zona Norte,UALP
+40,-34.976824,-57.822365,Parada 260,Villa Elvira,Transportes La Plata
+3,-35.064699,-57.937568,Parada 261,San Carlos,Líneas Urbanas
+32,-35.068267,-57.910272,Parada 262,Parque Saavedra,UALP
+30,-34.783904,-57.923260,Parada 263,Este,Líneas Urbanas
+19,-34.801546,-58.023098,Parada 264,Gonnet,Líneas Urbanas
+39,-34.930202,-58.056228,Parada 265,Este,Transportes La Plata
+40,-35.057878,-58.014637,Parada 266,Ángel Etcheverry,Líneas Urbanas
+29,-34.972006,-57.930333,Parada 267,Villa Elvira,UALP
+13,-34.771874,-57.915946,Parada 268,Parque Saavedra,UALP
+19,-34.835121,-57.906975,Parada 269,Nueva República,Líneas Urbanas
+30,-34.806012,-57.996838,Parada 270,San Carlos,Transportes La Plata
+27,-34.772885,-58.098806,Parada 271,Oeste,UALP
+38,-34.929054,-58.031770,Parada 272,Zona Norte,UALP
+21,-34.814445,-58.062666,Parada 273,Barrio Universitario,Líneas Urbanas
+36,-34.795770,-57.977734,Parada 274,Barrio Universitario,Transportes La Plata
+41,-34.877660,-57.948573,Parada 275,Ringuelet,Transportes La Plata
+12,-34.872608,-57.824178,Parada 276,Centro,Líneas Urbanas
+30,-35.033582,-57.910972,Parada 277,Oeste,UALP
+40,-34.994301,-58.048867,Parada 278,Gonnet,UALP
+25,-34.863352,-57.952179,Parada 279,Gonnet,Transportes La Plata
+1,-34.992851,-57.855874,Parada 280,Gonnet,UALP
+41,-34.870148,-57.992558,Parada 281,Ángel Etcheverry,Líneas Urbanas
+40,-34.963845,-58.012742,Parada 282,Oeste,UALP
+23,-34.829191,-58.020879,Parada 283,Parque Saavedra,Transportes La Plata
+5,-34.824346,-57.873603,Parada 284,Villa Elvira,Central de Transportes
+1,-34.779218,-57.895435,Parada 285,Gonnet,Líneas Urbanas
+9,-34.827877,-58.089030,Parada 286,Zona Sur,UALP
+6,-35.019687,-57.952208,Parada 287,Gonnet,Líneas Urbanas
+10,-34.775465,-57.915603,Parada 288,Parque Saavedra,Central de Transportes
+29,-35.069633,-58.006328,Parada 289,Los Hornos,Transportes La Plata
+27,-34.851208,-58.071546,Parada 290,Centro,UALP
+21,-34.895874,-57.859758,Parada 291,Parque Saavedra,Líneas Urbanas
+19,-35.043783,-57.973260,Parada 292,Zona Norte,Líneas Urbanas
+34,-34.850995,-57.892062,Parada 293,Villa Elvira,UALP
+5,-35.060926,-58.097515,Parada 294,Zona Norte,Líneas Urbanas
+34,-34.801427,-57.864140,Parada 295,Ángel Etcheverry,Central de Transportes
+36,-34.952266,-58.096112,Parada 296,Ringuelet,Líneas Urbanas
+7,-34.982132,-58.092864,Parada 297,Barrio Universitario,Central de Transportes
+7,-34.832747,-58.086934,Parada 298,Zona Sur,Transportes La Plata
+39,-34.913955,-57.932691,Parada 299,Parque Saavedra,Central de Transportes
+12,-34.849217,-57.847714,Parada 300,Zona Sur,Transportes La Plata
+12,-34.998698,-58.034234,Parada 301,Gonnet,UALP
+8,-34.932327,-57.810890,Parada 302,Abella,UALP
+5,-35.033766,-57.861348,Parada 303,Ángel Etcheverry,Transportes La Plata
+23,-34.834249,-58.019407,Parada 304,Abella,UALP
+32,-35.047541,-58.031276,Parada 305,Barrio Universitario,Central de Transportes
+8,-34.775667,-57.891591,Parada 306,Este,Central de Transportes
+34,-34.884689,-57.857308,Parada 307,Ángel Etcheverry,Central de Transportes
+29,-34.851145,-57.867998,Parada 308,Villa Elvira,Transportes La Plata
+42,-34.814636,-57.852110,Parada 309,Los Hornos,UALP
+42,-34.941707,-58.028623,Parada 310,San Carlos,Transportes La Plata
+21,-34.931589,-57.826674,Parada 311,Parque Saavedra,Líneas Urbanas
+7,-34.881737,-57.859054,Parada 312,San Carlos,Transportes La Plata
+8,-34.982098,-58.072625,Parada 313,Barrio Universitario,Central de Transportes
+7,-34.923396,-57.940333,Parada 314,Nueva República,Transportes La Plata
+8,-34.834377,-57.914011,Parada 315,Abella,Transportes La Plata
+42,-34.772764,-57.812015,Parada 316,Barrio Universitario,Líneas Urbanas
+8,-34.853460,-58.078513,Parada 317,San Carlos,Líneas Urbanas
+41,-34.948785,-58.074682,Parada 318,Este,Central de Transportes
+30,-34.787628,-57.979454,Parada 319,Este,UALP
+12,-35.061951,-58.005435,Parada 320,Abella,Central de Transportes
+5,-34.890934,-58.098099,Parada 321,Abella,Líneas Urbanas
+41,-34.876207,-57.967724,Parada 322,Zona Norte,Transportes La Plata
+36,-34.811122,-57.939085,Parada 323,Abella,Central de Transportes
+32,-34.891111,-57.861545,Parada 324,San Carlos,Transportes La Plata
+41,-34.977016,-57.880445,Parada 325,Centro,Transportes La Plata
+41,-34.887257,-57.901721,Parada 326,Barrio Universitario,Central de Transportes
+5,-35.060543,-57.853922,Parada 327,Zona Sur,UALP
+23,-34.935680,-58.081479,Parada 328,Los Hornos,UALP
+10,-34.906098,-58.051600,Parada 329,Gonnet,UALP
+29,-35.042191,-57.863789,Parada 330,Barrio Universitario,Transportes La Plata
+1,-34.992645,-57.959089,Parada 331,Tolosa,Transportes La Plata
+5,-34.943459,-58.032690,Parada 332,Zona Norte,Transportes La Plata
+5,-34.792101,-57.812052,Parada 333,Ringuelet,UALP
+7,-35.058607,-57.992039,Parada 334,Este,Transportes La Plata
+27,-34.923919,-57.864011,Parada 335,Villa Elvira,UALP
+9,-34.927287,-57.834573,Parada 336,Tolosa,Transportes La Plata
+21,-34.920729,-57.865430,Parada 337,Barrio Universitario,Transportes La Plata
+13,-35.006604,-57.908841,Parada 338,Tolosa,Transportes La Plata
+21,-34.952486,-58.049418,Parada 339,Villa Elvira,UALP
+23,-34.811365,-57.954399,Parada 340,Los Hornos,Transportes La Plata
+13,-35.042720,-57.815359,Parada 341,Este,Transportes La Plata
+13,-34.883910,-58.069373,Parada 342,Gonnet,UALP
+32,-34.985572,-57.854291,Parada 343,Ringuelet,Central de Transportes
+32,-34.929278,-57.909367,Parada 344,Este,Líneas Urbanas
+25,-34.845778,-57.969239,Parada 345,Zona Sur,Líneas Urbanas
+9,-34.905699,-57.979276,Parada 346,Tolosa,Transportes La Plata
+17,-35.056200,-57.876413,Parada 347,Este,UALP
+12,-34.879706,-57.813728,Parada 348,Ringuelet,UALP
+1,-35.001707,-58.067003,Parada 349,Nueva República,Transportes La Plata
+10,-34.863248,-57.915083,Parada 350,Parque Saavedra,Líneas Urbanas
+1,-34.797534,-57.912222,Parada 351,Parque Saavedra,UALP
+30,-34.915228,-57.862436,Parada 352,Villa Elvira,Líneas Urbanas
+28,-34.834995,-57.855759,Parada 353,Zona Sur,Central de Transportes
+40,-34.814465,-58.093756,Parada 354,Este,Líneas Urbanas
+12,-34.986461,-57.995721,Parada 355,Nueva República,Central de Transportes
+29,-34.933630,-58.022488,Parada 356,Los Hornos,UALP
+38,-35.037932,-58.015171,Parada 357,Ángel Etcheverry,UALP
+36,-34.987659,-57.818919,Parada 358,Parque Saavedra,Central de Transportes
+13,-34.916977,-58.033957,Parada 359,Oeste,Central de Transportes
+32,-34.936978,-57.805562,Parada 360,Zona Sur,Líneas Urbanas
+10,-34.773671,-58.022549,Parada 361,Nueva República,Transportes La Plata
+20,-35.043538,-57.909132,Parada 362,Gonnet,Central de Transportes
+13,-34.963589,-57.923996,Parada 363,Parque Saavedra,Central de Transportes
+41,-34.870750,-57.904137,Parada 364,Ringuelet,Líneas Urbanas
+40,-35.043917,-57.928658,Parada 365,Tolosa,Transportes La Plata
+30,-35.000068,-58.080686,Parada 366,Ringuelet,Central de Transportes
+8,-35.006158,-57.851259,Parada 367,Villa Elvira,Central de Transportes
+27,-34.812649,-58.057494,Parada 368,San Carlos,UALP
+42,-34.837338,-58.097238,Parada 369,Los Hornos,Líneas Urbanas
+30,-35.003504,-57.996554,Parada 370,San Carlos,UALP
+27,-34.904073,-58.095122,Parada 371,Nueva República,UALP
+6,-34.800919,-57.955297,Parada 372,Tolosa,UALP
+10,-34.787748,-57.902963,Parada 373,Este,Transportes La Plata
+5,-34.803179,-57.913233,Parada 374,Nueva República,Transportes La Plata
+29,-34.829288,-58.024875,Parada 375,Oeste,Transportes La Plata
+8,-35.045254,-58.020749,Parada 376,Zona Sur,Líneas Urbanas
+40,-34.941561,-57.938096,Parada 377,Oeste,Transportes La Plata
+8,-34.846322,-58.024338,Parada 378,San Carlos,Central de Transportes
+10,-35.003374,-58.096038,Parada 379,Barrio Universitario,Líneas Urbanas
+29,-34.842967,-57.907480,Parada 380,Parque Saavedra,Transportes La Plata
+13,-34.880340,-58.035592,Parada 381,Zona Sur,Central de Transportes
+1,-35.043191,-57.952097,Parada 382,Parque Saavedra,UALP
+17,-34.988053,-58.021437,Parada 383,Barrio Universitario,Líneas Urbanas
+5,-35.012590,-58.010597,Parada 384,Barrio Universitario,UALP
+32,-34.848009,-58.071173,Parada 385,Los Hornos,UALP
+15,-34.979092,-58.093821,Parada 386,San Carlos,Líneas Urbanas
+1,-34.907064,-58.080893,Parada 387,Tolosa,UALP
+32,-34.782871,-57.955117,Parada 388,Oeste,UALP
+22,-35.010119,-58.011939,Parada 389,Gonnet,UALP
+25,-34.888699,-57.980401,Parada 390,Zona Sur,Central de Transportes
+27,-34.822309,-58.064856,Parada 391,Nueva República,UALP
+38,-34.832484,-58.064730,Parada 392,Gonnet,Central de Transportes
+5,-34.898253,-58.015224,Parada 393,Oeste,Central de Transportes
+10,-34.870286,-57.912078,Parada 394,Parque Saavedra,Líneas Urbanas
+9,-34.803410,-57.984638,Parada 395,Barrio Universitario,Líneas Urbanas
+6,-34.834947,-57.908009,Parada 396,Zona Norte,UALP
+41,-34.851571,-58.093006,Parada 397,Nueva República,Líneas Urbanas
+41,-35.067936,-57.929950,Parada 398,Centro,Transportes La Plata
+27,-34.789711,-57.879798,Parada 399,Abella,Central de Transportes
+20,-34.925055,-57.887592,Parada 400,Gonnet,UALP
+23,-34.831051,-57.847535,Parada 401,Ringuelet,Central de Transportes
+5,-34.794541,-58.053731,Parada 402,Tolosa,Líneas Urbanas
+27,-35.020687,-57.874121,Parada 403,Zona Sur,Central de Transportes
+7,-34.857114,-57.882131,Parada 404,Tolosa,Líneas Urbanas
+15,-34.954693,-58.040430,Parada 405,Zona Sur,Transportes La Plata
+34,-34.813464,-58.080838,Parada 406,Zona Sur,Central de Transportes
+32,-34.894320,-57.987781,Parada 407,Abella,Central de Transportes
+9,-35.049236,-58.037481,Parada 408,Zona Sur,Transportes La Plata
+13,-34.859123,-57.896400,Parada 409,Zona Sur,Transportes La Plata
+12,-34.832700,-58.022389,Parada 410,Este,UALP
+15,-34.926323,-57.873533,Parada 411,Ringuelet,UALP
+21,-34.849622,-57.805917,Parada 412,Ángel Etcheverry,Transportes La Plata
+42,-34.957341,-58.097773,Parada 413,Oeste,Central de Transportes
+23,-34.979634,-57.993594,Parada 414,Parque Saavedra,UALP
+27,-34.809562,-58.050871,Parada 415,Villa Elvira,UALP
+36,-34.806391,-58.094321,Parada 416,Barrio Universitario,Líneas Urbanas
+13,-34.941315,-57.917409,Parada 417,Tolosa,Central de Transportes
+41,-34.928830,-57.949542,Parada 418,Villa Elvira,Líneas Urbanas
+12,-34.968373,-58.103576,Parada 419,San Carlos,Transportes La Plata
+3,-34.796684,-58.099960,Parada 420,Barrio Universitario,Central de Transportes
+28,-34.806900,-57.834338,Parada 421,Ángel Etcheverry,Transportes La Plata
+22,-34.914515,-58.004315,Parada 422,Tolosa,Líneas Urbanas
+20,-34.870758,-57.889432,Parada 423,Villa Elvira,UALP
+15,-34.861600,-57.972270,Parada 424,Villa Elvira,Líneas Urbanas
+25,-34.912519,-57.883995,Parada 425,Los Hornos,Transportes La Plata
+7,-34.932743,-57.884936,Parada 426,Ángel Etcheverry,Líneas Urbanas
+5,-34.962859,-57.806940,Parada 427,Tolosa,Transportes La Plata
+3,-34.888864,-57.891381,Parada 428,Abella,Central de Transportes
+27,-35.025577,-58.021271,Parada 429,Zona Norte,UALP
+25,-34.980831,-57.834259,Parada 430,Tolosa,Central de Transportes
+40,-35.025896,-57.869098,Parada 431,Barrio Universitario,Central de Transportes
+15,-34.995966,-57.888150,Parada 432,Los Hornos,UALP
+19,-34.826171,-57.989803,Parada 433,Este,Líneas Urbanas
+39,-35.035249,-58.102338,Parada 434,Ringuelet,Central de Transportes
+17,-35.008763,-58.064946,Parada 435,San Carlos,UALP
+9,-34.983090,-58.048159,Parada 436,Ringuelet,Líneas Urbanas
+27,-34.986067,-57.888722,Parada 437,Centro,Central de Transportes
+13,-34.996641,-57.978256,Parada 438,Los Hornos,Líneas Urbanas
+42,-34.832151,-58.051479,Parada 439,Ángel Etcheverry,Transportes La Plata
+20,-34.946928,-58.047093,Parada 440,Parque Saavedra,Líneas Urbanas
+39,-34.849011,-58.000209,Parada 441,Ángel Etcheverry,UALP
+30,-34.953461,-57.857527,Parada 442,Nueva República,Transportes La Plata
+27,-34.860759,-58.050389,Parada 443,Este,UALP
+41,-34.889690,-58.067618,Parada 444,Barrio Universitario,UALP
+41,-34.870690,-57.939997,Parada 445,Zona Norte,UALP
+25,-34.839116,-57.830301,Parada 446,Este,Central de Transportes
+1,-34.804747,-57.966464,Parada 447,Parque Saavedra,Central de Transportes
+34,-35.001588,-57.985389,Parada 448,Ángel Etcheverry,Transportes La Plata
+38,-34.910368,-57.871710,Parada 449,Parque Saavedra,UALP
+5,-34.936482,-58.104867,Parada 450,Zona Sur,UALP
+36,-34.972809,-58.096994,Parada 451,Centro,Líneas Urbanas
+42,-34.842291,-58.103808,Parada 452,Zona Norte,Líneas Urbanas
+38,-34.975847,-58.104149,Parada 453,Abella,Transportes La Plata
+27,-35.045885,-57.808462,Parada 454,Barrio Universitario,Transportes La Plata
+21,-35.000740,-57.877629,Parada 455,Tolosa,Líneas Urbanas
+39,-35.038639,-57.924467,Parada 456,Nueva República,Líneas Urbanas
+25,-34.806183,-57.812753,Parada 457,Zona Sur,Transportes La Plata
+28,-34.787855,-58.100376,Parada 458,Villa Elvira,UALP
+20,-35.053122,-57.808303,Parada 459,Abella,Líneas Urbanas
+40,-34.911296,-57.950592,Parada 460,Zona Sur,Líneas Urbanas
+38,-35.006640,-58.070051,Parada 461,Villa Elvira,Líneas Urbanas
+15,-34.945729,-57.843588,Parada 462,Este,Central de Transportes
+5,-34.901260,-57.886494,Parada 463,Este,Transportes La Plata
+9,-34.932255,-58.089469,Parada 464,San Carlos,Central de Transportes
+22,-34.784638,-58.101305,Parada 465,Tolosa,Transportes La Plata
+25,-34.818129,-57.835126,Parada 466,Abella,UALP
+20,-35.009130,-57.971572,Parada 467,Los Hornos,Central de Transportes
+23,-34.892678,-57.872090,Parada 468,Zona Sur,Transportes La Plata
+25,-34.974882,-57.950154,Parada 469,Parque Saavedra,Transportes La Plata
+32,-34.930457,-58.034691,Parada 470,Ringuelet,Central de Transportes
+38,-35.059290,-57.908138,Parada 471,Ringuelet,UALP
+42,-34.812025,-57.892369,Parada 472,Tolosa,UALP
+30,-34.993885,-57.833320,Parada 473,Parque Saavedra,UALP
+30,-34.804833,-58.088715,Parada 474,Este,Central de Transportes
+38,-34.950049,-57.933554,Parada 475,Tolosa,Transportes La Plata
+36,-34.789759,-57.868113,Parada 476,Villa Elvira,Líneas Urbanas
+3,-34.915835,-57.840262,Parada 477,Ringuelet,Líneas Urbanas
+19,-34.866759,-58.035449,Parada 478,Zona Sur,UALP
+41,-34.938109,-57.853423,Parada 479,Barrio Universitario,Transportes La Plata
+9,-34.850221,-57.995729,Parada 480,Tolosa,Central de Transportes
+10,-34.880523,-58.070805,Parada 481,San Carlos,Transportes La Plata
+9,-34.927422,-57.990260,Parada 482,Parque Saavedra,UALP
+20,-34.820606,-57.888996,Parada 483,Este,Líneas Urbanas
+15,-34.892567,-57.868238,Parada 484,Ángel Etcheverry,Líneas Urbanas
+7,-34.805616,-58.065632,Parada 485,Ringuelet,UALP
+34,-35.014648,-58.019310,Parada 486,Zona Sur,Líneas Urbanas
+13,-34.912766,-58.034425,Parada 487,Este,Transportes La Plata
+34,-35.032628,-57.862271,Parada 488,Este,Transportes La Plata
+30,-34.901320,-57.901497,Parada 489,Barrio Universitario,Transportes La Plata
+38,-34.940585,-58.080687,Parada 490,Zona Norte,Transportes La Plata
+27,-35.060563,-57.817220,Parada 491,Ángel Etcheverry,UALP
+20,-34.921787,-58.056258,Parada 492,Parque Saavedra,Central de Transportes
+29,-34.834133,-58.055130,Parada 493,Nueva República,Central de Transportes
+38,-35.033039,-58.009879,Parada 494,Zona Sur,Líneas Urbanas
+20,-34.937849,-58.000632,Parada 495,Tolosa,UALP
+6,-35.041363,-57.927824,Parada 496,Barrio Universitario,Central de Transportes
+29,-34.791341,-57.898602,Parada 497,Zona Sur,UALP
+9,-34.993074,-58.063233,Parada 498,Centro,UALP
+30,-34.884156,-57.813886,Parada 499,Ángel Etcheverry,UALP
+21,-34.911120,-57.950084,Parada 500,Villa Elvira,UALP

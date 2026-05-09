@@ -13,6 +13,7 @@ const GeoLocator = (() => {
   let map = null;
   let currentCity = 'mar-del-plata'; // Ciudad actual
   let currentLocation = null; // Ubicación actual del búsqueda
+  let citiesConfig = null; // Configuración dinámica de ciudades desde Firestore
 
   /**
    * Normaliza texto: elimina acentos, convierte a minúsculas, limpia espacios
@@ -124,6 +125,11 @@ const GeoLocator = (() => {
             name: 'Mar del Plata, Argentina',
             latMin: -38.05, latMax: -37.95,
             lngMin: -57.65, lngMax: -57.45
+          },
+          'la-plata': {
+            name: 'La Plata, Argentina',
+            latMin: -34.95, latMax: -34.85,
+            lngMin: -57.95, lngMax: -57.85
           }
         };
         
@@ -142,29 +148,21 @@ const GeoLocator = (() => {
           const lng = result.geometry.location.lng;
           const formattedAddress = result.formatted_address;
           
-          const isWithinBounds = 
-            lat >= config.latMin && lat <= config.latMax &&
-            lng >= config.lngMin && lng <= config.lngMax;
+          console.log(`✅ Cruce encontrado en Google Maps:`, formattedAddress);
           
-          if (isWithinBounds) {
-            console.log(`✅ Cruce encontrado en Google Maps:`, formattedAddress);
-            
-            results.push({
-              original: formattedAddress,
-              normalized: normalizeText(formattedAddress),
-              lat: lat,
-              lng: lng,
-              coordinates: [lng, lat],
-              matchType: 'google_cruce',
-              relevance: 100,
-              source: 'google-maps',
-              googleResponse: result
-            });
-            
-            return results; // Retorna el resultado del cruce
-          } else {
-            console.warn(`⚠️ Cruce FUERA de bounds: ${formattedAddress}`);
-          }
+          results.push({
+            original: formattedAddress,
+            normalized: normalizeText(formattedAddress),
+            lat: lat,
+            lng: lng,
+            coordinates: [lng, lat],
+            matchType: 'google_cruce',
+            relevance: 100,
+            source: 'google-maps',
+            googleResponse: result
+          });
+          
+          return results; // Retorna el resultado del cruce
         } else {
           console.warn(`⚠️ No se encontraron resultados para: ${googleQuery}`);
         }
@@ -273,6 +271,11 @@ const GeoLocator = (() => {
             name: 'Mar del Plata, Argentina',
             latMin: -38.05, latMax: -37.95,    // Ampliado para abarcar toda la ciudad
             lngMin: -57.65, lngMax: -57.45
+          },
+          'la-plata': {
+            name: 'La Plata, Argentina',
+            latMin: -34.95, latMax: -34.85,
+            lngMin: -57.95, lngMax: -57.85
           }
         };
         
@@ -291,29 +294,21 @@ const GeoLocator = (() => {
           const lng = result.geometry.location.lng;
           const formattedAddress = result.formatted_address;
           
-          // Validar que el resultado esté DENTRO de los bounds
-          const isWithinBounds = 
-            lat >= config.latMin && lat <= config.latMax &&
-            lng >= config.lngMin && lng <= config.lngMax;
+          // Aceptar resultado de Google directamente sin validar bounds
+          // Google ya filtró por ciudad en la consulta (ciudad incluida en query)
+          console.log(`✅ Encontrado en Google Maps:`, formattedAddress);
           
-          if (isWithinBounds) {
-            console.log(`✅ Encontrado en Google Maps (dentro de bounds):`, formattedAddress);
-            
-            results.push({
-              original: formattedAddress,
-              normalized: normalizeText(formattedAddress),
-              lat: lat,
-              lng: lng,
-              coordinates: [lng, lat],
-              matchType: 'google_address',
-              relevance: 90,
-              source: 'google-maps',
-              googleResponse: result
-            });
-          } else {
-            console.warn(`⚠️ Resultado de Google Maps FUERA de bounds: ${formattedAddress} (Lat: ${lat}, Lng: ${lng})`);
-            console.warn(`   Bounds esperados: Lat [${config.latMin}, ${config.latMax}], Lng [${config.lngMin}, ${config.lngMax}]`);
-          }
+          results.push({
+            original: formattedAddress,
+            normalized: normalizeText(formattedAddress),
+            lat: lat,
+            lng: lng,
+            coordinates: [lng, lat],
+            matchType: 'google_address',
+            relevance: 90,
+            source: 'google-maps',
+            googleResponse: result
+          });
         } else {
           console.warn(`⚠️ Google Maps no encontró resultados para: ${googleQuery}`);
         }
@@ -523,6 +518,14 @@ const GeoLocator = (() => {
     console.log('✅ GeoLocator inicializado');
   };
 
+  /**
+   * Establece la configuración de ciudades desde Firestore
+   */
+  const setCitiesConfig = (config) => {
+    citiesConfig = config;
+    console.log('✅ Configuración de ciudades cargada en GeoLocator:', Object.keys(config || {}).length, 'ciudades');
+  };
+
   return {
     init,
     loadAddresses,
@@ -533,7 +536,8 @@ const GeoLocator = (() => {
     getCurrentLocation: () => currentLocation,
     getSearchRadius: () => SEARCH_RADIUS_KM,
     getIndex: () => addressIndex,
-    getAllAddresses: () => addressIndex.map(a => a.original)
+    getAllAddresses: () => addressIndex.map(a => a.original),
+    setCitiesConfig
   };
 })();
 

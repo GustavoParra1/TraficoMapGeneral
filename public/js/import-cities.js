@@ -8,16 +8,45 @@ const ImportCities = (() => {
   let userCities = {}; // Ciudades cargadas por usuario
 
   // ==========================================
-  // CONVERTIR CSV A GEOJSON
+  // CONVERTIR CSV A GEOJSON (MEJORADO)
   // ==========================================
+  const parseCSVLine = (line) => {
+    const result = [];
+    let current = '';
+    let insideQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      const nextChar = line[i + 1];
+
+      if (char === '"') {
+        if (insideQuotes && nextChar === '"') {
+          current += '"';
+          i++;
+        } else {
+          insideQuotes = !insideQuotes;
+        }
+      } else if (char === ',' && !insideQuotes) {
+        result.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+
+    result.push(current.trim());
+    return result;
+  };
+
   const csvToGeoJson = (csvText, latCol = 'lat', lngCol = 'lng', nameCol = 'nombre') => {
-    const lines = csvText.trim().split('\n');
+    const lines = csvText.trim().split('\n').filter(l => l.trim());
     if (lines.length < 2) return null;
 
-    const headers = lines[0].split(',').map(h => h.trim());
-    const latIndex = headers.indexOf(latCol);
-    const lngIndex = headers.indexOf(lngCol);
-    const nameIndex = headers.indexOf(nameCol);
+    const headerLine = lines[0];
+    const headers = parseCSVLine(headerLine);
+    const latIndex = headers.findIndex(h => h.toLowerCase() === latCol.toLowerCase());
+    const lngIndex = headers.findIndex(h => h.toLowerCase() === lngCol.toLowerCase());
+    const nameIndex = headers.findIndex(h => h.toLowerCase() === nameCol.toLowerCase());
 
     if (latIndex === -1 || lngIndex === -1) {
       console.error('❌ CSV debe tener columnas: lat, lng');
@@ -26,7 +55,7 @@ const ImportCities = (() => {
 
     const features = [];
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim());
+      const values = parseCSVLine(lines[i]);
       if (values.length <= Math.max(latIndex, lngIndex)) continue;
 
       const lat = parseFloat(values[latIndex]);
@@ -34,9 +63,20 @@ const ImportCities = (() => {
       const name = nameIndex >= 0 ? values[nameIndex] : `Punto ${i}`;
 
       if (!isNaN(lat) && !isNaN(lng)) {
+        // Crear propiedades con todos los campos del CSV
+        const properties = {
+          nombre: name || `Punto ${i}`
+        };
+        
+        headers.forEach((header, idx) => {
+          if (idx < values.length) {
+            properties[header] = values[idx];
+          }
+        });
+
         features.push({
           type: 'Feature',
-          properties: { nombre: name, ...Object.fromEntries(headers.map((h, idx) => [h, values[idx]])) },
+          properties: properties,
           geometry: {
             type: 'Point',
             coordinates: [lng, lat]
@@ -45,6 +85,7 @@ const ImportCities = (() => {
       }
     }
 
+    console.log(`✓ CSV parseado: ${features.length} features encontrados`);
     return { type: 'FeatureCollection', features };
   };
 

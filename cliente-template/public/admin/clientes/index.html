@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Clientes - TraficoMap Admin</title>
+  
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+  
+  <!-- Admin CSS -->
+  <link rel="stylesheet" href="../css/admin.css" />
+  
+  <style>
+    .sidebar-item.active {
+      background-color: rgba(102, 126, 234, 0.2);
+      border-left: 4px solid #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="d-flex">
+    <!-- Sidebar -->
+    <nav class="sidebar bg-light">
+      <div class="sidebar-header">
+        <h5>TraficoMap</h5>
+        <small>Admin Panel</small>
+      </div>
+
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a href="../index.html" class="nav-link">
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link active sidebar-item">
+            <i class="bi bi-people"></i> Clientes
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="../subscripciones/index.html" class="nav-link">
+            <i class="bi bi-credit-card"></i> Suscripciones
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="../billing/index.html" class="nav-link">
+            <i class="bi bi-file-earmark-pdf"></i> Billing
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="../usuarios/index.html" class="nav-link">
+            <i class="bi bi-shield-lock"></i> Usuarios Admin
+          </a>
+        </li>
+      </ul>
+
+      <hr />
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="btn btn-sm btn-outline-danger w-100">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content flex-grow-1">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container-fluid">
+          <span class="navbar-brand">
+            <i class="bi bi-people"></i> Gestión de Clientes
+          </span>
+          <div class="ms-auto">
+            <span class="me-3">
+              <i class="bi bi-person-circle"></i>
+              <span id="userEmail">admin@trafico-map.admin</span>
+            </span>
+            <button id="navbarLogout" class="btn btn-sm btn-outline-danger">
+              Logout
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Content -->
+      <div class="container-fluid p-4">
+        <!-- Alerts -->
+        <div id="alertas"></div>
+
+        <!-- Header with Create Button -->
+        <div class="row mb-4">
+          <div class="col">
+            <h3>Clientes</h3>
+            <p class="text-muted">Gestiona todos los clientes de la plataforma</p>
+          </div>
+          <div class="col-auto">
+            <button id="btnCrearCliente" class="btn btn-primary btn-lg">
+              <i class="bi bi-plus-circle"></i> Crear Cliente
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label for="searchClientes" class="form-label">Buscar</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="searchClientes" 
+                  placeholder="Nombre, email o ID..."
+                />
+              </div>
+              <div class="col-md-4">
+                <label for="filterEstado" class="form-label">Estado</label>
+                <select class="form-select" id="filterEstado">
+                  <option value="todos">Todos los estados</option>
+                  <option value="activo">Activos</option>
+                  <option value="suspendido">Suspendidos</option>
+                  <option value="deleted">Eliminados</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="filterPlan" class="form-label">Plan</label>
+                <select class="form-select" id="filterPlan">
+                  <option value="todos">Todos los planes</option>
+                  <option value="basico">Básico</option>
+                  <option value="profesional">Profesional</option>
+                  <option value="enterprise">Enterprise</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clientes Table -->
+        <div class="card">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="bi bi-table"></i> Listado de Clientes
+            </h5>
+          </div>
+          <div class="card-body">
+            <div id="clientesTable" class="table-responsive">
+              <!-- Table renderizada por JavaScript -->
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal: Crear Cliente -->
+  <div id="modalCrearCliente" class="modal" style="display: none;">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="bi bi-plus-circle"></i> Crear Nuevo Cliente
+          </h5>
+          <button type="button" class="btn-close btn-close-white" onclick="document.getElementById('modalCrearCliente').style.display='none'"></button>
+        </div>
+
+        <form id="formCrearCliente">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="nombreCliente" class="form-label">Nombre del Cliente *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="nombreCliente" 
+                placeholder="Ej: Municipalidad de La Plata"
+                required 
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="emailCliente" class="form-label">Email *</label>
+              <input 
+                type="email" 
+                class="form-control" 
+                id="emailCliente" 
+                placeholder="admin@municipio.gov.ar"
+                required 
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="dominioCliente" class="form-label">Dominio</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="dominioCliente" 
+                placeholder="laplatamaps.com.ar"
+              />
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="ciudadCliente" class="form-label">Ciudad</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="ciudadCliente" 
+                  placeholder="La Plata"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="telefonoCliente" class="form-label">Teléfono</label>
+                <input 
+                  type="tel" 
+                  class="form-control" 
+                  id="telefonoCliente" 
+                  placeholder="+54 221 123-4567"
+                />
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="planCliente" class="form-label">Plan *</label>
+              <select class="form-select" id="planCliente" required>
+                <option value="">-- Seleccionar plan --</option>
+                <option value="basico">Básico ($1.000/mes)</option>
+                <option value="profesional">Profesional ($5.000/mes)</option>
+                <option value="enterprise">Enterprise (Personalizado)</option>
+              </select>
+            </div>
+
+            <hr>
+            <h6 class="mb-3">Credenciales de Firebase del Cliente *</h6>
+            <div class="mb-3">
+              <label for="firebaseProjectId" class="form-label">Project ID *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="firebaseProjectId" 
+                placeholder="laplatamaps-52a3b"
+                required 
+              />
+              <small class="text-muted">De Firebase Console: Project Settings → Project ID</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="firebaseApiKey" class="form-label">API Key *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="firebaseApiKey" 
+                placeholder="AIzaSy..."
+                required 
+              />
+              <small class="text-muted">De Firebase Console: Web app config</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="firebaseAuthDomain" class="form-label">Auth Domain *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="firebaseAuthDomain" 
+                placeholder="laplatamaps-52a3b.firebaseapp.com"
+                required 
+              />
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="firebaseStorageBucket" class="form-label">Storage Bucket *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="firebaseStorageBucket" 
+                  placeholder="laplatamaps-52a3b.appspot.com"
+                  required 
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="firebaseMessagingSenderId" class="form-label">Messaging Sender ID *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="firebaseMessagingSenderId" 
+                  placeholder="9948736453"
+                  required 
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="firebaseAppId" class="form-label">App ID *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="firebaseAppId" 
+                  placeholder="1:9948736453:web:..."
+                  required 
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="firebaseDatabaseURL" class="form-label">Database URL (Opcional)</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="firebaseDatabaseURL" 
+                  placeholder="https://laplatamaps-52a3b-default-rtdb.firebaseio.com"
+                />
+              </div>
+            </div>
+
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle"></i>
+              <strong>¿Cómo obtener estas credenciales?</strong>
+              <ol class="mb-0 mt-2">
+                <li>El cliente crea su proyecto en <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a></li>
+                <li>Crea una aplicación web</li>
+                <li>Copia el objeto <code>firebaseConfig</code> mostrado</li>
+                <li>Pega los valores en los campos arriba</li>
+              </ol>
+            </div>
+
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle"></i>
+              Se ejecutará el script de creación de cliente para:
+              <ul class="mb-0 mt-2">
+                <li>Crear usuarios admin en Firebase General</li>
+                <li>Asignar custom claims (cliente_id)</li>
+                <li>Configurar suscripción inicial</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('modalCrearCliente').style.display='none'">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-circle"></i> Crear Cliente
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Detalle Cliente -->
+  <div id="modalClienteDetail" class="modal" style="display: none;">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="bi bi-info-circle"></i> Detalle de Cliente
+          </h5>
+          <button type="button" class="btn-close btn-close-white" onclick="document.getElementById('modalClienteDetail').style.display='none'"></button>
+        </div>
+
+        <div class="modal-body">
+          <div id="clienteDetailContent">
+            <!-- Contenido cargado por JavaScript -->
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('modalClienteDetail').style.display='none'">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Overlay Click Close -->
+  <script>
+    // Cerrar modales al hacer click fuera
+    window.onclick = function(event) {
+      const modal1 = document.getElementById('modalCrearCliente');
+      const modal2 = document.getElementById('modalClienteDetail');
+      if (event.target === modal1) modal1.style.display = 'none';
+      if (event.target === modal2) modal2.style.display = 'none';
+    }
+  </script>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-analytics-compat.js"></script>
+
+  <!-- Admin Panel Scripts -->
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/clientes-manager.js"></script>
+
+  <script>
+    // Inicializar cuando el DOM está listo
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Verificar autenticación
+        await new Promise((resolve) => {
+          const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            unsubscribe();
+            if (!user) {
+              window.location.href = '../index.html';
+              return;
+            }
+
+            // Verificar role
+            const claims = user.customClaims || {};
+            if (claims.role !== 'admin') {
+              alert('No tienes permisos para acceder a esta página');
+              await auth.signOut();
+              window.location.href = '../index.html';
+              return;
+            }
+
+            // Mostrar email
+            document.getElementById('userEmail').textContent = user.email;
+
+            // Inicializar manager
+            await clientesManager.init();
+            resolve();
+          });
+        });
+      } catch (error) {
+        console.error('Error inicializando página:', error);
+      }
+    });
+
+    // Logout buttons
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await auth.signOut();
+      window.location.href = '../index.html';
+    });
+
+    document.getElementById('navbarLogout').addEventListener('click', async () => {
+      await auth.signOut();
+      window.location.href = '../index.html';
+    });
+  </script>
+</body>
+</html>

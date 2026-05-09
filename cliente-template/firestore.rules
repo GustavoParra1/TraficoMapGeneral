@@ -1,0 +1,142 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // FUNCIÓN: Verificar autenticación
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // FUNCIÓN: Verificar si es propietario del documento
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // ============================
+    // PATRULLAS - Lectura pública, escritura solo desde servidor
+    // ============================
+    match /patrullas/{patrolId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Solo servidor actualiza
+    }
+    
+    // ============================
+    // SINIESTROS - Solo lectura autenticada
+    // ============================
+    match /siniestros/{siniestroId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Solo servidor importa
+    }
+    
+    // ============================
+    // CÁMARAS PÚBLICAS - Solo lectura autenticada
+    // ============================
+    match /cameras_publicas/{cameraId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Solo servidor importa
+    }
+    
+    // ============================
+    // CÁMARAS PRIVADAS - Solo lectura autenticada
+    // ============================
+    match /cameras_privadas/{cameraId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Solo servidor importa
+    }
+    
+    // ============================
+    // CÁMARAS LPR - Solo lectura autenticada
+    // ============================
+    match /cameras_lpr/{cameraId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Solo servidor importa
+    }
+    
+    // ============================
+    // SEMÁFOROS - Solo lectura autenticada
+    // ============================
+    match /semaforos/{semaforoId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Solo servidor importa
+    }
+    
+    // ============================
+    // ROBOS - Solo lectura autenticada
+    // ============================
+    match /robos/{roboId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Solo servidor importa
+    }
+    
+    // ============================
+    // ESCUELAS/COLEGIOS - Solo lectura autenticada
+    // ============================
+    match /escuelas/{escuelaId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Solo servidor importa
+    }
+    
+    // ============================
+    // AFOROS - Solo lectura autenticada
+    // ============================
+    match /aforos/{aforoId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Solo servidor importa
+    }
+    
+    // ============================
+    // COLECTIVOS - Solo lectura autenticada
+    // ============================
+    match /colectivos/{colectivoId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Solo servidor importa
+    }
+    
+    // ============================
+    // ALERTAS - Usuarios pueden escribir sus propias alertas, leer todas
+    // ============================
+    match /alertas/{alertaId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.usuario_id == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.usuario_id == request.auth.uid;
+    }
+    
+    // ============================
+    // CHAT - Conversaciones auténticas
+    // ============================
+    match /chat/{document=**} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // ============================
+    // USUARIOS - Datos públicos, perfil privado
+    // ============================
+    match /usuarios/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // ============================
+    // CONFIGURACIÓN - Solo lectura
+    // ============================
+    match /configuracion/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+    
+    // ============================
+    // LOGS - Solo servidor escribe, clientes leen sus propios logs
+    // ============================
+    match /logs/{logId} {
+      allow read: if isAuthenticated() && resource.data.usuario_id == request.auth.uid;
+      allow write: if false; // Solo servidor
+    }
+    
+    // ============================
+    // DEFAULT - Denegar todo lo demás
+    // ============================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

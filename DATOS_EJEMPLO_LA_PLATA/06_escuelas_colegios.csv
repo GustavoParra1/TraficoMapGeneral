@@ -1,0 +1,501 @@
+nombre,lat,lng,address,barrio,tipo,nivel
+Instituto 1,-34.890143,-57.929153,Calle 115 #6019,Parque Saavedra,Instituto,Primaria y Secundaria
+Instituto 2,-35.049951,-57.954059,Calle 19 #9707,Abella,Escuela,Primaria y Secundaria
+Instituto 3,-34.863499,-58.093366,Calle 12 #5603,Parque Saavedra,Colegio,Primaria
+Instituto 4,-34.957334,-57.914281,Calle 24 #7489,Zona Sur,Colegio,Primaria
+Instituto 5,-34.978754,-58.015199,Calle 141 #5056,Este,Instituto,Superior
+Instituto 6,-34.822483,-58.096511,Calle 23 #8974,Tolosa,Instituto,Superior
+Instituto 7,-35.064080,-58.089442,Calle 29 #7446,Gonnet,Colegio,Superior
+Instituto 8,-35.037858,-57.894730,Calle 31 #7015,Oeste,Instituto,Primaria y Secundaria
+Instituto 9,-35.062320,-57.913896,Calle 37 #7989,Ángel Etcheverry,Colegio,Primaria y Secundaria
+Instituto 10,-34.981837,-57.983643,Calle 108 #1302,Ringuelet,Colegio,Superior
+Instituto 11,-34.785179,-58.034148,Calle 29 #8153,Ringuelet,Colegio,Primaria
+Instituto 12,-34.808214,-58.080024,Calle 16 #6370,Los Hornos,Instituto,Secundaria
+Instituto 13,-34.987675,-58.012663,Calle 43 #9820,Barrio Universitario,Instituto,Superior
+Instituto 14,-35.056235,-58.010325,Calle 121 #967,Los Hornos,Instituto,Superior
+Instituto 15,-34.812362,-58.058441,Calle 21 #4601,Centro,Colegio,Primaria
+Instituto 16,-34.830642,-57.906791,Calle 110 #4987,Parque Saavedra,Colegio,Secundaria
+Instituto 17,-34.976682,-57.892741,Calle 49 #2328,San Carlos,Instituto,Primaria y Secundaria
+Instituto 18,-34.970626,-57.932965,Calle 133 #3857,Centro,Colegio,Primaria
+Instituto 19,-35.019549,-57.922876,Calle 127 #8492,Villa Elvira,Escuela,Primaria y Secundaria
+Instituto 20,-34.892549,-57.956116,Calle 12 #9045,Gonnet,Instituto,Superior
+Instituto 21,-35.062620,-57.835318,Calle 146 #1033,Gonnet,Instituto,Superior
+Instituto 22,-34.783084,-57.918029,Calle 83 #8912,Oeste,Escuela,Primaria y Secundaria
+Instituto 23,-34.862238,-57.871064,Calle 126 #5606,Abella,Colegio,Primaria y Secundaria
+Instituto 24,-34.960830,-57.883216,Calle 88 #5398,Zona Norte,Colegio,Superior
+Instituto 25,-34.867697,-57.814332,Calle 35 #4321,Barrio Universitario,Instituto,Superior
+Instituto 26,-34.832470,-58.054704,Calle 63 #8385,Nueva República,Escuela,Secundaria
+Instituto 27,-35.028992,-57.868602,Calle 106 #8419,Zona Sur,Escuela,Primaria y Secundaria
+Instituto 28,-34.828200,-57.908632,Calle 134 #6506,Oeste,Colegio,Primaria
+Instituto 29,-34.914222,-57.931052,Calle 134 #305,Parque Saavedra,Escuela,Secundaria
+Instituto 30,-35.055640,-57.882075,Calle 150 #9307,Este,Colegio,Primaria y Secundaria
+Instituto 31,-34.898333,-57.961372,Calle 32 #575,Parque Saavedra,Colegio,Primaria y Secundaria
+Instituto 32,-34.789070,-57.872745,Calle 149 #1955,Zona Norte,Colegio,Primaria
+Instituto 33,-35.040215,-57.898857,Calle 38 #4229,Ringuelet,Colegio,Secundaria
+Instituto 34,-34.939903,-57.876139,Calle 55 #1277,Parque Saavedra,Colegio,Secundaria
+Instituto 35,-35.005322,-57.943502,Calle 59 #4480,Ringuelet,Instituto,Secundaria
+Instituto 36,-35.030688,-58.030984,Calle 96 #8200,Ángel Etcheverry,Escuela,Primaria
+Instituto 37,-34.830625,-58.068345,Calle 149 #5121,Tolosa,Escuela,Primaria y Secundaria
+Instituto 38,-35.017039,-57.844655,Calle 119 #6907,Centro,Colegio,Secundaria
+Instituto 39,-34.827213,-57.939850,Calle 75 #3134,Abella,Escuela,Primaria y Secundaria
+Instituto 40,-34.983710,-57.993228,Calle 38 #7991,Gonnet,Escuela,Primaria
+Instituto 41,-35.000544,-57.820210,Calle 90 #7482,Ángel Etcheverry,Colegio,Secundaria
+Instituto 42,-34.994664,-57.849138,Calle 22 #3368,Parque Saavedra,Instituto,Primaria y Secundaria
+Instituto 43,-34.912441,-57.946393,Calle 127 #4563,Centro,Colegio,Primaria y Secundaria
+Instituto 44,-34.997588,-58.035411,Calle 86 #1640,Gonnet,Instituto,Superior
+Instituto 45,-34.909781,-58.013206,Calle 59 #235,Barrio Universitario,Escuela,Primaria
+Instituto 46,-35.066637,-57.898903,Calle 27 #731,Los Hornos,Escuela,Superior
+Instituto 47,-34.831975,-57.873107,Calle 88 #8585,Zona Norte,Instituto,Primaria
+Instituto 48,-35.002408,-57.826439,Calle 67 #6313,Oeste,Colegio,Primaria
+Instituto 49,-34.860951,-58.041729,Calle 135 #2143,Abella,Escuela,Superior
+Instituto 50,-34.843900,-57.903382,Calle 62 #294,Villa Elvira,Escuela,Primaria
+Instituto 51,-34.926732,-57.921331,Calle 94 #3081,Oeste,Colegio,Superior
+Instituto 52,-34.875991,-57.877171,Calle 67 #7411,Abella,Colegio,Secundaria
+Instituto 53,-35.048402,-57.861760,Calle 45 #573,San Carlos,Colegio,Secundaria
+Instituto 54,-35.052051,-57.897811,Calle 73 #2238,Ringuelet,Escuela,Primaria
+Instituto 55,-35.009169,-57.855292,Calle 64 #615,Gonnet,Escuela,Secundaria
+Instituto 56,-34.800221,-57.883594,Calle 54 #2360,Los Hornos,Instituto,Primaria y Secundaria
+Instituto 57,-35.030524,-57.913772,Calle 8 #1606,Barrio Universitario,Colegio,Secundaria
+Instituto 58,-34.985624,-57.969644,Calle 66 #1787,Oeste,Colegio,Primaria y Secundaria
+Instituto 59,-34.816386,-57.880690,Calle 9 #8622,Abella,Instituto,Superior
+Instituto 60,-35.027285,-57.897575,Calle 126 #1550,Villa Elvira,Instituto,Secundaria
+Instituto 61,-34.998563,-57.954150,Calle 105 #6251,Villa Elvira,Escuela,Superior
+Instituto 62,-35.000608,-58.010766,Calle 12 #7003,Zona Norte,Instituto,Superior
+Instituto 63,-35.041188,-57.854061,Calle 113 #6566,Parque Saavedra,Escuela,Secundaria
+Instituto 64,-34.840088,-57.973393,Calle 110 #8870,Centro,Escuela,Secundaria
+Instituto 65,-35.019698,-58.019984,Calle 48 #9518,Nueva República,Colegio,Secundaria
+Instituto 66,-34.801149,-57.867597,Calle 140 #6968,Parque Saavedra,Escuela,Primaria y Secundaria
+Instituto 67,-35.007496,-57.998686,Calle 79 #9482,Oeste,Colegio,Primaria
+Instituto 68,-34.991522,-58.075652,Calle 10 #6668,Abella,Colegio,Superior
+Instituto 69,-34.865442,-57.934548,Calle 96 #1088,Los Hornos,Colegio,Primaria
+Instituto 70,-34.965256,-57.807941,Calle 144 #9432,Tolosa,Escuela,Primaria
+Instituto 71,-35.009776,-57.823461,Calle 148 #7575,Zona Norte,Instituto,Superior
+Instituto 72,-35.011607,-57.865002,Calle 7 #8595,Parque Saavedra,Escuela,Superior
+Instituto 73,-34.861525,-58.010506,Calle 9 #1726,Centro,Colegio,Superior
+Instituto 74,-34.772437,-57.977217,Calle 77 #5247,Ángel Etcheverry,Instituto,Secundaria
+Instituto 75,-35.036320,-57.992356,Calle 31 #9112,Tolosa,Instituto,Superior
+Instituto 76,-34.800944,-58.003756,Calle 146 #6137,Tolosa,Instituto,Primaria y Secundaria
+Instituto 77,-34.805042,-57.970189,Calle 78 #4984,Este,Colegio,Superior
+Instituto 78,-34.990227,-57.831393,Calle 29 #4586,Centro,Escuela,Primaria y Secundaria
+Instituto 79,-34.845690,-57.904057,Calle 93 #1635,Gonnet,Instituto,Superior
+Instituto 80,-34.895786,-57.805880,Calle 145 #4718,Zona Norte,Colegio,Primaria y Secundaria
+Instituto 81,-34.851403,-57.809369,Calle 2 #8868,Zona Norte,Escuela,Primaria y Secundaria
+Instituto 82,-34.900295,-57.917601,Calle 27 #3445,Este,Colegio,Primaria y Secundaria
+Instituto 83,-35.056080,-57.839197,Calle 81 #7519,Los Hornos,Instituto,Secundaria
+Instituto 84,-34.959575,-57.897168,Calle 142 #2625,Centro,Escuela,Secundaria
+Instituto 85,-34.887569,-57.857744,Calle 130 #4084,Ringuelet,Instituto,Superior
+Instituto 86,-35.042890,-58.047821,Calle 141 #622,Villa Elvira,Colegio,Primaria y Secundaria
+Instituto 87,-34.902584,-57.973020,Calle 93 #7387,Abella,Escuela,Superior
+Instituto 88,-35.003577,-57.932505,Calle 80 #4044,Barrio Universitario,Escuela,Superior
+Instituto 89,-34.805095,-57.836796,Calle 118 #3834,Tolosa,Instituto,Superior
+Instituto 90,-35.060415,-57.962886,Calle 50 #5560,Ángel Etcheverry,Instituto,Primaria
+Instituto 91,-34.807589,-58.003589,Calle 33 #368,Ringuelet,Instituto,Superior
+Instituto 92,-34.892806,-57.849639,Calle 72 #5811,Villa Elvira,Escuela,Secundaria
+Instituto 93,-34.864518,-57.997662,Calle 99 #4785,Villa Elvira,Escuela,Secundaria
+Instituto 94,-35.066076,-57.971759,Calle 1 #984,Abella,Instituto,Primaria
+Instituto 95,-34.996892,-57.821937,Calle 119 #3803,Los Hornos,Instituto,Superior
+Instituto 96,-34.948147,-57.959806,Calle 45 #2315,Abella,Escuela,Primaria y Secundaria
+Instituto 97,-34.852113,-58.044408,Calle 15 #3976,Tolosa,Escuela,Primaria y Secundaria
+Instituto 98,-35.038197,-57.980389,Calle 66 #4120,Los Hornos,Colegio,Secundaria
+Instituto 99,-34.772791,-57.830281,Calle 43 #3015,Villa Elvira,Escuela,Secundaria
+Instituto 100,-35.041171,-57.901581,Calle 41 #598,Barrio Universitario,Escuela,Secundaria
+Instituto 101,-35.014229,-57.962663,Calle 12 #8703,Nueva República,Instituto,Primaria y Secundaria
+Instituto 102,-34.834945,-57.945584,Calle 96 #1888,Nueva República,Instituto,Superior
+Instituto 103,-35.015506,-58.077178,Calle 12 #7917,Parque Saavedra,Escuela,Secundaria
+Instituto 104,-34.986667,-57.947578,Calle 46 #4872,Oeste,Instituto,Primaria
+Instituto 105,-35.001965,-57.831872,Calle 59 #2846,Este,Instituto,Primaria
+Instituto 106,-34.847955,-57.915606,Calle 73 #6826,Villa Elvira,Colegio,Secundaria
+Instituto 107,-34.998970,-57.935590,Calle 79 #5224,Barrio Universitario,Escuela,Superior
+Instituto 108,-35.010624,-57.887626,Calle 149 #5973,Ringuelet,Instituto,Primaria y Secundaria
+Instituto 109,-34.826579,-58.088541,Calle 113 #1484,Barrio Universitario,Instituto,Secundaria
+Instituto 110,-34.862141,-58.010583,Calle 109 #934,Barrio Universitario,Colegio,Superior
+Instituto 111,-35.012953,-57.858422,Calle 55 #4606,Los Hornos,Escuela,Secundaria
+Instituto 112,-34.795566,-58.090873,Calle 104 #9283,Ringuelet,Instituto,Superior
+Instituto 113,-34.918392,-57.820489,Calle 97 #7563,Oeste,Escuela,Secundaria
+Instituto 114,-34.927670,-57.962162,Calle 5 #1885,Tolosa,Instituto,Superior
+Instituto 115,-34.965111,-57.830055,Calle 64 #2300,Abella,Colegio,Primaria y Secundaria
+Instituto 116,-34.959006,-57.866310,Calle 6 #8455,Ángel Etcheverry,Colegio,Primaria y Secundaria
+Instituto 117,-34.974360,-57.883828,Calle 3 #804,Este,Colegio,Secundaria
+Instituto 118,-34.988808,-57.973484,Calle 106 #3056,Barrio Universitario,Escuela,Superior
+Instituto 119,-34.907401,-57.912657,Calle 149 #844,Abella,Escuela,Primaria
+Instituto 120,-34.841611,-57.977813,Calle 61 #5675,Nueva República,Instituto,Primaria y Secundaria
+Instituto 121,-35.024757,-57.834244,Calle 91 #4264,Este,Instituto,Secundaria
+Instituto 122,-34.791880,-57.977859,Calle 34 #9972,Barrio Universitario,Instituto,Secundaria
+Instituto 123,-34.788208,-58.087116,Calle 94 #8311,Gonnet,Escuela,Primaria
+Instituto 124,-34.808707,-58.100849,Calle 100 #4771,Nueva República,Escuela,Secundaria
+Instituto 125,-35.059718,-58.080936,Calle 83 #6105,Barrio Universitario,Colegio,Primaria y Secundaria
+Instituto 126,-35.062393,-58.057745,Calle 125 #8178,Nueva República,Escuela,Superior
+Instituto 127,-34.800945,-57.908066,Calle 34 #6753,Nueva República,Colegio,Secundaria
+Instituto 128,-34.903775,-57.986264,Calle 107 #5903,Villa Elvira,Escuela,Primaria
+Instituto 129,-35.037959,-57.945663,Calle 118 #7004,Centro,Colegio,Secundaria
+Instituto 130,-34.806635,-57.873921,Calle 29 #5488,Barrio Universitario,Escuela,Primaria y Secundaria
+Instituto 131,-34.921612,-57.830391,Calle 121 #1349,Centro,Instituto,Secundaria
+Instituto 132,-34.798294,-58.019511,Calle 149 #6153,Tolosa,Instituto,Primaria
+Instituto 133,-34.958662,-57.983172,Calle 74 #6143,Tolosa,Colegio,Secundaria
+Instituto 134,-35.056398,-57.996488,Calle 60 #6047,Tolosa,Instituto,Primaria y Secundaria
+Instituto 135,-34.777498,-57.869984,Calle 80 #6934,Abella,Instituto,Primaria
+Instituto 136,-34.880859,-57.837903,Calle 128 #7941,Barrio Universitario,Colegio,Primaria
+Instituto 137,-34.926894,-58.029914,Calle 116 #4914,Zona Norte,Colegio,Primaria
+Instituto 138,-35.060993,-58.064166,Calle 58 #3852,Gonnet,Colegio,Primaria y Secundaria
+Instituto 139,-34.850876,-57.855497,Calle 93 #4083,Ringuelet,Escuela,Primaria
+Instituto 140,-35.014237,-58.016327,Calle 61 #777,San Carlos,Colegio,Secundaria
+Instituto 141,-34.791220,-58.031418,Calle 67 #2534,Nueva República,Colegio,Primaria y Secundaria
+Instituto 142,-34.948295,-57.858230,Calle 18 #5609,San Carlos,Colegio,Superior
+Instituto 143,-34.944198,-58.038018,Calle 147 #6164,Gonnet,Colegio,Primaria y Secundaria
+Instituto 144,-34.855925,-57.847013,Calle 70 #8731,Ángel Etcheverry,Escuela,Primaria y Secundaria
+Instituto 145,-34.843370,-58.020478,Calle 28 #5837,Ringuelet,Escuela,Superior
+Instituto 146,-34.777293,-58.082555,Calle 81 #5045,Abella,Escuela,Superior
+Instituto 147,-34.902162,-57.976360,Calle 37 #3531,Zona Sur,Instituto,Primaria
+Instituto 148,-34.803498,-57.819779,Calle 65 #4341,Gonnet,Instituto,Secundaria
+Instituto 149,-35.027334,-58.052493,Calle 116 #1599,Zona Norte,Colegio,Primaria
+Instituto 150,-34.980161,-57.907955,Calle 108 #6060,Este,Instituto,Primaria
+Instituto 151,-35.017673,-57.815020,Calle 111 #5952,Gonnet,Colegio,Primaria y Secundaria
+Instituto 152,-34.892378,-57.975627,Calle 2 #9912,Gonnet,Instituto,Primaria y Secundaria
+Instituto 153,-35.017988,-58.097344,Calle 150 #303,Tolosa,Escuela,Superior
+Instituto 154,-34.982485,-57.812191,Calle 129 #2870,Este,Colegio,Primaria y Secundaria
+Instituto 155,-35.057386,-57.851341,Calle 140 #1313,Tolosa,Instituto,Superior
+Instituto 156,-35.025938,-57.884129,Calle 115 #8512,Tolosa,Escuela,Primaria y Secundaria
+Instituto 157,-34.795663,-57.869198,Calle 46 #6781,Parque Saavedra,Instituto,Secundaria
+Instituto 158,-35.065785,-58.004091,Calle 148 #896,Zona Norte,Escuela,Primaria y Secundaria
+Instituto 159,-34.886006,-57.928459,Calle 76 #476,Abella,Escuela,Primaria
+Instituto 160,-35.039942,-57.911397,Calle 25 #8426,Oeste,Instituto,Secundaria
+Instituto 161,-35.052394,-57.944441,Calle 109 #9631,Centro,Escuela,Secundaria
+Instituto 162,-34.847821,-57.974990,Calle 19 #1223,Centro,Colegio,Primaria
+Instituto 163,-34.797991,-57.951807,Calle 111 #1318,Ángel Etcheverry,Instituto,Secundaria
+Instituto 164,-34.926682,-57.927288,Calle 124 #9701,Zona Norte,Colegio,Secundaria
+Instituto 165,-34.845339,-57.915096,Calle 79 #9252,Abella,Instituto,Superior
+Instituto 166,-34.890435,-57.932834,Calle 123 #5826,Zona Sur,Colegio,Secundaria
+Instituto 167,-35.070998,-57.807356,Calle 96 #1016,San Carlos,Escuela,Primaria y Secundaria
+Instituto 168,-34.978300,-57.898720,Calle 8 #7684,San Carlos,Colegio,Primaria
+Instituto 169,-34.921771,-57.902104,Calle 111 #4456,San Carlos,Escuela,Primaria y Secundaria
+Instituto 170,-34.889962,-57.899272,Calle 24 #4912,Gonnet,Instituto,Primaria y Secundaria
+Instituto 171,-34.802176,-57.937871,Calle 19 #1814,Nueva República,Colegio,Superior
+Instituto 172,-34.845447,-57.846966,Calle 77 #8753,Oeste,Escuela,Primaria y Secundaria
+Instituto 173,-34.787922,-58.020943,Calle 18 #4650,Oeste,Escuela,Primaria
+Instituto 174,-35.033605,-57.993398,Calle 97 #825,Los Hornos,Instituto,Primaria
+Instituto 175,-35.065176,-57.952770,Calle 80 #8128,Parque Saavedra,Colegio,Primaria
+Instituto 176,-34.983389,-57.904796,Calle 75 #3566,San Carlos,Colegio,Primaria y Secundaria
+Instituto 177,-34.773064,-57.886019,Calle 63 #2627,Los Hornos,Escuela,Primaria
+Instituto 178,-34.856543,-58.000377,Calle 76 #1385,Tolosa,Instituto,Primaria y Secundaria
+Instituto 179,-34.962178,-57.902186,Calle 146 #9411,Zona Sur,Instituto,Secundaria
+Instituto 180,-35.023485,-57.967525,Calle 144 #9682,Villa Elvira,Escuela,Secundaria
+Instituto 181,-35.009001,-57.909375,Calle 118 #1358,Barrio Universitario,Instituto,Primaria
+Instituto 182,-34.830955,-57.805492,Calle 54 #9925,Villa Elvira,Escuela,Primaria y Secundaria
+Instituto 183,-34.852158,-57.935876,Calle 88 #2676,Villa Elvira,Instituto,Superior
+Instituto 184,-34.800840,-57.998010,Calle 105 #9692,Ringuelet,Colegio,Primaria
+Instituto 185,-34.931086,-58.007592,Calle 148 #7399,Abella,Instituto,Secundaria
+Instituto 186,-34.994705,-58.044003,Calle 145 #7521,Los Hornos,Instituto,Primaria y Secundaria
+Instituto 187,-35.031674,-57.827086,Calle 115 #4843,Centro,Instituto,Primaria
+Instituto 188,-34.891693,-58.102742,Calle 66 #4850,Oeste,Instituto,Primaria y Secundaria
+Instituto 189,-35.061346,-57.943694,Calle 55 #2688,Barrio Universitario,Colegio,Primaria
+Instituto 190,-34.814127,-58.076839,Calle 87 #3148,Ringuelet,Escuela,Primaria y Secundaria
+Instituto 191,-34.875007,-57.838459,Calle 137 #905,Oeste,Escuela,Superior
+Instituto 192,-34.907322,-57.940867,Calle 69 #4504,Centro,Colegio,Superior
+Instituto 193,-34.860546,-57.853297,Calle 72 #2650,Parque Saavedra,Escuela,Superior
+Instituto 194,-35.052061,-57.822666,Calle 110 #9099,Este,Colegio,Primaria
+Instituto 195,-34.787940,-57.993875,Calle 10 #4945,Oeste,Instituto,Superior
+Instituto 196,-34.999706,-57.988496,Calle 124 #213,Centro,Instituto,Primaria
+Instituto 197,-34.929438,-57.975214,Calle 149 #7175,Zona Norte,Instituto,Secundaria
+Instituto 198,-34.873085,-57.842402,Calle 48 #3357,Abella,Colegio,Primaria
+Instituto 199,-34.913922,-57.864355,Calle 148 #7500,Oeste,Colegio,Secundaria
+Instituto 200,-34.780196,-58.044045,Calle 85 #9940,Villa Elvira,Escuela,Secundaria
+Instituto 201,-35.047287,-58.020637,Calle 8 #6084,Barrio Universitario,Colegio,Superior
+Instituto 202,-34.999774,-58.078394,Calle 30 #4012,Gonnet,Escuela,Primaria
+Instituto 203,-35.002065,-57.813646,Calle 41 #1584,Zona Norte,Instituto,Primaria y Secundaria
+Instituto 204,-34.813646,-58.045965,Calle 123 #2629,Centro,Colegio,Primaria y Secundaria
+Instituto 205,-34.837040,-58.023513,Calle 20 #9136,Villa Elvira,Colegio,Primaria y Secundaria
+Instituto 206,-35.014098,-58.005355,Calle 14 #8587,Zona Sur,Colegio,Primaria y Secundaria
+Instituto 207,-34.849809,-58.068063,Calle 98 #3889,Zona Norte,Instituto,Superior
+Instituto 208,-34.920565,-57.878947,Calle 105 #5121,Villa Elvira,Colegio,Primaria
+Instituto 209,-34.983584,-58.010276,Calle 24 #8622,Gonnet,Instituto,Secundaria
+Instituto 210,-34.914218,-58.058898,Calle 103 #9318,Abella,Instituto,Superior
+Instituto 211,-34.967611,-57.952421,Calle 140 #5950,Abella,Escuela,Primaria
+Instituto 212,-34.886622,-57.953951,Calle 120 #2733,Ángel Etcheverry,Escuela,Primaria y Secundaria
+Instituto 213,-34.885620,-57.987437,Calle 69 #6253,Villa Elvira,Colegio,Primaria y Secundaria
+Instituto 214,-34.911006,-58.083509,Calle 47 #5760,Gonnet,Instituto,Primaria y Secundaria
+Instituto 215,-34.909550,-58.069440,Calle 37 #6308,Parque Saavedra,Escuela,Secundaria
+Instituto 216,-34.824352,-58.050087,Calle 118 #3052,Gonnet,Colegio,Secundaria
+Instituto 217,-35.065478,-57.922445,Calle 40 #400,San Carlos,Escuela,Superior
+Instituto 218,-35.035823,-57.817639,Calle 121 #9650,Este,Instituto,Primaria
+Instituto 219,-34.900893,-58.099710,Calle 51 #9597,Villa Elvira,Colegio,Superior
+Instituto 220,-34.982193,-58.032395,Calle 110 #1587,Ringuelet,Escuela,Primaria y Secundaria
+Instituto 221,-34.907464,-58.004709,Calle 106 #1006,Zona Norte,Colegio,Primaria y Secundaria
+Instituto 222,-34.985309,-57.991726,Calle 95 #4761,Barrio Universitario,Escuela,Primaria y Secundaria
+Instituto 223,-34.937731,-58.090988,Calle 106 #1965,Abella,Escuela,Primaria y Secundaria
+Instituto 224,-34.935254,-57.895492,Calle 70 #6708,Barrio Universitario,Instituto,Primaria
+Instituto 225,-35.057075,-57.888438,Calle 102 #4560,Villa Elvira,Colegio,Secundaria
+Instituto 226,-35.024720,-57.860077,Calle 120 #9913,Este,Instituto,Superior
+Instituto 227,-34.914972,-58.049238,Calle 102 #5274,Ringuelet,Instituto,Primaria
+Instituto 228,-34.852165,-57.873606,Calle 69 #7488,Parque Saavedra,Instituto,Secundaria
+Instituto 229,-34.995448,-58.001351,Calle 36 #1705,Zona Norte,Escuela,Primaria
+Instituto 230,-34.927797,-57.864835,Calle 103 #561,Villa Elvira,Colegio,Primaria
+Instituto 231,-35.021276,-57.816012,Calle 67 #559,Zona Sur,Instituto,Secundaria
+Instituto 232,-34.990464,-57.897699,Calle 14 #7782,Centro,Escuela,Secundaria
+Instituto 233,-34.872408,-58.027824,Calle 109 #7553,Villa Elvira,Instituto,Secundaria
+Instituto 234,-34.923976,-58.059687,Calle 115 #805,Abella,Escuela,Superior
+Instituto 235,-34.831012,-58.040235,Calle 50 #869,Barrio Universitario,Instituto,Secundaria
+Instituto 236,-34.911910,-57.941029,Calle 99 #6466,Nueva República,Colegio,Primaria y Secundaria
+Instituto 237,-35.035006,-57.962608,Calle 118 #4330,Zona Norte,Colegio,Superior
+Instituto 238,-35.062279,-58.068792,Calle 105 #9527,Ringuelet,Escuela,Superior
+Instituto 239,-34.834756,-57.954507,Calle 82 #5128,Gonnet,Instituto,Secundaria
+Instituto 240,-34.781709,-58.029824,Calle 70 #2313,Zona Sur,Colegio,Superior
+Instituto 241,-34.872530,-58.068676,Calle 145 #3787,Este,Instituto,Primaria
+Instituto 242,-35.022866,-57.820507,Calle 96 #6411,Barrio Universitario,Instituto,Primaria
+Instituto 243,-34.848949,-58.066843,Calle 127 #3742,Nueva República,Escuela,Superior
+Instituto 244,-35.064621,-58.033092,Calle 57 #7694,Parque Saavedra,Colegio,Primaria
+Instituto 245,-34.890892,-57.896151,Calle 131 #1933,San Carlos,Escuela,Secundaria
+Instituto 246,-34.802124,-57.888801,Calle 22 #4364,Gonnet,Colegio,Primaria y Secundaria
+Instituto 247,-34.797862,-57.914716,Calle 84 #4004,Zona Norte,Escuela,Secundaria
+Instituto 248,-34.935862,-57.831903,Calle 48 #7274,Tolosa,Instituto,Secundaria
+Instituto 249,-34.842029,-57.953991,Calle 97 #7422,Ángel Etcheverry,Colegio,Superior
+Instituto 250,-34.986372,-57.865681,Calle 55 #785,Zona Sur,Colegio,Secundaria
+Instituto 251,-35.019918,-57.866678,Calle 40 #9923,Zona Norte,Colegio,Secundaria
+Instituto 252,-34.909443,-57.891290,Calle 21 #7877,Abella,Instituto,Secundaria
+Instituto 253,-34.912128,-58.018719,Calle 13 #1941,Barrio Universitario,Escuela,Secundaria
+Instituto 254,-34.836337,-57.990785,Calle 128 #8414,Abella,Escuela,Superior
+Instituto 255,-34.833800,-57.970477,Calle 75 #6939,Ángel Etcheverry,Escuela,Superior
+Instituto 256,-34.903929,-57.884258,Calle 18 #6233,Zona Norte,Escuela,Primaria y Secundaria
+Instituto 257,-34.953985,-57.838569,Calle 52 #2212,Abella,Instituto,Superior
+Instituto 258,-34.852620,-57.891922,Calle 139 #1909,Los Hornos,Instituto,Primaria y Secundaria
+Instituto 259,-34.997651,-57.972532,Calle 29 #3567,Zona Sur,Instituto,Primaria
+Instituto 260,-34.857907,-57.968233,Calle 6 #7065,Abella,Colegio,Superior
+Instituto 261,-34.838217,-57.854049,Calle 52 #6182,Zona Norte,Instituto,Primaria
+Instituto 262,-34.916564,-57.985623,Calle 92 #9149,Los Hornos,Escuela,Primaria
+Instituto 263,-34.885175,-57.890549,Calle 18 #3824,Gonnet,Colegio,Primaria
+Instituto 264,-34.855911,-58.046970,Calle 30 #9906,Barrio Universitario,Instituto,Primaria y Secundaria
+Instituto 265,-34.819616,-58.080554,Calle 85 #4907,Ángel Etcheverry,Instituto,Secundaria
+Instituto 266,-35.069627,-57.977699,Calle 75 #6814,Centro,Colegio,Primaria
+Instituto 267,-34.943795,-58.050089,Calle 150 #3572,Centro,Colegio,Superior
+Instituto 268,-35.020840,-57.996609,Calle 78 #648,Ringuelet,Escuela,Superior
+Instituto 269,-34.773289,-57.833634,Calle 6 #3505,Villa Elvira,Instituto,Primaria
+Instituto 270,-34.986304,-57.982443,Calle 30 #7105,Ángel Etcheverry,Instituto,Primaria y Secundaria
+Instituto 271,-34.975611,-57.911758,Calle 134 #2201,Los Hornos,Instituto,Secundaria
+Instituto 272,-34.990577,-57.934413,Calle 102 #6729,Oeste,Colegio,Secundaria
+Instituto 273,-35.022285,-57.990367,Calle 47 #7970,Ringuelet,Escuela,Primaria y Secundaria
+Instituto 274,-34.940635,-57.844556,Calle 124 #6922,Abella,Instituto,Superior
+Instituto 275,-34.896188,-58.078337,Calle 95 #9822,San Carlos,Escuela,Superior
+Instituto 276,-34.946165,-57.833610,Calle 92 #9808,Barrio Universitario,Instituto,Secundaria
+Instituto 277,-34.951495,-58.078587,Calle 49 #5929,Gonnet,Colegio,Secundaria
+Instituto 278,-34.818643,-57.878232,Calle 13 #4430,Abella,Colegio,Primaria y Secundaria
+Instituto 279,-34.863264,-58.001800,Calle 110 #639,Abella,Colegio,Primaria y Secundaria
+Instituto 280,-35.062184,-58.015876,Calle 19 #3037,San Carlos,Colegio,Superior
+Instituto 281,-34.870404,-57.840336,Calle 135 #3273,Villa Elvira,Escuela,Superior
+Instituto 282,-34.859543,-57.914187,Calle 19 #840,Los Hornos,Colegio,Superior
+Instituto 283,-34.979616,-58.066185,Calle 119 #2032,Ringuelet,Colegio,Secundaria
+Instituto 284,-34.778002,-58.000475,Calle 31 #7615,Nueva República,Instituto,Primaria y Secundaria
+Instituto 285,-35.068440,-58.084074,Calle 54 #2775,Barrio Universitario,Colegio,Superior
+Instituto 286,-35.034647,-58.039158,Calle 69 #2138,Parque Saavedra,Escuela,Primaria y Secundaria
+Instituto 287,-34.913186,-58.048077,Calle 136 #9311,Oeste,Instituto,Primaria y Secundaria
+Instituto 288,-35.064448,-58.043746,Calle 99 #586,Nueva República,Colegio,Secundaria
+Instituto 289,-34.807789,-58.041077,Calle 30 #2197,Ángel Etcheverry,Instituto,Primaria
+Instituto 290,-34.839865,-57.963103,Calle 150 #2627,Abella,Instituto,Secundaria
+Instituto 291,-34.932038,-58.058377,Calle 15 #8479,Gonnet,Colegio,Superior
+Instituto 292,-34.826478,-57.864020,Calle 96 #3996,Los Hornos,Escuela,Superior
+Instituto 293,-35.022791,-57.862227,Calle 42 #3672,Nueva República,Colegio,Primaria y Secundaria
+Instituto 294,-34.958290,-57.810710,Calle 138 #3152,Este,Escuela,Secundaria
+Instituto 295,-34.823342,-57.952621,Calle 57 #1716,Centro,Instituto,Superior
+Instituto 296,-34.892083,-57.906418,Calle 129 #8828,Ángel Etcheverry,Colegio,Superior
+Instituto 297,-34.854131,-58.006618,Calle 118 #3776,Zona Sur,Instituto,Secundaria
+Instituto 298,-35.056873,-58.085606,Calle 58 #3717,Villa Elvira,Colegio,Superior
+Instituto 299,-34.831490,-58.045860,Calle 14 #3267,Nueva República,Colegio,Primaria
+Instituto 300,-34.790305,-57.865557,Calle 101 #3187,San Carlos,Escuela,Secundaria
+Instituto 301,-35.068948,-57.965077,Calle 55 #3366,Nueva República,Colegio,Primaria
+Instituto 302,-34.847545,-58.023183,Calle 43 #5239,San Carlos,Escuela,Primaria y Secundaria
+Instituto 303,-34.860430,-57.951016,Calle 54 #5211,Ringuelet,Escuela,Secundaria
+Instituto 304,-35.018279,-57.838037,Calle 112 #8626,Los Hornos,Instituto,Secundaria
+Instituto 305,-34.995747,-57.862708,Calle 46 #7925,Ringuelet,Escuela,Superior
+Instituto 306,-34.861317,-58.007896,Calle 48 #9368,Tolosa,Escuela,Primaria y Secundaria
+Instituto 307,-35.026028,-58.048594,Calle 27 #6693,Barrio Universitario,Escuela,Superior
+Instituto 308,-34.876393,-57.978762,Calle 69 #6780,Centro,Colegio,Superior
+Instituto 309,-35.022403,-57.996396,Calle 61 #8539,Este,Escuela,Secundaria
+Instituto 310,-34.981253,-57.905670,Calle 68 #6589,Centro,Escuela,Primaria
+Instituto 311,-34.916108,-57.959283,Calle 116 #760,Tolosa,Escuela,Primaria
+Instituto 312,-35.012858,-57.956465,Calle 55 #2047,Centro,Instituto,Superior
+Instituto 313,-34.772296,-58.054133,Calle 95 #5129,Ringuelet,Colegio,Primaria y Secundaria
+Instituto 314,-34.797258,-57.920647,Calle 119 #6264,Tolosa,Escuela,Primaria
+Instituto 315,-34.943801,-58.038088,Calle 140 #273,Tolosa,Escuela,Primaria y Secundaria
+Instituto 316,-34.878855,-57.997239,Calle 65 #2436,Barrio Universitario,Escuela,Primaria
+Instituto 317,-34.933793,-58.080417,Calle 59 #1475,Zona Norte,Escuela,Primaria
+Instituto 318,-34.893467,-58.042050,Calle 54 #3854,Parque Saavedra,Escuela,Secundaria
+Instituto 319,-34.956869,-57.924700,Calle 15 #8145,Tolosa,Escuela,Secundaria
+Instituto 320,-35.044770,-57.980238,Calle 22 #2442,Gonnet,Colegio,Secundaria
+Instituto 321,-34.861939,-58.094727,Calle 29 #8487,Ringuelet,Colegio,Secundaria
+Instituto 322,-35.006500,-57.970744,Calle 75 #9592,Abella,Colegio,Primaria y Secundaria
+Instituto 323,-35.056572,-57.918809,Calle 72 #3568,Parque Saavedra,Instituto,Secundaria
+Instituto 324,-34.920255,-58.001341,Calle 80 #7663,Tolosa,Instituto,Superior
+Instituto 325,-34.958100,-57.998268,Calle 118 #7073,Parque Saavedra,Colegio,Secundaria
+Instituto 326,-34.995316,-58.035197,Calle 99 #3596,Los Hornos,Escuela,Superior
+Instituto 327,-35.004718,-57.913201,Calle 50 #4622,Zona Norte,Instituto,Primaria
+Instituto 328,-34.870579,-58.083132,Calle 98 #1597,Gonnet,Instituto,Superior
+Instituto 329,-34.901180,-57.906122,Calle 101 #7352,Villa Elvira,Escuela,Superior
+Instituto 330,-34.869576,-57.846140,Calle 17 #429,Zona Sur,Colegio,Primaria y Secundaria
+Instituto 331,-34.799946,-57.815063,Calle 53 #4437,Tolosa,Instituto,Secundaria
+Instituto 332,-34.827388,-57.844966,Calle 135 #4500,Gonnet,Colegio,Superior
+Instituto 333,-34.781603,-57.997789,Calle 88 #6697,Zona Sur,Escuela,Secundaria
+Instituto 334,-35.049379,-57.938285,Calle 5 #5160,Zona Norte,Escuela,Secundaria
+Instituto 335,-34.875293,-57.939850,Calle 141 #5963,Nueva República,Escuela,Superior
+Instituto 336,-34.949415,-58.008220,Calle 88 #6651,Villa Elvira,Instituto,Superior
+Instituto 337,-35.032463,-57.810917,Calle 69 #7724,Zona Norte,Escuela,Secundaria
+Instituto 338,-35.061292,-57.866134,Calle 126 #4910,Parque Saavedra,Escuela,Secundaria
+Instituto 339,-34.915807,-57.832746,Calle 137 #1925,Zona Sur,Instituto,Primaria y Secundaria
+Instituto 340,-34.875246,-58.048645,Calle 118 #4397,Zona Sur,Colegio,Primaria
+Instituto 341,-35.029246,-57.836895,Calle 1 #2222,Villa Elvira,Colegio,Secundaria
+Instituto 342,-34.991712,-57.811720,Calle 72 #841,Gonnet,Colegio,Primaria y Secundaria
+Instituto 343,-34.856412,-58.013886,Calle 22 #4666,Tolosa,Colegio,Primaria y Secundaria
+Instituto 344,-35.055831,-57.971295,Calle 1 #656,Ángel Etcheverry,Instituto,Primaria
+Instituto 345,-34.961814,-57.839800,Calle 34 #922,Villa Elvira,Instituto,Secundaria
+Instituto 346,-34.773336,-58.038675,Calle 91 #3125,Nueva República,Escuela,Secundaria
+Instituto 347,-35.062827,-57.996424,Calle 81 #3648,Este,Colegio,Primaria
+Instituto 348,-34.855121,-57.974464,Calle 38 #8541,Gonnet,Colegio,Primaria y Secundaria
+Instituto 349,-34.959756,-57.812255,Calle 146 #6470,Abella,Escuela,Superior
+Instituto 350,-34.934707,-57.991422,Calle 35 #6160,Gonnet,Instituto,Secundaria
+Instituto 351,-34.808826,-58.023286,Calle 57 #1062,Barrio Universitario,Escuela,Superior
+Instituto 352,-35.056459,-57.935110,Calle 101 #8633,Los Hornos,Colegio,Superior
+Instituto 353,-34.803176,-57.903313,Calle 74 #3532,Nueva República,Instituto,Primaria
+Instituto 354,-35.046494,-58.031870,Calle 35 #2791,Abella,Instituto,Primaria y Secundaria
+Instituto 355,-34.952695,-57.988078,Calle 30 #6548,Centro,Instituto,Superior
+Instituto 356,-34.916234,-58.064314,Calle 48 #4630,Nueva República,Escuela,Secundaria
+Instituto 357,-34.892770,-58.027302,Calle 114 #7565,Villa Elvira,Escuela,Primaria
+Instituto 358,-34.790449,-58.094817,Calle 6 #3107,Ángel Etcheverry,Instituto,Secundaria
+Instituto 359,-34.806067,-57.820703,Calle 3 #3214,Villa Elvira,Escuela,Primaria
+Instituto 360,-34.781558,-58.025661,Calle 134 #7223,San Carlos,Instituto,Primaria
+Instituto 361,-34.973205,-57.959340,Calle 55 #4601,Ringuelet,Escuela,Secundaria
+Instituto 362,-34.965290,-57.913089,Calle 18 #1544,Ringuelet,Escuela,Superior
+Instituto 363,-34.885135,-57.965429,Calle 85 #7683,Ángel Etcheverry,Colegio,Superior
+Instituto 364,-34.987377,-57.862008,Calle 54 #4373,Gonnet,Colegio,Primaria
+Instituto 365,-34.774000,-57.992427,Calle 2 #4857,Los Hornos,Colegio,Primaria
+Instituto 366,-35.031431,-57.988079,Calle 52 #5374,Zona Sur,Colegio,Superior
+Instituto 367,-34.989352,-58.005493,Calle 150 #7512,San Carlos,Instituto,Primaria y Secundaria
+Instituto 368,-34.815020,-58.035890,Calle 65 #5391,Barrio Universitario,Instituto,Superior
+Instituto 369,-34.998042,-57.945713,Calle 92 #944,Barrio Universitario,Colegio,Primaria
+Instituto 370,-35.009449,-57.864590,Calle 45 #3057,Los Hornos,Instituto,Primaria y Secundaria
+Instituto 371,-35.003799,-58.077985,Calle 132 #3693,Abella,Escuela,Primaria
+Instituto 372,-34.868596,-57.943155,Calle 25 #1208,Parque Saavedra,Colegio,Primaria
+Instituto 373,-34.788271,-57.986171,Calle 94 #8033,Este,Escuela,Superior
+Instituto 374,-34.966316,-57.949383,Calle 142 #1380,Oeste,Escuela,Secundaria
+Instituto 375,-35.009905,-57.893200,Calle 106 #7464,Zona Norte,Colegio,Primaria y Secundaria
+Instituto 376,-35.014021,-57.971793,Calle 17 #8797,Los Hornos,Colegio,Secundaria
+Instituto 377,-34.874786,-57.925181,Calle 71 #7823,Zona Sur,Escuela,Primaria
+Instituto 378,-35.028427,-58.075825,Calle 13 #3339,Los Hornos,Colegio,Superior
+Instituto 379,-34.782667,-57.833429,Calle 121 #5239,Los Hornos,Colegio,Secundaria
+Instituto 380,-34.943448,-58.039200,Calle 17 #2790,Tolosa,Escuela,Superior
+Instituto 381,-34.842722,-57.953944,Calle 74 #346,Parque Saavedra,Colegio,Primaria y Secundaria
+Instituto 382,-34.965136,-57.904880,Calle 146 #7022,Zona Norte,Instituto,Secundaria
+Instituto 383,-34.824707,-57.899854,Calle 122 #6242,San Carlos,Escuela,Primaria
+Instituto 384,-35.043120,-57.868663,Calle 38 #2471,Este,Instituto,Secundaria
+Instituto 385,-35.064162,-57.985074,Calle 57 #7161,Abella,Colegio,Secundaria
+Instituto 386,-34.889840,-58.042590,Calle 35 #1805,Este,Colegio,Primaria y Secundaria
+Instituto 387,-34.828116,-57.861530,Calle 99 #2353,Abella,Colegio,Superior
+Instituto 388,-34.907604,-58.079865,Calle 149 #6525,Abella,Instituto,Primaria
+Instituto 389,-34.780444,-57.816061,Calle 95 #9690,Villa Elvira,Instituto,Primaria
+Instituto 390,-34.908980,-58.066318,Calle 103 #8676,Parque Saavedra,Colegio,Secundaria
+Instituto 391,-35.020855,-57.994726,Calle 41 #7424,Oeste,Colegio,Primaria
+Instituto 392,-34.909447,-57.904567,Calle 146 #5478,Este,Colegio,Secundaria
+Instituto 393,-34.862236,-57.911963,Calle 71 #9543,Gonnet,Instituto,Primaria y Secundaria
+Instituto 394,-34.989161,-58.039078,Calle 4 #9953,Oeste,Escuela,Primaria y Secundaria
+Instituto 395,-34.963544,-57.934875,Calle 132 #7296,Gonnet,Colegio,Primaria
+Instituto 396,-34.892649,-57.986498,Calle 19 #1905,Parque Saavedra,Escuela,Secundaria
+Instituto 397,-34.912387,-58.042629,Calle 42 #5407,San Carlos,Colegio,Primaria
+Instituto 398,-34.875775,-57.859569,Calle 123 #5653,Tolosa,Instituto,Primaria y Secundaria
+Instituto 399,-34.942952,-57.885862,Calle 92 #7636,Gonnet,Instituto,Primaria y Secundaria
+Instituto 400,-34.866229,-57.981164,Calle 96 #9907,Nueva República,Instituto,Superior
+Instituto 401,-34.972514,-57.834404,Calle 43 #6981,Nueva República,Instituto,Primaria y Secundaria
+Instituto 402,-34.828196,-57.816685,Calle 91 #9588,Ángel Etcheverry,Colegio,Superior
+Instituto 403,-34.943642,-57.957788,Calle 14 #2236,Nueva República,Instituto,Primaria
+Instituto 404,-34.979566,-57.816582,Calle 121 #9149,Ringuelet,Colegio,Primaria y Secundaria
+Instituto 405,-34.789727,-58.071254,Calle 52 #2033,Gonnet,Colegio,Primaria y Secundaria
+Instituto 406,-34.839877,-58.038520,Calle 71 #6845,Parque Saavedra,Instituto,Primaria
+Instituto 407,-34.960146,-58.077305,Calle 1 #1403,Villa Elvira,Instituto,Superior
+Instituto 408,-34.963894,-58.093062,Calle 135 #715,Gonnet,Colegio,Secundaria
+Instituto 409,-34.953898,-57.921961,Calle 142 #8257,Barrio Universitario,Colegio,Superior
+Instituto 410,-34.802868,-58.026771,Calle 73 #4103,Villa Elvira,Escuela,Superior
+Instituto 411,-34.986135,-58.065260,Calle 125 #4803,Zona Norte,Instituto,Primaria y Secundaria
+Instituto 412,-34.850519,-57.851400,Calle 54 #6244,Este,Escuela,Secundaria
+Instituto 413,-34.776149,-57.934916,Calle 10 #7345,Gonnet,Colegio,Superior
+Instituto 414,-34.863081,-58.056943,Calle 95 #1827,Parque Saavedra,Escuela,Primaria y Secundaria
+Instituto 415,-34.857988,-57.891988,Calle 99 #9376,Gonnet,Colegio,Primaria y Secundaria
+Instituto 416,-34.797051,-57.872936,Calle 15 #9201,Barrio Universitario,Colegio,Primaria
+Instituto 417,-34.883281,-57.975258,Calle 29 #9176,Zona Norte,Instituto,Secundaria
+Instituto 418,-35.047813,-57.922053,Calle 37 #7088,Barrio Universitario,Instituto,Primaria
+Instituto 419,-35.016598,-57.970422,Calle 35 #4562,Nueva República,Instituto,Superior
+Instituto 420,-35.069144,-58.067519,Calle 49 #2260,Ringuelet,Colegio,Secundaria
+Instituto 421,-34.992462,-57.947117,Calle 52 #4480,Gonnet,Instituto,Superior
+Instituto 422,-34.794783,-58.070758,Calle 141 #3936,Este,Colegio,Primaria y Secundaria
+Instituto 423,-35.036894,-58.087774,Calle 83 #5857,Nueva República,Instituto,Primaria y Secundaria
+Instituto 424,-34.955561,-57.992319,Calle 8 #8518,Abella,Colegio,Primaria
+Instituto 425,-34.968819,-58.031305,Calle 60 #877,Nueva República,Colegio,Secundaria
+Instituto 426,-34.786447,-57.971266,Calle 6 #7448,Zona Sur,Escuela,Primaria
+Instituto 427,-34.944226,-58.104270,Calle 138 #5240,Ringuelet,Escuela,Secundaria
+Instituto 428,-34.848479,-58.090030,Calle 8 #6695,Abella,Colegio,Superior
+Instituto 429,-35.047728,-57.871750,Calle 136 #3185,Este,Escuela,Primaria y Secundaria
+Instituto 430,-34.981844,-58.014997,Calle 100 #7816,Zona Norte,Colegio,Secundaria
+Instituto 431,-34.824076,-57.943912,Calle 21 #3060,Gonnet,Colegio,Secundaria
+Instituto 432,-34.839380,-58.052128,Calle 103 #4407,Tolosa,Colegio,Secundaria
+Instituto 433,-34.887976,-58.032246,Calle 46 #7790,Gonnet,Escuela,Primaria
+Instituto 434,-34.854982,-57.932881,Calle 62 #4290,Tolosa,Instituto,Secundaria
+Instituto 435,-34.903134,-58.087599,Calle 70 #7287,Zona Norte,Colegio,Primaria y Secundaria
+Instituto 436,-34.875748,-57.854560,Calle 84 #1940,Centro,Colegio,Primaria
+Instituto 437,-34.969692,-57.949166,Calle 27 #7026,Barrio Universitario,Colegio,Primaria
+Instituto 438,-34.816396,-57.857513,Calle 136 #4593,Centro,Colegio,Superior
+Instituto 439,-34.972309,-57.846689,Calle 124 #2113,Abella,Escuela,Primaria y Secundaria
+Instituto 440,-35.020470,-57.806873,Calle 15 #3114,Villa Elvira,Escuela,Primaria y Secundaria
+Instituto 441,-35.006719,-58.103932,Calle 29 #8086,San Carlos,Escuela,Secundaria
+Instituto 442,-34.992522,-57.983991,Calle 5 #1550,San Carlos,Instituto,Primaria
+Instituto 443,-34.997280,-57.806625,Calle 34 #754,Gonnet,Escuela,Superior
+Instituto 444,-34.979621,-58.101950,Calle 27 #8821,Zona Norte,Colegio,Primaria y Secundaria
+Instituto 445,-35.034623,-58.020744,Calle 128 #3020,Parque Saavedra,Instituto,Superior
+Instituto 446,-35.050557,-57.935408,Calle 87 #7225,Zona Norte,Instituto,Primaria
+Instituto 447,-34.849067,-58.051015,Calle 30 #6465,Zona Norte,Instituto,Primaria
+Instituto 448,-34.789436,-57.984353,Calle 54 #2741,Zona Norte,Colegio,Primaria
+Instituto 449,-34.806829,-57.844574,Calle 34 #1805,Este,Escuela,Primaria y Secundaria
+Instituto 450,-34.816682,-57.816606,Calle 26 #521,Oeste,Escuela,Secundaria
+Instituto 451,-34.813563,-58.073527,Calle 78 #6534,Parque Saavedra,Colegio,Secundaria
+Instituto 452,-34.998780,-57.812022,Calle 52 #1878,Parque Saavedra,Colegio,Secundaria
+Instituto 453,-35.017173,-58.019999,Calle 122 #4569,Abella,Escuela,Primaria
+Instituto 454,-34.962672,-58.092584,Calle 64 #4472,Ángel Etcheverry,Colegio,Superior
+Instituto 455,-34.861166,-58.021975,Calle 26 #6910,Oeste,Colegio,Primaria y Secundaria
+Instituto 456,-34.773363,-58.081388,Calle 47 #7351,Abella,Colegio,Secundaria
+Instituto 457,-34.928711,-58.104601,Calle 149 #5684,Gonnet,Colegio,Superior
+Instituto 458,-34.964054,-58.030044,Calle 132 #7535,San Carlos,Escuela,Primaria y Secundaria
+Instituto 459,-34.982442,-57.845078,Calle 103 #1159,Parque Saavedra,Instituto,Primaria y Secundaria
+Instituto 460,-34.988791,-57.963770,Calle 108 #1821,Este,Colegio,Secundaria
+Instituto 461,-34.823004,-57.924907,Calle 32 #4061,Zona Sur,Escuela,Superior
+Instituto 462,-34.961489,-58.037425,Calle 76 #5921,Abella,Colegio,Primaria y Secundaria
+Instituto 463,-34.900994,-57.959220,Calle 95 #6961,San Carlos,Colegio,Secundaria
+Instituto 464,-35.059878,-58.072021,Calle 142 #5766,Zona Norte,Instituto,Secundaria
+Instituto 465,-34.931334,-58.060957,Calle 2 #6950,Centro,Escuela,Superior
+Instituto 466,-34.825016,-57.967255,Calle 116 #6627,Abella,Escuela,Superior
+Instituto 467,-34.869568,-57.931153,Calle 12 #3777,Barrio Universitario,Escuela,Superior
+Instituto 468,-34.861253,-57.922610,Calle 114 #2279,Este,Instituto,Secundaria
+Instituto 469,-35.008271,-57.831868,Calle 46 #8702,Los Hornos,Escuela,Secundaria
+Instituto 470,-35.006444,-57.865481,Calle 17 #8910,Zona Norte,Colegio,Primaria y Secundaria
+Instituto 471,-34.860835,-58.011735,Calle 147 #7937,Centro,Escuela,Primaria y Secundaria
+Instituto 472,-35.032357,-57.941932,Calle 50 #4806,Gonnet,Instituto,Secundaria
+Instituto 473,-35.020567,-57.817685,Calle 89 #8858,Este,Escuela,Primaria y Secundaria
+Instituto 474,-35.026881,-57.828680,Calle 130 #5676,Villa Elvira,Instituto,Primaria y Secundaria
+Instituto 475,-34.976826,-57.944900,Calle 107 #2298,Abella,Instituto,Secundaria
+Instituto 476,-34.845512,-57.856502,Calle 98 #5687,Nueva República,Instituto,Secundaria
+Instituto 477,-34.956295,-58.021578,Calle 57 #5220,Nueva República,Escuela,Superior
+Instituto 478,-35.052337,-58.061663,Calle 84 #6703,Este,Escuela,Primaria y Secundaria
+Instituto 479,-34.850290,-58.093540,Calle 95 #5580,San Carlos,Colegio,Superior
+Instituto 480,-34.917003,-58.096329,Calle 149 #6271,Los Hornos,Colegio,Primaria y Secundaria
+Instituto 481,-35.000274,-58.019357,Calle 39 #5023,Este,Instituto,Primaria
+Instituto 482,-34.795231,-57.889537,Calle 73 #294,Parque Saavedra,Escuela,Primaria
+Instituto 483,-34.844717,-58.048778,Calle 117 #8491,Oeste,Instituto,Primaria y Secundaria
+Instituto 484,-35.020683,-58.092033,Calle 78 #7790,San Carlos,Escuela,Superior
+Instituto 485,-35.064002,-57.842364,Calle 3 #9263,Ángel Etcheverry,Colegio,Primaria y Secundaria
+Instituto 486,-34.863137,-57.961287,Calle 97 #6898,Los Hornos,Escuela,Superior
+Instituto 487,-34.809327,-57.940765,Calle 117 #9379,Villa Elvira,Instituto,Primaria y Secundaria
+Instituto 488,-34.818146,-57.874310,Calle 34 #1246,Oeste,Colegio,Primaria
+Instituto 489,-34.950143,-57.887250,Calle 138 #8824,Nueva República,Colegio,Secundaria
+Instituto 490,-34.862970,-58.038110,Calle 47 #3397,Tolosa,Escuela,Primaria
+Instituto 491,-34.896471,-57.997980,Calle 43 #503,Ángel Etcheverry,Escuela,Superior
+Instituto 492,-34.780664,-57.965085,Calle 44 #6262,Centro,Instituto,Primaria y Secundaria
+Instituto 493,-34.893208,-58.050507,Calle 79 #3947,Este,Escuela,Secundaria
+Instituto 494,-34.911966,-57.835786,Calle 55 #1745,Los Hornos,Instituto,Primaria y Secundaria
+Instituto 495,-34.794677,-57.919748,Calle 21 #6618,Zona Sur,Escuela,Superior
+Instituto 496,-34.941461,-57.812037,Calle 131 #4716,Zona Sur,Instituto,Superior
+Instituto 497,-35.034773,-57.911141,Calle 38 #4107,Ángel Etcheverry,Instituto,Superior
+Instituto 498,-34.870776,-57.925743,Calle 46 #4406,Tolosa,Colegio,Secundaria
+Instituto 499,-34.926307,-57.831508,Calle 78 #7494,Parque Saavedra,Colegio,Primaria
+Instituto 500,-34.917979,-57.920772,Calle 2 #5069,Tolosa,Colegio,Primaria y Secundaria

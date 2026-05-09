@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title id="pageTitle">TraficoMap - Sistema de Monitoreo Municipal</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  
+  <!-- Leaflet MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../css/style.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+    
+    #app-container {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+    }
+    
+    #sidebar {
+      width: 300px;
+      background: #1a1a2e;
+      color: white;
+      padding: 20px;
+      overflow-y: auto;
+      overflow-x: visible;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 10;
+    }
+    
+    #map {
+      flex: 1;
+      background: #e0e0e0;
+    }
+    
+    #logo {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .sidebar-section {
+      margin-bottom: 30px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 15px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .sidebar-section select {
+      position: relative;
+      z-index: 1000;
+    }
+    
+    .sidebar-section:last-child {
+      border-bottom: none;
+    }
+    
+    .sidebar-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    button {
+      padding: 10px 15px;
+      background: #0066ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    
+    button:hover {
+      background: #0052cc;
+    }
+    
+    button.secondary {
+      background: #555;
+    }
+    
+    button.secondary:hover {
+      background: #666;
+    }
+    
+    input[type="text"], select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #999;
+      border-radius: 4px;
+      font-size: 13px;
+      margin-bottom: 8px;
+      background: white;
+      color: #333;
+      position: relative;
+      z-index: 100;
+    }
+    
+    select {
+      appearance: auto;
+      cursor: pointer;
+    }
+    
+    select:focus {
+      outline: 2px solid #0066ff;
+      outline-offset: 0;
+    }
+    
+    .sidebar-section select {
+      position: relative;
+      z-index: 1000;
+    }
+    
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* =========================================
+       ESTILOS PARA MODAL DE AYUDA DE FORMATOS
+       ========================================= */
+    .format-help-modal-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      overflow: auto;
+    }
+
+    .format-help-modal {
+      background: white;
+      border-radius: 8px;
+      max-width: 700px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .format-help-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 2px solid #0066ff;
+      background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+      color: white;
+      position: sticky;
+      top: 0;
+    }
+
+    .format-help-header h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .close-format-help {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-format-help:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+    }
+
+    .format-help-body {
+      padding: 20px;
+      color: #333;
+    }
+
+    .format-help-body > p {
+      margin: 0 0 15px 0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .format-help-body strong {
+      color: #0066ff;
+    }
+
+    .format-section {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f5f5f5;
+      border-left: 4px solid #0066ff;
+      border-radius: 4px;
+    }
+
+    .format-section h3 {
+      margin: 0 0 15px 0;
+      color: #0066ff;
+      font-size: 16px;
+    }
+
+    .format-section p {
+      margin: 10px 0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .format-section ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+
+    .format-section li {
+      margin: 5px 0;
+      font-size: 13px;
+    }
+
+    .format-section code {
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #d32f2f;
+    }
+
+    .format-section pre {
+      background: #1a1a2e;
+      color: #0f0;
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+      line-height: 1.4;
+      margin: 10px 0;
+    }
+
+    .format-section pre code {
+      background: none;
+      color: #0f0;
+      padding: 0;
+    }
+
+    .format-section ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+
+    .format-section ol li {
+      margin: 8px 0;
+      font-size: 13px;
+    }
+
+    .format-section a {
+      color: #0066ff;
+      text-decoration: none;
+    }
+
+    .format-section a:hover {
+      text-decoration: underline;
+    }
+
+    .format-tips {
+      margin: 20px 0;
+      padding: 15px;
+      background: #e3f2fd;
+      border-left: 4px solid #1976d2;
+      border-radius: 4px;
+    }
+
+    .format-tips h3 {
+      margin: 0 0 12px 0;
+      color: #1976d2;
+      font-size: 16px;
+    }
+
+    .format-tips ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .format-tips li {
+      margin: 6px 0;
+      font-size: 13px;
+      color: #0d47a1;
+    }
+
+    /* Botón de ayuda junto a inputs */
+    .input-help-wrapper {
+      position: relative;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .input-help-wrapper input,
+    .input-help-wrapper label {
+      flex: 1;
+    }
+
+    .help-button {
+      padding: 8px 10px !important;
+      background: #ff9800 !important;
+      color: white !important;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px !important;
+      font-weight: bold;
+      min-width: 40px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0 !important;
+      margin-bottom: 8px !important;
+    }
+
+    .help-button:hover {
+      background: #f57c00 !important;
+    }
+
+    @media (max-width: 768px) {
+      #app-container {
+        flex-direction: column;
+      }
+      
+      #sidebar {
+        width: 100%;
+        max-height: 30vh;
+      }
+      
+      #map {
+        min-height: 70vh;
+      }
+
+      .format-help-modal {
+        max-width: 95%;
+        max-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app-container">
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div id="logo">
+      🗺️ TraficoMap
+    </div>
+    
+    <!-- El contenido se carga dinámicamente desde app.js -->
+    <div style="font-size: 12px; color: #aaa; padding: 20px; text-align: center;">
+      <span class="loading-spinner"></span> Cargando...
+    </div>
+  </div>
+  
+  <!-- Map -->
+  <div id="map"></div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Leaflet MarkerCluster JS -->
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+<!-- Leaflet Heat JS -->
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+<!-- Firebase JS (v8 Compat) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+<!-- Firebase Config -->
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA",
+  authDomain: "trafico-map-general-v2.firebaseapp.com",
+  projectId: "trafico-map-general-v2",
+  storageBucket: "trafico-map-general-v2.firebasestorage.app",
+  messagingSenderId: "540631719751",
+  appId: "1:540631719751:web:bd410f1bbee18e9fabb662",
+  databaseURL: "https://trafico-map-general-v2-default-rtdb.firebaseio.com"
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ✅ RESTAURAR SESIÓN DEL CLIENTE desde sessionStorage
+const savedClienteId = sessionStorage.getItem('clienteId');
+const savedClienteData = sessionStorage.getItem('clienteData');
+const isClientSessionRestored = savedClienteId && savedClienteData;
+
+// Guardar en window para que otros scripts lo usen
+window.restoredClienteId = savedClienteId;
+window.restoredClienteData = savedClienteData ? JSON.parse(savedClienteData) : null;
+
+console.log('🔐 Restauración de sesión cliente:', isClientSessionRestored ? 'SÍ' : 'NO');
+if (isClientSessionRestored) {
+  console.log('✅ Cliente restaurado:', window.restoredClienteData.nombre);
+}
+
+// Detectar si estamos en modo cliente
+// ✅ IMPORTANTE: Guardar urlParams en window para que app.js pueda acceder
+window.urlParams = new URLSearchParams(window.location.search);
+const urlParams = window.urlParams;
+const clientCityName = urlParams.get('city');
+const isClientMode = clientCityName !== null || isClientSessionRestored;
+
+console.log('🔐 Verificación de autenticación - Modo cliente:', isClientMode ? 'SÍ' : 'NO');
+if (isClientMode) {
+  if (clientCityName) {
+    console.log('📍 Ciudad del cliente (URL):', clientCityName);
+    document.getElementById('pageTitle').textContent = `TraficoMap - ${clientCityName}`;
+  }
+  if (isClientSessionRestored) {
+    console.log('📍 Ciudad del cliente (sesión):', window.restoredClienteData.nombre);
+    document.getElementById('pageTitle').textContent = `TraficoMap - ${window.restoredClienteData.nombre}`;
+  }
+}
+
+// Require authentication to access main map (excepto en modo cliente o si hay sesión restaurada)
+if (!isClientMode && !isClientSessionRestored) {
+  auth.onAuthStateChanged((user) => {
+    if (!user) {
+      console.warn('⚠️ No authenticated user. Redirecting to login...');
+      window.location.href = '/login.html';
+    }
+  });
+} else {
+  console.log('🔓 Modo cliente o sesión restaurada: Permitiendo acceso sin autenticación');
+}
+</script>
+
+<!-- Verificación de Firebase Initialization -->
+<script src="../firebase-init-check.js?v=20260509024"></script>
+
+<!-- Maps API (with Street View support) -->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBp2ZiKA4lYieyjX_aJJjE023NeqKrRhJc&libraries=places"></script>
+
+<!-- App Scripts -->
+<script src="../js/format-help.js?v=20260509024"></script>
+<script src="../js/import-cities.js"></script>
+<script src="../js/city-users-generator.js"></script>
+<script src="../js/geo-layers.js"></script>
+<script src="../js/siniestros-layer.js?v=20260509024"></script>
+<script src="../js/cameras-layer.js?v=20260509024"></script>
+<script src="../js/private-cameras-layer.js?v=20260509024"></script>
+<script src="../js/semaforos-layer.js?v=20260509024"></script>
+<script src="../js/colegios-layer.js?v=20260509024"></script>
+<script src="../js/corredores-layer.js?v=20260509024"></script>
+<script src="../js/heatmap-layer.js?v=20260509024"></script>
+<script src="../js/aforos-layer.js?v=20260509024"></script>
+<script src="../js/colectivos-layer.js?v=20260509024"></script>
+<script src="../js/colectivos-ui.js?v=20260509024"></script>
+<script src="../js/street-view-layer.js?v=20260509024"></script>
+<script src="../js/geo-locator.js?v=20260509024"></script>
+<script src="../js/lpr-layer-v2.js?v=20260509024"></script>
+<script src="../js/robo-layer.js?v=20260509024"></script>
+<script src="../js/patrulla-layer.js?v=20260509024"></script>
+<script src="../js/patrulla-chat.js?v=20260509024"></script>
+<script src="../testing-patrullas.js?v=20260509024"></script>
+<script src="../js/app.js?v=20260509025"></script>
+
+</body>
+</html>

@@ -2,283 +2,169 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ========== FUNCIONES DE AUTENTICACIÓN Y ROLES ==========
+    // ============================
+    // HELPERS
+    // ============================
     function isAuthenticated() {
       return request.auth != null;
     }
-
-    function userRole() {
-      return request.auth.token.role;
+    
+    function isSuperAdmin() {
+      return isAuthenticated() && 
+             (request.auth.token.rol == 'super_admin' || 
+              request.auth.token.rol == 'admin' ||
+              request.auth.token.role == 'admin' ||
+              request.auth.token.email == 'admin@trafico-map.com' ||
+              request.auth.email == 'admin@trafico-map.com');
+    }
+    
+    function isClienteUser() {
+      return isAuthenticated() && 
+             request.auth.token.clienteId != null;
+    }
+    
+    function getUserClienteId() {
+      return request.auth.token.clienteId;
     }
 
-    function isAdmin() {
-      return userRole() == 'admin';
+    
+    // ============================
+    // COLECCIÓN: admins
+    // ============================
+    // Solo super_admins pueden leer/escribir
+    match /admins/{doc=**} {
+      allow read, write: if isSuperAdmin();
     }
-
-    function isOperador() {
-      return userRole() == 'operador';
+    
+    // ============================
+    // COLECCIÓN: usuarios
+    // ============================
+    match /usuarios/{uid} {
+      // El usuario puede leer su propio documento
+      allow read: if request.auth.uid == uid;
+      // Solo super_admin puede crear/actualizar usuarios
+      allow create, update, delete: if isSuperAdmin();
     }
-
-    function isPatrulla() {
-      return userRole() == 'patrulla';
-    }
-
-    function getUserEmail() {
-      return request.auth.token.email;
-    }
-
-    function isOperadorOrAdmin() {
-      return isOperador() || isAdmin();
-    }
-
-    function isPatullaOrAdmin() {
-      return isPatrulla() || isAdmin();
-    }
-
-    // ========== SAAS: CLIENTES ==========
-    // Obtener el ID del cliente desde los custom claims del token
-    function getClientId() {
-      return request.auth.token.cliente_id;
-    }
-
-    function isClient() {
-      return isAuthenticated() && request.auth.token.role == 'client';
-    }
-
-    function isSameClient(clientId) {
-      return isClient() && getClientId() == clientId;
-    }
-
-    function clientCanRead(clientId) {
-      return isAdmin() || (isAuthenticated() && request.auth.token.cliente_id == clientId);
-    }
-
-    function clientCanWrite(clientId) {
-      return isAdmin() || (isAuthenticated() && request.auth.token.cliente_id == clientId);
-    }
-
-    // ========== COLECCIÓN: CLIENTES (Admin Panel) ==========
-    match /clientes/{clientId} {
-      allow read: if isAdmin() || clientCanRead(clientId);
-      allow create, update, delete: if isAdmin();
+    
+    // ============================
+    // COLECCIÓN: clientes (MULTI-TENANT)
+    // ============================
+    match /clientes/{clienteId} {
+      // Para lectura:
+      // - Permitir lectura a TODOS para validación de email/password en login
+      // - Admin/Super Admin: acceso completo
+      // - Clientes autenticados (con clienteId): pueden leer su propio cliente
+      allow read: if true; // Permitir lectura pública para login
+      allow write: if isSuperAdmin();
       
-      // Subcollecciones para datos del cliente - DATOS PRINCIPALES
-      match /barrios/{barrio} {
-        allow read, write: if isAdmin() || clientCanRead(clientId);
+      // Config del cliente
+      match /config/{doc=**} {
+        allow read: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+        allow write: if isSuperAdmin();
+      }
+      
+      // Datos del cliente: cámaras, siniestros, etc.
+      // Nombres en plural (camaras, cameras son aliases)
+      // NOTA: Permitir lectura a ANYBODY porque la autenticación se valida en JavaScript
+      // y no hay información sensible en lectura (los datos públicos del cliente)
+      match /camaras/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
       }
 
-      match /cameras/{cameraId} {
-        allow read, write: if isAdmin() || clientCanRead(clientId);
+      match /cameras/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
       }
 
-      match /cameras_privadas/{cameraId} {
-        allow read, write: if isAdmin() || clientCanRead(clientId);
+      match /cameras_privadas/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
       }
 
-      match /siniestros/{siniestroId} {
-        allow read, write: if isAdmin() || clientCanRead(clientId);
+      match /camaras_privadas/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      }
+      
+      match /siniestros/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
       }
 
-      match /alertas/{alertaId} {
-        allow read, write: if isAdmin() || clientCanRead(clientId);
+      match /barrios/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
       }
-
-      // Subcollecciones para datos del cliente - CAPAS OPCIONALES
-      match /semaforos/{id} {
-        allow read, write: if isAdmin() || clientCanRead(clientId);
+      
+      match /semaforos/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
       }
-
-      match /colegios_escuelas/{id} {
-        allow read, write: if isAdmin() || clientCanRead(clientId);
+      
+      match /robos/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
       }
-
-      match /corredores_escolares/{id} {
-        allow read, write: if isAdmin() || clientCanRead(clientId);
+      
+      match /escuelas/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
       }
-
-      match /colectivos/{id} {
-        allow read, write: if isAdmin() || clientCanRead(clientId);
+      
+      match /operadores/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
       }
-
-      match /flujo/{id} {
-        allow read, write: if isAdmin() || clientCanRead(clientId);
+      
+      match /patrullas/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
       }
-
-      match /robo/{id} {
-        allow read, write: if isAdmin() || clientCanRead(clientId);
+      
+      match /listas/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      }
+      
+      match /usuarios_clientes/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
       }
     }
     
-    // ========== COLECCIÓN: SUBSCRIPCIONES (Admin Panel) ==========
-    match /subscripciones/{suscripcionId} {
-      allow read: if isAdmin();
-      allow write: if isAdmin();
+    // ============================
+    // COLECCIÓN: operaciones (global)
+    // ============================
+    // Logs de operaciones, acceso solo para admins
+    match /operaciones/{doc=**} {
+      allow read, write: if isSuperAdmin();
     }
 
-    // ========== COLECCIÓN: BILLING (Admin Panel + Clients) ==========
-    match /billing/{facturaId} {
-      allow read: if isAdmin() || (isClient() && resource.data.cliente_id == getClientId());
-      allow write: if isAdmin();
-    }
-    match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if isAdmin();
+    // ============================
+    // COLECCIÓN: subscripciones (global)
+    // ============================
+    match /subscripciones/{doc=**} {
+      allow read, write: if isSuperAdmin();
     }
 
-    // ========== PATRULLAS MAR DEL PLATA (con y sin guiones) ==========
-    match /patrullas_mar-del-plata/{patrolId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      match /gps_history/{entry} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
+    // ============================
+    // COLECCIÓN: billing (global)
+    // ============================
+    match /billing/{doc=**} {
+      allow read, write: if isSuperAdmin();
     }
 
-    match /patrullas_mardelplata/{patrolId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      match /gps_history/{entry} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
+    // ============================
+    // COLECCIÓN: pagos (global)
+    // ============================
+    match /pagos/{doc=**} {
+      allow read, write: if isSuperAdmin();
     }
-
-    // ========== PATRULLAS CORDOBA ==========
-    match /patrullas_cordoba/{patrolId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      match /gps_history/{entry} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
-    }
-
-    // ========== CHAT MAR DEL PLATA (con y sin guiones) ==========
-    match /chat_mar-del-plata/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
-    match /chat_mardelplata/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
-    // ========== CHAT CORDOBA ==========
-    match /chat_cordoba/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
-    // ========== MESSAGES MAR DEL PLATA Y CORDOBA ==========
-    match /messages_mar-del-plata/{messageId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
-    match /messages_mardelplata/{messageId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
-    match /messages_cordoba/{messageId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isOperadorOrAdmin();
-    }
-
-    // ========== WEBRTC MAR DEL PLATA (con y sin guiones) ==========
-    match /webrtc_mar-del-plata/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-    }
-
-    match /webrtc_mardelplata/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-    }
-
-    // ========== WEBRTC CORDOBA ==========
-    match /webrtc_cordoba/{document=**} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-    }
-
-    // ========== ROBOS (Siniestros) ==========
-    match /robos/{document=**} {
-      allow read: if isOperadorOrAdmin();
-      allow write: if isAdmin();
-    }
-
-    // ========== AUDIT LOGS ==========
-    match /audit_logs/{document=**} {
-      allow read: if isAdmin();
-      allow write: if isAuthenticated();
-    }
-
-    // ========== ADMIN PANEL: CLIENTES ==========
-    match /clientes/{clienteId} {
-      allow read, write: if isAdmin();
-    }
-
-    match /clientes/{clienteId}/{document=**} {
-      allow read, write: if isAdmin();
-    }
-
-    // ========== ADMIN PANEL: SUBSCRIPCIONES ==========
-    match /subscripciones/{subscripcionId} {
-      allow read, write: if isAdmin();
-    }
-
-    match /subscripciones/{subscripcionId}/{document=**} {
-      allow read, write: if isAdmin();
-    }
-
-    // ========== ADMIN PANEL: BILLING ==========
-    match /billing/{invoiceId} {
-      allow read, write: if isAdmin();
-    }
-
-    match /billing/{invoiceId}/{document=**} {
-      allow read, write: if isAdmin();
-    }
-
-    // ========== ADMIN PANEL: USUARIOS ADMIN ==========
-    match /usuarios_admin/{userId} {
-      allow read, write: if isAdmin();
-    }
-
-    match /usuarios_admin/{userId}/{document=**} {
-      allow read, write: if isAdmin();
-    }
-
-    // ========== ADMIN PANEL: AUDITORIA ==========
-    match /auditoria/{auditId} {
-      allow read: if isAdmin();
-      allow create: if isAuthenticated();
-    }
-
-    match /auditoria/{auditId}/{document=**} {
-      allow read: if isAdmin();
-      allow create: if isAuthenticated();
-    }
-
-    // ========== CONFIG (pública para lectura) ==========
-    match /config/{param} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // ========== DEFAULT: DENY ==========
+    
+    // ============================
+    // DEFAULT: DENY
+    // ============================
     match /{document=**} {
       allow read, write: if false;
     }

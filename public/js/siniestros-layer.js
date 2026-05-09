@@ -19,49 +19,49 @@ const SiniestrosLayer = (() => {
     'B': 'Bicicleta'
   };
 
-  // Colores por causa (normalizada)
+  // Colores por causa (normalizada) - Mejorados para mejor visibilidad
   const causeColors = {
-    'Distracción': '#FF6B6B',
-    'Exceso de Velocidad': '#FF8C42',
-    'No Respeto Semáforo': '#FFD93D',
-    'Violación de Semáforo': '#FFD93D',
-    'No Respeto prioridad de Paso': '#6BCB77',
-    'Peatón Imprudente': '#4D96FF',
-    'Otro': '#9D84B7',
-    'No Especificado': '#CCCCCC',
-    'Alcohol': '#FF0000',
-    'Atropello Voluntario': '#FFA500',
-    'Falla en la Vía': '#FFB6C1',
-    'Giro': '#DDA0DD',
-    'Maniobra Imprudente': '#FF4500',
-    'Maniobra Riesgosa': '#FF1493',
-    'Perro': '#8B4513',
-    'Pierde Control': '#DC143C',
-    'Distancia de Frenado': '#9932CC',
-    'Descompensación': '#8B0000',
-    'Invasión de Carril': '#FF00FF',
-    'Persecución': '#FF69B4'
+    'Distracción': '#FF1744',              // Rojo vivo
+    'Exceso de Velocidad': '#FF6F00',      // Naranja oscuro
+    'Alcohol': '#D32F2F',                  // Rojo oscuro
+    'Avería': '#FFA500',                   // Naranja
+    'Falta de Visibilidad': '#FF00FF',     // Magenta
+    'Giro Prohibido': '#9C27B0',           // Púrpura
+    'Maniobra Indebida': '#FF4500',        // Naranja rojo
+    'Maniobra Riesgosa': '#C2185B',        // Rosa oscura
+    'No Respetar Norma': '#00C853',        // Verde brillante
+    'No Se Puede Determinar': '#616161',   // Gris
+    'Peatón': '#0D47A1',                   // Azul oscuro
+    'Pierde Control': '#B71C1C',           // Rojo muy oscuro
+    'Piso Inseguro': '#E91E63',            // Rosa fuerte
+    'Violación de Semáforo': '#FF8F00',   // Naranja oscuro
+    'Defecto Fatal': '#4A148C',            // Púrpura oscuro
+    'Descompensación': '#7B1FA2',          // Púrpura oscuro
+    'Inexperiencia/Conducción': '#FF8A65', // Naranja claro
+    'Persecución': '#C2185B',              // Rosa oscuro
+    'No Especificado': '#FF4444',          // Rojo brillante
+    'Punto': '#00B8D4'                     // Cian vibrante (fallback temporal)
   };
 
   const causeMap = {
     'D': { name: 'Distracción', code: 'D' },
     'A': { name: 'Alcohol', code: 'A' },
-    'AV': { name: 'Atropello Voluntario', code: 'AV' },
+    'AV': { name: 'Avería', code: 'AV' },
     'EV': { name: 'Exceso de Velocidad', code: 'EV' },
-    'FV': { name: 'Falla en la Vía', code: 'FV' },
-    'G': { name: 'Giro', code: 'G' },
-    'MI': { name: 'Maniobra Imprudente', code: 'MI' },
+    'FV': { name: 'Falta de Visibilidad', code: 'FV' },
+    'G': { name: 'Giro Prohibido', code: 'G' },
+    'MI': { name: 'Maniobra Indebida', code: 'MI' },
     'MR': { name: 'Maniobra Riesgosa', code: 'MR' },
-    'NR': { name: 'No Respeto prioridad de Paso', code: 'NR' },
+    'NR': { name: 'No Respetar Norma', code: 'NR' },
     'NSD': { name: 'No Se Puede Determinar', code: 'NSD' },
-    'P': { name: 'Perro', code: 'P' },
+    'P': { name: 'Peatón', code: 'P' },
     'PC': { name: 'Pierde Control', code: 'PC' },
-    'PI': { name: 'Peatón Imprudente', code: 'PI' },
+    'PI': { name: 'Piso Inseguro', code: 'PI' },
     'VS': { name: 'Violación de Semáforo', code: 'VS' },
-    'DF': { name: 'Distancia de Frenado', code: 'DF' },
+    'DF': { name: 'Defecto Fatal', code: 'DF' },
     'DESCOMPENSAN': { name: 'Descompensación', code: 'DESCOMPENSAN' },
-    'IC': { name: 'Invasión de Carril', code: 'IC' },
-    'PERSECUCIàN': { name: 'Persecución', code: 'PERSECUCIàN' },
+    'IC': { name: 'Inexperiencia/Conducción', code: 'IC' },
+    'PERSECUCIÓN': { name: 'Persecución', code: 'PERSECUCIÓN' },
     '?': { name: 'No Especificado', code: '?' }
   };
 
@@ -70,12 +70,18 @@ const SiniestrosLayer = (() => {
    * Ejemplo: "A/M" → ["Auto", "Moto"]
    */
   function extractParticipantCategories(code) {
-    if (!code) return [];
+    if (!code || typeof code !== 'string') return [];
     const codes = code.split('/').map(c => c.trim());
     const categories = new Set();
+    
+    console.log(`📋 Extrayendo participantes de: "${code}" → códigos: [${codes.join(', ')}]`);
+    
     codes.forEach(c => {
       if (participantMap[c]) {
+        console.log(`  ✅ Código "${c}" → Categoría "${participantMap[c]}"`);
         categories.add(participantMap[c]);
+      } else {
+        console.log(`  ❌ Código "${c}" NO ENCONTRADO en participantMap. Códigos válidos: ${Object.keys(participantMap).join(', ')}`);
       }
     });
     return Array.from(categories);
@@ -92,6 +98,60 @@ const SiniestrosLayer = (() => {
     }
     // Si no está mapeado, retornar con el código original
     return { name: cause, code: cause };
+  }
+
+  /**
+   * Helper para buscar propiedades flexiblemente (sin importar encoding/variaciones de nombres)
+   */
+  function getProp(props, keys) {
+    for (const key of keys) {
+      if (props[key]) return props[key];
+    }
+    // Si no encuentra, buscar por coincidencia parcial (case-insensitive)
+    const searchKeys = keys.map(k => k.toLowerCase());
+    for (const [propKey, propVal] of Object.entries(props)) {
+      if (searchKeys.some(sk => propKey.toLowerCase().includes(sk))) {
+        return propVal;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * FUNCIÓN GLOBAL: Normaliza propiedades de un siniestro
+   * Extrae hora del timestamp si no existe propiedad 'hora' separada
+   * Usada tanto en updateFilterOptions como en applyFilters
+   */
+  function normalizeFilterProps(props) {
+    const normalized = {};
+    
+    // Obtener causa (intentar variaciones de nombres)
+    normalized.causa = getProp(props, ['causa', 'Causa', 'tipo', 'Tipo', 'CÓDIGOS CAUSAS', 'CàDIGOS CAUSAS', 'C?DIGOS CAUSAS', 'CODIGOS CAUSAS']);
+    
+    // Obtener fecha
+    normalized.fecha = getProp(props, ['fecha', 'Fecha', 'FECHA', 'FECHA_SINIESTRO']);
+    
+    // Obtener hora: primero intentar propiedad 'hora' directa, sino extraer de 'timestamp'
+    normalized.hora = getProp(props, ['hora', 'Hora', 'HORA']);
+    if (!normalized.hora && props.timestamp) {
+      try {
+        // Formato esperado: "2026-05-09T09:38:28.891157"
+        const timePart = props.timestamp.split('T')[1];
+        if (timePart) {
+          normalized.hora = timePart.split(':')[0]; // extrae "09"
+        }
+      } catch (e) {
+        // Silenciosamente ignorar si no se puede parsear
+      }
+    }
+    
+    // Obtener participantes
+    normalized.participantes = getProp(props, ['participantes_codigos', 'Participante', 'CÓDIGO PARTICIPANTES', 'C?DIGO PARTICIPANTES', 'participantes']);
+    
+    // Obtener calle/dirección
+    normalized.calle = getProp(props, ['direccion', 'Calle', 'calle', 'DIRECCIÓN SINIESTRO', 'DIRECCION SINIESTRO']);
+    
+    return normalized;
   }
 
   // Filtros activos
@@ -174,33 +234,28 @@ const SiniestrosLayer = (() => {
     const causes = new Set();
     const hours = new Set();
 
-    // Helper para buscar propiedades flexiblemente (sin importar encoding)
-    const getProp = (props, keys) => {
-      for (const key of keys) {
-        if (props[key]) return props[key];
-      }
-      // Si no encuentra, buscar por coincidencia parcial (case-insensitive)
-      const searchKeys = keys.map(k => k.toLowerCase());
-      for (const [propKey, propVal] of Object.entries(props)) {
-        if (searchKeys.some(sk => propKey.toLowerCase().includes(sk))) {
-          return propVal;
-        }
-      }
-      return null;
-    };
-
-    // Función auxiliar para normalizar propiedades
-    const normalizeFilterProps = (props) => {
-      const normalized = {};
-      normalized.causa = getProp(props, ['causa', 'Causa', 'tipo', 'Tipo', 'CÓDIGOS CAUSAS', 'CàDIGOS CAUSAS', 'C?DIGOS CAUSAS', 'CODIGOS CAUSAS']);
-      normalized.fecha = getProp(props, ['fecha', 'Fecha', 'FECHA', 'FECHA_SINIESTRO']);
-      normalized.hora = getProp(props, ['hora', 'Hora', 'HORA']);
-      normalized.participantes = getProp(props, ['participantes_codigos', 'Participante', 'CÓDIGO PARTICIPANTES', 'C?DIGO PARTICIPANTES', 'participantes']);
-      return normalized;
-    };
-
-    sinistrosData.forEach(feature => {
+    let firstSiniestroLogged = false;
+    sinistrosData.forEach((feature, idx) => {
+      // USAR la función global de normalización
       const props = normalizeFilterProps(feature.properties || {});
+      
+      // Log del primer siniestro para diagnosticar propiedades
+      if (idx === 0 && !firstSiniestroLogged) {
+        console.log(`📊 PRIMER SINIESTRO - Claves disponibles:`, Object.keys(feature.properties || {}));
+        console.log(`📊 PRIMER SINIESTRO - Toda la data:`, JSON.stringify(feature.properties, null, 2));
+        console.log(`📊 PRIMER SINIESTRO - Normalizadas:`, {
+          causa: props.causa,
+          fecha: props.fecha,
+          hora: props.hora,
+          participantes: props.participantes
+        });
+        firstSiniestroLogged = true;
+      }
+      
+      // Log de todos los timestamps para diagnosticar
+      if (idx < 10) {
+        console.log(`⏱️ [${idx}] timestamp="${feature.properties?.timestamp}" → hora extraída="${props.hora}"`);
+      }
       
       const fecha = props.fecha;
       const hora = props.hora;
@@ -236,14 +291,24 @@ const SiniestrosLayer = (() => {
       if (causa) {
         // Agregar el código original de causa para tracking
         causes.add(causa);
+        console.log(`🔸 Causa encontrada: "${causa}"`);
       }
       
       if (hora) {
         try {
-          const hour = parseInt(hora.split(':')[0]);
-          if (!isNaN(hour)) hours.add(hour);
+          const hourStr = hora.split(':')[0];
+          const hour = parseInt(hourStr);
+          if (!isNaN(hour)) {
+            hours.add(hour);
+            console.log(`⏰ Hora encontrada: "${hora}" → ${hour}:00`);
+          }
         } catch (e) {
-          // Ignorar horas que no se pueden parsear
+          console.warn(`⚠️ Error parseando hora: "${hora}"`);
+        }
+      } else {
+        // Mostrar por qué no encuentra hora en el primer siniestro
+        if (idx === 0) {
+          console.warn(`⚠️ [idx=0] No se encontró propiedad 'hora'. Propiedades disponibles: ${Object.keys(feature.properties || {}).join(', ')}`);
         }
       }
     });
@@ -259,6 +324,9 @@ const SiniestrosLayer = (() => {
       return `${mapping.code} - ${mapping.name}`;
     }).sort();
     
+    console.log(`📋 Causas encontradas (total ${causes.size}):`, Array.from(causes));
+    console.log(`📋 Causas formateadas:`, causesFormatted);
+    
     updateSelect('cause-filter', causesFormatted);
     
     // Para barrios, cargar desde el archivo de barrios si está disponible
@@ -266,8 +334,10 @@ const SiniestrosLayer = (() => {
     
     // Actualizar horas
     const sortedHours = Array.from(hours).sort((a, b) => a - b);
-    updateSelect('start-hour-filter', sortedHours.map(h => h.toString().padStart(2, '0') + ':00'));
-    updateSelect('end-hour-filter', sortedHours.map(h => h.toString().padStart(2, '0') + ':00'));
+    const hoursFormatted = sortedHours.map(h => h.toString().padStart(2, '0') + ':00');
+    console.log(`⏰ Horas disponibles (${sortedHours.length}): ${hoursFormatted.join(', ')}`);
+    updateSelect('start-hour-filter', hoursFormatted);
+    updateSelect('end-hour-filter', hoursFormatted);
   }
 
   /**
@@ -283,8 +353,8 @@ const SiniestrosLayer = (() => {
     
     // Solo cargar barrios.json si No hay datos seteados
     try {
-      console.log(`⏳ Intentando cargar barrios desde data/barrios.json...`);
-      const response = await fetch('data/barrios.json');
+      console.log(`⏳ Intentando cargar barrios desde /data/barrios.json...`);
+      const response = await fetch('/data/barrios.json');
       barriosGeoJson = await response.json();
       console.log(`✅ Datos de barrios cargados para filtrado geográfico (${barriosGeoJson.features?.length || 0} features)`);
     } catch (error) {
@@ -433,28 +503,15 @@ const SiniestrosLayer = (() => {
     let debugCount = 0;
     filteredSiniestros = sinistrosData.filter(feature => {
       const props = feature.properties || {};
-
-      // Helper para buscar propiedades flexiblemente (sin importar encoding)
-      const getProp = (keys) => {
-        for (const key of keys) {
-          if (props[key]) return props[key];
-        }
-        // Si no encuentra, buscar por coincidencia parcial (case-insensitive)
-        const searchKeys = keys.map(k => k.toLowerCase());
-        for (const [propKey, propVal] of Object.entries(props)) {
-          if (searchKeys.some(sk => propKey.toLowerCase().includes(sk))) {
-            return propVal;
-          }
-        }
-        return null;
-      };
-
-      // Normalizar nombres de propiedades (soportar CSV con diferentes nombres de columnas)
-      const fecha = getProp(['fecha', 'Fecha', 'FECHA', 'FECHA_SINIESTRO']);
-      const hora = getProp(['hora', 'Hora', 'HORA']);
-      const causa = getProp(['causa', 'Causa', 'tipo', 'Tipo', 'CÓDIGOS CAUSAS', 'CàDIGOS CAUSAS', 'C?DIGOS CAUSAS', 'CODIGOS CAUSAS']);
-      const participantes = getProp(['participantes_codigos', 'Participante', 'CÓDIGO PARTICIPANTES', 'C?DIGO PARTICIPANTES']);
-      const calle = getProp(['direccion', 'Calle', 'calle', 'DIRECCIÓN SINIESTRO', 'DIRECCION SINIESTRO']);
+      
+      // USAR la función global para normalizar propiedades
+      const normalized = normalizeFilterProps(props);
+      
+      const fecha = normalized.fecha;
+      const hora = normalized.hora;
+      const causa = normalized.causa;
+      const participantes = normalized.participantes;
+      const calle = normalized.calle;
 
       // Filtro por año
       if (filters.year !== 'all') {
@@ -526,6 +583,7 @@ const SiniestrosLayer = (() => {
       if (filters.cause !== 'all') {
         // El filtro está en formato "CÓDIGO - Descripción", extraer el código
         const selectedCauseCode = filters.cause.split(' - ')[0].trim();
+        console.log(`🔍 Comparando: causa="${causa}" vs selectedCode="${selectedCauseCode}"`);
         if (causa !== selectedCauseCode) {
           return false;
         }
@@ -537,10 +595,16 @@ const SiniestrosLayer = (() => {
           const hour = parseInt(hora.split(':')[0]);
           const startHour = filters.startHour !== 'all' ? parseInt(filters.startHour.split(':')[0]) : 0;
           const endHour = filters.endHour !== 'all' ? parseInt(filters.endHour.split(':')[0]) : 23;
-
-          if (hour < startHour || hour > endHour) return false;
+          
+          console.log(`⏰ Filtro: hora="${hora}" (${hour}h) vs rango [${startHour}-${endHour}h]`);
+          
+          if (hour < startHour || hour > endHour) {
+            console.log(`  ❌ Hora ${hour} fuera del rango [${startHour}-${endHour}]`);
+            return false;
+          }
+          console.log(`  ✅ Hora ${hour} dentro del rango [${startHour}-${endHour}]`);
         } catch (e) {
-          // Si no se puede parsear la hora, incluir el registro
+          console.warn(`⚠️ Error parsing hora: "${hora}"`);
         }
       }
 
@@ -683,6 +747,11 @@ const SiniestrosLayer = (() => {
         const barrio = props.barrio || 'N/A';
         const participantes = props.participantes_codigos || props.Participante || 'N/A';
         const descripcion = props.descripcion || 'N/A';
+        
+        // DEBUG: Log de propiedades
+        if (idx < 3) {
+          console.log(`  📋 [${idx}] props.causa="${props.causa}" \u2192 causa="${causa}"`);
+        }
 
         // Seleccionar color según causa normalizada
         const normalizedCauseForColor = normalizeCause(causa);
@@ -690,17 +759,18 @@ const SiniestrosLayer = (() => {
                      causeColors[normalizedCauseForColor.code] ||
                      causeColors[causa] || 
                      '#CCCCCC'; // Color por defecto
-
-
-
-        // Crear marcador
+        
+        // DEBUG: Log del color asignado
+        if (idx < 3) {
+          console.log(`  🎨 [${idx}] causa="${causa}" → normalizedName="${normalizedCauseForColor.name}" → color="${color}"`);
+        }
         const marker = L.circleMarker([lat, lng], {
-          radius: 6,
+          radius: 8,
           fillColor: color,
-          color: '#333',
-          weight: 1,
-          opacity: 0.8,
-          fillOpacity: 0.7
+          color: '#1a1a1a',
+          weight: 2,
+          opacity: 0.9,
+          fillOpacity: 0.85
         });
 
         // Extraer categorías generales de participantes
@@ -830,6 +900,80 @@ const SiniestrosLayer = (() => {
     barriosGeoJson = barrios;
   }
 
+  /**
+   * Adjunta listeners a los filtros en el DOM
+   * DEBE ser llamada DESPUÉS de que los elementos se creen en el DOM
+   */
+  function setupFilterListeners() {
+    console.log('🔷 setupFilterListeners() INICIADO');
+    
+    // Adjuntar listener a filtro de causa
+    const causeFilterEl = document.getElementById('cause-filter');
+    if (causeFilterEl) {
+      console.log('✅ Listener adjuntado a #cause-filter');
+      causeFilterEl.addEventListener('change', (e) => {
+        console.log(`✅ CAMBIO EN CAUSA: "${e.target.value}"`);
+        setFilter('cause', e.target.value);
+      });
+    } else {
+      console.error('❌ #cause-filter NO ENCONTRADO en DOM');
+    }
+    
+    // Adjuntar listener a filtro de año
+    const yearFilterEl = document.getElementById('year-filter');
+    if (yearFilterEl) {
+      console.log('✅ Listener adjuntado a #year-filter');
+      yearFilterEl.addEventListener('change', (e) => {
+        console.log(`✅ CAMBIO EN AÑO: "${e.target.value}"`);
+        setFilter('year', e.target.value);
+      });
+    }
+    
+    // Adjuntar listener a filtro de participante
+    const participantFilterEl = document.getElementById('participant-filter');
+    if (participantFilterEl) {
+      console.log('✅ Listener adjuntado a #participant-filter');
+      participantFilterEl.addEventListener('change', (e) => {
+        console.log(`✅ CAMBIO EN PARTICIPANTE: "${e.target.value}"`);
+        setFilter('participant', e.target.value);
+      });
+    } else {
+      console.error('❌ #participant-filter NO ENCONTRADO en DOM');
+    }
+    
+    // Adjuntar listener a filtro de hora inicio
+    const startHourEl = document.getElementById('start-hour-filter');
+    if (startHourEl) {
+      console.log('✅ Listener adjuntado a #start-hour-filter');
+      startHourEl.addEventListener('change', (e) => {
+        console.log(`✅ CAMBIO EN HORA INICIO: "${e.target.value}"`);
+        setFilter('startHour', e.target.value);
+      });
+    }
+    
+    // Adjuntar listener a filtro de hora fin
+    const endHourEl = document.getElementById('end-hour-filter');
+    if (endHourEl) {
+      console.log('✅ Listener adjuntado a #end-hour-filter');
+      endHourEl.addEventListener('change', (e) => {
+        console.log(`✅ CAMBIO EN HORA FIN: "${e.target.value}"`);
+        setFilter('endHour', e.target.value);
+      });
+    }
+    
+    // Adjuntar listener a filtro de calle
+    const streetFilterEl = document.getElementById('street-filter');
+    if (streetFilterEl) {
+      console.log('✅ Listener adjuntado a #street-filter');
+      streetFilterEl.addEventListener('input', (e) => {
+        console.log(`✅ CAMBIO EN CALLE: "${e.target.value}"`);
+        setFilter('street', e.target.value);
+      });
+    }
+    
+    console.log('✅ setupFilterListeners() COMPLETADO');
+  }
+
   // API pública
   return {
     init,
@@ -841,6 +985,7 @@ const SiniestrosLayer = (() => {
     toggle,
     clearFilters,
     setBarriosGeoJson,
+    setupFilterListeners,
     getFiltered: () => filteredSiniestros,
     getAll: () => sinistrosData
   };

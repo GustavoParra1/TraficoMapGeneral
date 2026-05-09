@@ -1,0 +1,51 @@
+nombre,lat,lng,address,barrio,tipo
+Hospital 1,-34.909856,-57.981819,Calle 111 #2040,Oeste,Escuela
+Oficina 2,-35.027217,-57.968094,Calle 16 #919,San Carlos,Colegio
+Supermercado 3,-34.795153,-57.862578,Calle 77 #1289,Abella,Hospital
+Farmacia 4,-35.037069,-58.021704,Calle 128 #9719,Barrio Universitario,Banco
+Fábrica 5,-34.842626,-58.042496,Calle 50 #8621,Los Hornos,Hospital
+Banco 6,-34.965196,-57.914297,Calle 49 #3477,Parque Saavedra,Instituto
+Banco 7,-35.050213,-57.818192,Calle 102 #5543,Zona Norte,Banco
+Fábrica 8,-34.827773,-57.912488,Calle 145 #7882,Nueva República,Escuela
+Banco 9,-34.946834,-57.957167,Calle 103 #4536,Parque Saavedra,Escuela
+Oficina 10,-34.799381,-57.922971,Calle 37 #5223,Ringuelet,Instituto
+Comercio 11,-34.844187,-58.091863,Calle 110 #5127,Oeste,Banco
+Comercio 12,-34.774061,-58.074799,Calle 76 #9847,Barrio Universitario,Hospital
+Comercio 13,-34.800495,-58.058194,Calle 95 #2365,Tolosa,Banco
+Oficina 14,-34.927973,-57.994121,Calle 12 #1039,Tolosa,Escuela
+Hospital 15,-35.049752,-57.923934,Calle 38 #5158,Ángel Etcheverry,Hospital
+Escuela 16,-34.972119,-57.846160,Calle 133 #4771,Parque Saavedra,Comercio
+Banco 17,-35.058897,-57.824414,Calle 41 #2518,Los Hornos,Comercio
+Garage 18,-34.964428,-58.001232,Calle 115 #5539,Abella,Comercio
+Escuela 19,-34.836091,-57.811795,Calle 35 #7506,Gonnet,Hospital
+Supermercado 20,-34.850644,-57.837415,Calle 29 #8423,San Carlos,Banco
+Garage 21,-35.066420,-57.997005,Calle 53 #8912,Zona Sur,Hospital
+Comercio 22,-35.033930,-57.853909,Calle 26 #1211,Ángel Etcheverry,Comercio
+Fábrica 23,-34.971918,-57.891763,Calle 70 #2422,Zona Norte,Instituto
+Farmacia 24,-34.827952,-57.877475,Calle 54 #2412,Ángel Etcheverry,Hospital
+Hospital 25,-34.831530,-58.025204,Calle 27 #8439,Villa Elvira,Instituto
+Depósito 26,-35.059940,-57.887401,Calle 134 #128,Parque Saavedra,Colegio
+Farmacia 27,-34.927870,-57.879219,Calle 130 #8321,Centro,Instituto
+Fábrica 28,-34.857062,-58.102681,Calle 87 #6799,Ángel Etcheverry,Hospital
+Depósito 29,-34.909595,-58.039850,Calle 139 #248,Zona Sur,Banco
+Fábrica 30,-34.813921,-58.077968,Calle 99 #7478,Nueva República,Escuela
+Hospital 31,-34.771226,-58.023717,Calle 48 #9302,Este,Escuela
+Garage 32,-34.980959,-57.932642,Calle 52 #1453,Parque Saavedra,Comercio
+Banco 33,-34.982055,-57.886804,Calle 93 #6875,Tolosa,Banco
+Supermercado 34,-34.991638,-58.039204,Calle 149 #8641,Zona Norte,Hospital
+Depósito 35,-34.905009,-57.854330,Calle 100 #2429,Abella,Hospital
+Oficina 36,-34.932917,-58.079559,Calle 119 #6907,Gonnet,Instituto
+Garage 37,-34.819543,-58.079467,Calle 60 #7466,Tolosa,Banco
+Supermercado 38,-35.066631,-57.825474,Calle 8 #7503,Los Hornos,Colegio
+Escuela 39,-34.938547,-57.953573,Calle 104 #7860,Este,Instituto
+Garage 40,-34.823247,-58.045297,Calle 32 #4604,Tolosa,Comercio
+Farmacia 41,-34.813407,-57.961834,Calle 83 #1735,Gonnet,Hospital
+Garage 42,-35.007111,-57.904489,Calle 136 #8144,Abella,Hospital
+Farmacia 43,-34.954225,-58.001567,Calle 49 #3456,Abella,Hospital
+Garage 44,-34.907685,-57.931367,Calle 42 #7311,San Carlos,Escuela
+Farmacia 45,-34.887471,-57.856033,Calle 79 #7814,Gonnet,Colegio
+Comercio 46,-35.054646,-58.087582,Calle 24 #4041,Zona Norte,Hospital
+Depósito 47,-34.778950,-58.029503,Calle 27 #1964,Ringuelet,Comercio
+Supermercado 48,-34.909318,-57.874417,Calle 101 #9457,Zona Norte,Instituto
+Depósito 49,-34.812299,-57.848447,Calle 18 #4092,Zona Norte,Colegio
+Farmacia 50,-34.911281,-58.010038,Calle 150 #7462,Este,Banco

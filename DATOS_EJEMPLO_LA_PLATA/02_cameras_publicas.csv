@@ -1,0 +1,501 @@
+camera_number,lat,lng,address,barrio,type,domes,fixed,lpr,corridor,school_corridor,monitoring
+1000,-34.961977,-57.934857,Calle 32 esquina 30,Ringuelet,Pública (Municipal),3,1,2,Ruta 3,TRUE,TRUE
+1001,-34.987942,-57.867829,Calle 139 esquina 101,San Carlos,Pública (Municipal),3,3,0,Ruta 12,TRUE,FALSE
+1002,-34.880668,-57.945566,Calle 93 esquina 68,Gonnet,Pública (Municipal),1,2,0,Ruta 8,TRUE,FALSE
+1003,-35.055936,-57.858164,Calle 107 esquina 108,Zona Norte,Pública (Municipal),1,2,1,Ruta 9,TRUE,TRUE
+1004,-35.068717,-57.991808,Calle 116 esquina 134,Los Hornos,Pública (Municipal),1,3,2,Ruta 9,FALSE,TRUE
+1005,-35.051851,-58.101459,Calle 26 esquina 128,Zona Norte,Pública (Municipal),2,4,2,Ruta 8,FALSE,TRUE
+1006,-35.010162,-57.853244,Calle 115 esquina 16,Centro,Pública (Municipal),3,1,0,Ruta 7,FALSE,FALSE
+1007,-35.034754,-57.825771,Calle 33 esquina 76,Parque Saavedra,Pública (Municipal),1,1,2,Ruta 13,TRUE,FALSE
+1008,-34.851344,-57.976952,Calle 144 esquina 140,Zona Norte,Pública (Municipal),3,3,1,Ruta 15,TRUE,FALSE
+1009,-35.017184,-57.883769,Calle 135 esquina 59,Zona Norte,Pública (Municipal),3,2,0,Ruta 12,TRUE,FALSE
+1010,-34.951450,-57.889992,Calle 110 esquina 44,Ringuelet,Pública (Municipal),1,4,1,Ruta 16,FALSE,FALSE
+1011,-35.036951,-57.861959,Calle 120 esquina 93,Zona Norte,Pública (Municipal),2,2,0,Ruta 13,FALSE,FALSE
+1012,-34.790326,-58.100668,Calle 139 esquina 80,Villa Elvira,Pública (Municipal),1,3,2,Ruta 15,TRUE,FALSE
+1013,-34.918109,-57.968304,Calle 108 esquina 17,Zona Norte,Pública (Municipal),2,1,2,Ruta 19,FALSE,FALSE
+1014,-34.940334,-58.092501,Calle 103 esquina 34,Zona Norte,Pública (Municipal),1,3,2,Ruta 2,FALSE,TRUE
+1015,-34.810999,-58.059627,Calle 27 esquina 11,Nueva República,Pública (Municipal),3,1,1,Ruta 8,TRUE,TRUE
+1016,-34.958688,-58.100487,Calle 142 esquina 63,San Carlos,Pública (Municipal),2,4,2,Ruta 2,TRUE,TRUE
+1017,-34.786887,-58.068095,Calle 44 esquina 84,San Carlos,Pública (Municipal),2,2,0,Ruta 12,TRUE,FALSE
+1018,-34.992786,-57.838992,Calle 35 esquina 97,Gonnet,Pública (Municipal),1,3,2,Ruta 14,FALSE,FALSE
+1019,-34.951341,-57.853101,Calle 107 esquina 68,Este,Pública (Municipal),1,3,1,Ruta 19,FALSE,TRUE
+1020,-34.932176,-57.987458,Calle 121 esquina 118,Centro,Pública (Municipal),3,3,1,Ruta 2,FALSE,TRUE
+1021,-35.038875,-57.928692,Calle 18 esquina 149,Villa Elvira,Pública (Municipal),1,3,0,Ruta 3,FALSE,FALSE
+1022,-34.867231,-57.996737,Calle 125 esquina 105,Villa Elvira,Pública (Municipal),2,1,0,Ruta 11,FALSE,FALSE
+1023,-34.982278,-57.820274,Calle 62 esquina 57,Centro,Pública (Municipal),1,1,1,Ruta 17,TRUE,FALSE
+1024,-34.788463,-57.895917,Calle 89 esquina 20,San Carlos,Pública (Municipal),3,1,2,Ruta 2,TRUE,FALSE
+1025,-34.865144,-57.917518,Calle 42 esquina 46,Gonnet,Pública (Municipal),3,3,2,Ruta 5,TRUE,FALSE
+1026,-34.974154,-57.869307,Calle 128 esquina 35,Oeste,Pública (Municipal),2,2,1,Ruta 2,TRUE,TRUE
+1027,-34.858805,-57.843109,Calle 97 esquina 106,Tolosa,Pública (Municipal),1,4,2,Ruta 10,FALSE,FALSE
+1028,-34.789139,-57.944506,Calle 80 esquina 139,Oeste,Pública (Municipal),3,2,0,Ruta 15,TRUE,TRUE
+1029,-35.048861,-57.855736,Calle 132 esquina 137,Ángel Etcheverry,Pública (Municipal),2,4,0,Ruta 19,FALSE,TRUE
+1030,-34.837795,-57.984164,Calle 68 esquina 12,Centro,Pública (Municipal),2,4,2,Ruta 20,TRUE,TRUE
+1031,-34.862468,-57.895939,Calle 68 esquina 111,Parque Saavedra,Pública (Municipal),2,3,1,Ruta 7,TRUE,TRUE
+1032,-34.815316,-57.958557,Calle 78 esquina 2,Parque Saavedra,Pública (Municipal),3,3,2,Ruta 14,TRUE,TRUE
+1033,-34.959692,-58.087954,Calle 28 esquina 119,Ringuelet,Pública (Municipal),2,1,1,Ruta 7,TRUE,TRUE
+1034,-34.859982,-58.052105,Calle 121 esquina 54,Zona Sur,Pública (Municipal),1,2,0,Ruta 19,FALSE,TRUE
+1035,-34.961955,-57.805308,Calle 103 esquina 131,Parque Saavedra,Pública (Municipal),1,1,1,Ruta 11,TRUE,FALSE
+1036,-35.059353,-57.809951,Calle 87 esquina 91,Los Hornos,Pública (Municipal),2,1,1,Ruta 8,TRUE,FALSE
+1037,-34.829910,-57.889757,Calle 67 esquina 26,Gonnet,Pública (Municipal),2,4,2,Ruta 1,TRUE,FALSE
+1038,-34.976662,-57.806783,Calle 68 esquina 71,Parque Saavedra,Pública (Municipal),2,3,1,Ruta 6,FALSE,TRUE
+1039,-34.908902,-58.010570,Calle 146 esquina 59,Zona Norte,Pública (Municipal),1,3,0,Ruta 17,FALSE,FALSE
+1040,-34.923416,-57.989576,Calle 81 esquina 15,Zona Norte,Pública (Municipal),2,2,0,Ruta 9,TRUE,TRUE
+1041,-34.859620,-58.004765,Calle 95 esquina 64,Este,Pública (Municipal),2,3,2,Ruta 15,FALSE,FALSE
+1042,-34.848740,-57.962686,Calle 109 esquina 31,Gonnet,Pública (Municipal),3,1,0,Ruta 9,FALSE,TRUE
+1043,-34.984759,-57.828287,Calle 62 esquina 4,Los Hornos,Pública (Municipal),1,2,0,Ruta 11,FALSE,TRUE
+1044,-34.870345,-57.855623,Calle 87 esquina 72,Abella,Pública (Municipal),2,4,1,Ruta 6,TRUE,TRUE
+1045,-34.998795,-57.992261,Calle 35 esquina 134,Zona Norte,Pública (Municipal),3,4,0,Ruta 12,FALSE,TRUE
+1046,-34.836549,-57.881024,Calle 121 esquina 12,Este,Pública (Municipal),3,1,2,Ruta 13,TRUE,FALSE
+1047,-34.809031,-57.983801,Calle 41 esquina 70,Gonnet,Pública (Municipal),2,3,2,Ruta 9,FALSE,TRUE
+1048,-35.042661,-58.065600,Calle 90 esquina 55,Villa Elvira,Pública (Municipal),2,4,0,Ruta 6,TRUE,FALSE
+1049,-34.798346,-58.096994,Calle 144 esquina 47,Villa Elvira,Pública (Municipal),3,4,1,Ruta 10,TRUE,TRUE
+1050,-35.059284,-57.863236,Calle 125 esquina 54,San Carlos,Pública (Municipal),3,1,0,Ruta 8,FALSE,FALSE
+1051,-35.047501,-57.805428,Calle 134 esquina 112,Los Hornos,Pública (Municipal),3,1,2,Ruta 15,TRUE,FALSE
+1052,-35.070541,-57.955382,Calle 46 esquina 147,Ángel Etcheverry,Pública (Municipal),3,2,1,Ruta 19,FALSE,TRUE
+1053,-35.059000,-57.929265,Calle 94 esquina 26,Abella,Pública (Municipal),1,3,0,Ruta 16,TRUE,TRUE
+1054,-34.891193,-57.809600,Calle 125 esquina 121,Este,Pública (Municipal),3,3,1,Ruta 2,FALSE,TRUE
+1055,-34.860243,-58.069831,Calle 42 esquina 57,Parque Saavedra,Pública (Municipal),3,3,0,Ruta 17,TRUE,FALSE
+1056,-34.844996,-57.994250,Calle 3 esquina 77,Centro,Pública (Municipal),3,1,1,Ruta 7,FALSE,FALSE
+1057,-34.963301,-58.083913,Calle 108 esquina 143,Zona Norte,Pública (Municipal),3,2,2,Ruta 6,TRUE,TRUE
+1058,-34.829390,-57.872835,Calle 49 esquina 73,Ringuelet,Pública (Municipal),3,4,0,Ruta 6,TRUE,TRUE
+1059,-34.921468,-57.997407,Calle 30 esquina 91,San Carlos,Pública (Municipal),2,1,1,Ruta 14,TRUE,TRUE
+1060,-34.796904,-58.046906,Calle 95 esquina 66,Zona Norte,Pública (Municipal),3,3,1,Ruta 19,TRUE,FALSE
+1061,-34.924004,-57.860182,Calle 10 esquina 39,Tolosa,Pública (Municipal),1,1,0,Ruta 2,FALSE,FALSE
+1062,-34.811450,-57.970711,Calle 9 esquina 88,Oeste,Pública (Municipal),2,3,1,Ruta 19,FALSE,FALSE
+1063,-34.971456,-57.935386,Calle 12 esquina 53,Zona Norte,Pública (Municipal),3,2,2,Ruta 18,FALSE,FALSE
+1064,-34.949886,-57.922271,Calle 91 esquina 137,Nueva República,Pública (Municipal),1,1,2,Ruta 7,TRUE,FALSE
+1065,-34.987383,-57.971370,Calle 55 esquina 125,Barrio Universitario,Pública (Municipal),2,3,0,Ruta 9,TRUE,TRUE
+1066,-34.980906,-57.836682,Calle 48 esquina 99,San Carlos,Pública (Municipal),1,2,2,Ruta 14,FALSE,FALSE
+1067,-34.991872,-57.812361,Calle 19 esquina 50,San Carlos,Pública (Municipal),3,1,0,Ruta 3,TRUE,FALSE
+1068,-34.848537,-57.999399,Calle 37 esquina 123,Abella,Pública (Municipal),3,4,0,Ruta 1,TRUE,FALSE
+1069,-34.775755,-57.854849,Calle 55 esquina 54,Ringuelet,Pública (Municipal),3,1,1,Ruta 11,FALSE,TRUE
+1070,-34.819611,-57.919690,Calle 85 esquina 145,Los Hornos,Pública (Municipal),3,3,1,Ruta 18,FALSE,FALSE
+1071,-35.070335,-57.893994,Calle 66 esquina 56,Parque Saavedra,Pública (Municipal),1,2,1,Ruta 2,TRUE,FALSE
+1072,-34.897378,-57.833286,Calle 57 esquina 60,Barrio Universitario,Pública (Municipal),1,2,1,Ruta 17,FALSE,FALSE
+1073,-35.031387,-57.868565,Calle 39 esquina 12,Los Hornos,Pública (Municipal),2,3,1,Ruta 6,FALSE,FALSE
+1074,-34.809281,-57.856175,Calle 49 esquina 116,Ángel Etcheverry,Pública (Municipal),2,3,1,Ruta 5,FALSE,TRUE
+1075,-34.908935,-57.962582,Calle 121 esquina 102,Los Hornos,Pública (Municipal),3,1,0,Ruta 6,TRUE,FALSE
+1076,-35.067410,-58.073467,Calle 27 esquina 10,Centro,Pública (Municipal),2,3,2,Ruta 5,TRUE,FALSE
+1077,-34.813181,-57.840043,Calle 83 esquina 3,San Carlos,Pública (Municipal),3,2,2,Ruta 15,FALSE,FALSE
+1078,-34.872499,-57.889697,Calle 10 esquina 133,Gonnet,Pública (Municipal),3,2,1,Ruta 16,TRUE,FALSE
+1079,-34.793339,-58.016063,Calle 50 esquina 95,Zona Sur,Pública (Municipal),1,1,0,Ruta 20,TRUE,TRUE
+1080,-35.045260,-58.069855,Calle 37 esquina 104,San Carlos,Pública (Municipal),3,3,1,Ruta 19,FALSE,TRUE
+1081,-34.860334,-58.061006,Calle 9 esquina 6,Zona Sur,Pública (Municipal),1,3,0,Ruta 17,FALSE,FALSE
+1082,-34.786757,-57.806228,Calle 22 esquina 104,Los Hornos,Pública (Municipal),1,1,1,Ruta 10,FALSE,FALSE
+1083,-34.847544,-57.869759,Calle 125 esquina 132,San Carlos,Pública (Municipal),2,1,1,Ruta 19,FALSE,FALSE
+1084,-34.871397,-57.949030,Calle 13 esquina 75,Este,Pública (Municipal),1,1,1,Ruta 6,TRUE,TRUE
+1085,-34.857648,-57.833059,Calle 35 esquina 46,Tolosa,Pública (Municipal),2,3,0,Ruta 5,TRUE,FALSE
+1086,-34.832151,-58.015714,Calle 58 esquina 5,Villa Elvira,Pública (Municipal),1,1,1,Ruta 15,FALSE,TRUE
+1087,-34.979070,-57.917949,Calle 88 esquina 112,Este,Pública (Municipal),2,1,0,Ruta 10,TRUE,FALSE
+1088,-35.029417,-57.872372,Calle 114 esquina 27,San Carlos,Pública (Municipal),1,4,2,Ruta 6,FALSE,FALSE
+1089,-34.951244,-57.964453,Calle 38 esquina 51,Zona Norte,Pública (Municipal),2,2,0,Ruta 7,TRUE,TRUE
+1090,-35.034957,-57.963146,Calle 124 esquina 130,Zona Sur,Pública (Municipal),2,2,0,Ruta 4,TRUE,TRUE
+1091,-34.837694,-57.900506,Calle 65 esquina 75,Este,Pública (Municipal),3,1,2,Ruta 17,FALSE,FALSE
+1092,-34.977508,-58.048927,Calle 129 esquina 144,Ringuelet,Pública (Municipal),1,1,2,Ruta 7,FALSE,TRUE
+1093,-34.878572,-57.983500,Calle 53 esquina 71,Nueva República,Pública (Municipal),1,1,1,Ruta 17,FALSE,FALSE
+1094,-34.817112,-57.962092,Calle 69 esquina 107,Centro,Pública (Municipal),3,4,1,Ruta 16,TRUE,TRUE
+1095,-34.959349,-57.918360,Calle 38 esquina 147,Centro,Pública (Municipal),2,4,2,Ruta 8,TRUE,TRUE
+1096,-35.028919,-57.957534,Calle 79 esquina 43,Barrio Universitario,Pública (Municipal),3,4,1,Ruta 2,FALSE,FALSE
+1097,-35.013593,-58.024087,Calle 97 esquina 129,Los Hornos,Pública (Municipal),3,4,0,Ruta 17,FALSE,TRUE
+1098,-34.860830,-57.992493,Calle 94 esquina 29,Ángel Etcheverry,Pública (Municipal),3,3,1,Ruta 6,TRUE,FALSE
+1099,-34.844751,-58.071263,Calle 132 esquina 56,Abella,Pública (Municipal),1,3,1,Ruta 5,TRUE,TRUE
+1100,-34.957331,-57.924936,Calle 145 esquina 59,Ángel Etcheverry,Pública (Municipal),2,3,0,Ruta 6,TRUE,FALSE
+1101,-35.013322,-57.867074,Calle 49 esquina 51,Villa Elvira,Pública (Municipal),1,1,2,Ruta 7,TRUE,TRUE
+1102,-34.921949,-57.899513,Calle 137 esquina 25,Parque Saavedra,Pública (Municipal),2,1,1,Ruta 5,FALSE,TRUE
+1103,-34.953332,-57.928037,Calle 13 esquina 37,San Carlos,Pública (Municipal),1,1,0,Ruta 13,FALSE,FALSE
+1104,-34.924271,-58.074074,Calle 98 esquina 69,Tolosa,Pública (Municipal),2,1,0,Ruta 9,TRUE,FALSE
+1105,-34.774632,-58.011940,Calle 56 esquina 43,Abella,Pública (Municipal),3,3,1,Ruta 9,TRUE,TRUE
+1106,-34.825689,-57.857213,Calle 39 esquina 80,Ringuelet,Pública (Municipal),2,3,2,Ruta 15,FALSE,TRUE
+1107,-35.039485,-58.049472,Calle 59 esquina 10,Los Hornos,Pública (Municipal),1,3,0,Ruta 13,TRUE,TRUE
+1108,-34.845921,-57.865930,Calle 143 esquina 136,Barrio Universitario,Pública (Municipal),3,4,2,Ruta 19,TRUE,TRUE
+1109,-34.916304,-57.852874,Calle 115 esquina 67,Barrio Universitario,Pública (Municipal),1,4,2,Ruta 12,TRUE,TRUE
+1110,-34.997892,-58.064785,Calle 146 esquina 44,Villa Elvira,Pública (Municipal),3,3,0,Ruta 13,FALSE,FALSE
+1111,-34.999902,-57.970193,Calle 141 esquina 82,San Carlos,Pública (Municipal),2,4,1,Ruta 17,FALSE,FALSE
+1112,-35.050662,-58.036815,Calle 57 esquina 30,Ringuelet,Pública (Municipal),1,3,1,Ruta 9,TRUE,TRUE
+1113,-34.972022,-58.004729,Calle 115 esquina 109,Abella,Pública (Municipal),3,3,0,Ruta 4,TRUE,FALSE
+1114,-34.901022,-58.043345,Calle 1 esquina 10,San Carlos,Pública (Municipal),1,4,2,Ruta 12,FALSE,FALSE
+1115,-34.895927,-57.868609,Calle 23 esquina 132,Barrio Universitario,Pública (Municipal),1,3,0,Ruta 19,TRUE,TRUE
+1116,-34.798518,-58.020065,Calle 120 esquina 148,Ringuelet,Pública (Municipal),2,1,0,Ruta 12,FALSE,FALSE
+1117,-35.047474,-58.045991,Calle 114 esquina 24,Gonnet,Pública (Municipal),1,2,0,Ruta 20,TRUE,FALSE
+1118,-34.889000,-57.884160,Calle 15 esquina 4,Los Hornos,Pública (Municipal),2,2,1,Ruta 17,TRUE,TRUE
+1119,-34.831254,-58.008585,Calle 12 esquina 128,Gonnet,Pública (Municipal),1,2,0,Ruta 8,FALSE,FALSE
+1120,-34.872236,-58.093625,Calle 40 esquina 14,Parque Saavedra,Pública (Municipal),3,3,0,Ruta 19,TRUE,TRUE
+1121,-34.859502,-58.090608,Calle 60 esquina 7,Gonnet,Pública (Municipal),3,2,1,Ruta 19,TRUE,TRUE
+1122,-34.989203,-58.000107,Calle 86 esquina 97,Barrio Universitario,Pública (Municipal),3,1,2,Ruta 19,FALSE,FALSE
+1123,-35.004398,-57.844900,Calle 56 esquina 81,Centro,Pública (Municipal),2,4,0,Ruta 5,FALSE,FALSE
+1124,-34.814667,-57.820621,Calle 55 esquina 122,Abella,Pública (Municipal),3,4,1,Ruta 11,TRUE,FALSE
+1125,-35.037133,-57.884269,Calle 9 esquina 50,Ringuelet,Pública (Municipal),2,3,0,Ruta 4,FALSE,FALSE
+1126,-35.030974,-58.073957,Calle 11 esquina 139,Parque Saavedra,Pública (Municipal),2,2,2,Ruta 5,FALSE,FALSE
+1127,-34.887857,-58.057388,Calle 135 esquina 108,Zona Norte,Pública (Municipal),3,2,0,Ruta 15,FALSE,TRUE
+1128,-34.873592,-57.839617,Calle 51 esquina 50,Centro,Pública (Municipal),2,1,2,Ruta 1,TRUE,TRUE
+1129,-34.994207,-58.098549,Calle 101 esquina 17,Gonnet,Pública (Municipal),2,3,0,Ruta 14,FALSE,FALSE
+1130,-35.046024,-57.839451,Calle 80 esquina 34,Parque Saavedra,Pública (Municipal),2,3,0,Ruta 5,FALSE,FALSE
+1131,-34.858192,-58.031154,Calle 39 esquina 57,Villa Elvira,Pública (Municipal),2,3,1,Ruta 20,FALSE,TRUE
+1132,-34.981367,-57.859440,Calle 11 esquina 21,Ringuelet,Pública (Municipal),1,3,1,Ruta 16,FALSE,TRUE
+1133,-35.015652,-58.090371,Calle 39 esquina 8,Nueva República,Pública (Municipal),2,4,0,Ruta 10,FALSE,FALSE
+1134,-34.870289,-57.864717,Calle 82 esquina 64,Zona Norte,Pública (Municipal),2,2,2,Ruta 14,FALSE,TRUE
+1135,-34.994259,-58.010186,Calle 89 esquina 27,Abella,Pública (Municipal),2,2,1,Ruta 19,TRUE,FALSE
+1136,-34.892718,-58.096456,Calle 85 esquina 19,Barrio Universitario,Pública (Municipal),1,4,1,Ruta 1,FALSE,FALSE
+1137,-35.000110,-58.104210,Calle 143 esquina 98,Gonnet,Pública (Municipal),1,2,2,Ruta 14,TRUE,FALSE
+1138,-35.044327,-57.879981,Calle 64 esquina 79,Barrio Universitario,Pública (Municipal),2,3,0,Ruta 12,TRUE,TRUE
+1139,-35.053962,-57.954089,Calle 57 esquina 96,Oeste,Pública (Municipal),2,1,1,Ruta 20,FALSE,TRUE
+1140,-34.927204,-58.084272,Calle 40 esquina 11,Los Hornos,Pública (Municipal),1,1,1,Ruta 9,FALSE,TRUE
+1141,-35.057693,-57.971235,Calle 17 esquina 136,Villa Elvira,Pública (Municipal),3,4,1,Ruta 20,TRUE,FALSE
+1142,-34.963848,-58.057698,Calle 83 esquina 31,Los Hornos,Pública (Municipal),1,3,0,Ruta 16,FALSE,TRUE
+1143,-35.068450,-57.984869,Calle 95 esquina 27,Los Hornos,Pública (Municipal),2,4,2,Ruta 6,TRUE,FALSE
+1144,-34.916152,-57.973166,Calle 41 esquina 134,Ringuelet,Pública (Municipal),3,4,0,Ruta 3,FALSE,TRUE
+1145,-34.999266,-58.054622,Calle 56 esquina 115,Este,Pública (Municipal),1,4,1,Ruta 19,FALSE,TRUE
+1146,-34.951478,-57.918781,Calle 16 esquina 118,Ángel Etcheverry,Pública (Municipal),3,3,0,Ruta 4,TRUE,TRUE
+1147,-34.805470,-57.822367,Calle 1 esquina 3,Abella,Pública (Municipal),2,4,2,Ruta 6,FALSE,TRUE
+1148,-34.818461,-57.874241,Calle 26 esquina 87,Zona Sur,Pública (Municipal),3,2,0,Ruta 8,FALSE,TRUE
+1149,-35.007107,-57.894590,Calle 113 esquina 53,Gonnet,Pública (Municipal),1,2,0,Ruta 1,TRUE,FALSE
+1150,-35.018242,-58.052076,Calle 64 esquina 38,Ringuelet,Pública (Municipal),1,4,1,Ruta 6,TRUE,FALSE
+1151,-34.842391,-57.964685,Calle 50 esquina 76,Ángel Etcheverry,Pública (Municipal),1,4,0,Ruta 13,TRUE,FALSE
+1152,-35.046981,-57.922448,Calle 143 esquina 14,San Carlos,Pública (Municipal),2,2,0,Ruta 1,FALSE,FALSE
+1153,-34.919505,-58.000093,Calle 29 esquina 146,Barrio Universitario,Pública (Municipal),1,3,2,Ruta 12,FALSE,TRUE
+1154,-34.825223,-57.876052,Calle 29 esquina 132,Barrio Universitario,Pública (Municipal),3,3,2,Ruta 13,FALSE,TRUE
+1155,-35.021530,-57.960327,Calle 37 esquina 129,Abella,Pública (Municipal),1,2,0,Ruta 20,TRUE,FALSE
+1156,-34.939627,-57.942139,Calle 18 esquina 26,Oeste,Pública (Municipal),1,1,2,Ruta 12,FALSE,TRUE
+1157,-34.771985,-57.901849,Calle 98 esquina 25,Gonnet,Pública (Municipal),2,2,2,Ruta 14,TRUE,FALSE
+1158,-34.913888,-57.984011,Calle 79 esquina 128,Barrio Universitario,Pública (Municipal),3,1,1,Ruta 20,FALSE,TRUE
+1159,-34.832245,-57.981922,Calle 22 esquina 36,Villa Elvira,Pública (Municipal),3,4,1,Ruta 3,TRUE,TRUE
+1160,-34.788332,-57.836378,Calle 86 esquina 5,Zona Norte,Pública (Municipal),3,4,1,Ruta 18,TRUE,TRUE
+1161,-34.927105,-57.805650,Calle 18 esquina 122,Ringuelet,Pública (Municipal),2,2,2,Ruta 3,FALSE,FALSE
+1162,-34.922558,-57.982298,Calle 9 esquina 3,San Carlos,Pública (Municipal),1,2,1,Ruta 16,FALSE,TRUE
+1163,-34.911935,-57.914880,Calle 143 esquina 22,Oeste,Pública (Municipal),2,1,2,Ruta 13,TRUE,FALSE
+1164,-34.834064,-58.059135,Calle 4 esquina 14,Ángel Etcheverry,Pública (Municipal),3,4,1,Ruta 15,TRUE,FALSE
+1165,-34.977067,-57.937101,Calle 26 esquina 7,Abella,Pública (Municipal),1,3,1,Ruta 6,TRUE,FALSE
+1166,-35.055478,-58.085219,Calle 53 esquina 95,Gonnet,Pública (Municipal),3,1,2,Ruta 16,FALSE,TRUE
+1167,-35.006697,-58.036079,Calle 64 esquina 35,San Carlos,Pública (Municipal),2,1,0,Ruta 20,FALSE,TRUE
+1168,-34.957385,-57.848124,Calle 127 esquina 102,Centro,Pública (Municipal),2,4,0,Ruta 10,FALSE,FALSE
+1169,-34.978757,-57.995002,Calle 62 esquina 128,Centro,Pública (Municipal),1,3,0,Ruta 5,FALSE,TRUE
+1170,-34.867068,-57.879008,Calle 83 esquina 15,Ángel Etcheverry,Pública (Municipal),3,2,2,Ruta 8,FALSE,TRUE
+1171,-34.851751,-58.096728,Calle 105 esquina 142,Zona Norte,Pública (Municipal),1,1,0,Ruta 2,FALSE,FALSE
+1172,-34.816700,-57.961642,Calle 120 esquina 73,Abella,Pública (Municipal),3,3,0,Ruta 13,FALSE,FALSE
+1173,-34.890411,-57.805589,Calle 55 esquina 111,Los Hornos,Pública (Municipal),2,3,2,Ruta 8,FALSE,TRUE
+1174,-34.951650,-57.921570,Calle 126 esquina 54,Oeste,Pública (Municipal),2,2,2,Ruta 8,FALSE,TRUE
+1175,-35.008099,-58.071126,Calle 150 esquina 53,Centro,Pública (Municipal),2,2,2,Ruta 13,FALSE,FALSE
+1176,-34.870940,-57.930883,Calle 116 esquina 10,Ringuelet,Pública (Municipal),3,4,1,Ruta 12,TRUE,TRUE
+1177,-34.907665,-58.092068,Calle 110 esquina 128,Tolosa,Pública (Municipal),2,1,2,Ruta 2,FALSE,FALSE
+1178,-34.842658,-57.878117,Calle 34 esquina 95,Ringuelet,Pública (Municipal),3,2,0,Ruta 1,FALSE,TRUE
+1179,-34.858382,-58.002137,Calle 125 esquina 137,Abella,Pública (Municipal),2,2,1,Ruta 10,TRUE,FALSE
+1180,-34.837326,-57.810051,Calle 110 esquina 110,San Carlos,Pública (Municipal),2,3,2,Ruta 3,TRUE,TRUE
+1181,-34.876308,-57.955398,Calle 17 esquina 138,Villa Elvira,Pública (Municipal),3,1,0,Ruta 11,TRUE,TRUE
+1182,-34.945556,-57.872925,Calle 125 esquina 81,Ángel Etcheverry,Pública (Municipal),2,2,0,Ruta 17,TRUE,FALSE
+1183,-34.979244,-58.069646,Calle 94 esquina 17,Ángel Etcheverry,Pública (Municipal),2,1,0,Ruta 14,FALSE,FALSE
+1184,-34.844042,-57.842526,Calle 90 esquina 59,Nueva República,Pública (Municipal),3,3,1,Ruta 15,FALSE,FALSE
+1185,-34.999176,-57.865838,Calle 63 esquina 118,Ángel Etcheverry,Pública (Municipal),2,4,1,Ruta 11,TRUE,TRUE
+1186,-34.954353,-57.905475,Calle 8 esquina 38,Nueva República,Pública (Municipal),2,3,0,Ruta 19,FALSE,FALSE
+1187,-34.815180,-57.856378,Calle 64 esquina 113,Parque Saavedra,Pública (Municipal),3,3,1,Ruta 14,TRUE,FALSE
+1188,-34.961759,-57.861099,Calle 24 esquina 92,Tolosa,Pública (Municipal),3,2,1,Ruta 11,FALSE,FALSE
+1189,-34.850200,-58.099357,Calle 135 esquina 73,Parque Saavedra,Pública (Municipal),2,1,2,Ruta 11,TRUE,TRUE
+1190,-34.946932,-58.017571,Calle 72 esquina 90,Centro,Pública (Municipal),1,3,1,Ruta 2,TRUE,TRUE
+1191,-34.816816,-57.941221,Calle 90 esquina 34,San Carlos,Pública (Municipal),2,2,0,Ruta 17,TRUE,TRUE
+1192,-34.844749,-58.032334,Calle 93 esquina 98,Ángel Etcheverry,Pública (Municipal),3,3,1,Ruta 9,TRUE,TRUE
+1193,-34.780237,-58.046994,Calle 138 esquina 17,Zona Norte,Pública (Municipal),2,1,1,Ruta 20,FALSE,TRUE
+1194,-35.001735,-57.948964,Calle 135 esquina 147,Ángel Etcheverry,Pública (Municipal),3,4,1,Ruta 18,TRUE,TRUE
+1195,-34.996254,-58.083116,Calle 81 esquina 115,Ángel Etcheverry,Pública (Municipal),1,1,1,Ruta 7,TRUE,FALSE
+1196,-34.826620,-57.894061,Calle 41 esquina 41,Los Hornos,Pública (Municipal),2,4,0,Ruta 18,FALSE,FALSE
+1197,-34.898795,-58.047357,Calle 54 esquina 103,Gonnet,Pública (Municipal),1,2,1,Ruta 4,FALSE,FALSE
+1198,-34.790573,-57.877973,Calle 46 esquina 68,Barrio Universitario,Pública (Municipal),1,4,2,Ruta 11,FALSE,TRUE
+1199,-34.959348,-57.806675,Calle 2 esquina 44,Nueva República,Pública (Municipal),2,2,2,Ruta 19,TRUE,TRUE
+1200,-35.008520,-58.091131,Calle 64 esquina 94,Centro,Pública (Municipal),3,4,1,Ruta 12,TRUE,FALSE
+1201,-34.938289,-57.834649,Calle 82 esquina 41,Ángel Etcheverry,Pública (Municipal),3,3,1,Ruta 14,FALSE,TRUE
+1202,-35.033915,-57.818132,Calle 75 esquina 71,Gonnet,Pública (Municipal),2,4,0,Ruta 13,TRUE,TRUE
+1203,-34.913703,-58.008297,Calle 37 esquina 53,Gonnet,Pública (Municipal),1,3,1,Ruta 14,FALSE,FALSE
+1204,-34.785303,-57.918448,Calle 36 esquina 106,Tolosa,Pública (Municipal),3,1,2,Ruta 9,TRUE,FALSE
+1205,-34.930309,-58.039268,Calle 42 esquina 119,Nueva República,Pública (Municipal),1,2,1,Ruta 2,TRUE,FALSE
+1206,-34.960991,-57.992575,Calle 26 esquina 149,Ringuelet,Pública (Municipal),1,3,0,Ruta 12,TRUE,TRUE
+1207,-35.002643,-58.053958,Calle 83 esquina 97,Oeste,Pública (Municipal),3,3,1,Ruta 12,FALSE,TRUE
+1208,-35.065208,-57.949431,Calle 63 esquina 94,Ringuelet,Pública (Municipal),1,4,0,Ruta 4,TRUE,FALSE
+1209,-34.868816,-57.937329,Calle 66 esquina 22,Ringuelet,Pública (Municipal),2,2,2,Ruta 15,TRUE,FALSE
+1210,-34.815614,-57.817981,Calle 89 esquina 59,Zona Norte,Pública (Municipal),2,1,1,Ruta 16,FALSE,TRUE
+1211,-35.052024,-58.011099,Calle 2 esquina 21,Zona Sur,Pública (Municipal),1,3,2,Ruta 18,TRUE,TRUE
+1212,-34.814202,-58.078847,Calle 109 esquina 69,Tolosa,Pública (Municipal),2,3,1,Ruta 17,TRUE,TRUE
+1213,-35.036921,-57.828382,Calle 117 esquina 138,Zona Norte,Pública (Municipal),1,4,2,Ruta 7,TRUE,FALSE
+1214,-35.005901,-57.919296,Calle 38 esquina 76,Parque Saavedra,Pública (Municipal),2,4,2,Ruta 19,FALSE,FALSE
+1215,-34.825461,-57.960823,Calle 140 esquina 31,Gonnet,Pública (Municipal),1,1,2,Ruta 1,TRUE,TRUE
+1216,-34.794569,-57.979459,Calle 31 esquina 40,Nueva República,Pública (Municipal),1,3,0,Ruta 3,FALSE,TRUE
+1217,-34.982764,-57.948824,Calle 45 esquina 22,Gonnet,Pública (Municipal),3,2,1,Ruta 5,FALSE,FALSE
+1218,-35.062646,-58.072579,Calle 138 esquina 126,Parque Saavedra,Pública (Municipal),1,3,1,Ruta 18,FALSE,FALSE
+1219,-34.953697,-57.977085,Calle 134 esquina 91,Barrio Universitario,Pública (Municipal),1,2,0,Ruta 8,TRUE,FALSE
+1220,-35.057368,-57.832247,Calle 76 esquina 64,Ángel Etcheverry,Pública (Municipal),1,1,2,Ruta 15,TRUE,FALSE
+1221,-34.934920,-58.081562,Calle 104 esquina 77,Abella,Pública (Municipal),2,3,2,Ruta 4,TRUE,TRUE
+1222,-34.996155,-57.865223,Calle 52 esquina 67,Villa Elvira,Pública (Municipal),3,2,1,Ruta 3,FALSE,FALSE
+1223,-34.812414,-57.973296,Calle 128 esquina 121,Parque Saavedra,Pública (Municipal),3,3,2,Ruta 3,TRUE,FALSE
+1224,-34.863801,-58.049282,Calle 57 esquina 11,Zona Norte,Pública (Municipal),2,1,2,Ruta 19,TRUE,TRUE
+1225,-34.793681,-57.934310,Calle 17 esquina 13,Ángel Etcheverry,Pública (Municipal),1,2,1,Ruta 15,FALSE,FALSE
+1226,-34.867370,-57.825642,Calle 59 esquina 31,Parque Saavedra,Pública (Municipal),1,3,0,Ruta 7,TRUE,FALSE
+1227,-35.023510,-57.975887,Calle 5 esquina 119,Zona Sur,Pública (Municipal),2,2,2,Ruta 11,FALSE,FALSE
+1228,-34.887369,-58.004161,Calle 99 esquina 21,Ángel Etcheverry,Pública (Municipal),3,2,0,Ruta 15,FALSE,TRUE
+1229,-34.974160,-57.991935,Calle 55 esquina 8,Barrio Universitario,Pública (Municipal),2,1,0,Ruta 10,TRUE,TRUE
+1230,-34.945023,-58.073393,Calle 100 esquina 100,San Carlos,Pública (Municipal),3,3,2,Ruta 13,FALSE,FALSE
+1231,-34.905094,-57.877278,Calle 31 esquina 90,Ringuelet,Pública (Municipal),3,3,1,Ruta 6,TRUE,FALSE
+1232,-35.012070,-57.862802,Calle 13 esquina 145,Gonnet,Pública (Municipal),1,4,0,Ruta 19,TRUE,TRUE
+1233,-35.068715,-58.064877,Calle 50 esquina 137,Villa Elvira,Pública (Municipal),3,4,2,Ruta 16,TRUE,FALSE
+1234,-34.880207,-58.035596,Calle 44 esquina 99,Parque Saavedra,Pública (Municipal),1,2,1,Ruta 4,TRUE,FALSE
+1235,-35.068698,-58.038857,Calle 112 esquina 138,Villa Elvira,Pública (Municipal),2,4,1,Ruta 20,FALSE,FALSE
+1236,-35.064192,-58.056220,Calle 24 esquina 51,Zona Norte,Pública (Municipal),3,3,2,Ruta 10,FALSE,FALSE
+1237,-35.048825,-57.916688,Calle 87 esquina 91,Tolosa,Pública (Municipal),1,3,0,Ruta 17,FALSE,TRUE
+1238,-35.036583,-58.087649,Calle 131 esquina 131,Este,Pública (Municipal),2,4,0,Ruta 20,TRUE,TRUE
+1239,-35.056462,-58.078926,Calle 46 esquina 19,Gonnet,Pública (Municipal),3,4,1,Ruta 17,TRUE,FALSE
+1240,-34.890965,-58.032112,Calle 28 esquina 130,Oeste,Pública (Municipal),2,1,1,Ruta 11,FALSE,TRUE
+1241,-34.989490,-57.849102,Calle 18 esquina 56,Barrio Universitario,Pública (Municipal),3,2,0,Ruta 5,FALSE,TRUE
+1242,-34.935877,-57.815164,Calle 149 esquina 26,Parque Saavedra,Pública (Municipal),3,2,1,Ruta 1,TRUE,TRUE
+1243,-35.002444,-58.070495,Calle 6 esquina 40,Gonnet,Pública (Municipal),2,1,0,Ruta 16,FALSE,TRUE
+1244,-35.042490,-57.857424,Calle 30 esquina 108,Abella,Pública (Municipal),2,2,0,Ruta 2,TRUE,TRUE
+1245,-34.925254,-57.997892,Calle 10 esquina 25,Zona Norte,Pública (Municipal),1,1,2,Ruta 2,TRUE,FALSE
+1246,-34.921968,-57.918389,Calle 135 esquina 80,Zona Norte,Pública (Municipal),2,4,0,Ruta 20,FALSE,TRUE
+1247,-34.943364,-57.805272,Calle 120 esquina 23,Este,Pública (Municipal),3,2,2,Ruta 16,FALSE,TRUE
+1248,-34.774745,-58.069892,Calle 65 esquina 25,Zona Sur,Pública (Municipal),2,1,0,Ruta 20,FALSE,FALSE
+1249,-34.776164,-57.950709,Calle 82 esquina 70,Gonnet,Pública (Municipal),3,1,2,Ruta 4,FALSE,FALSE
+1250,-34.951136,-58.044542,Calle 57 esquina 36,Villa Elvira,Pública (Municipal),2,2,0,Ruta 15,FALSE,FALSE
+1251,-34.978938,-58.091218,Calle 17 esquina 143,Parque Saavedra,Pública (Municipal),2,1,2,Ruta 4,FALSE,TRUE
+1252,-35.007685,-57.991604,Calle 78 esquina 112,Gonnet,Pública (Municipal),3,4,2,Ruta 8,FALSE,FALSE
+1253,-35.052329,-58.001451,Calle 132 esquina 53,Nueva República,Pública (Municipal),3,1,2,Ruta 18,TRUE,TRUE
+1254,-35.053628,-58.066870,Calle 120 esquina 75,Villa Elvira,Pública (Municipal),1,4,0,Ruta 15,FALSE,FALSE
+1255,-34.873358,-58.048926,Calle 33 esquina 27,San Carlos,Pública (Municipal),1,4,1,Ruta 1,FALSE,FALSE
+1256,-34.785179,-58.067406,Calle 53 esquina 108,Ringuelet,Pública (Municipal),3,2,1,Ruta 15,TRUE,FALSE
+1257,-34.853135,-58.067207,Calle 133 esquina 128,Zona Sur,Pública (Municipal),2,3,0,Ruta 9,FALSE,TRUE
+1258,-35.066250,-58.090987,Calle 119 esquina 28,Nueva República,Pública (Municipal),1,2,2,Ruta 15,TRUE,TRUE
+1259,-35.054320,-57.971336,Calle 143 esquina 108,Gonnet,Pública (Municipal),3,4,2,Ruta 9,TRUE,TRUE
+1260,-34.931416,-58.031253,Calle 121 esquina 99,Barrio Universitario,Pública (Municipal),1,2,0,Ruta 16,TRUE,TRUE
+1261,-34.927427,-57.988627,Calle 38 esquina 100,Gonnet,Pública (Municipal),2,3,1,Ruta 19,TRUE,TRUE
+1262,-35.065985,-57.825944,Calle 68 esquina 135,San Carlos,Pública (Municipal),3,3,2,Ruta 10,TRUE,TRUE
+1263,-34.939798,-58.072105,Calle 66 esquina 4,Ángel Etcheverry,Pública (Municipal),3,1,1,Ruta 19,FALSE,FALSE
+1264,-35.022417,-57.863983,Calle 1 esquina 130,Parque Saavedra,Pública (Municipal),3,4,2,Ruta 20,FALSE,FALSE
+1265,-34.809209,-57.866546,Calle 72 esquina 144,Zona Sur,Pública (Municipal),2,1,2,Ruta 5,TRUE,TRUE
+1266,-34.889605,-57.970621,Calle 24 esquina 128,Zona Sur,Pública (Municipal),1,4,2,Ruta 3,TRUE,FALSE
+1267,-34.959883,-57.921034,Calle 68 esquina 52,Este,Pública (Municipal),1,1,0,Ruta 2,FALSE,FALSE
+1268,-34.846351,-57.868568,Calle 113 esquina 140,Abella,Pública (Municipal),1,4,2,Ruta 17,FALSE,FALSE
+1269,-34.941828,-57.991435,Calle 70 esquina 106,Barrio Universitario,Pública (Municipal),1,1,0,Ruta 19,FALSE,FALSE
+1270,-34.880264,-57.853586,Calle 117 esquina 93,Zona Norte,Pública (Municipal),1,2,2,Ruta 20,TRUE,TRUE
+1271,-34.827401,-58.086576,Calle 72 esquina 27,Tolosa,Pública (Municipal),1,1,1,Ruta 17,TRUE,FALSE
+1272,-34.837528,-57.896463,Calle 146 esquina 111,Abella,Pública (Municipal),1,1,2,Ruta 7,TRUE,TRUE
+1273,-34.956245,-57.854820,Calle 60 esquina 133,Centro,Pública (Municipal),2,3,2,Ruta 8,FALSE,TRUE
+1274,-34.772756,-57.905160,Calle 101 esquina 130,Ángel Etcheverry,Pública (Municipal),1,4,2,Ruta 11,FALSE,TRUE
+1275,-34.820897,-57.944530,Calle 22 esquina 149,Villa Elvira,Pública (Municipal),2,3,1,Ruta 18,FALSE,TRUE
+1276,-34.811057,-58.011648,Calle 116 esquina 37,Tolosa,Pública (Municipal),1,1,2,Ruta 4,TRUE,FALSE
+1277,-34.990415,-57.873949,Calle 131 esquina 10,Ringuelet,Pública (Municipal),2,1,0,Ruta 7,FALSE,TRUE
+1278,-34.998455,-58.032672,Calle 62 esquina 144,Villa Elvira,Pública (Municipal),2,1,2,Ruta 9,TRUE,TRUE
+1279,-34.788130,-58.015899,Calle 46 esquina 49,Gonnet,Pública (Municipal),2,2,0,Ruta 12,TRUE,TRUE
+1280,-34.830467,-57.837989,Calle 115 esquina 60,Oeste,Pública (Municipal),1,2,0,Ruta 5,TRUE,TRUE
+1281,-34.870220,-57.821341,Calle 45 esquina 123,Parque Saavedra,Pública (Municipal),2,4,0,Ruta 1,TRUE,TRUE
+1282,-34.847654,-57.899318,Calle 141 esquina 134,Tolosa,Pública (Municipal),2,3,1,Ruta 11,TRUE,TRUE
+1283,-35.061303,-57.807830,Calle 58 esquina 42,Tolosa,Pública (Municipal),3,1,2,Ruta 13,FALSE,FALSE
+1284,-34.772494,-58.008134,Calle 46 esquina 123,Zona Sur,Pública (Municipal),3,1,2,Ruta 5,FALSE,TRUE
+1285,-34.950939,-57.855993,Calle 31 esquina 46,Barrio Universitario,Pública (Municipal),1,3,0,Ruta 5,TRUE,TRUE
+1286,-34.817599,-58.097819,Calle 119 esquina 30,Ángel Etcheverry,Pública (Municipal),2,1,1,Ruta 15,FALSE,FALSE
+1287,-35.055105,-57.914873,Calle 31 esquina 60,Centro,Pública (Municipal),2,3,0,Ruta 8,TRUE,FALSE
+1288,-34.936274,-57.852340,Calle 122 esquina 74,Zona Sur,Pública (Municipal),3,2,1,Ruta 2,FALSE,TRUE
+1289,-34.863221,-57.829040,Calle 56 esquina 54,Villa Elvira,Pública (Municipal),2,1,0,Ruta 12,FALSE,FALSE
+1290,-34.873899,-57.967457,Calle 25 esquina 96,Ringuelet,Pública (Municipal),3,1,0,Ruta 2,TRUE,FALSE
+1291,-34.786140,-57.863547,Calle 71 esquina 107,Nueva República,Pública (Municipal),3,2,2,Ruta 1,TRUE,TRUE
+1292,-35.017291,-57.876366,Calle 1 esquina 149,Oeste,Pública (Municipal),1,4,0,Ruta 18,TRUE,TRUE
+1293,-34.910843,-57.923669,Calle 54 esquina 10,Este,Pública (Municipal),2,3,2,Ruta 13,TRUE,FALSE
+1294,-34.846195,-57.829707,Calle 80 esquina 1,Villa Elvira,Pública (Municipal),3,1,1,Ruta 8,FALSE,FALSE
+1295,-34.967139,-57.980459,Calle 66 esquina 38,Zona Sur,Pública (Municipal),2,2,1,Ruta 9,TRUE,TRUE
+1296,-34.791439,-58.063815,Calle 72 esquina 115,San Carlos,Pública (Municipal),1,2,0,Ruta 10,TRUE,FALSE
+1297,-34.772966,-58.071006,Calle 84 esquina 120,Ringuelet,Pública (Municipal),3,2,2,Ruta 1,FALSE,TRUE
+1298,-34.983854,-57.811306,Calle 36 esquina 32,Gonnet,Pública (Municipal),1,1,0,Ruta 8,TRUE,TRUE
+1299,-34.807540,-57.928146,Calle 118 esquina 33,Abella,Pública (Municipal),3,3,1,Ruta 8,TRUE,TRUE
+1300,-34.837203,-57.833739,Calle 16 esquina 29,Abella,Pública (Municipal),3,1,2,Ruta 7,FALSE,FALSE
+1301,-34.832378,-57.942004,Calle 36 esquina 130,Tolosa,Pública (Municipal),3,4,2,Ruta 17,FALSE,FALSE
+1302,-34.795491,-57.843116,Calle 15 esquina 136,Tolosa,Pública (Municipal),3,4,1,Ruta 19,FALSE,TRUE
+1303,-34.967446,-57.830398,Calle 126 esquina 116,Zona Sur,Pública (Municipal),3,2,1,Ruta 8,TRUE,FALSE
+1304,-35.022927,-57.915027,Calle 57 esquina 93,Zona Norte,Pública (Municipal),2,4,1,Ruta 18,TRUE,TRUE
+1305,-35.051208,-58.030294,Calle 149 esquina 9,Gonnet,Pública (Municipal),1,2,1,Ruta 12,TRUE,TRUE
+1306,-34.787779,-58.005244,Calle 8 esquina 43,Villa Elvira,Pública (Municipal),1,3,1,Ruta 3,TRUE,FALSE
+1307,-34.895680,-57.975108,Calle 121 esquina 85,Tolosa,Pública (Municipal),1,1,2,Ruta 11,TRUE,TRUE
+1308,-35.004464,-57.825658,Calle 141 esquina 149,Ringuelet,Pública (Municipal),3,1,2,Ruta 9,FALSE,FALSE
+1309,-34.911374,-58.050734,Calle 103 esquina 6,Gonnet,Pública (Municipal),3,3,0,Ruta 20,FALSE,TRUE
+1310,-35.023812,-58.006393,Calle 37 esquina 72,Los Hornos,Pública (Municipal),1,1,0,Ruta 15,FALSE,TRUE
+1311,-34.987531,-57.908866,Calle 7 esquina 76,Oeste,Pública (Municipal),1,4,1,Ruta 17,FALSE,TRUE
+1312,-34.773092,-57.927406,Calle 120 esquina 37,Barrio Universitario,Pública (Municipal),3,1,1,Ruta 20,FALSE,TRUE
+1313,-34.796497,-57.817511,Calle 106 esquina 28,Gonnet,Pública (Municipal),2,4,2,Ruta 6,FALSE,TRUE
+1314,-34.859258,-57.821284,Calle 54 esquina 37,Ringuelet,Pública (Municipal),3,2,0,Ruta 20,FALSE,TRUE
+1315,-34.966752,-57.954299,Calle 35 esquina 145,Centro,Pública (Municipal),3,2,0,Ruta 13,FALSE,TRUE
+1316,-34.949881,-57.820469,Calle 148 esquina 149,Barrio Universitario,Pública (Municipal),1,1,2,Ruta 15,FALSE,TRUE
+1317,-34.893070,-57.901883,Calle 22 esquina 28,Tolosa,Pública (Municipal),1,3,1,Ruta 6,FALSE,TRUE
+1318,-35.066686,-58.051989,Calle 102 esquina 31,Zona Norte,Pública (Municipal),2,2,0,Ruta 3,FALSE,TRUE
+1319,-34.822280,-57.983134,Calle 137 esquina 30,Zona Norte,Pública (Municipal),1,1,0,Ruta 10,TRUE,TRUE
+1320,-34.877169,-57.823877,Calle 34 esquina 81,Ángel Etcheverry,Pública (Municipal),1,1,2,Ruta 1,FALSE,FALSE
+1321,-34.999978,-58.071609,Calle 32 esquina 12,Centro,Pública (Municipal),3,1,2,Ruta 10,FALSE,TRUE
+1322,-34.913872,-57.808262,Calle 82 esquina 17,Oeste,Pública (Municipal),2,2,0,Ruta 10,TRUE,FALSE
+1323,-34.888296,-58.098021,Calle 105 esquina 40,Ringuelet,Pública (Municipal),3,2,2,Ruta 7,FALSE,FALSE
+1324,-34.877903,-57.953156,Calle 108 esquina 26,San Carlos,Pública (Municipal),2,4,1,Ruta 8,FALSE,FALSE
+1325,-34.774457,-57.960786,Calle 22 esquina 1,Parque Saavedra,Pública (Municipal),1,1,1,Ruta 6,FALSE,TRUE
+1326,-35.037599,-57.964041,Calle 127 esquina 119,Ringuelet,Pública (Municipal),3,1,1,Ruta 8,FALSE,TRUE
+1327,-34.919895,-57.911278,Calle 10 esquina 134,Nueva República,Pública (Municipal),1,4,2,Ruta 19,FALSE,TRUE
+1328,-34.921070,-57.908375,Calle 69 esquina 141,Parque Saavedra,Pública (Municipal),1,2,2,Ruta 19,TRUE,FALSE
+1329,-34.778994,-57.810127,Calle 136 esquina 123,San Carlos,Pública (Municipal),1,1,1,Ruta 18,TRUE,FALSE
+1330,-34.866355,-57.960547,Calle 110 esquina 31,Barrio Universitario,Pública (Municipal),1,2,0,Ruta 10,TRUE,FALSE
+1331,-34.952675,-57.916668,Calle 28 esquina 6,Zona Norte,Pública (Municipal),2,3,1,Ruta 11,TRUE,TRUE
+1332,-34.899116,-58.034803,Calle 93 esquina 124,San Carlos,Pública (Municipal),1,2,1,Ruta 20,FALSE,FALSE
+1333,-34.907211,-57.935941,Calle 81 esquina 124,Barrio Universitario,Pública (Municipal),2,1,1,Ruta 16,FALSE,FALSE
+1334,-34.911743,-58.101512,Calle 58 esquina 134,Centro,Pública (Municipal),3,3,0,Ruta 3,FALSE,TRUE
+1335,-34.860181,-58.064337,Calle 61 esquina 16,San Carlos,Pública (Municipal),1,1,2,Ruta 20,FALSE,FALSE
+1336,-35.032346,-57.983330,Calle 137 esquina 135,San Carlos,Pública (Municipal),1,2,1,Ruta 6,FALSE,TRUE
+1337,-35.049708,-58.008865,Calle 134 esquina 108,Ángel Etcheverry,Pública (Municipal),3,2,0,Ruta 20,TRUE,FALSE
+1338,-34.824387,-58.033816,Calle 56 esquina 53,Zona Norte,Pública (Municipal),2,4,1,Ruta 9,FALSE,FALSE
+1339,-34.860120,-58.074293,Calle 133 esquina 55,Ringuelet,Pública (Municipal),3,3,1,Ruta 9,TRUE,TRUE
+1340,-34.801750,-58.044601,Calle 18 esquina 118,Zona Norte,Pública (Municipal),3,4,2,Ruta 13,FALSE,FALSE
+1341,-34.818432,-58.074028,Calle 85 esquina 22,Villa Elvira,Pública (Municipal),2,1,1,Ruta 2,TRUE,TRUE
+1342,-34.913128,-57.841029,Calle 134 esquina 145,Ringuelet,Pública (Municipal),1,1,1,Ruta 4,TRUE,TRUE
+1343,-34.772291,-57.986525,Calle 97 esquina 34,Los Hornos,Pública (Municipal),2,2,0,Ruta 15,TRUE,TRUE
+1344,-34.933724,-57.879323,Calle 17 esquina 92,Ángel Etcheverry,Pública (Municipal),1,3,1,Ruta 7,TRUE,TRUE
+1345,-34.897083,-58.044489,Calle 83 esquina 130,Centro,Pública (Municipal),3,2,2,Ruta 4,FALSE,FALSE
+1346,-34.991907,-57.892201,Calle 13 esquina 4,Los Hornos,Pública (Municipal),1,2,0,Ruta 13,TRUE,FALSE
+1347,-34.986053,-58.034557,Calle 72 esquina 75,Tolosa,Pública (Municipal),3,2,0,Ruta 20,TRUE,TRUE
+1348,-34.929157,-57.919426,Calle 130 esquina 5,Ringuelet,Pública (Municipal),3,4,2,Ruta 7,FALSE,TRUE
+1349,-34.912548,-58.047254,Calle 34 esquina 13,Nueva República,Pública (Municipal),1,4,2,Ruta 3,FALSE,FALSE
+1350,-34.968397,-58.021240,Calle 33 esquina 74,Villa Elvira,Pública (Municipal),2,4,2,Ruta 3,FALSE,TRUE
+1351,-34.813206,-58.101560,Calle 59 esquina 147,Zona Norte,Pública (Municipal),1,4,2,Ruta 13,FALSE,TRUE
+1352,-34.822276,-57.828398,Calle 91 esquina 77,Abella,Pública (Municipal),3,2,1,Ruta 17,FALSE,TRUE
+1353,-34.832345,-57.998164,Calle 88 esquina 108,Zona Norte,Pública (Municipal),2,1,2,Ruta 15,TRUE,TRUE
+1354,-35.018073,-57.869827,Calle 18 esquina 108,Centro,Pública (Municipal),1,1,1,Ruta 14,FALSE,FALSE
+1355,-34.861745,-57.826194,Calle 133 esquina 119,Gonnet,Pública (Municipal),2,2,1,Ruta 16,FALSE,TRUE
+1356,-34.953109,-57.966369,Calle 104 esquina 89,Nueva República,Pública (Municipal),2,2,2,Ruta 1,FALSE,FALSE
+1357,-34.897556,-58.104921,Calle 105 esquina 47,Zona Sur,Pública (Municipal),3,3,1,Ruta 12,FALSE,TRUE
+1358,-34.863770,-57.978111,Calle 3 esquina 104,Gonnet,Pública (Municipal),2,3,2,Ruta 6,FALSE,FALSE
+1359,-34.918878,-57.950373,Calle 20 esquina 90,Barrio Universitario,Pública (Municipal),2,1,2,Ruta 11,TRUE,FALSE
+1360,-34.913012,-57.835062,Calle 52 esquina 116,Ringuelet,Pública (Municipal),3,4,0,Ruta 6,FALSE,TRUE
+1361,-34.921339,-57.861478,Calle 12 esquina 146,Parque Saavedra,Pública (Municipal),2,4,0,Ruta 5,TRUE,TRUE
+1362,-35.061138,-57.855664,Calle 121 esquina 54,Centro,Pública (Municipal),3,3,1,Ruta 4,TRUE,TRUE
+1363,-35.014408,-58.049471,Calle 7 esquina 77,Nueva República,Pública (Municipal),3,1,2,Ruta 14,FALSE,FALSE
+1364,-34.879670,-58.039662,Calle 106 esquina 150,Ringuelet,Pública (Municipal),1,2,2,Ruta 18,FALSE,TRUE
+1365,-35.049929,-58.012932,Calle 71 esquina 10,Abella,Pública (Municipal),3,1,0,Ruta 6,TRUE,TRUE
+1366,-34.939040,-57.871515,Calle 9 esquina 142,Parque Saavedra,Pública (Municipal),3,1,2,Ruta 15,TRUE,FALSE
+1367,-35.003562,-57.926820,Calle 18 esquina 101,Este,Pública (Municipal),1,4,0,Ruta 12,TRUE,TRUE
+1368,-34.916251,-58.078479,Calle 125 esquina 59,Zona Sur,Pública (Municipal),2,2,0,Ruta 16,FALSE,TRUE
+1369,-34.931653,-57.996687,Calle 19 esquina 8,Abella,Pública (Municipal),1,2,2,Ruta 3,FALSE,TRUE
+1370,-35.008004,-57.908528,Calle 94 esquina 148,Parque Saavedra,Pública (Municipal),2,2,1,Ruta 19,TRUE,TRUE
+1371,-34.877322,-57.823093,Calle 31 esquina 130,Ángel Etcheverry,Pública (Municipal),1,1,1,Ruta 6,FALSE,TRUE
+1372,-35.011895,-57.892485,Calle 5 esquina 14,Centro,Pública (Municipal),1,2,1,Ruta 11,FALSE,FALSE
+1373,-35.012504,-57.836878,Calle 27 esquina 30,Ringuelet,Pública (Municipal),2,4,1,Ruta 18,FALSE,TRUE
+1374,-34.778688,-58.034394,Calle 145 esquina 31,Ángel Etcheverry,Pública (Municipal),3,4,1,Ruta 5,TRUE,TRUE
+1375,-35.052421,-57.873373,Calle 84 esquina 79,Villa Elvira,Pública (Municipal),3,2,2,Ruta 17,TRUE,TRUE
+1376,-35.041469,-58.061231,Calle 125 esquina 31,Los Hornos,Pública (Municipal),1,3,0,Ruta 8,FALSE,FALSE
+1377,-35.014625,-57.942179,Calle 32 esquina 127,Ángel Etcheverry,Pública (Municipal),1,1,0,Ruta 3,TRUE,FALSE
+1378,-34.848511,-57.866201,Calle 81 esquina 117,Ángel Etcheverry,Pública (Municipal),1,4,2,Ruta 15,TRUE,TRUE
+1379,-34.942062,-57.856230,Calle 43 esquina 16,Los Hornos,Pública (Municipal),2,1,1,Ruta 3,TRUE,TRUE
+1380,-35.024076,-57.831794,Calle 29 esquina 31,Barrio Universitario,Pública (Municipal),2,1,1,Ruta 13,FALSE,TRUE
+1381,-34.897086,-57.925901,Calle 112 esquina 11,Parque Saavedra,Pública (Municipal),1,2,0,Ruta 1,FALSE,TRUE
+1382,-34.875874,-58.036983,Calle 20 esquina 99,Barrio Universitario,Pública (Municipal),3,1,2,Ruta 2,FALSE,TRUE
+1383,-35.043869,-57.924442,Calle 55 esquina 146,Zona Sur,Pública (Municipal),3,3,1,Ruta 14,TRUE,FALSE
+1384,-35.005107,-57.973637,Calle 57 esquina 3,Parque Saavedra,Pública (Municipal),3,4,2,Ruta 13,TRUE,TRUE
+1385,-34.952232,-58.084248,Calle 34 esquina 44,Zona Sur,Pública (Municipal),1,3,0,Ruta 19,TRUE,FALSE
+1386,-34.980116,-57.929577,Calle 137 esquina 143,San Carlos,Pública (Municipal),3,3,0,Ruta 1,TRUE,TRUE
+1387,-35.065189,-58.053051,Calle 56 esquina 73,Barrio Universitario,Pública (Municipal),1,1,1,Ruta 15,TRUE,TRUE
+1388,-34.891979,-58.018611,Calle 59 esquina 93,Parque Saavedra,Pública (Municipal),3,4,2,Ruta 5,TRUE,TRUE
+1389,-34.848442,-57.930236,Calle 136 esquina 52,Zona Norte,Pública (Municipal),1,1,1,Ruta 10,TRUE,TRUE
+1390,-34.919584,-58.019727,Calle 33 esquina 92,Barrio Universitario,Pública (Municipal),1,4,0,Ruta 7,FALSE,FALSE
+1391,-34.967803,-57.994665,Calle 111 esquina 102,Ringuelet,Pública (Municipal),2,4,1,Ruta 11,TRUE,FALSE
+1392,-34.892126,-58.069795,Calle 74 esquina 31,Ángel Etcheverry,Pública (Municipal),2,4,1,Ruta 10,TRUE,FALSE
+1393,-34.897781,-58.091457,Calle 39 esquina 101,Nueva República,Pública (Municipal),2,2,0,Ruta 6,FALSE,TRUE
+1394,-34.977732,-58.070356,Calle 61 esquina 32,Barrio Universitario,Pública (Municipal),3,4,1,Ruta 5,FALSE,FALSE
+1395,-34.778599,-58.061215,Calle 117 esquina 76,Ángel Etcheverry,Pública (Municipal),3,2,1,Ruta 13,TRUE,FALSE
+1396,-34.953773,-57.914788,Calle 127 esquina 54,Gonnet,Pública (Municipal),1,4,1,Ruta 7,TRUE,FALSE
+1397,-34.959808,-57.832644,Calle 22 esquina 61,Parque Saavedra,Pública (Municipal),2,1,0,Ruta 3,TRUE,TRUE
+1398,-34.836305,-58.011259,Calle 24 esquina 24,Barrio Universitario,Pública (Municipal),1,3,0,Ruta 12,TRUE,TRUE
+1399,-35.001011,-58.060515,Calle 135 esquina 148,Villa Elvira,Pública (Municipal),2,4,1,Ruta 11,FALSE,TRUE
+1400,-34.866080,-57.843072,Calle 102 esquina 142,Centro,Pública (Municipal),2,3,2,Ruta 13,FALSE,TRUE
+1401,-34.969649,-57.908328,Calle 51 esquina 68,Tolosa,Pública (Municipal),3,1,1,Ruta 19,FALSE,FALSE
+1402,-34.872332,-57.983348,Calle 118 esquina 117,Parque Saavedra,Pública (Municipal),2,4,2,Ruta 11,FALSE,FALSE
+1403,-35.046657,-57.965685,Calle 118 esquina 14,Los Hornos,Pública (Municipal),2,1,2,Ruta 12,TRUE,FALSE
+1404,-34.804846,-57.855332,Calle 137 esquina 63,Centro,Pública (Municipal),2,1,0,Ruta 7,FALSE,FALSE
+1405,-34.816678,-57.987360,Calle 81 esquina 31,Ángel Etcheverry,Pública (Municipal),3,1,2,Ruta 19,TRUE,FALSE
+1406,-34.977614,-57.959456,Calle 44 esquina 140,Este,Pública (Municipal),1,1,0,Ruta 4,FALSE,TRUE
+1407,-34.866294,-58.007859,Calle 83 esquina 123,Este,Pública (Municipal),3,3,1,Ruta 17,TRUE,FALSE
+1408,-35.027835,-57.818785,Calle 139 esquina 5,Abella,Pública (Municipal),3,4,1,Ruta 4,FALSE,FALSE
+1409,-34.785234,-58.075791,Calle 1 esquina 144,Zona Norte,Pública (Municipal),1,4,0,Ruta 19,FALSE,TRUE
+1410,-34.794361,-58.025539,Calle 30 esquina 59,Ángel Etcheverry,Pública (Municipal),3,2,2,Ruta 8,TRUE,TRUE
+1411,-34.891701,-58.058103,Calle 59 esquina 101,Zona Sur,Pública (Municipal),3,1,0,Ruta 17,FALSE,FALSE
+1412,-34.835412,-57.933828,Calle 65 esquina 20,Parque Saavedra,Pública (Municipal),1,3,2,Ruta 3,TRUE,FALSE
+1413,-34.891018,-57.872031,Calle 76 esquina 65,Ángel Etcheverry,Pública (Municipal),1,1,1,Ruta 18,FALSE,TRUE
+1414,-34.776529,-57.874848,Calle 136 esquina 136,Centro,Pública (Municipal),2,3,0,Ruta 5,TRUE,FALSE
+1415,-34.808092,-58.017885,Calle 82 esquina 109,Parque Saavedra,Pública (Municipal),1,3,0,Ruta 9,FALSE,TRUE
+1416,-34.881229,-58.004381,Calle 96 esquina 96,San Carlos,Pública (Municipal),2,3,2,Ruta 4,FALSE,FALSE
+1417,-34.848853,-57.974658,Calle 7 esquina 88,Nueva República,Pública (Municipal),3,3,0,Ruta 6,FALSE,TRUE
+1418,-34.802826,-58.056710,Calle 131 esquina 130,Zona Sur,Pública (Municipal),1,3,0,Ruta 8,FALSE,TRUE
+1419,-35.005426,-57.869129,Calle 74 esquina 68,Tolosa,Pública (Municipal),2,2,0,Ruta 11,FALSE,TRUE
+1420,-35.030247,-57.844934,Calle 10 esquina 116,Zona Norte,Pública (Municipal),3,3,0,Ruta 18,FALSE,TRUE
+1421,-34.845016,-57.867763,Calle 75 esquina 117,San Carlos,Pública (Municipal),3,3,1,Ruta 5,FALSE,TRUE
+1422,-35.011012,-57.902062,Calle 17 esquina 33,Tolosa,Pública (Municipal),3,4,1,Ruta 5,TRUE,TRUE
+1423,-34.893931,-58.028344,Calle 43 esquina 68,Nueva República,Pública (Municipal),2,2,0,Ruta 7,FALSE,FALSE
+1424,-34.890243,-57.953084,Calle 81 esquina 104,Gonnet,Pública (Municipal),3,1,2,Ruta 6,FALSE,FALSE
+1425,-35.046980,-57.825981,Calle 66 esquina 13,Centro,Pública (Municipal),1,3,0,Ruta 4,FALSE,TRUE
+1426,-35.011725,-57.932021,Calle 34 esquina 82,Tolosa,Pública (Municipal),3,1,2,Ruta 2,FALSE,FALSE
+1427,-34.775068,-58.102525,Calle 137 esquina 27,Villa Elvira,Pública (Municipal),2,2,2,Ruta 12,FALSE,FALSE
+1428,-34.788810,-57.925361,Calle 38 esquina 100,San Carlos,Pública (Municipal),3,3,1,Ruta 18,FALSE,TRUE
+1429,-34.892994,-57.851807,Calle 92 esquina 24,Zona Norte,Pública (Municipal),1,2,2,Ruta 17,TRUE,TRUE
+1430,-34.823014,-57.946214,Calle 117 esquina 106,Barrio Universitario,Pública (Municipal),3,3,1,Ruta 5,TRUE,TRUE
+1431,-34.902707,-58.097498,Calle 88 esquina 63,Este,Pública (Municipal),2,3,2,Ruta 6,TRUE,TRUE
+1432,-34.800506,-57.809405,Calle 48 esquina 106,Este,Pública (Municipal),1,3,2,Ruta 1,TRUE,FALSE
+1433,-34.776194,-57.856469,Calle 73 esquina 48,Parque Saavedra,Pública (Municipal),1,4,0,Ruta 11,FALSE,TRUE
+1434,-34.876124,-58.046740,Calle 88 esquina 72,Zona Norte,Pública (Municipal),2,2,1,Ruta 15,FALSE,TRUE
+1435,-35.046685,-58.022892,Calle 99 esquina 141,Parque Saavedra,Pública (Municipal),3,3,0,Ruta 6,TRUE,FALSE
+1436,-34.961632,-57.968550,Calle 21 esquina 32,Este,Pública (Municipal),2,4,0,Ruta 1,TRUE,TRUE
+1437,-34.895935,-57.930910,Calle 132 esquina 31,Centro,Pública (Municipal),2,2,0,Ruta 5,FALSE,TRUE
+1438,-34.912698,-57.805056,Calle 116 esquina 15,Gonnet,Pública (Municipal),1,4,0,Ruta 16,FALSE,TRUE
+1439,-34.994619,-57.831085,Calle 113 esquina 76,Gonnet,Pública (Municipal),2,4,1,Ruta 14,FALSE,TRUE
+1440,-34.973558,-58.103573,Calle 83 esquina 28,Villa Elvira,Pública (Municipal),2,1,1,Ruta 12,FALSE,TRUE
+1441,-34.997227,-58.020501,Calle 9 esquina 10,Zona Sur,Pública (Municipal),2,1,0,Ruta 7,FALSE,TRUE
+1442,-34.952539,-57.888978,Calle 27 esquina 68,Ángel Etcheverry,Pública (Municipal),3,2,1,Ruta 10,FALSE,FALSE
+1443,-35.042362,-57.835325,Calle 148 esquina 139,Villa Elvira,Pública (Municipal),1,2,1,Ruta 20,FALSE,FALSE
+1444,-35.032064,-57.889561,Calle 147 esquina 46,San Carlos,Pública (Municipal),2,3,1,Ruta 16,TRUE,TRUE
+1445,-35.007213,-58.051237,Calle 149 esquina 11,Oeste,Pública (Municipal),3,4,1,Ruta 19,FALSE,FALSE
+1446,-34.795141,-57.936171,Calle 97 esquina 111,Ángel Etcheverry,Pública (Municipal),3,2,1,Ruta 7,TRUE,TRUE
+1447,-34.850047,-57.942656,Calle 59 esquina 145,Barrio Universitario,Pública (Municipal),2,2,0,Ruta 6,TRUE,FALSE
+1448,-34.849657,-57.981183,Calle 132 esquina 61,Barrio Universitario,Pública (Municipal),2,2,2,Ruta 13,FALSE,FALSE
+1449,-35.034345,-57.826163,Calle 78 esquina 14,Abella,Pública (Municipal),1,2,1,Ruta 6,FALSE,FALSE
+1450,-35.030041,-57.873890,Calle 72 esquina 135,Tolosa,Pública (Municipal),2,1,2,Ruta 3,FALSE,TRUE
+1451,-34.814184,-57.904854,Calle 64 esquina 110,Parque Saavedra,Pública (Municipal),2,1,1,Ruta 3,TRUE,TRUE
+1452,-34.803076,-57.811654,Calle 45 esquina 120,Gonnet,Pública (Municipal),3,1,1,Ruta 6,FALSE,FALSE
+1453,-35.047697,-58.064689,Calle 109 esquina 91,San Carlos,Pública (Municipal),2,1,2,Ruta 8,TRUE,TRUE
+1454,-35.026751,-57.860405,Calle 36 esquina 18,Parque Saavedra,Pública (Municipal),2,4,0,Ruta 19,FALSE,TRUE
+1455,-35.013261,-58.020960,Calle 49 esquina 95,Barrio Universitario,Pública (Municipal),3,1,0,Ruta 19,TRUE,TRUE
+1456,-35.068292,-58.049142,Calle 130 esquina 39,Abella,Pública (Municipal),1,4,0,Ruta 9,TRUE,TRUE
+1457,-35.000646,-57.851578,Calle 128 esquina 95,Zona Norte,Pública (Municipal),2,3,1,Ruta 7,FALSE,TRUE
+1458,-34.863094,-58.102227,Calle 121 esquina 15,Abella,Pública (Municipal),1,1,2,Ruta 8,TRUE,TRUE
+1459,-34.817951,-57.819366,Calle 82 esquina 34,Abella,Pública (Municipal),2,2,1,Ruta 14,FALSE,FALSE
+1460,-34.839927,-58.082247,Calle 147 esquina 129,Nueva República,Pública (Municipal),2,3,0,Ruta 10,FALSE,FALSE
+1461,-34.869720,-57.902589,Calle 138 esquina 72,Villa Elvira,Pública (Municipal),3,2,1,Ruta 16,TRUE,FALSE
+1462,-35.007307,-58.101371,Calle 91 esquina 23,Los Hornos,Pública (Municipal),3,1,0,Ruta 11,FALSE,FALSE
+1463,-34.773387,-57.872019,Calle 56 esquina 46,Parque Saavedra,Pública (Municipal),3,1,2,Ruta 9,FALSE,FALSE
+1464,-34.979128,-58.067364,Calle 125 esquina 25,Oeste,Pública (Municipal),1,1,0,Ruta 10,TRUE,TRUE
+1465,-34.975501,-58.072638,Calle 79 esquina 108,Nueva República,Pública (Municipal),2,3,1,Ruta 9,TRUE,TRUE
+1466,-35.021210,-58.085356,Calle 23 esquina 130,Abella,Pública (Municipal),1,3,1,Ruta 5,TRUE,TRUE
+1467,-34.897471,-57.929037,Calle 20 esquina 56,Este,Pública (Municipal),3,1,0,Ruta 7,TRUE,TRUE
+1468,-34.953759,-58.043345,Calle 22 esquina 91,San Carlos,Pública (Municipal),1,4,0,Ruta 12,FALSE,FALSE
+1469,-34.875480,-57.942956,Calle 27 esquina 60,Abella,Pública (Municipal),2,4,1,Ruta 1,FALSE,FALSE
+1470,-34.887180,-57.867661,Calle 41 esquina 115,Centro,Pública (Municipal),3,2,2,Ruta 14,FALSE,TRUE
+1471,-34.821893,-58.061044,Calle 132 esquina 137,Centro,Pública (Municipal),2,4,0,Ruta 15,FALSE,FALSE
+1472,-34.959535,-58.043151,Calle 32 esquina 101,Abella,Pública (Municipal),1,1,0,Ruta 7,TRUE,FALSE
+1473,-34.827562,-58.018849,Calle 18 esquina 128,Gonnet,Pública (Municipal),2,2,2,Ruta 9,FALSE,FALSE
+1474,-35.028569,-58.089520,Calle 115 esquina 135,Villa Elvira,Pública (Municipal),2,3,2,Ruta 17,TRUE,TRUE
+1475,-35.044328,-58.039154,Calle 131 esquina 42,Parque Saavedra,Pública (Municipal),3,1,1,Ruta 10,FALSE,TRUE
+1476,-34.995190,-57.915741,Calle 89 esquina 37,Ringuelet,Pública (Municipal),3,1,0,Ruta 5,TRUE,TRUE
+1477,-34.896916,-58.064436,Calle 83 esquina 57,Tolosa,Pública (Municipal),2,2,0,Ruta 20,TRUE,TRUE
+1478,-34.841887,-57.871884,Calle 63 esquina 140,Villa Elvira,Pública (Municipal),3,2,2,Ruta 2,TRUE,TRUE
+1479,-35.003751,-58.070328,Calle 139 esquina 10,Oeste,Pública (Municipal),1,4,0,Ruta 13,TRUE,FALSE
+1480,-34.971015,-58.007431,Calle 40 esquina 56,Ringuelet,Pública (Municipal),3,2,0,Ruta 6,TRUE,TRUE
+1481,-34.783138,-57.923856,Calle 90 esquina 121,Ringuelet,Pública (Municipal),1,1,1,Ruta 18,FALSE,TRUE
+1482,-34.825872,-58.030096,Calle 86 esquina 110,Ángel Etcheverry,Pública (Municipal),3,1,2,Ruta 9,FALSE,FALSE
+1483,-34.983808,-57.989135,Calle 47 esquina 130,San Carlos,Pública (Municipal),1,3,0,Ruta 14,FALSE,TRUE
+1484,-34.939953,-58.074660,Calle 95 esquina 134,Este,Pública (Municipal),1,3,0,Ruta 15,FALSE,TRUE
+1485,-34.779786,-57.852935,Calle 89 esquina 78,Este,Pública (Municipal),2,3,2,Ruta 13,TRUE,TRUE
+1486,-34.976815,-57.816550,Calle 92 esquina 85,Nueva República,Pública (Municipal),2,2,2,Ruta 16,TRUE,TRUE
+1487,-34.905201,-58.059331,Calle 66 esquina 51,Los Hornos,Pública (Municipal),3,2,2,Ruta 2,FALSE,FALSE
+1488,-34.786762,-57.889330,Calle 44 esquina 140,Los Hornos,Pública (Municipal),1,3,1,Ruta 9,FALSE,FALSE
+1489,-34.946397,-57.815238,Calle 118 esquina 8,Barrio Universitario,Pública (Municipal),3,4,1,Ruta 13,TRUE,FALSE
+1490,-34.945764,-58.019194,Calle 31 esquina 57,Zona Norte,Pública (Municipal),1,1,2,Ruta 20,FALSE,TRUE
+1491,-34.781890,-57.898016,Calle 6 esquina 10,Ringuelet,Pública (Municipal),1,1,2,Ruta 5,FALSE,TRUE
+1492,-34.999778,-58.064804,Calle 20 esquina 91,Zona Norte,Pública (Municipal),1,2,2,Ruta 17,FALSE,FALSE
+1493,-34.963685,-57.928752,Calle 35 esquina 138,Barrio Universitario,Pública (Municipal),1,2,0,Ruta 19,TRUE,FALSE
+1494,-34.943831,-58.027692,Calle 49 esquina 133,Gonnet,Pública (Municipal),2,3,2,Ruta 2,FALSE,TRUE
+1495,-35.060325,-57.853713,Calle 100 esquina 108,Abella,Pública (Municipal),3,2,1,Ruta 11,TRUE,FALSE
+1496,-34.851910,-57.905644,Calle 140 esquina 20,Villa Elvira,Pública (Municipal),2,1,1,Ruta 16,TRUE,TRUE
+1497,-34.962093,-57.862045,Calle 91 esquina 32,Tolosa,Pública (Municipal),3,3,0,Ruta 7,TRUE,TRUE
+1498,-34.855070,-58.013452,Calle 137 esquina 149,Zona Norte,Pública (Municipal),2,3,1,Ruta 4,TRUE,FALSE
+1499,-34.985140,-57.878094,Calle 139 esquina 115,Barrio Universitario,Pública (Municipal),3,2,1,Ruta 16,TRUE,FALSE

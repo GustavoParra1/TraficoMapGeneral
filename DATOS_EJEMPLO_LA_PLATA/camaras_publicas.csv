@@ -1,0 +1,51 @@
+id,nombre,lat,lng,barrio,type,corridor,camera_type
+CAM001,Cámara Centro Cívico,−34.9210,−57.9552,Centro,Pública (Municipal),Avenida 7,dome
+CAM002,Cámara Paseo del Bosque,−34.9180,−57.9480,Centro,Pública (Municipal),Calle 9,fixed
+CAM003,Cámara Plaza Italia,−34.9215,−57.9510,Centro,Pública (Municipal),Avenida 13,dome
+CAM004,Cámara Diagonal 113,−34.9145,−57.9590,Centro,Pública (Municipal),Diagonal 113,fixed
+CAM005,Cámara Calle 3,−34.9205,−57.9565,Centro,Pública (Municipal),Calle 3,dome
+CAM006,Cámara Avenida 1,−34.9225,−57.9475,Centro,Pública (Municipal),Avenida 1,fixed
+CAM007,Cámara Calle 50,−34.9155,−57.9615,Centro,Pública (Municipal),Calle 50,dome
+CAM008,Cámara Avenida 60,−34.9185,−57.9535,Centro,Pública (Municipal),Avenida 60,fixed
+CAM009,Cámara Parque San Martín,−34.9240,−57.9450,Centro,Pública (Municipal),Avenida 7,dome
+CAM010,Cámara Calle 54,−34.9170,−57.9605,Centro,Pública (Municipal),Calle 54,fixed
+CAM011,Cámara Terminal de Ómnibus,−34.9165,−57.9475,Centro,Pública (Municipal),Avenida 44,dome
+CAM012,Cámara Hospital San Martín,−34.9245,−57.9530,Centro,Pública (Municipal),Calle 15,fixed
+CAM013,Cámara Mercado Modelo,−34.9195,−57.9595,Centro,Pública (Municipal),Avenida 51,dome
+CAM014,Cámara Estación Ferrocarril,−34.9175,−57.9455,Centro,Pública (Municipal),Calle 1,fixed
+CAM015,Cámara Calle 7,−34.9215,−57.9545,Centro,Pública (Municipal),Calle 7,dome
+CAM016,Cámara Avenida 13,−34.9205,−57.9485,Centro,Pública (Municipal),Avenida 13,fixed
+CAM017,Cámara Calle 58,−34.9160,−57.9625,Centro,Pública (Municipal),Calle 58,dome
+CAM018,Cámara Plaza de Mayo,−34.9225,−57.9525,Centro,Pública (Municipal),Avenida 5,fixed
+CAM019,Cámara Calle 12,−34.9185,−57.9575,Centro,Pública (Municipal),Calle 12,dome
+CAM020,Cámara Avenida 82,−34.9155,−57.9445,Centro,Pública (Municipal),Avenida 82,fixed
+CAM021,Cámara Calle 31,−34.9140,−57.9605,Centro,Pública (Municipal),Calle 31,dome
+CAM022,Cámara Diag. 74,−34.9170,−57.9555,Centro,Pública (Municipal),Diagonal 74,fixed
+CAM023,Cámara Calle 46,−34.9235,−57.9490,Centro,Pública (Municipal),Calle 46,dome
+CAM024,Cámara Avenida 33,−34.9195,−57.9615,Centro,Pública (Municipal),Avenida 33,fixed
+CAM025,Cámara Calle 2,−34.9215,−57.9465,Centro,Pública (Municipal),Calle 2,dome
+CAM026,Cámara Avenida 19,−34.9165,−57.9535,Centro,Pública (Municipal),Avenida 19,fixed
+CAM027,Cámara Calle 68,−34.9145,−57.9575,Centro,Pública (Municipal),Calle 68,dome
+CAM028,Cámara Diag. 80,−34.9225,−57.9455,Centro,Pública (Municipal),Diagonal 80,fixed
+CAM029,Cámara Calle 21,−34.9185,−57.9615,Centro,Pública (Municipal),Calle 21,dome
+CAM030,Cámara Avenida 72,−34.9140,−57.9475,Centro,Pública (Municipal),Avenida 72,fixed
+CAM031,Cámara Calle 39,−34.9205,−57.9545,Centro,Pública (Municipal),Calle 39,dome
+CAM032,Cámara Avenida 29,−34.9175,−57.9505,Centro,Pública (Municipal),Avenida 29,fixed
+CAM033,Cámara Calle 77,−34.9155,−57.9595,Centro,Pública (Municipal),Calle 77,dome
+CAM034,Cámara Diag. 86,−34.9215,−57.9475,Centro,Pública (Municipal),Diagonal 86,fixed
+CAM035,Cámara Calle 67,−34.9195,−57.9555,Centro,Pública (Municipal),Calle 67,dome
+CAM036,Cámara Avenida 64,−34.9165,−57.9625,Centro,Pública (Municipal),Avenida 64,fixed
+CAM037,Cámara Calle 9,−34.9140,−57.9535,Centro,Pública (Municipal),Calle 9,dome
+CAM038,Cámara Avenida 20,−34.9225,−57.9515,Centro,Pública (Municipal),Avenida 20,fixed
+CAM039,Cámara Calle 52,−34.9185,−57.9475,Centro,Pública (Municipal),Calle 52,dome
+CAM040,Cámara Diag. 79,−34.9155,−57.9615,Centro,Pública (Municipal),Diagonal 79,fixed
+CAM041,Cámara Calle 45,−34.9205,−57.9535,Centro,Pública (Municipal),Calle 45,dome
+CAM042,Cámara Avenida 17,−34.9175,−57.9595,Centro,Pública (Municipal),Avenida 17,fixed
+CAM043,Cámara Calle 74,−34.9145,−57.9465,Centro,Pública (Municipal),Calle 74,dome
+CAM044,Cámara Avenida 11,−34.9215,−57.9625,Centro,Pública (Municipal),Avenida 11,fixed
+CAM045,Cámara Calle 63,−34.9195,−57.9515,Centro,Pública (Municipal),Calle 63,dome
+CAM046,Cámara Diag. 76,−34.9165,−57.9475,Centro,Pública (Municipal),Diagonal 76,fixed
+CAM047,Cámara Calle 84,−34.9140,−57.9585,Centro,Pública (Municipal),Calle 84,dome
+CAM048,Cámara Avenida 55,−34.9225,−57.9545,Centro,Pública (Municipal),Avenida 55,fixed
+CAM049,Cámara Calle 38,−34.9185,−57.9625,Centro,Pública (Municipal),Calle 38,dome
+CAM050,Cámara Avenida 47,−34.9155,−57.9495,Centro,Pública (Municipal),Avenida 47,fixed

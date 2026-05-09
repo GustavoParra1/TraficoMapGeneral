@@ -19,49 +19,49 @@ const SiniestrosLayer = (() => {
     'B': 'Bicicleta'
   };
 
-  // Colores por causa (normalizada)
+  // Colores por causa (normalizada) - Mejorados para mejor visibilidad
   const causeColors = {
-    'Distracción': '#FF6B6B',
-    'Exceso de Velocidad': '#FF8C42',
-    'No Respeto Semáforo': '#FFD93D',
-    'Violación de Semáforo': '#FFD93D',
-    'No Respeto prioridad de Paso': '#6BCB77',
-    'Peatón Imprudente': '#4D96FF',
-    'Otro': '#9D84B7',
-    'No Especificado': '#CCCCCC',
-    'Alcohol': '#FF0000',
-    'Atropello Voluntario': '#FFA500',
-    'Falla en la Vía': '#FFB6C1',
-    'Giro': '#DDA0DD',
-    'Maniobra Imprudente': '#FF4500',
-    'Maniobra Riesgosa': '#FF1493',
-    'Perro': '#8B4513',
-    'Pierde Control': '#DC143C',
-    'Distancia de Frenado': '#9932CC',
-    'Descompensación': '#8B0000',
-    'Invasión de Carril': '#FF00FF',
-    'Persecución': '#FF69B4'
+    'Distracción': '#FF1744',              // Rojo vivo
+    'Exceso de Velocidad': '#FF6F00',      // Naranja oscuro
+    'Alcohol': '#D32F2F',                  // Rojo oscuro
+    'Avería': '#FFA500',                   // Naranja
+    'Falta de Visibilidad': '#FF00FF',     // Magenta
+    'Giro Prohibido': '#9C27B0',           // Púrpura
+    'Maniobra Indebida': '#FF4500',        // Naranja rojo
+    'Maniobra Riesgosa': '#C2185B',        // Rosa oscura
+    'No Respetar Norma': '#00C853',        // Verde brillante
+    'No Se Puede Determinar': '#616161',   // Gris
+    'Peatón': '#0D47A1',                   // Azul oscuro
+    'Pierde Control': '#B71C1C',           // Rojo muy oscuro
+    'Piso Inseguro': '#E91E63',            // Rosa fuerte
+    'Violación de Semáforo': '#FF8F00',   // Naranja oscuro
+    'Defecto Fatal': '#4A148C',            // Púrpura oscuro
+    'Descompensación': '#7B1FA2',          // Púrpura oscuro
+    'Inexperiencia/Conducción': '#FF8A65', // Naranja claro
+    'Persecución': '#C2185B',              // Rosa oscuro
+    'No Especificado': '#FF4444',          // Rojo brillante
+    'Punto': '#00B8D4'                     // Cian vibrante (fallback temporal)
   };
 
   const causeMap = {
     'D': { name: 'Distracción', code: 'D' },
     'A': { name: 'Alcohol', code: 'A' },
-    'AV': { name: 'Atropello Voluntario', code: 'AV' },
+    'AV': { name: 'Avería', code: 'AV' },
     'EV': { name: 'Exceso de Velocidad', code: 'EV' },
-    'FV': { name: 'Falla en la Vía', code: 'FV' },
-    'G': { name: 'Giro', code: 'G' },
-    'MI': { name: 'Maniobra Imprudente', code: 'MI' },
+    'FV': { name: 'Falta de Visibilidad', code: 'FV' },
+    'G': { name: 'Giro Prohibido', code: 'G' },
+    'MI': { name: 'Maniobra Indebida', code: 'MI' },
     'MR': { name: 'Maniobra Riesgosa', code: 'MR' },
-    'NR': { name: 'No Respeto prioridad de Paso', code: 'NR' },
+    'NR': { name: 'No Respetar Norma', code: 'NR' },
     'NSD': { name: 'No Se Puede Determinar', code: 'NSD' },
-    'P': { name: 'Perro', code: 'P' },
+    'P': { name: 'Peatón', code: 'P' },
     'PC': { name: 'Pierde Control', code: 'PC' },
-    'PI': { name: 'Peatón Imprudente', code: 'PI' },
+    'PI': { name: 'Piso Inseguro', code: 'PI' },
     'VS': { name: 'Violación de Semáforo', code: 'VS' },
-    'DF': { name: 'Distancia de Frenado', code: 'DF' },
+    'DF': { name: 'Defecto Fatal', code: 'DF' },
     'DESCOMPENSAN': { name: 'Descompensación', code: 'DESCOMPENSAN' },
-    'IC': { name: 'Invasión de Carril', code: 'IC' },
-    'PERSECUCIàN': { name: 'Persecución', code: 'PERSECUCIàN' },
+    'IC': { name: 'Inexperiencia/Conducción', code: 'IC' },
+    'PERSECUCIÓN': { name: 'Persecución', code: 'PERSECUCIÓN' },
     '?': { name: 'No Especificado', code: '?' }
   };
 
@@ -283,8 +283,8 @@ const SiniestrosLayer = (() => {
     
     // Solo cargar barrios.json si No hay datos seteados
     try {
-      console.log(`⏳ Intentando cargar barrios desde data/barrios.json...`);
-      const response = await fetch('data/barrios.json');
+      console.log(`⏳ Intentando cargar barrios desde /data/barrios.json...`);
+      const response = await fetch('/data/barrios.json');
       barriosGeoJson = await response.json();
       console.log(`✅ Datos de barrios cargados para filtrado geográfico (${barriosGeoJson.features?.length || 0} features)`);
     } catch (error) {
@@ -683,6 +683,11 @@ const SiniestrosLayer = (() => {
         const barrio = props.barrio || 'N/A';
         const participantes = props.participantes_codigos || props.Participante || 'N/A';
         const descripcion = props.descripcion || 'N/A';
+        
+        // DEBUG: Log de propiedades
+        if (idx < 3) {
+          console.log(`  📋 [${idx}] props.causa="${props.causa}" \u2192 causa="${causa}"`);
+        }
 
         // Seleccionar color según causa normalizada
         const normalizedCauseForColor = normalizeCause(causa);
@@ -690,17 +695,18 @@ const SiniestrosLayer = (() => {
                      causeColors[normalizedCauseForColor.code] ||
                      causeColors[causa] || 
                      '#CCCCCC'; // Color por defecto
-
-
-
-        // Crear marcador
+        
+        // DEBUG: Log del color asignado
+        if (idx < 3) {
+          console.log(`  🎨 [${idx}] causa="${causa}" → normalizedName="${normalizedCauseForColor.name}" → color="${color}"`);
+        }
         const marker = L.circleMarker([lat, lng], {
-          radius: 6,
+          radius: 8,
           fillColor: color,
-          color: '#333',
-          weight: 1,
-          opacity: 0.8,
-          fillOpacity: 0.7
+          color: '#1a1a1a',
+          weight: 2,
+          opacity: 0.9,
+          fillOpacity: 0.85
         });
 
         // Extraer categorías generales de participantes

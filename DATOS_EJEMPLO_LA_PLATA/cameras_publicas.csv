@@ -1,0 +1,51 @@
+nombre,tipo,direccion,barrio,lat,lng,estado
+Cámara Centro 1,dome,Calle 7 entre 48 y 49,Centro,-34.9210,-57.9550,activa
+Cámara Centro 2,fixed,Calle 8 entre 49 y 50,Centro,-34.9215,-57.9545,activa
+Cámara Centro 3,lpr,Calle 9 entre 50 y 51,Centro,-34.9220,-57.9540,activa
+Cámara Centro 4,dome,Calle 10 y 55,Centro,-34.9225,-57.9535,activa
+Cámara Centro 5,fixed,Calle 11 y 56,Centro,-34.9230,-57.9530,activa
+Cámara Centro 6,dome,Diagonal 73 y Calle 7,Centro,-34.9235,-57.9525,activa
+Cámara Centro 7,lpr,Diagonal 74 y Calle 8,Centro,-34.9240,-57.9520,activa
+Cámara Centro 8,fixed,Diagonal 75 y Calle 9,Centro,-34.9245,-57.9515,activa
+Cámara Centro 9,dome,Plaza Moreno,Centro,-34.9212,-57.9548,activa
+Cámara Centro 10,fixed,Catedral,Centro,-34.9218,-57.9542,activa
+Cámara Nordelta 1,dome,Calle 1 y 60,Nordelta,-34.9050,-57.9550,activa
+Cámara Nordelta 2,fixed,Calle 2 y 61,Nordelta,-34.9055,-57.9545,activa
+Cámara Nordelta 3,lpr,Calle 3 y 62,Nordelta,-34.9060,-57.9540,activa
+Cámara Nordelta 4,dome,Calle 4 y 63,Nordelta,-34.9065,-57.9535,activa
+Cámara Nordelta 5,fixed,Calle 5 y 64,Nordelta,-34.9070,-57.9530,activa
+Cámara Nordelta 6,dome,Calle 6 y 65,Nordelta,-34.9075,-57.9525,activa
+Cámara Nordelta 7,fixed,Ave 7 y 120,Nordelta,-34.9080,-57.9520,activa
+Cámara Nordelta 8,lpr,Ave 8 y 121,Nordelta,-34.9085,-57.9515,activa
+Cámara Nordelta 9,dome,Ave 9 y 122,Nordelta,-34.9090,-57.9510,activa
+Cámara Nordelta 10,fixed,Ave 10 y 123,Nordelta,-34.9095,-57.9505,activa
+Cámara Sur 1,dome,Calle 50 y 15,Sur,-34.9350,-57.9550,activa
+Cámara Sur 2,fixed,Calle 51 y 16,Sur,-34.9355,-57.9545,activa
+Cámara Sur 3,lpr,Calle 52 y 17,Sur,-34.9360,-57.9540,activa
+Cámara Sur 4,dome,Calle 53 y 18,Sur,-34.9365,-57.9535,activa
+Cámara Sur 5,fixed,Calle 54 y 19,Sur,-34.9370,-57.9530,activa
+Cámara Sur 6,dome,Calle 55 y 20,Sur,-34.9375,-57.9525,activa
+Cámara Sur 7,fixed,Ave 11 y 140,Sur,-34.9380,-57.9520,activa
+Cámara Sur 8,lpr,Ave 12 y 141,Sur,-34.9385,-57.9515,activa
+Cámara Sur 9,dome,Ave 13 y 142,Sur,-34.9390,-57.9510,activa
+Cámara Sur 10,fixed,Ave 14 y 143,Sur,-34.9395,-57.9505,activa
+Cámara Oeste 1,dome,Diagonal 80 y Calle 30,Oeste,-34.9210,-57.9700,activa
+Cámara Oeste 2,fixed,Diagonal 81 y Calle 31,Oeste,-34.9215,-57.9705,activa
+Cámara Oeste 3,lpr,Calle 32 y 3,Oeste,-34.9220,-57.9710,activa
+Cámara Oeste 4,dome,Calle 33 y 4,Oeste,-34.9225,-57.9715,activa
+Cámara Oeste 5,fixed,Calle 34 y 5,Oeste,-34.9230,-57.9720,activa
+Cámara Oeste 6,dome,Calle 35 y 6,Oeste,-34.9235,-57.9725,activa
+Cámara Oeste 7,fixed,Ave 15 y 155,Oeste,-34.9240,-57.9730,activa
+Cámara Oeste 8,lpr,Ave 16 y 156,Oeste,-34.9245,-57.9735,activa
+Cámara Oeste 9,dome,Ave 17 y 157,Oeste,-34.9250,-57.9740,activa
+Cámara Oeste 10,fixed,Ave 18 y 158,Oeste,-34.9255,-57.9745,activa
+Cámara Este 1,dome,Calle 100 y 70,Este,-34.9210,-57.9400,activa
+Cámara Este 2,fixed,Calle 101 y 71,Este,-34.9215,-57.9395,activa
+Cámara Este 3,lpr,Calle 102 y 72,Este,-34.9220,-57.9390,activa
+Cámara Este 4,dome,Calle 103 y 73,Este,-34.9225,-57.9385,activa
+Cámara Este 5,fixed,Calle 104 y 74,Este,-34.9230,-57.9380,activa
+Cámara Este 6,dome,Ave 19 y 170,Este,-34.9235,-57.9375,activa
+Cámara Este 7,fixed,Ave 20 y 171,Este,-34.9240,-57.9370,activa
+Cámara Este 8,lpr,Ave 21 y 172,Este,-34.9245,-57.9365,activa
+Cámara Este 9,dome,Ave 22 y 173,Este,-34.9250,-57.9360,activa
+Cámara Este 10,fixed,Ave 23 y 174,Este,-34.9255,-57.9355,activa

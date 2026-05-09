@@ -1,0 +1,51 @@
+id,nombre,lat,lng,barrio,negocio
+PRIV001,Terminal Plaza,−34.9210,−57.9555,Centro,Terminal de Transporte
+PRIV002,Shopping La Plata,−34.9200,−57.9500,Centro,Centro Comercial
+PRIV003,Banco Provincia,−34.9220,−57.9570,Centro,Banco
+PRIV004,Supermercado Del Barrio,−34.9180,−57.9480,Centro,Supermercado
+PRIV005,Hotel Provincial,−34.9230,−57.9540,Centro,Hotel
+PRIV006,Clínica Privada Modelo,−34.9190,−57.9510,Centro,Clínica
+PRIV007,Farmacia Central,−34.9210,−57.9560,Centro,Farmacia
+PRIV008,Gastronomía Las Águilas,−34.9170,−57.9490,Centro,Restaurante
+PRIV009,Estacionamiento Seguro,−34.9215,−57.9465,Centro,Estacionamiento
+PRIV010,Oficina de Turismo,−34.9225,−57.9530,Centro,Oficina Pública
+PRIV011,Asegurador Seguros,−34.9185,−57.9575,Centro,Aseguradora
+PRIV012,Paseo Diagonal Norte,−34.9140,−57.9615,Centro,Centro Comercial
+PRIV013,Banco de Crédito,−34.9195,−57.9455,Centro,Banco
+PRIV014,Hotel Los Alamos,−34.9205,−57.9545,Centro,Hotel
+PRIV015,Almacén Mayorista,−34.9165,−57.9625,Centro,Mayorista
+PRIV016,Panadería Popular,−34.9175,−57.9505,Centro,Panadería
+PRIV017,Óptica Visual,−34.9220,−57.9485,Centro,Óptica
+PRIV018,Bombería San Luis,−34.9155,−57.9595,Centro,Comercio
+PRIV019,Biblioteca Pública,−34.9210,−57.9520,Centro,Institución
+PRIV020,Teatro Argentino,−34.9190,−57.9615,Centro,Teatro
+PRIV021,Mercado 8,−34.9215,−57.9475,Centro,Mercado
+PRIV022,Carnicería Premium,−34.9125,−57.9505,Centro,Carnicería
+PRIV023,Zapatería Central,−34.9200,−57.9525,Centro,Zapatería
+PRIV024,Tienda de Ropa,−34.9170,−57.9555,Centro,Comercio
+PRIV025,Cyber Internet,−34.9235,−57.9490,Centro,Cyber
+PRIV026,Consultorio Médico,−34.9180,−57.9435,Centro,Consultorio
+PRIV027,Taller Mecánico,−34.9205,−57.9615,Centro,Taller
+PRIV028,Minimarket 24hs,−34.9145,−57.9475,Centro,Minimarket
+PRIV029,Barbería Clásica,−34.9225,−57.9545,Centro,Barbería
+PRIV030,Estudio Fotográfico,−34.9185,−57.9565,Centro,Estudio
+PRIV031,Café Literario,−34.9155,−57.9585,Centro,Café
+PRIV032,Peluquería Madame,−34.9210,−57.9495,Centro,Peluquería
+PRIV033,Tienda de Informática,−34.9195,−57.9530,Centro,Informática
+PRIV034,Farmacia Del Centro,−34.9165,−57.9625,Centro,Farmacia
+PRIV035,Bar La Noche,−34.9220,−57.9515,Centro,Bar
+PRIV036,Pizzería Italia,−34.9175,−57.9455,Centro,Pizzería
+PRIV037,Heladería Artesanal,−34.9140,−57.9605,Centro,Heladería
+PRIV038,Tienda de Juguetes,−34.9215,−57.9565,Centro,Juguetería
+PRIV039,Oficina Contable,−34.9185,−57.9475,Centro,Oficina
+PRIV040,Boutique Moda,−34.9205,−57.9545,Centro,Moda
+PRIV041,Tintorería Royal,−34.9155,−57.9595,Centro,Tintorería
+PRIV042,Librería Borges,−34.9225,−57.9525,Centro,Librería
+PRIV043,Perfumería Francesa,−34.9190,−57.9615,Centro,Perfumería
+PRIV044,Floristería Las Rosas,−34.9170,−57.9505,Centro,Floristería
+PRIV045,Supermercado Jumbo,−34.9210,−57.9485,Centro,Supermercado
+PRIV046,Agencia de Viajes,−34.9145,−57.9575,Centro,Agencia
+PRIV047,Joyería Diamantina,−34.9200,−57.9555,Centro,Joyería
+PRIV048,Imprenta Rápida,−34.9165,−57.9435,Centro,Imprenta
+PRIV049,Veterinaria Mascota,−34.9220,−57.9615,Centro,Veterinaria
+PRIV050,Tapicería Central,−34.9185,−57.9525,Centro,Tapicería

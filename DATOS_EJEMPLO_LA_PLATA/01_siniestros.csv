@@ -1,0 +1,501 @@
+lat,lng,nombre,tipo,fecha,causa,participantes,descripcion,barrio
+-34.874789,-57.830269,Siniestro 1,caída,2024-06-01,VS,A/P,Evento de tráfico en La Plata #1,Parque Saavedra
+-34.983411,-58.066727,Siniestro 2,caída,2025-12-17,MI,B,Evento de tráfico en La Plata #2,Ringuelet
+-34.911954,-58.039082,Siniestro 3,caída,2025-09-16,NR,COL,Evento de tráfico en La Plata #3,Ringuelet
+-34.921797,-57.948818,Siniestro 4,volcamiento,2024-10-26,A,B,Evento de tráfico en La Plata #4,Este
+-34.964794,-58.062305,Siniestro 5,choque,2024-12-28,A,CAM,Evento de tráfico en La Plata #5,Oeste
+-34.993346,-57.813535,Siniestro 6,atropellamiento,2025-03-24,D,COL,Evento de tráfico en La Plata #6,Tolosa
+-34.894563,-57.988397,Siniestro 7,atropellamiento,2024-06-30,VS,A,Evento de tráfico en La Plata #7,Oeste
+-35.034685,-57.886730,Siniestro 8,atropellamiento,2026-05-03,EV,A/M,Evento de tráfico en La Plata #8,Villa Elvira
+-35.052288,-57.855925,Siniestro 9,caída,2024-01-24,MI,A/P,Evento de tráfico en La Plata #9,Gonnet
+-34.803595,-57.935144,Siniestro 10,despiste,2024-01-12,NR,CAM,Evento de tráfico en La Plata #10,Ringuelet
+-35.006024,-57.838927,Siniestro 11,caída,2025-09-12,VS,M/P,Evento de tráfico en La Plata #11,Oeste
+-34.782845,-57.891797,Siniestro 12,despiste,2025-05-30,NR,B,Evento de tráfico en La Plata #12,Los Hornos
+-34.952068,-57.916761,Siniestro 13,volcamiento,2024-06-13,MI,A,Evento de tráfico en La Plata #13,Tolosa
+-35.016124,-57.932029,Siniestro 14,despiste,2024-05-19,D,A,Evento de tráfico en La Plata #14,Barrio Universitario
+-34.996942,-57.999692,Siniestro 15,choque,2024-06-07,A,M/P,Evento de tráfico en La Plata #15,Los Hornos
+-34.865805,-57.971479,Siniestro 16,despiste,2025-01-02,?,COL,Evento de tráfico en La Plata #16,Zona Sur
+-35.010690,-57.854448,Siniestro 17,choque,2024-11-20,PC,COL,Evento de tráfico en La Plata #17,Nueva República
+-34.977464,-57.922811,Siniestro 18,volcamiento,2025-05-13,EV,CAM,Evento de tráfico en La Plata #18,Gonnet
+-34.819630,-58.045271,Siniestro 19,caída,2025-01-04,MI,CAM,Evento de tráfico en La Plata #19,Abella
+-35.064605,-57.883224,Siniestro 20,choque,2026-01-16,VS,COL,Evento de tráfico en La Plata #20,Ángel Etcheverry
+-34.888927,-57.809857,Siniestro 21,choque,2025-02-24,EV,COL,Evento de tráfico en La Plata #21,Gonnet
+-34.872422,-57.828500,Siniestro 22,caída,2024-04-05,VS,A/M,Evento de tráfico en La Plata #22,Zona Sur
+-35.032301,-58.067990,Siniestro 23,volcamiento,2024-09-30,EV,P,Evento de tráfico en La Plata #23,Zona Sur
+-34.907665,-57.866522,Siniestro 24,despiste,2024-05-22,NR,A,Evento de tráfico en La Plata #24,Ringuelet
+-34.778158,-57.854553,Siniestro 25,volcamiento,2024-02-14,EV,COL,Evento de tráfico en La Plata #25,Abella
+-35.067626,-58.046228,Siniestro 26,choque,2024-06-24,?,P,Evento de tráfico en La Plata #26,Centro
+-34.784766,-57.848985,Siniestro 27,despiste,2025-05-05,MI,A,Evento de tráfico en La Plata #27,Los Hornos
+-34.971599,-58.100868,Siniestro 28,choque,2026-01-08,A,M,Evento de tráfico en La Plata #28,Nueva República
+-34.784563,-58.004616,Siniestro 29,caída,2025-07-28,VS,P,Evento de tráfico en La Plata #29,Este
+-34.870404,-57.958119,Siniestro 30,atropellamiento,2024-06-04,VS,M,Evento de tráfico en La Plata #30,Barrio Universitario
+-35.027462,-58.024837,Siniestro 31,atropellamiento,2024-08-11,A,CAM,Evento de tráfico en La Plata #31,Tolosa
+-34.830551,-57.956403,Siniestro 32,caída,2025-10-13,EV,A/M,Evento de tráfico en La Plata #32,Nueva República
+-34.825810,-57.880773,Siniestro 33,choque,2025-02-14,EV,B,Evento de tráfico en La Plata #33,Parque Saavedra
+-34.824693,-58.004564,Siniestro 34,choque,2024-04-30,VS,A/P,Evento de tráfico en La Plata #34,Los Hornos
+-34.785477,-57.835861,Siniestro 35,choque,2025-07-16,NR,COL,Evento de tráfico en La Plata #35,Parque Saavedra
+-35.069986,-58.013174,Siniestro 36,choque,2024-12-10,NR,CAM,Evento de tráfico en La Plata #36,Barrio Universitario
+-34.795695,-57.867541,Siniestro 37,volcamiento,2024-09-28,NR,M/P,Evento de tráfico en La Plata #37,San Carlos
+-35.052690,-57.967039,Siniestro 38,caída,2024-08-11,VS,M,Evento de tráfico en La Plata #38,Los Hornos
+-34.824432,-57.984153,Siniestro 39,caída,2025-06-18,A,M,Evento de tráfico en La Plata #39,Los Hornos
+-34.975158,-57.950478,Siniestro 40,despiste,2025-05-14,?,COL,Evento de tráfico en La Plata #40,Ángel Etcheverry
+-35.028991,-57.929879,Siniestro 41,volcamiento,2026-03-08,A,B,Evento de tráfico en La Plata #41,San Carlos
+-34.950588,-57.873540,Siniestro 42,despiste,2025-01-28,VS,A/P,Evento de tráfico en La Plata #42,Este
+-34.797619,-57.832357,Siniestro 43,atropellamiento,2026-01-02,VS,CAM,Evento de tráfico en La Plata #43,Abella
+-34.895351,-57.829704,Siniestro 44,choque,2024-11-17,A,A,Evento de tráfico en La Plata #44,Oeste
+-34.865833,-58.068850,Siniestro 45,caída,2025-11-09,EV,M/P,Evento de tráfico en La Plata #45,Los Hornos
+-34.829801,-58.052174,Siniestro 46,atropellamiento,2025-05-24,PC,M,Evento de tráfico en La Plata #46,Villa Elvira
+-35.008750,-57.999321,Siniestro 47,despiste,2024-07-16,D,P,Evento de tráfico en La Plata #47,Ángel Etcheverry
+-34.832936,-57.834791,Siniestro 48,volcamiento,2024-08-27,NR,M,Evento de tráfico en La Plata #48,Este
+-34.831703,-57.980777,Siniestro 49,caída,2026-04-02,MI,P,Evento de tráfico en La Plata #49,Nueva República
+-34.863462,-58.043930,Siniestro 50,caída,2024-12-30,NR,M,Evento de tráfico en La Plata #50,Ringuelet
+-34.835291,-57.832966,Siniestro 51,despiste,2024-01-08,NR,B,Evento de tráfico en La Plata #51,Zona Norte
+-34.947692,-58.012294,Siniestro 52,atropellamiento,2025-07-08,?,M,Evento de tráfico en La Plata #52,Los Hornos
+-35.036412,-57.876482,Siniestro 53,choque,2026-02-21,D,P,Evento de tráfico en La Plata #53,Ringuelet
+-35.067873,-57.957178,Siniestro 54,choque,2025-01-26,?,B,Evento de tráfico en La Plata #54,Nueva República
+-34.851222,-57.954409,Siniestro 55,volcamiento,2024-04-18,EV,B,Evento de tráfico en La Plata #55,Tolosa
+-34.974950,-57.937476,Siniestro 56,volcamiento,2024-01-12,PC,B,Evento de tráfico en La Plata #56,San Carlos
+-35.040628,-58.016213,Siniestro 57,despiste,2024-08-15,VS,M/P,Evento de tráfico en La Plata #57,Parque Saavedra
+-34.958527,-57.956521,Siniestro 58,despiste,2024-11-16,PC,A/P,Evento de tráfico en La Plata #58,Ringuelet
+-34.810285,-57.958881,Siniestro 59,volcamiento,2025-09-05,VS,A/P,Evento de tráfico en La Plata #59,Zona Norte
+-34.922481,-58.061305,Siniestro 60,despiste,2024-12-14,EV,CAM,Evento de tráfico en La Plata #60,Zona Norte
+-35.033573,-58.084040,Siniestro 61,despiste,2024-04-06,MI,COL,Evento de tráfico en La Plata #61,Oeste
+-35.033539,-57.914000,Siniestro 62,choque,2024-03-24,PC,B,Evento de tráfico en La Plata #62,Tolosa
+-35.003896,-58.027910,Siniestro 63,atropellamiento,2024-04-02,D,M/P,Evento de tráfico en La Plata #63,Barrio Universitario
+-35.042400,-58.000848,Siniestro 64,caída,2024-06-09,A,A,Evento de tráfico en La Plata #64,Centro
+-34.857312,-57.818389,Siniestro 65,volcamiento,2025-02-06,D,A/M,Evento de tráfico en La Plata #65,Ringuelet
+-35.051658,-57.955722,Siniestro 66,atropellamiento,2025-05-28,PC,P,Evento de tráfico en La Plata #66,Centro
+-34.817801,-58.079271,Siniestro 67,caída,2024-12-03,VS,B,Evento de tráfico en La Plata #67,Abella
+-34.782784,-57.925230,Siniestro 68,caída,2024-02-24,PC,A/P,Evento de tráfico en La Plata #68,Zona Sur
+-34.808906,-57.810430,Siniestro 69,despiste,2026-01-04,PC,M/P,Evento de tráfico en La Plata #69,Tolosa
+-34.844311,-57.938824,Siniestro 70,volcamiento,2024-11-25,?,CAM,Evento de tráfico en La Plata #70,Zona Sur
+-34.906085,-58.062271,Siniestro 71,choque,2025-07-20,NR,COL,Evento de tráfico en La Plata #71,Ángel Etcheverry
+-34.926021,-57.989025,Siniestro 72,volcamiento,2024-09-07,A,B,Evento de tráfico en La Plata #72,Ángel Etcheverry
+-35.009921,-57.949582,Siniestro 73,despiste,2024-09-14,?,COL,Evento de tráfico en La Plata #73,Oeste
+-35.037702,-58.048393,Siniestro 74,caída,2024-04-17,A,P,Evento de tráfico en La Plata #74,Los Hornos
+-34.945053,-57.940173,Siniestro 75,choque,2025-08-26,MI,COL,Evento de tráfico en La Plata #75,Ángel Etcheverry
+-34.830910,-58.046995,Siniestro 76,despiste,2024-12-31,PC,P,Evento de tráfico en La Plata #76,Zona Norte
+-34.914667,-58.009532,Siniestro 77,atropellamiento,2024-04-29,D,A/M,Evento de tráfico en La Plata #77,Ángel Etcheverry
+-34.956624,-58.040866,Siniestro 78,choque,2024-06-12,MI,A/P,Evento de tráfico en La Plata #78,Tolosa
+-34.969605,-57.856325,Siniestro 79,despiste,2024-02-04,?,M,Evento de tráfico en La Plata #79,Oeste
+-34.856703,-57.924979,Siniestro 80,volcamiento,2024-02-25,VS,M/P,Evento de tráfico en La Plata #80,Centro
+-34.916989,-57.960913,Siniestro 81,atropellamiento,2024-09-15,D,A/P,Evento de tráfico en La Plata #81,San Carlos
+-34.950195,-57.893131,Siniestro 82,atropellamiento,2026-01-15,A,A/M,Evento de tráfico en La Plata #82,San Carlos
+-34.850330,-57.850326,Siniestro 83,choque,2024-06-10,PC,P,Evento de tráfico en La Plata #83,Zona Norte
+-34.776078,-58.077115,Siniestro 84,caída,2026-04-09,VS,COL,Evento de tráfico en La Plata #84,Ringuelet
+-34.995300,-57.979839,Siniestro 85,volcamiento,2024-08-30,EV,M,Evento de tráfico en La Plata #85,Tolosa
+-35.044617,-57.921023,Siniestro 86,atropellamiento,2024-01-09,A,P,Evento de tráfico en La Plata #86,Oeste
+-34.868083,-57.919251,Siniestro 87,volcamiento,2024-04-12,EV,M/P,Evento de tráfico en La Plata #87,San Carlos
+-35.031453,-57.915031,Siniestro 88,caída,2025-07-02,D,A,Evento de tráfico en La Plata #88,Este
+-34.847410,-57.822955,Siniestro 89,volcamiento,2025-04-07,D,B,Evento de tráfico en La Plata #89,Nueva República
+-34.861788,-57.947263,Siniestro 90,caída,2024-12-18,A,M/P,Evento de tráfico en La Plata #90,Los Hornos
+-34.955969,-57.820521,Siniestro 91,despiste,2024-06-26,NR,CAM,Evento de tráfico en La Plata #91,Ringuelet
+-35.028175,-57.928930,Siniestro 92,volcamiento,2024-04-17,?,CAM,Evento de tráfico en La Plata #92,Abella
+-34.814465,-57.807737,Siniestro 93,despiste,2025-02-20,NR,COL,Evento de tráfico en La Plata #93,Gonnet
+-34.826568,-57.825633,Siniestro 94,volcamiento,2025-03-31,?,A/M,Evento de tráfico en La Plata #94,Ángel Etcheverry
+-34.840341,-58.020674,Siniestro 95,caída,2025-01-15,PC,COL,Evento de tráfico en La Plata #95,Centro
+-34.875583,-58.100728,Siniestro 96,despiste,2025-08-12,?,A,Evento de tráfico en La Plata #96,Parque Saavedra
+-35.015661,-57.961423,Siniestro 97,despiste,2026-01-10,NR,M/P,Evento de tráfico en La Plata #97,Villa Elvira
+-34.816072,-57.859387,Siniestro 98,despiste,2025-03-24,NR,M,Evento de tráfico en La Plata #98,Oeste
+-34.820285,-57.959195,Siniestro 99,caída,2025-04-20,D,B,Evento de tráfico en La Plata #99,San Carlos
+-34.975262,-57.807456,Siniestro 100,choque,2025-07-01,MI,A/P,Evento de tráfico en La Plata #100,Villa Elvira
+-34.884069,-57.848961,Siniestro 101,caída,2025-03-18,D,COL,Evento de tráfico en La Plata #101,Este
+-34.807245,-57.975380,Siniestro 102,atropellamiento,2025-07-28,NR,M/P,Evento de tráfico en La Plata #102,Este
+-34.813035,-57.942456,Siniestro 103,atropellamiento,2024-08-19,PC,COL,Evento de tráfico en La Plata #103,Villa Elvira
+-35.059634,-57.920449,Siniestro 104,caída,2026-04-05,PC,A/M,Evento de tráfico en La Plata #104,Centro
+-34.956352,-57.972998,Siniestro 105,caída,2025-10-26,PC,P,Evento de tráfico en La Plata #105,Gonnet
+-34.998449,-58.100962,Siniestro 106,caída,2024-06-14,PC,CAM,Evento de tráfico en La Plata #106,San Carlos
+-34.984086,-57.835660,Siniestro 107,choque,2024-04-19,EV,M/P,Evento de tráfico en La Plata #107,Zona Sur
+-34.830657,-57.847744,Siniestro 108,atropellamiento,2025-01-15,?,COL,Evento de tráfico en La Plata #108,Este
+-34.954889,-58.026541,Siniestro 109,despiste,2024-02-27,MI,CAM,Evento de tráfico en La Plata #109,Ringuelet
+-34.991478,-57.929022,Siniestro 110,choque,2024-10-10,MI,A/M,Evento de tráfico en La Plata #110,Este
+-34.794880,-57.958006,Siniestro 111,despiste,2025-08-24,A,M/P,Evento de tráfico en La Plata #111,Centro
+-34.790802,-57.904097,Siniestro 112,volcamiento,2024-08-05,A,M,Evento de tráfico en La Plata #112,Abella
+-35.001197,-57.890199,Siniestro 113,caída,2024-09-29,A,P,Evento de tráfico en La Plata #113,Este
+-34.917980,-58.071239,Siniestro 114,caída,2026-05-04,MI,M,Evento de tráfico en La Plata #114,Ringuelet
+-34.927001,-57.877680,Siniestro 115,caída,2024-04-13,?,B,Evento de tráfico en La Plata #115,Zona Sur
+-34.842163,-57.829652,Siniestro 116,volcamiento,2024-08-20,D,A/M,Evento de tráfico en La Plata #116,Abella
+-35.027487,-57.945845,Siniestro 117,caída,2024-11-04,A,M,Evento de tráfico en La Plata #117,Villa Elvira
+-34.870996,-58.035777,Siniestro 118,caída,2026-02-13,VS,P,Evento de tráfico en La Plata #118,Gonnet
+-34.978614,-57.897172,Siniestro 119,choque,2025-04-22,PC,A/M,Evento de tráfico en La Plata #119,Abella
+-34.841126,-57.863411,Siniestro 120,despiste,2025-11-08,MI,P,Evento de tráfico en La Plata #120,Barrio Universitario
+-35.020743,-58.024154,Siniestro 121,atropellamiento,2024-02-24,?,M/P,Evento de tráfico en La Plata #121,Parque Saavedra
+-34.936228,-57.929305,Siniestro 122,volcamiento,2026-02-12,EV,M,Evento de tráfico en La Plata #122,Gonnet
+-34.832407,-57.849418,Siniestro 123,volcamiento,2024-01-27,A,A/P,Evento de tráfico en La Plata #123,San Carlos
+-34.844572,-57.943422,Siniestro 124,choque,2024-05-23,MI,A/P,Evento de tráfico en La Plata #124,Los Hornos
+-35.012865,-57.994618,Siniestro 125,despiste,2025-07-13,PC,A,Evento de tráfico en La Plata #125,Parque Saavedra
+-34.889917,-57.915268,Siniestro 126,atropellamiento,2024-04-26,?,A/P,Evento de tráfico en La Plata #126,Centro
+-34.944306,-57.948669,Siniestro 127,caída,2025-12-07,D,CAM,Evento de tráfico en La Plata #127,Nueva República
+-34.873705,-57.943315,Siniestro 128,despiste,2025-02-19,MI,A,Evento de tráfico en La Plata #128,Villa Elvira
+-34.827197,-57.832886,Siniestro 129,despiste,2026-03-09,VS,M,Evento de tráfico en La Plata #129,Oeste
+-34.930298,-58.007815,Siniestro 130,despiste,2024-06-12,VS,COL,Evento de tráfico en La Plata #130,Barrio Universitario
+-34.981915,-58.060581,Siniestro 131,caída,2026-03-01,MI,A,Evento de tráfico en La Plata #131,Abella
+-35.063593,-57.946926,Siniestro 132,despiste,2024-03-19,PC,A,Evento de tráfico en La Plata #132,San Carlos
+-35.041938,-57.909044,Siniestro 133,caída,2025-11-28,NR,M/P,Evento de tráfico en La Plata #133,San Carlos
+-34.993214,-57.943798,Siniestro 134,atropellamiento,2025-10-11,?,COL,Evento de tráfico en La Plata #134,Los Hornos
+-34.988400,-57.894524,Siniestro 135,choque,2025-10-22,VS,A/P,Evento de tráfico en La Plata #135,Los Hornos
+-34.806455,-57.831521,Siniestro 136,choque,2024-09-14,PC,P,Evento de tráfico en La Plata #136,Centro
+-34.851864,-57.972242,Siniestro 137,choque,2025-03-20,D,M,Evento de tráfico en La Plata #137,Los Hornos
+-34.941410,-57.890204,Siniestro 138,atropellamiento,2025-12-28,VS,P,Evento de tráfico en La Plata #138,Zona Sur
+-35.049734,-58.101139,Siniestro 139,atropellamiento,2025-06-24,VS,M/P,Evento de tráfico en La Plata #139,Oeste
+-34.806778,-57.822319,Siniestro 140,caída,2024-01-07,VS,B,Evento de tráfico en La Plata #140,Ringuelet
+-35.069969,-57.848208,Siniestro 141,despiste,2026-01-08,?,M,Evento de tráfico en La Plata #141,Este
+-35.011516,-57.997339,Siniestro 142,despiste,2025-06-07,VS,A/P,Evento de tráfico en La Plata #142,Villa Elvira
+-35.023436,-58.025150,Siniestro 143,despiste,2026-04-30,PC,M,Evento de tráfico en La Plata #143,Parque Saavedra
+-34.926420,-58.099076,Siniestro 144,volcamiento,2026-03-23,NR,M/P,Evento de tráfico en La Plata #144,Oeste
+-34.945503,-57.870502,Siniestro 145,volcamiento,2024-07-22,PC,M,Evento de tráfico en La Plata #145,Centro
+-34.804334,-58.004586,Siniestro 146,volcamiento,2026-03-07,D,A/P,Evento de tráfico en La Plata #146,Tolosa
+-35.026973,-58.026471,Siniestro 147,despiste,2025-03-09,EV,P,Evento de tráfico en La Plata #147,Gonnet
+-34.792894,-58.063478,Siniestro 148,atropellamiento,2026-04-03,VS,CAM,Evento de tráfico en La Plata #148,Ángel Etcheverry
+-34.938711,-58.064562,Siniestro 149,despiste,2025-10-16,MI,M/P,Evento de tráfico en La Plata #149,Ringuelet
+-35.012404,-57.885011,Siniestro 150,atropellamiento,2024-08-27,?,A/M,Evento de tráfico en La Plata #150,San Carlos
+-34.934543,-58.033486,Siniestro 151,atropellamiento,2026-01-13,PC,A,Evento de tráfico en La Plata #151,Gonnet
+-34.933102,-57.877831,Siniestro 152,volcamiento,2024-09-15,D,M/P,Evento de tráfico en La Plata #152,Ángel Etcheverry
+-34.860284,-57.861494,Siniestro 153,caída,2025-07-15,D,A/M,Evento de tráfico en La Plata #153,Este
+-34.925935,-58.017227,Siniestro 154,atropellamiento,2025-10-30,PC,M,Evento de tráfico en La Plata #154,Ángel Etcheverry
+-34.995621,-57.822942,Siniestro 155,despiste,2025-03-08,PC,M,Evento de tráfico en La Plata #155,Abella
+-34.926022,-57.858025,Siniestro 156,choque,2025-02-23,A,P,Evento de tráfico en La Plata #156,Barrio Universitario
+-34.890408,-57.845376,Siniestro 157,choque,2024-10-13,MI,M,Evento de tráfico en La Plata #157,Los Hornos
+-34.829205,-57.864441,Siniestro 158,choque,2025-06-20,D,B,Evento de tráfico en La Plata #158,Los Hornos
+-34.940737,-57.852914,Siniestro 159,atropellamiento,2025-04-09,A,CAM,Evento de tráfico en La Plata #159,Zona Norte
+-34.885248,-57.907878,Siniestro 160,atropellamiento,2025-09-18,EV,A,Evento de tráfico en La Plata #160,Zona Norte
+-35.034714,-57.950893,Siniestro 161,atropellamiento,2024-08-14,PC,P,Evento de tráfico en La Plata #161,Parque Saavedra
+-34.821049,-57.904894,Siniestro 162,despiste,2024-01-30,D,CAM,Evento de tráfico en La Plata #162,Gonnet
+-34.801004,-57.827836,Siniestro 163,choque,2025-12-04,EV,P,Evento de tráfico en La Plata #163,Ángel Etcheverry
+-35.067511,-57.841279,Siniestro 164,atropellamiento,2024-02-26,A,CAM,Evento de tráfico en La Plata #164,Barrio Universitario
+-34.811691,-57.937733,Siniestro 165,caída,2024-01-27,EV,B,Evento de tráfico en La Plata #165,Este
+-34.913485,-57.821031,Siniestro 166,volcamiento,2025-02-27,EV,B,Evento de tráfico en La Plata #166,Nueva República
+-34.995907,-57.845513,Siniestro 167,despiste,2024-09-30,?,A,Evento de tráfico en La Plata #167,Este
+-35.028671,-57.846079,Siniestro 168,despiste,2024-06-21,VS,A/P,Evento de tráfico en La Plata #168,Ángel Etcheverry
+-34.822318,-57.836198,Siniestro 169,caída,2024-05-02,A,M/P,Evento de tráfico en La Plata #169,Gonnet
+-34.982002,-58.099399,Siniestro 170,volcamiento,2025-10-23,EV,B,Evento de tráfico en La Plata #170,Villa Elvira
+-34.810229,-58.095462,Siniestro 171,volcamiento,2025-09-21,EV,P,Evento de tráfico en La Plata #171,Abella
+-34.804252,-57.879998,Siniestro 172,atropellamiento,2026-03-21,MI,M/P,Evento de tráfico en La Plata #172,Zona Norte
+-34.826976,-57.917498,Siniestro 173,atropellamiento,2024-03-20,PC,A,Evento de tráfico en La Plata #173,Barrio Universitario
+-34.913671,-57.951335,Siniestro 174,atropellamiento,2024-10-01,VS,M/P,Evento de tráfico en La Plata #174,Tolosa
+-34.778642,-58.005382,Siniestro 175,atropellamiento,2025-05-28,VS,P,Evento de tráfico en La Plata #175,Tolosa
+-34.910490,-58.082268,Siniestro 176,atropellamiento,2024-12-28,VS,A/P,Evento de tráfico en La Plata #176,Los Hornos
+-35.070651,-57.834656,Siniestro 177,volcamiento,2025-03-05,?,B,Evento de tráfico en La Plata #177,Centro
+-35.026718,-57.805842,Siniestro 178,caída,2025-11-27,EV,M,Evento de tráfico en La Plata #178,Los Hornos
+-34.809895,-57.815467,Siniestro 179,choque,2024-02-10,EV,M/P,Evento de tráfico en La Plata #179,San Carlos
+-34.999173,-58.101411,Siniestro 180,caída,2025-11-08,PC,P,Evento de tráfico en La Plata #180,Oeste
+-34.803695,-57.996860,Siniestro 181,choque,2025-03-06,?,A/M,Evento de tráfico en La Plata #181,Abella
+-34.892711,-57.832159,Siniestro 182,choque,2024-05-21,D,A/M,Evento de tráfico en La Plata #182,Gonnet
+-35.053895,-57.813324,Siniestro 183,atropellamiento,2025-01-20,VS,A/M,Evento de tráfico en La Plata #183,Los Hornos
+-34.965446,-57.879759,Siniestro 184,despiste,2025-08-14,PC,M/P,Evento de tráfico en La Plata #184,Villa Elvira
+-34.940047,-58.070024,Siniestro 185,choque,2024-06-13,VS,A/P,Evento de tráfico en La Plata #185,Oeste
+-34.891394,-58.104728,Siniestro 186,choque,2025-12-30,EV,CAM,Evento de tráfico en La Plata #186,Oeste
+-34.927314,-57.806363,Siniestro 187,atropellamiento,2025-10-13,D,A/M,Evento de tráfico en La Plata #187,Villa Elvira
+-34.984141,-57.893885,Siniestro 188,caída,2025-06-06,NR,M/P,Evento de tráfico en La Plata #188,Abella
+-34.847273,-57.883488,Siniestro 189,caída,2025-12-08,A,M,Evento de tráfico en La Plata #189,Zona Norte
+-34.893516,-57.910165,Siniestro 190,volcamiento,2024-08-09,A,COL,Evento de tráfico en La Plata #190,Zona Sur
+-34.794896,-57.889599,Siniestro 191,atropellamiento,2024-12-02,EV,CAM,Evento de tráfico en La Plata #191,Ringuelet
+-34.834539,-57.809550,Siniestro 192,choque,2024-11-25,D,A,Evento de tráfico en La Plata #192,Los Hornos
+-35.003492,-57.846110,Siniestro 193,choque,2024-02-29,A,A,Evento de tráfico en La Plata #193,Centro
+-35.052825,-57.906255,Siniestro 194,atropellamiento,2024-04-24,?,COL,Evento de tráfico en La Plata #194,Villa Elvira
+-34.836636,-57.836349,Siniestro 195,despiste,2024-12-31,PC,B,Evento de tráfico en La Plata #195,Este
+-34.887384,-57.970352,Siniestro 196,despiste,2024-09-01,?,M/P,Evento de tráfico en La Plata #196,Zona Sur
+-34.969753,-57.916168,Siniestro 197,choque,2025-04-20,VS,P,Evento de tráfico en La Plata #197,Zona Norte
+-34.928862,-57.913866,Siniestro 198,atropellamiento,2026-02-01,?,P,Evento de tráfico en La Plata #198,Tolosa
+-34.954306,-57.998565,Siniestro 199,despiste,2024-05-22,EV,M,Evento de tráfico en La Plata #199,Oeste
+-34.779999,-58.041510,Siniestro 200,caída,2025-07-07,D,P,Evento de tráfico en La Plata #200,Ángel Etcheverry
+-34.778123,-58.050403,Siniestro 201,volcamiento,2024-08-24,MI,A/M,Evento de tráfico en La Plata #201,Ángel Etcheverry
+-34.875510,-57.870021,Siniestro 202,caída,2026-03-06,EV,M/P,Evento de tráfico en La Plata #202,Centro
+-34.914056,-58.073136,Siniestro 203,atropellamiento,2024-10-01,VS,COL,Evento de tráfico en La Plata #203,Zona Norte
+-35.007365,-57.831451,Siniestro 204,choque,2024-05-02,A,A,Evento de tráfico en La Plata #204,Este
+-35.042267,-57.860252,Siniestro 205,caída,2025-09-09,?,COL,Evento de tráfico en La Plata #205,Gonnet
+-35.024091,-58.023254,Siniestro 206,caída,2026-03-30,NR,M/P,Evento de tráfico en La Plata #206,Oeste
+-34.819029,-58.102726,Siniestro 207,volcamiento,2025-07-10,EV,P,Evento de tráfico en La Plata #207,Nueva República
+-34.993712,-57.974429,Siniestro 208,volcamiento,2024-12-16,A,CAM,Evento de tráfico en La Plata #208,Nueva República
+-34.928778,-58.087988,Siniestro 209,choque,2024-01-27,D,A/P,Evento de tráfico en La Plata #209,Ringuelet
+-34.978289,-58.097300,Siniestro 210,atropellamiento,2025-10-21,A,B,Evento de tráfico en La Plata #210,San Carlos
+-34.911991,-58.089221,Siniestro 211,choque,2025-09-01,?,M/P,Evento de tráfico en La Plata #211,Villa Elvira
+-35.032911,-57.855439,Siniestro 212,caída,2024-11-25,EV,B,Evento de tráfico en La Plata #212,Nueva República
+-34.892827,-58.096538,Siniestro 213,atropellamiento,2024-07-05,?,CAM,Evento de tráfico en La Plata #213,Este
+-34.826462,-57.857184,Siniestro 214,atropellamiento,2025-03-26,NR,A/P,Evento de tráfico en La Plata #214,Zona Sur
+-34.785794,-57.869311,Siniestro 215,despiste,2025-01-07,EV,A/M,Evento de tráfico en La Plata #215,Zona Sur
+-34.882313,-58.032223,Siniestro 216,volcamiento,2025-08-07,NR,A/P,Evento de tráfico en La Plata #216,Nueva República
+-34.818275,-57.918949,Siniestro 217,volcamiento,2024-03-19,EV,COL,Evento de tráfico en La Plata #217,Parque Saavedra
+-34.948481,-58.054618,Siniestro 218,atropellamiento,2025-01-28,NR,M/P,Evento de tráfico en La Plata #218,Ringuelet
+-34.916121,-58.087445,Siniestro 219,choque,2024-04-16,MI,A/P,Evento de tráfico en La Plata #219,Abella
+-34.936192,-57.948271,Siniestro 220,volcamiento,2026-04-24,?,A/M,Evento de tráfico en La Plata #220,Este
+-34.806917,-58.046445,Siniestro 221,caída,2024-03-08,?,COL,Evento de tráfico en La Plata #221,Barrio Universitario
+-34.896031,-57.882493,Siniestro 222,despiste,2024-06-09,D,M/P,Evento de tráfico en La Plata #222,Ringuelet
+-35.029534,-58.076298,Siniestro 223,atropellamiento,2024-04-11,EV,A/P,Evento de tráfico en La Plata #223,Oeste
+-34.866799,-57.807643,Siniestro 224,despiste,2024-07-21,MI,COL,Evento de tráfico en La Plata #224,Tolosa
+-34.950137,-57.945919,Siniestro 225,choque,2024-09-13,A,B,Evento de tráfico en La Plata #225,Centro
+-34.892784,-57.820749,Siniestro 226,choque,2024-01-22,EV,COL,Evento de tráfico en La Plata #226,San Carlos
+-35.035178,-57.865866,Siniestro 227,atropellamiento,2026-05-07,?,B,Evento de tráfico en La Plata #227,Tolosa
+-34.821242,-57.861931,Siniestro 228,volcamiento,2025-02-17,A,B,Evento de tráfico en La Plata #228,Este
+-34.944152,-58.005467,Siniestro 229,despiste,2025-08-19,VS,B,Evento de tráfico en La Plata #229,Zona Sur
+-34.891201,-57.808994,Siniestro 230,volcamiento,2024-11-04,MI,CAM,Evento de tráfico en La Plata #230,Nueva República
+-34.776455,-58.090590,Siniestro 231,despiste,2025-01-26,EV,M,Evento de tráfico en La Plata #231,Nueva República
+-34.851439,-57.852092,Siniestro 232,despiste,2025-05-18,A,A,Evento de tráfico en La Plata #232,Ángel Etcheverry
+-34.878033,-57.934088,Siniestro 233,atropellamiento,2024-04-30,A,B,Evento de tráfico en La Plata #233,Parque Saavedra
+-34.809089,-57.805114,Siniestro 234,atropellamiento,2024-05-02,A,M/P,Evento de tráfico en La Plata #234,Zona Norte
+-35.056995,-57.991247,Siniestro 235,caída,2025-10-22,VS,A/M,Evento de tráfico en La Plata #235,Parque Saavedra
+-34.837786,-58.022816,Siniestro 236,despiste,2025-03-25,EV,M,Evento de tráfico en La Plata #236,Parque Saavedra
+-34.843269,-57.871703,Siniestro 237,choque,2025-11-10,EV,M,Evento de tráfico en La Plata #237,Tolosa
+-34.818197,-57.950985,Siniestro 238,caída,2024-06-17,EV,A/P,Evento de tráfico en La Plata #238,Villa Elvira
+-34.961728,-57.825312,Siniestro 239,despiste,2025-07-26,VS,M,Evento de tráfico en La Plata #239,San Carlos
+-35.019873,-57.944730,Siniestro 240,atropellamiento,2025-07-26,PC,A,Evento de tráfico en La Plata #240,Nueva República
+-35.052951,-57.832743,Siniestro 241,atropellamiento,2024-06-25,EV,M/P,Evento de tráfico en La Plata #241,Abella
+-35.020622,-57.815132,Siniestro 242,atropellamiento,2025-06-28,?,M,Evento de tráfico en La Plata #242,Parque Saavedra
+-34.957637,-57.984157,Siniestro 243,atropellamiento,2024-05-24,MI,B,Evento de tráfico en La Plata #243,Parque Saavedra
+-35.034877,-58.053794,Siniestro 244,choque,2026-03-31,PC,M/P,Evento de tráfico en La Plata #244,Tolosa
+-35.036324,-58.061739,Siniestro 245,despiste,2026-02-13,?,M/P,Evento de tráfico en La Plata #245,San Carlos
+-34.800374,-57.857713,Siniestro 246,despiste,2024-01-04,?,A/M,Evento de tráfico en La Plata #246,Ringuelet
+-35.051753,-57.892228,Siniestro 247,atropellamiento,2025-07-09,EV,B,Evento de tráfico en La Plata #247,Villa Elvira
+-35.001656,-57.954454,Siniestro 248,choque,2024-08-21,EV,B,Evento de tráfico en La Plata #248,Zona Norte
+-35.031566,-57.895947,Siniestro 249,volcamiento,2024-03-24,PC,A,Evento de tráfico en La Plata #249,Este
+-34.908756,-57.881498,Siniestro 250,atropellamiento,2026-04-12,NR,COL,Evento de tráfico en La Plata #250,Tolosa
+-34.858286,-58.023807,Siniestro 251,despiste,2025-05-04,PC,CAM,Evento de tráfico en La Plata #251,Parque Saavedra
+-35.049266,-57.993205,Siniestro 252,choque,2025-09-21,?,A/P,Evento de tráfico en La Plata #252,Ángel Etcheverry
+-34.869170,-57.894561,Siniestro 253,caída,2025-04-30,VS,B,Evento de tráfico en La Plata #253,Ángel Etcheverry
+-34.883664,-58.037615,Siniestro 254,caída,2025-06-15,PC,B,Evento de tráfico en La Plata #254,Zona Sur
+-34.918715,-57.919385,Siniestro 255,atropellamiento,2026-01-11,VS,M/P,Evento de tráfico en La Plata #255,Villa Elvira
+-34.921952,-57.807111,Siniestro 256,atropellamiento,2025-02-08,?,CAM,Evento de tráfico en La Plata #256,Los Hornos
+-34.845055,-57.845231,Siniestro 257,volcamiento,2024-08-28,A,A,Evento de tráfico en La Plata #257,Oeste
+-34.786465,-57.946227,Siniestro 258,volcamiento,2025-09-05,D,M/P,Evento de tráfico en La Plata #258,Barrio Universitario
+-34.903393,-57.911551,Siniestro 259,caída,2024-09-25,?,M,Evento de tráfico en La Plata #259,Abella
+-34.979732,-58.000686,Siniestro 260,choque,2026-04-16,EV,M/P,Evento de tráfico en La Plata #260,Tolosa
+-35.048654,-58.101171,Siniestro 261,caída,2024-10-10,VS,A/M,Evento de tráfico en La Plata #261,Tolosa
+-34.951794,-57.941709,Siniestro 262,choque,2024-01-18,MI,A/M,Evento de tráfico en La Plata #262,Ángel Etcheverry
+-35.063830,-58.102080,Siniestro 263,caída,2024-11-22,?,A,Evento de tráfico en La Plata #263,Barrio Universitario
+-34.817441,-57.982793,Siniestro 264,choque,2024-04-14,?,COL,Evento de tráfico en La Plata #264,Gonnet
+-34.804596,-57.907317,Siniestro 265,volcamiento,2024-08-01,D,M/P,Evento de tráfico en La Plata #265,Este
+-34.806517,-57.881233,Siniestro 266,atropellamiento,2025-08-10,A,B,Evento de tráfico en La Plata #266,Nueva República
+-34.777031,-57.903407,Siniestro 267,despiste,2024-03-18,VS,A,Evento de tráfico en La Plata #267,Este
+-34.918663,-57.805829,Siniestro 268,atropellamiento,2025-10-24,A,CAM,Evento de tráfico en La Plata #268,Zona Norte
+-34.934359,-57.970781,Siniestro 269,caída,2025-07-03,NR,A,Evento de tráfico en La Plata #269,Parque Saavedra
+-35.045971,-57.808082,Siniestro 270,volcamiento,2024-04-18,EV,M,Evento de tráfico en La Plata #270,Barrio Universitario
+-34.791300,-57.855532,Siniestro 271,volcamiento,2025-02-07,MI,M,Evento de tráfico en La Plata #271,Barrio Universitario
+-34.950868,-58.028724,Siniestro 272,atropellamiento,2024-01-26,PC,M,Evento de tráfico en La Plata #272,Oeste
+-34.945074,-57.836556,Siniestro 273,volcamiento,2024-10-18,MI,B,Evento de tráfico en La Plata #273,Ángel Etcheverry
+-34.810887,-58.014645,Siniestro 274,atropellamiento,2025-12-06,MI,CAM,Evento de tráfico en La Plata #274,Los Hornos
+-34.945423,-57.981558,Siniestro 275,despiste,2025-02-04,D,A,Evento de tráfico en La Plata #275,Los Hornos
+-34.849647,-57.939036,Siniestro 276,atropellamiento,2025-12-23,D,CAM,Evento de tráfico en La Plata #276,Zona Norte
+-34.991365,-57.959526,Siniestro 277,choque,2024-05-19,A,CAM,Evento de tráfico en La Plata #277,Zona Norte
+-34.900550,-57.808722,Siniestro 278,volcamiento,2026-04-29,NR,B,Evento de tráfico en La Plata #278,Parque Saavedra
+-35.061228,-58.022864,Siniestro 279,choque,2026-04-03,EV,A/P,Evento de tráfico en La Plata #279,Ringuelet
+-34.931731,-57.957886,Siniestro 280,choque,2024-10-27,A,M/P,Evento de tráfico en La Plata #280,Gonnet
+-35.030188,-57.922182,Siniestro 281,atropellamiento,2024-02-29,MI,M/P,Evento de tráfico en La Plata #281,Ringuelet
+-35.011639,-57.891534,Siniestro 282,despiste,2024-05-02,NR,A/P,Evento de tráfico en La Plata #282,Parque Saavedra
+-34.830039,-57.806494,Siniestro 283,volcamiento,2024-05-18,A,A/P,Evento de tráfico en La Plata #283,Gonnet
+-34.773548,-58.028195,Siniestro 284,atropellamiento,2024-07-29,EV,A/P,Evento de tráfico en La Plata #284,Ángel Etcheverry
+-35.031117,-57.924924,Siniestro 285,despiste,2025-07-31,D,M/P,Evento de tráfico en La Plata #285,Nueva República
+-34.886872,-57.911163,Siniestro 286,choque,2024-09-15,NR,COL,Evento de tráfico en La Plata #286,Ángel Etcheverry
+-34.881911,-58.043124,Siniestro 287,despiste,2024-12-20,EV,B,Evento de tráfico en La Plata #287,Centro
+-35.030755,-58.051309,Siniestro 288,volcamiento,2025-10-26,EV,CAM,Evento de tráfico en La Plata #288,Oeste
+-34.948869,-57.858323,Siniestro 289,choque,2026-01-09,MI,COL,Evento de tráfico en La Plata #289,Villa Elvira
+-34.811163,-57.872342,Siniestro 290,caída,2025-12-05,PC,B,Evento de tráfico en La Plata #290,Nueva República
+-34.897795,-58.069611,Siniestro 291,atropellamiento,2026-02-11,PC,M,Evento de tráfico en La Plata #291,Zona Norte
+-34.987325,-57.885544,Siniestro 292,caída,2025-10-11,VS,COL,Evento de tráfico en La Plata #292,Tolosa
+-34.990997,-57.887917,Siniestro 293,atropellamiento,2025-08-22,VS,A/M,Evento de tráfico en La Plata #293,Gonnet
+-35.047408,-57.894079,Siniestro 294,volcamiento,2026-04-02,?,COL,Evento de tráfico en La Plata #294,Ángel Etcheverry
+-34.976468,-57.966301,Siniestro 295,caída,2024-12-26,MI,A/M,Evento de tráfico en La Plata #295,Tolosa
+-34.967385,-58.074546,Siniestro 296,choque,2025-07-08,EV,P,Evento de tráfico en La Plata #296,Abella
+-34.932811,-57.966733,Siniestro 297,volcamiento,2025-10-03,D,M/P,Evento de tráfico en La Plata #297,Los Hornos
+-34.782715,-57.857930,Siniestro 298,choque,2025-04-23,PC,A/P,Evento de tráfico en La Plata #298,Parque Saavedra
+-34.957706,-57.835502,Siniestro 299,choque,2026-01-24,VS,P,Evento de tráfico en La Plata #299,Centro
+-35.056034,-57.925012,Siniestro 300,caída,2026-04-23,?,COL,Evento de tráfico en La Plata #300,Ángel Etcheverry
+-34.878726,-57.810623,Siniestro 301,choque,2026-02-20,?,M/P,Evento de tráfico en La Plata #301,Zona Sur
+-34.848522,-57.808078,Siniestro 302,atropellamiento,2024-07-12,PC,COL,Evento de tráfico en La Plata #302,Tolosa
+-34.918896,-58.026361,Siniestro 303,volcamiento,2024-05-25,A,M,Evento de tráfico en La Plata #303,Zona Norte
+-34.848302,-58.097550,Siniestro 304,choque,2024-03-09,EV,COL,Evento de tráfico en La Plata #304,Gonnet
+-35.003425,-57.868781,Siniestro 305,despiste,2024-06-05,VS,P,Evento de tráfico en La Plata #305,Zona Norte
+-34.941207,-57.887712,Siniestro 306,atropellamiento,2024-02-19,?,COL,Evento de tráfico en La Plata #306,Tolosa
+-35.019579,-57.814235,Siniestro 307,volcamiento,2026-03-06,EV,M/P,Evento de tráfico en La Plata #307,Barrio Universitario
+-34.997673,-58.051025,Siniestro 308,volcamiento,2024-11-10,D,A/M,Evento de tráfico en La Plata #308,Nueva República
+-34.926710,-57.908266,Siniestro 309,volcamiento,2025-04-15,?,A/M,Evento de tráfico en La Plata #309,Los Hornos
+-34.808031,-57.884599,Siniestro 310,despiste,2024-07-31,VS,CAM,Evento de tráfico en La Plata #310,Zona Norte
+-34.934024,-57.887549,Siniestro 311,despiste,2025-06-10,EV,CAM,Evento de tráfico en La Plata #311,Villa Elvira
+-34.829660,-58.046896,Siniestro 312,choque,2024-10-26,NR,COL,Evento de tráfico en La Plata #312,Ángel Etcheverry
+-34.924069,-58.051840,Siniestro 313,choque,2025-11-20,PC,M,Evento de tráfico en La Plata #313,Los Hornos
+-35.066177,-57.849455,Siniestro 314,choque,2025-02-21,?,B,Evento de tráfico en La Plata #314,Barrio Universitario
+-34.822599,-57.920090,Siniestro 315,atropellamiento,2024-07-26,VS,A/P,Evento de tráfico en La Plata #315,Este
+-34.802800,-57.901711,Siniestro 316,caída,2025-12-06,VS,A,Evento de tráfico en La Plata #316,Ringuelet
+-34.858454,-58.026593,Siniestro 317,choque,2026-03-10,D,M/P,Evento de tráfico en La Plata #317,Ángel Etcheverry
+-34.807865,-57.830281,Siniestro 318,atropellamiento,2025-06-13,MI,COL,Evento de tráfico en La Plata #318,Ángel Etcheverry
+-34.793040,-58.067965,Siniestro 319,caída,2026-02-25,A,M/P,Evento de tráfico en La Plata #319,San Carlos
+-34.834084,-58.043374,Siniestro 320,caída,2025-11-23,EV,B,Evento de tráfico en La Plata #320,San Carlos
+-35.044989,-57.914290,Siniestro 321,caída,2024-11-01,NR,A/P,Evento de tráfico en La Plata #321,Ángel Etcheverry
+-35.019374,-57.896116,Siniestro 322,despiste,2026-04-09,D,A/M,Evento de tráfico en La Plata #322,Ringuelet
+-34.958027,-57.900728,Siniestro 323,caída,2024-11-01,?,B,Evento de tráfico en La Plata #323,Centro
+-34.912137,-57.937551,Siniestro 324,caída,2024-08-09,?,COL,Evento de tráfico en La Plata #324,Villa Elvira
+-34.850629,-57.928578,Siniestro 325,choque,2024-02-29,MI,CAM,Evento de tráfico en La Plata #325,Centro
+-34.814689,-58.058873,Siniestro 326,despiste,2024-12-08,MI,P,Evento de tráfico en La Plata #326,Abella
+-34.874872,-58.066429,Siniestro 327,choque,2024-09-09,PC,B,Evento de tráfico en La Plata #327,Ringuelet
+-34.890516,-57.852745,Siniestro 328,despiste,2024-05-01,PC,M/P,Evento de tráfico en La Plata #328,Los Hornos
+-34.956472,-57.886704,Siniestro 329,choque,2024-07-26,?,A/P,Evento de tráfico en La Plata #329,Centro
+-35.021726,-57.964493,Siniestro 330,choque,2025-06-26,MI,CAM,Evento de tráfico en La Plata #330,Villa Elvira
+-34.909875,-58.020525,Siniestro 331,caída,2025-03-03,MI,P,Evento de tráfico en La Plata #331,Parque Saavedra
+-34.912623,-57.936388,Siniestro 332,choque,2025-03-31,MI,M,Evento de tráfico en La Plata #332,Villa Elvira
+-34.915042,-57.889569,Siniestro 333,caída,2024-05-27,VS,B,Evento de tráfico en La Plata #333,Los Hornos
+-34.971985,-57.985609,Siniestro 334,despiste,2025-04-05,VS,M,Evento de tráfico en La Plata #334,Abella
+-35.027438,-57.848013,Siniestro 335,despiste,2024-10-23,VS,A/M,Evento de tráfico en La Plata #335,San Carlos
+-34.954380,-58.060931,Siniestro 336,choque,2024-08-01,VS,M,Evento de tráfico en La Plata #336,Barrio Universitario
+-34.909538,-58.094849,Siniestro 337,volcamiento,2024-07-25,VS,B,Evento de tráfico en La Plata #337,Tolosa
+-34.990004,-57.929660,Siniestro 338,caída,2024-10-24,EV,B,Evento de tráfico en La Plata #338,Ringuelet
+-35.033591,-57.824782,Siniestro 339,choque,2024-02-27,PC,CAM,Evento de tráfico en La Plata #339,Este
+-35.032507,-57.976503,Siniestro 340,volcamiento,2024-12-22,VS,A/M,Evento de tráfico en La Plata #340,Gonnet
+-35.009346,-57.808445,Siniestro 341,despiste,2024-01-19,?,A/M,Evento de tráfico en La Plata #341,Ringuelet
+-34.974524,-57.902837,Siniestro 342,atropellamiento,2025-02-19,VS,A/M,Evento de tráfico en La Plata #342,Los Hornos
+-34.776203,-57.906278,Siniestro 343,volcamiento,2026-04-22,PC,A,Evento de tráfico en La Plata #343,Ángel Etcheverry
+-34.785719,-57.829127,Siniestro 344,caída,2025-05-01,VS,M,Evento de tráfico en La Plata #344,San Carlos
+-34.786353,-57.882648,Siniestro 345,choque,2024-04-04,VS,A/M,Evento de tráfico en La Plata #345,Oeste
+-34.880923,-57.866719,Siniestro 346,choque,2025-02-23,A,B,Evento de tráfico en La Plata #346,Centro
+-34.968612,-57.987706,Siniestro 347,choque,2025-11-10,MI,A/P,Evento de tráfico en La Plata #347,Parque Saavedra
+-34.975658,-58.004140,Siniestro 348,volcamiento,2025-11-26,VS,A,Evento de tráfico en La Plata #348,San Carlos
+-34.904221,-58.043194,Siniestro 349,volcamiento,2026-04-08,PC,A/P,Evento de tráfico en La Plata #349,Tolosa
+-34.933440,-58.046348,Siniestro 350,volcamiento,2025-04-11,?,M/P,Evento de tráfico en La Plata #350,Centro
+-34.812726,-58.024787,Siniestro 351,caída,2024-12-18,MI,A,Evento de tráfico en La Plata #351,Gonnet
+-35.013014,-57.903543,Siniestro 352,choque,2025-10-30,MI,A/M,Evento de tráfico en La Plata #352,Ángel Etcheverry
+-35.008507,-58.047313,Siniestro 353,volcamiento,2025-08-23,D,A/P,Evento de tráfico en La Plata #353,Zona Norte
+-34.828336,-57.919403,Siniestro 354,despiste,2026-01-02,VS,A,Evento de tráfico en La Plata #354,Centro
+-34.938696,-57.959363,Siniestro 355,caída,2025-10-10,A,M,Evento de tráfico en La Plata #355,San Carlos
+-34.964377,-57.880307,Siniestro 356,atropellamiento,2025-01-05,MI,A/M,Evento de tráfico en La Plata #356,Gonnet
+-35.033310,-58.063678,Siniestro 357,despiste,2025-12-09,A,COL,Evento de tráfico en La Plata #357,San Carlos
+-34.854080,-57.857830,Siniestro 358,volcamiento,2024-03-19,VS,M,Evento de tráfico en La Plata #358,Nueva República
+-34.887326,-57.966100,Siniestro 359,despiste,2025-08-19,D,A,Evento de tráfico en La Plata #359,Parque Saavedra
+-35.041562,-57.961750,Siniestro 360,caída,2024-01-24,VS,P,Evento de tráfico en La Plata #360,Villa Elvira
+-34.884743,-58.101509,Siniestro 361,caída,2024-12-06,A,CAM,Evento de tráfico en La Plata #361,Los Hornos
+-34.906281,-57.953488,Siniestro 362,despiste,2024-10-15,EV,COL,Evento de tráfico en La Plata #362,Zona Sur
+-34.897864,-57.961500,Siniestro 363,caída,2026-02-13,NR,M,Evento de tráfico en La Plata #363,Centro
+-34.927147,-58.037713,Siniestro 364,volcamiento,2026-02-16,NR,B,Evento de tráfico en La Plata #364,Gonnet
+-34.973814,-57.951206,Siniestro 365,choque,2025-08-13,D,B,Evento de tráfico en La Plata #365,Gonnet
+-34.826783,-58.036011,Siniestro 366,despiste,2024-05-12,NR,P,Evento de tráfico en La Plata #366,Nueva República
+-34.912719,-57.963627,Siniestro 367,volcamiento,2024-11-11,VS,A,Evento de tráfico en La Plata #367,Los Hornos
+-34.849044,-58.000428,Siniestro 368,volcamiento,2024-03-27,MI,B,Evento de tráfico en La Plata #368,Abella
+-34.801743,-57.924877,Siniestro 369,despiste,2025-08-24,?,P,Evento de tráfico en La Plata #369,Gonnet
+-34.867988,-57.841269,Siniestro 370,atropellamiento,2025-11-26,EV,M/P,Evento de tráfico en La Plata #370,Parque Saavedra
+-35.060417,-57.901415,Siniestro 371,atropellamiento,2025-08-13,MI,A/P,Evento de tráfico en La Plata #371,Gonnet
+-34.929510,-57.921978,Siniestro 372,atropellamiento,2024-11-17,MI,COL,Evento de tráfico en La Plata #372,Zona Sur
+-35.053138,-57.946692,Siniestro 373,choque,2024-11-24,NR,M,Evento de tráfico en La Plata #373,Zona Sur
+-34.905441,-57.992467,Siniestro 374,choque,2024-03-11,MI,P,Evento de tráfico en La Plata #374,Abella
+-34.844080,-57.983539,Siniestro 375,volcamiento,2026-02-18,NR,P,Evento de tráfico en La Plata #375,Parque Saavedra
+-34.902743,-58.090017,Siniestro 376,choque,2025-12-14,MI,A,Evento de tráfico en La Plata #376,Centro
+-34.849873,-58.059163,Siniestro 377,caída,2026-03-01,A,M/P,Evento de tráfico en La Plata #377,Tolosa
+-35.064904,-58.047324,Siniestro 378,atropellamiento,2024-06-07,A,A/P,Evento de tráfico en La Plata #378,Zona Sur
+-35.057557,-58.087981,Siniestro 379,choque,2026-02-01,A,A/M,Evento de tráfico en La Plata #379,Zona Sur
+-35.066299,-57.907525,Siniestro 380,choque,2024-06-15,A,M,Evento de tráfico en La Plata #380,Villa Elvira
+-34.932264,-58.086387,Siniestro 381,despiste,2026-02-28,VS,A/M,Evento de tráfico en La Plata #381,Centro
+-34.986804,-57.971289,Siniestro 382,caída,2024-06-19,A,A,Evento de tráfico en La Plata #382,Oeste
+-34.961769,-58.033099,Siniestro 383,caída,2024-04-15,PC,CAM,Evento de tráfico en La Plata #383,Parque Saavedra
+-34.846731,-57.818452,Siniestro 384,despiste,2024-06-23,NR,B,Evento de tráfico en La Plata #384,Zona Sur
+-35.041139,-58.064646,Siniestro 385,despiste,2024-04-24,A,COL,Evento de tráfico en La Plata #385,Oeste
+-35.004501,-58.091995,Siniestro 386,atropellamiento,2024-09-17,A,A/P,Evento de tráfico en La Plata #386,Tolosa
+-34.796150,-58.020936,Siniestro 387,volcamiento,2025-08-25,EV,P,Evento de tráfico en La Plata #387,Los Hornos
+-34.987131,-57.976373,Siniestro 388,choque,2025-06-15,PC,A/P,Evento de tráfico en La Plata #388,Parque Saavedra
+-34.778733,-58.002610,Siniestro 389,choque,2025-08-24,EV,COL,Evento de tráfico en La Plata #389,San Carlos
+-34.840322,-58.065149,Siniestro 390,volcamiento,2024-07-03,VS,CAM,Evento de tráfico en La Plata #390,Tolosa
+-35.010963,-58.012353,Siniestro 391,despiste,2025-07-16,NR,CAM,Evento de tráfico en La Plata #391,Barrio Universitario
+-34.844745,-57.952023,Siniestro 392,volcamiento,2024-03-13,MI,CAM,Evento de tráfico en La Plata #392,Villa Elvira
+-34.834790,-57.885278,Siniestro 393,choque,2026-01-13,A,B,Evento de tráfico en La Plata #393,Villa Elvira
+-35.048762,-57.952598,Siniestro 394,despiste,2026-04-20,PC,M,Evento de tráfico en La Plata #394,Los Hornos
+-34.894985,-58.055039,Siniestro 395,despiste,2025-04-10,PC,M/P,Evento de tráfico en La Plata #395,Abella
+-34.946671,-57.828214,Siniestro 396,choque,2024-07-22,EV,M/P,Evento de tráfico en La Plata #396,Este
+-34.854133,-57.954702,Siniestro 397,choque,2024-01-23,NR,B,Evento de tráfico en La Plata #397,Nueva República
+-34.859378,-57.944191,Siniestro 398,atropellamiento,2024-05-18,?,COL,Evento de tráfico en La Plata #398,Centro
+-34.968511,-57.914280,Siniestro 399,atropellamiento,2024-05-24,NR,M/P,Evento de tráfico en La Plata #399,Centro
+-35.026320,-58.061481,Siniestro 400,choque,2025-11-22,?,A/M,Evento de tráfico en La Plata #400,Este
+-34.847701,-57.963825,Siniestro 401,atropellamiento,2026-04-14,MI,A,Evento de tráfico en La Plata #401,Zona Norte
+-34.886963,-57.934014,Siniestro 402,caída,2024-11-29,PC,COL,Evento de tráfico en La Plata #402,San Carlos
+-34.864985,-58.099522,Siniestro 403,caída,2025-01-10,EV,A/M,Evento de tráfico en La Plata #403,Villa Elvira
+-34.954223,-57.887408,Siniestro 404,volcamiento,2025-04-27,A,A/P,Evento de tráfico en La Plata #404,Centro
+-34.827601,-57.835594,Siniestro 405,caída,2025-10-11,A,B,Evento de tráfico en La Plata #405,San Carlos
+-35.023297,-58.069053,Siniestro 406,volcamiento,2024-02-28,EV,M/P,Evento de tráfico en La Plata #406,Oeste
+-34.792714,-58.079996,Siniestro 407,caída,2026-04-22,PC,A/P,Evento de tráfico en La Plata #407,Centro
+-34.972360,-57.831533,Siniestro 408,atropellamiento,2024-02-26,D,COL,Evento de tráfico en La Plata #408,Zona Norte
+-34.981020,-57.915278,Siniestro 409,choque,2025-07-30,D,A/M,Evento de tráfico en La Plata #409,Zona Norte
+-34.913511,-57.848493,Siniestro 410,volcamiento,2025-05-16,?,P,Evento de tráfico en La Plata #410,Zona Sur
+-34.951302,-57.915941,Siniestro 411,choque,2026-03-17,A,A,Evento de tráfico en La Plata #411,Ringuelet
+-34.911902,-57.990875,Siniestro 412,volcamiento,2024-05-17,VS,B,Evento de tráfico en La Plata #412,San Carlos
+-35.014118,-58.016664,Siniestro 413,atropellamiento,2024-01-28,?,A,Evento de tráfico en La Plata #413,Tolosa
+-34.831951,-57.988166,Siniestro 414,volcamiento,2025-02-14,VS,P,Evento de tráfico en La Plata #414,Ringuelet
+-34.826703,-58.002876,Siniestro 415,caída,2024-01-25,EV,A/P,Evento de tráfico en La Plata #415,Nueva República
+-34.870323,-57.806729,Siniestro 416,volcamiento,2024-06-06,NR,B,Evento de tráfico en La Plata #416,Zona Sur
+-35.052301,-58.092261,Siniestro 417,despiste,2024-05-16,A,M,Evento de tráfico en La Plata #417,Villa Elvira
+-34.959625,-58.066903,Siniestro 418,despiste,2024-09-11,D,A/P,Evento de tráfico en La Plata #418,San Carlos
+-34.816740,-57.939309,Siniestro 419,despiste,2024-02-20,MI,A,Evento de tráfico en La Plata #419,Zona Norte
+-34.882761,-58.024259,Siniestro 420,atropellamiento,2025-03-04,NR,A,Evento de tráfico en La Plata #420,Zona Sur
+-35.011611,-57.892487,Siniestro 421,volcamiento,2025-12-21,EV,A,Evento de tráfico en La Plata #421,Gonnet
+-34.800732,-57.935745,Siniestro 422,volcamiento,2025-03-15,EV,B,Evento de tráfico en La Plata #422,Abella
+-34.905785,-57.943786,Siniestro 423,choque,2024-12-13,?,COL,Evento de tráfico en La Plata #423,Zona Sur
+-35.045686,-58.059020,Siniestro 424,volcamiento,2024-12-13,MI,A/P,Evento de tráfico en La Plata #424,Zona Norte
+-34.952907,-58.083648,Siniestro 425,volcamiento,2025-06-30,NR,M/P,Evento de tráfico en La Plata #425,Tolosa
+-35.061314,-57.833438,Siniestro 426,despiste,2025-06-17,A,M/P,Evento de tráfico en La Plata #426,Zona Norte
+-35.055971,-58.060818,Siniestro 427,caída,2024-06-21,D,CAM,Evento de tráfico en La Plata #427,Gonnet
+-34.873216,-57.851234,Siniestro 428,atropellamiento,2024-02-28,?,A/M,Evento de tráfico en La Plata #428,Tolosa
+-34.795284,-57.997080,Siniestro 429,despiste,2025-10-22,PC,M,Evento de tráfico en La Plata #429,Barrio Universitario
+-34.982096,-57.914822,Siniestro 430,despiste,2025-03-28,VS,A,Evento de tráfico en La Plata #430,Parque Saavedra
+-34.886714,-58.063615,Siniestro 431,despiste,2024-05-31,?,B,Evento de tráfico en La Plata #431,Centro
+-35.016319,-57.992198,Siniestro 432,despiste,2025-03-26,PC,CAM,Evento de tráfico en La Plata #432,Nueva República
+-34.798056,-57.902126,Siniestro 433,caída,2026-03-31,NR,A/P,Evento de tráfico en La Plata #433,Zona Sur
+-34.937859,-57.982107,Siniestro 434,volcamiento,2025-06-07,?,M/P,Evento de tráfico en La Plata #434,Zona Norte
+-34.982654,-58.091829,Siniestro 435,atropellamiento,2025-03-10,EV,COL,Evento de tráfico en La Plata #435,Ringuelet
+-35.003808,-58.063375,Siniestro 436,despiste,2025-10-18,NR,P,Evento de tráfico en La Plata #436,Villa Elvira
+-35.051850,-57.866672,Siniestro 437,caída,2025-02-09,EV,B,Evento de tráfico en La Plata #437,Gonnet
+-34.825740,-58.087743,Siniestro 438,choque,2024-12-08,?,A,Evento de tráfico en La Plata #438,Los Hornos
+-34.917970,-57.856051,Siniestro 439,caída,2025-01-12,NR,A/M,Evento de tráfico en La Plata #439,Ángel Etcheverry
+-34.805545,-57.840884,Siniestro 440,despiste,2026-02-07,VS,B,Evento de tráfico en La Plata #440,Nueva República
+-34.837244,-58.007584,Siniestro 441,despiste,2025-10-05,A,M/P,Evento de tráfico en La Plata #441,Abella
+-34.838665,-58.082872,Siniestro 442,despiste,2024-07-21,D,P,Evento de tráfico en La Plata #442,Abella
+-34.950543,-57.833335,Siniestro 443,choque,2025-05-02,PC,B,Evento de tráfico en La Plata #443,Gonnet
+-34.971103,-58.081952,Siniestro 444,despiste,2025-02-24,NR,COL,Evento de tráfico en La Plata #444,Zona Sur
+-34.801806,-58.061559,Siniestro 445,choque,2025-10-01,NR,M,Evento de tráfico en La Plata #445,Gonnet
+-34.814452,-58.054507,Siniestro 446,caída,2025-12-15,VS,M/P,Evento de tráfico en La Plata #446,Tolosa
+-34.792101,-58.096693,Siniestro 447,despiste,2025-12-09,A,B,Evento de tráfico en La Plata #447,Barrio Universitario
+-34.957702,-58.011013,Siniestro 448,caída,2025-09-21,NR,B,Evento de tráfico en La Plata #448,Zona Sur
+-34.998614,-57.988110,Siniestro 449,choque,2024-06-20,EV,CAM,Evento de tráfico en La Plata #449,Zona Norte
+-34.886525,-57.956825,Siniestro 450,caída,2025-04-15,D,COL,Evento de tráfico en La Plata #450,Parque Saavedra
+-34.795088,-57.840755,Siniestro 451,caída,2026-01-29,?,A/M,Evento de tráfico en La Plata #451,Villa Elvira
+-34.983872,-57.890086,Siniestro 452,despiste,2025-07-11,VS,A/M,Evento de tráfico en La Plata #452,Los Hornos
+-35.064153,-58.104595,Siniestro 453,despiste,2025-12-17,NR,A/P,Evento de tráfico en La Plata #453,Este
+-34.791939,-57.963014,Siniestro 454,atropellamiento,2026-03-11,VS,CAM,Evento de tráfico en La Plata #454,Parque Saavedra
+-35.055510,-58.031143,Siniestro 455,choque,2026-04-13,PC,M,Evento de tráfico en La Plata #455,Barrio Universitario
+-34.826150,-57.970618,Siniestro 456,despiste,2024-08-30,MI,M/P,Evento de tráfico en La Plata #456,Zona Sur
+-35.000775,-57.876410,Siniestro 457,atropellamiento,2024-12-07,A,B,Evento de tráfico en La Plata #457,Ángel Etcheverry
+-35.040570,-57.976291,Siniestro 458,atropellamiento,2025-06-17,PC,CAM,Evento de tráfico en La Plata #458,Gonnet
+-34.820395,-57.879733,Siniestro 459,choque,2024-06-26,VS,A/P,Evento de tráfico en La Plata #459,Zona Sur
+-34.861226,-57.914288,Siniestro 460,caída,2024-06-11,NR,M,Evento de tráfico en La Plata #460,Los Hornos
+-34.930707,-57.852305,Siniestro 461,despiste,2024-01-06,NR,B,Evento de tráfico en La Plata #461,Villa Elvira
+-34.852524,-57.812255,Siniestro 462,despiste,2025-02-23,NR,M,Evento de tráfico en La Plata #462,Barrio Universitario
+-34.820421,-57.904254,Siniestro 463,atropellamiento,2025-04-15,MI,P,Evento de tráfico en La Plata #463,Este
+-34.872270,-57.971097,Siniestro 464,choque,2026-02-04,MI,COL,Evento de tráfico en La Plata #464,Tolosa
+-34.982495,-57.938988,Siniestro 465,atropellamiento,2025-04-25,NR,A,Evento de tráfico en La Plata #465,Este
+-34.953512,-57.969691,Siniestro 466,caída,2024-01-06,EV,COL,Evento de tráfico en La Plata #466,Parque Saavedra
+-34.889928,-58.072192,Siniestro 467,despiste,2025-03-12,VS,M,Evento de tráfico en La Plata #467,Abella
+-34.842507,-58.035540,Siniestro 468,volcamiento,2025-04-01,PC,A/M,Evento de tráfico en La Plata #468,Nueva República
+-34.973348,-57.941875,Siniestro 469,caída,2024-11-06,PC,A/P,Evento de tráfico en La Plata #469,Oeste
+-34.895491,-58.007104,Siniestro 470,despiste,2025-11-27,NR,CAM,Evento de tráfico en La Plata #470,Ángel Etcheverry
+-34.999692,-58.073396,Siniestro 471,volcamiento,2026-04-16,A,P,Evento de tráfico en La Plata #471,Gonnet
+-35.014410,-58.023993,Siniestro 472,volcamiento,2024-08-27,A,COL,Evento de tráfico en La Plata #472,Zona Sur
+-34.975214,-57.989043,Siniestro 473,atropellamiento,2024-04-28,MI,CAM,Evento de tráfico en La Plata #473,Parque Saavedra
+-34.816598,-57.939484,Siniestro 474,atropellamiento,2026-05-02,PC,M,Evento de tráfico en La Plata #474,Gonnet
+-34.853181,-58.021462,Siniestro 475,despiste,2024-06-02,D,CAM,Evento de tráfico en La Plata #475,Parque Saavedra
+-34.994385,-57.929567,Siniestro 476,choque,2025-04-04,MI,M/P,Evento de tráfico en La Plata #476,Este
+-34.991378,-57.995523,Siniestro 477,caída,2024-03-08,A,P,Evento de tráfico en La Plata #477,Barrio Universitario
+-34.796741,-58.077933,Siniestro 478,volcamiento,2025-03-22,MI,COL,Evento de tráfico en La Plata #478,Villa Elvira
+-34.809062,-57.808538,Siniestro 479,choque,2025-05-24,EV,CAM,Evento de tráfico en La Plata #479,Ringuelet
+-34.917245,-58.001609,Siniestro 480,atropellamiento,2024-11-01,D,M,Evento de tráfico en La Plata #480,Oeste
+-35.032785,-58.015247,Siniestro 481,despiste,2024-11-21,PC,M,Evento de tráfico en La Plata #481,Tolosa
+-34.793421,-58.043696,Siniestro 482,atropellamiento,2025-02-01,VS,B,Evento de tráfico en La Plata #482,Centro
+-34.818879,-57.924711,Siniestro 483,choque,2024-11-01,NR,A/P,Evento de tráfico en La Plata #483,Parque Saavedra
+-34.898883,-57.990588,Siniestro 484,caída,2024-07-31,VS,A/M,Evento de tráfico en La Plata #484,Oeste
+-35.056655,-58.074547,Siniestro 485,volcamiento,2024-08-06,EV,M/P,Evento de tráfico en La Plata #485,Ángel Etcheverry
+-34.941682,-57.907581,Siniestro 486,caída,2024-05-28,NR,COL,Evento de tráfico en La Plata #486,Zona Sur
+-34.923012,-57.883132,Siniestro 487,volcamiento,2024-04-25,VS,M,Evento de tráfico en La Plata #487,Gonnet
+-35.051315,-57.915059,Siniestro 488,despiste,2024-07-11,A,M/P,Evento de tráfico en La Plata #488,Abella
+-35.061885,-57.970450,Siniestro 489,caída,2025-11-01,D,B,Evento de tráfico en La Plata #489,Zona Sur
+-34.852050,-58.100293,Siniestro 490,volcamiento,2024-04-28,NR,B,Evento de tráfico en La Plata #490,Gonnet
+-35.060420,-57.890925,Siniestro 491,choque,2024-06-13,EV,COL,Evento de tráfico en La Plata #491,Nueva República
+-34.925015,-57.939533,Siniestro 492,despiste,2026-04-30,MI,P,Evento de tráfico en La Plata #492,Abella
+-34.990137,-57.912556,Siniestro 493,caída,2024-08-16,D,M,Evento de tráfico en La Plata #493,Oeste
+-34.843622,-57.862158,Siniestro 494,caída,2025-07-08,A,B,Evento de tráfico en La Plata #494,Abella
+-34.898615,-58.070871,Siniestro 495,choque,2025-08-20,?,A,Evento de tráfico en La Plata #495,Ángel Etcheverry
+-34.916770,-57.975777,Siniestro 496,caída,2025-03-30,PC,M,Evento de tráfico en La Plata #496,San Carlos
+-35.011867,-57.931530,Siniestro 497,despiste,2024-03-06,?,COL,Evento de tráfico en La Plata #497,Tolosa
+-34.962486,-57.831017,Siniestro 498,choque,2025-07-15,VS,A/M,Evento de tráfico en La Plata #498,Ángel Etcheverry
+-34.917344,-58.036642,Siniestro 499,volcamiento,2024-05-20,MI,M/P,Evento de tráfico en La Plata #499,Este
+-34.884018,-57.909127,Siniestro 500,caída,2024-04-15,MI,M/P,Evento de tráfico en La Plata #500,Gonnet

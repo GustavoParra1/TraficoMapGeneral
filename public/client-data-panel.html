@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Cliente - TraficoMap</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+
+    .card {
+      border: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1.5rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+
+    .upload-area {
+      border: 2px dashed #667eea;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #f8f9fa;
+    }
+
+    .upload-area:hover {
+      border-color: #764ba2;
+      background: #f0f0ff;
+    }
+
+    .upload-area.dragover {
+      border-color: #764ba2;
+      background: #e8e8ff;
+    }
+
+    .progress-container {
+      margin-top: 1rem;
+    }
+
+    .stats-card {
+      text-align: center;
+      padding: 1.5rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .stats-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .stats-label {
+      font-size: 0.9rem;
+      color: #6c757d;
+      margin-top: 0.5rem;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .modal-header .btn-close {
+      filter: invert(1);
+    }
+
+    .table thead {
+      background: #f8f9fa;
+    }
+
+    .table thead th {
+      color: #495057;
+      font-weight: 600;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    .badge {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .cliente-info {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .cliente-info h4 {
+      color: #667eea;
+      margin-bottom: 1rem;
+    }
+
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .info-label {
+      color: #6c757d;
+      font-weight: 500;
+    }
+
+    .info-value {
+      color: #212529;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container-fluid">
+    <span class="navbar-brand">
+      <i class="fas fa-map"></i> TraficoMap - Panel Cliente
+    </span>
+    <div class="ms-auto">
+      <span class="text-light me-3">
+        <i class="fas fa-user"></i> <span id="user-email"></span>
+      </span>
+      <button class="btn btn-outline-light btn-sm" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Salir
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5 mb-5">
+  <!-- Info Cliente -->
+  <div class="cliente-info" id="cliente-info" style="display: none;">
+    <h4><i class="fas fa-building"></i> Información del Cliente</h4>
+    <div class="info-item">
+      <span class="info-label">Cliente:</span>
+      <span class="info-value" id="info-nombre">-</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Ciudad:</span>
+      <span class="info-value" id="info-ciudad">-</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">ID Cliente:</span>
+      <span class="info-value" id="info-id">-</span>
+    </div>
+  </div>
+
+  <!-- Estadísticas -->
+  <div class="row mb-4" id="estadisticas" style="display: none;">
+    <div class="col-md-3">
+      <div class="stats-card">
+        <div class="stats-number" id="stat-camaras">0</div>
+        <div class="stats-label">Cámaras</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-card">
+        <div class="stats-number" id="stat-siniestros">0</div>
+        <div class="stats-label">Siniestros</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-card">
+        <div class="stats-number" id="stat-operadores">0</div>
+        <div class="stats-label">Operadores</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-card">
+        <div class="stats-number" id="stat-patrullas">0</div>
+        <div class="stats-label">Patrullas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carga de Datos -->
+  <div class="card">
+    <div class="card-header">
+      <i class="fas fa-cloud-upload-alt"></i> Cargar Datos
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <h6><i class="fas fa-video"></i> Cámaras</h6>
+          <div class="upload-area" onclick="document.getElementById('file-camaras').click()">
+            <div><i class="fas fa-file-csv fa-2x text-muted mb-2"></i></div>
+            <p>Arrastra archivo CSV o haz clic</p>
+            <small class="text-muted">Formato: lat, lng, nombre, ...otros campos</small>
+          </div>
+          <input type="file" id="file-camaras" accept=".csv" style="display: none;">
+          <div class="progress-container" id="progress-camaras" style="display: none;">
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+            </div>
+            <small class="text-muted" id="progress-text-camaras">Cargando...</small>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <h6><i class="fas fa-exclamation-circle"></i> Siniestros</h6>
+          <div class="upload-area" onclick="document.getElementById('file-siniestros').click()">
+            <div><i class="fas fa-file-csv fa-2x text-muted mb-2"></i></div>
+            <p>Arrastra archivo CSV o haz clic</p>
+            <small class="text-muted">Formato: lat, lng, fecha, tipo, ...otros campos</small>
+          </div>
+          <input type="file" id="file-siniestros" accept=".csv" style="display: none;">
+          <div class="progress-container" id="progress-siniestros" style="display: none;">
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+            </div>
+            <small class="text-muted" id="progress-text-siniestros">Cargando...</small>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <h6><i class="fas fa-users"></i> Operadores</h6>
+          <div class="upload-area" onclick="document.getElementById('file-operadores').click()">
+            <div><i class="fas fa-file-csv fa-2x text-muted mb-2"></i></div>
+            <p>Arrastra archivo CSV o haz clic</p>
+            <small class="text-muted">Formato: nombre, email, telefono, ...otros campos</small>
+          </div>
+          <input type="file" id="file-operadores" accept=".csv" style="display: none;">
+          <div class="progress-container" id="progress-operadores" style="display: none;">
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+            </div>
+            <small class="text-muted" id="progress-text-operadores">Cargando...</small>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+          <h6><i class="fas fa-car"></i> Patrullas</h6>
+          <div class="upload-area" onclick="document.getElementById('file-patrullas').click()">
+            <div><i class="fas fa-file-csv fa-2x text-muted mb-2"></i></div>
+            <p>Arrastra archivo CSV o haz clic</p>
+            <small class="text-muted">Formato: numero, operador, vehiculo, ...otros campos</small>
+          </div>
+          <input type="file" id="file-patrullas" accept=".csv" style="display: none;">
+          <div class="progress-container" id="progress-patrullas" style="display: none;">
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+            </div>
+            <small class="text-muted" id="progress-text-patrullas">Cargando...</small>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-lg w-100 mt-4" onclick="goToMap()">
+        <i class="fas fa-map"></i> Ir al Mapa
+      </button>
+    </div>
+  </div>
+
+  <!-- Historial de Cargas -->
+  <div class="card">
+    <div class="card-header">
+      <i class="fas fa-history"></i> Historial de Cargas
+    </div>
+    <div class="card-body">
+      <table class="table table-hover" id="tabla-historial">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo de Dato</th>
+            <th>Registros</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-historial">
+          <tr>
+            <td colspan="4" class="text-center text-muted">Sin cargas aún</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA",
+    authDomain: "trafico-map-general-v2.firebaseapp.com",
+    projectId: "trafico-map-general-v2",
+    storageBucket: "trafico-map-general-v2.firebasestorage.app",
+    messagingSenderId: "540631719751",
+    appId: "1:540631719751:web:bd410f1bbee18e9fabb662"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  let currentClienteId = null;
+
+  // Inicializar
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+      window.location.href = '/login.html';
+      return;
+    }
+
+    document.getElementById('user-email').textContent = user.email;
+
+    // Obtener clienteId desde custom claims
+    const idTokenResult = await user.getIdTokenResult();
+    currentClienteId = idTokenResult.claims.clienteId;
+
+    if (!currentClienteId) {
+      alert('⚠️ Usuario sin acceso a cliente');
+      window.location.href = '/';
+      return;
+    }
+
+    console.log('✅ Cliente ID:', currentClienteId);
+    cargarInfoCliente();
+    cargarEstadisticas();
+    setupUploaders();
+  });
+
+  async function cargarInfoCliente() {
+    try {
+      const doc = await db.collection('clientes').doc(currentClienteId).get();
+      if (doc.exists) {
+        const data = doc.data();
+        document.getElementById('info-nombre').textContent = data.nombre || '-';
+        document.getElementById('info-ciudad').textContent = data.ciudad || '-';
+        document.getElementById('info-id').textContent = currentClienteId;
+        document.getElementById('cliente-info').style.display = 'block';
+      }
+    } catch (error) {
+      console.error('Error cargando info:', error);
+    }
+  }
+
+  async function cargarEstadisticas() {
+    try {
+      const collecciones = ['camaras', 'siniestros', 'operadores', 'patrullas'];
+      document.getElementById('estadisticas').style.display = 'grid';
+
+      for (const col of collecciones) {
+        const snap = await db.collection('clientes').doc(currentClienteId).collection(col).get();
+        const count = snap.size - 1; // Restar placeholder
+        document.getElementById(`stat-${col}`).textContent = Math.max(0, count);
+      }
+    } catch (error) {
+      console.error('Error cargando estadísticas:', error);
+    }
+  }
+
+  function setupUploaders() {
+    const tipos = ['camaras', 'siniestros', 'operadores', 'patrullas'];
+
+    tipos.forEach(tipo => {
+      const input = document.getElementById(`file-${tipo}`);
+      const area = input.previousElementSibling;
+
+      area.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        area.classList.add('dragover');
+      });
+
+      area.addEventListener('dragleave', () => {
+        area.classList.remove('dragover');
+      });
+
+      area.addEventListener('drop', (e) => {
+        e.preventDefault();
+        area.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+          input.files = e.dataTransfer.files;
+          procesarArchivo(tipo, e.dataTransfer.files[0]);
+        }
+      });
+
+      input.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+          procesarArchivo(tipo, e.target.files[0]);
+        }
+      });
+    });
+  }
+
+  async function procesarArchivo(tipo, file) {
+    console.log(`📤 Procesando ${tipo}:`, file.name);
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const csv = e.target.result;
+        const registros = parsearCSV(csv);
+
+        // Mostrar progreso
+        const progressContainer = document.getElementById(`progress-${tipo}`);
+        progressContainer.style.display = 'block';
+        const progressBar = progressContainer.querySelector('.progress-bar');
+
+        // Subir a Firestore
+        const clienteColeccion = db.collection('clientes').doc(currentClienteId).collection(tipo);
+        let cargados = 0;
+
+        for (const registro of registros) {
+          const docId = registro.id || `${tipo}_${Date.now()}_${Math.random()}`;
+          await clienteColeccion.doc(docId).set(registro);
+          cargados++;
+          const porcentaje = (cargados / registros.length) * 100;
+          progressBar.style.width = porcentaje + '%';
+          document.getElementById(`progress-text-${tipo}`).textContent = `${cargados}/${registros.length} registros`;
+        }
+
+        console.log(`✅ ${cargados} registros de ${tipo} cargados`);
+        alert(`✅ ${cargados} registros cargados exitosamente`);
+        cargarEstadisticas();
+
+        // Limpiar
+        progressContainer.style.display = 'none';
+        document.getElementById(`file-${tipo}`).value = '';
+      } catch (error) {
+        console.error('❌ Error:', error);
+        alert('Error al cargar: ' + error.message);
+      }
+    };
+
+    reader.readAsText(file);
+  }
+
+  function parsearCSV(csv) {
+    const lines = csv.trim().split('\n');
+    const headers = lines[0].split(',').map(h => h.trim());
+    const registros = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
+
+      const values = lines[i].split(',').map(v => v.trim());
+      const obj = {};
+      headers.forEach((header, idx) => {
+        obj[header.toLowerCase()] = values[idx] || '';
+      });
+
+      registros.push(obj);
+    }
+
+    return registros;
+  }
+
+  function goToMap() {
+    window.location.href = `/map-cliente.html?clienteId=${currentClienteId}`;
+  }
+
+  function logout() {
+    auth.signOut().then(() => {
+      window.location.href = '/login.html';
+    });
+  }
+</script>
+
+</body>
+</html>

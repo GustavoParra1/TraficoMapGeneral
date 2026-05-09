@@ -73,6 +73,24 @@ class ClientDashboard {
       <div>
         <h2 class="mb-4">Dashboard</h2>
         
+        <!-- Tarjeta destacada: Ver Proyecto -->
+        <div class="row mb-4">
+          <div class="col-md-12">
+            <div class="card" style="border: 2px solid #0066ff; background: linear-gradient(135deg, rgba(0, 102, 255, 0.05) 0%, rgba(102, 126, 234, 0.05) 100%); box-shadow: 0 4px 15px rgba(0, 102, 255, 0.15);">
+              <div class="card-body" style="padding: 25px; text-align: center;">
+                <h4 style="color: #0066ff; margin-bottom: 10px;">
+                  <i class="bi bi-map" style="font-size: 28px;"></i>
+                </h4>
+                <h5 style="color: #333; margin-bottom: 12px; font-weight: 600;">Ver Proyecto en Pantalla Completa</h5>
+                <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Abre el mapa interactivo de tu municipio con todos tus datos cargados.</p>
+                <button class="btn" style="background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%); color: white; border: none; padding: 12px 30px; font-weight: 600; border-radius: 6px; cursor: pointer; font-size: 15px;" onclick="clientDashboard.openProjectMap()">
+                  <i class="bi bi-play-circle"></i> Abrir Mapa
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div class="row mb-4">
           <div class="col-md-4">
             <div class="card-stat">
@@ -654,25 +672,70 @@ class ClientDashboard {
       const ref = firebase.firestore().collection(`clientes/${clientId}/${collectionName}`);
       console.log(`💾 Referencia de Firestore creada`);
       
-      // Guardar cada registro
-      for (let i = 0; i < data.length; i++) {
-        const item = data[i];
-        console.log(`💾 Guardando registro ${i + 1}/${data.length}:`, item);
+      // Guardar en BATCH (más rápido y seguro)
+      const batchSize = 100;
+      let savedCount = 0;
+      const statusDiv = document.getElementById('uploadStatus');
+      
+      for (let batchStart = 0; batchStart < data.length; batchStart += batchSize) {
+        const batchEnd = Math.min(batchStart + batchSize, data.length);
+        const batch = firebase.firestore().batch();
         
-        try {
-          await ref.add({
+        console.log(`💾 Batch ${Math.floor(batchStart / batchSize) + 1}: registros ${batchStart + 1}-${batchEnd}`);
+        
+        // Actualizar UI con progreso
+        if (statusDiv) {
+          const progress = Math.round((batchEnd / data.length) * 100);
+          statusDiv.innerHTML = `
+            <div class="alert alert-warning alert-dismissible fade show" role="alert" style="font-size: 16px; font-weight: bold;">
+              ⏳ <strong>Guardando en Firestore:</strong> ${batchEnd}/${data.length} registros (${progress}%)
+              <div class="progress mt-2" style="height: 20px;">
+                <div class="progress-bar" role="progressbar" style="width: ${progress}%;" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">${progress}%</div>
+              </div>
+            </div>
+          `;
+          statusDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        for (let i = batchStart; i < batchEnd; i++) {
+          const item = data[i];
+          const newDocRef = ref.doc();
+          
+          batch.set(newDocRef, {
             ...item,
             created_at: new Date(),
-            cliente_id: clientId
+            cliente_id: clientId,
+            _id: newDocRef.id
           });
-          console.log(`  ✅ Registro ${i + 1} guardado`);
-        } catch (itemError) {
-          console.error(`  ❌ Error guardando registro ${i + 1}:`, itemError);
-          throw itemError;
+        }
+        
+        // Commit batch
+        try {
+          await batch.commit();
+          savedCount += (batchEnd - batchStart);
+          console.log(`✅ Batch guardado: ${savedCount}/${data.length}`);
+        } catch (batchError) {
+          console.error(`❌ Error en batch:`, batchError);
+          console.error(`❌ Error code:`, batchError.code);
+          console.error(`❌ Error message:`, batchError.message);
+          
+          // Mostrar error específico
+          if (statusDiv) {
+            statusDiv.innerHTML = `
+              <div class="alert alert-danger alert-dismissible fade show" role="alert" style="font-size: 14px;">
+                <i class="bi bi-exclamation-circle"></i> <strong>Error de Firebase:</strong><br>
+                <small><strong>Código:</strong> ${batchError.code}</small><br>
+                <small><strong>Mensaje:</strong> ${batchError.message}</small><br>
+                <small>Se guardaron ${savedCount}/${data.length} registros antes del error</small>
+              </div>
+            `;
+            statusDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+          throw batchError;
         }
       }
       
-      console.log(`✅ ${data.length} registros guardados exitosamente en ${collectionName}`);
+      console.log(`✅ ${savedCount} registros guardados exitosamente en ${collectionName}`);
     } catch (error) {
       console.error(`❌ Error en saveDataToFirestore:`, error);
       console.error(`❌ Error code:`, error.code);
@@ -896,6 +959,20 @@ class ClientDashboard {
         </div>
       </div>
     `;
+  }
+
+  /**
+   * Abre el mapa en una ventana nueva con filtro de ciudad
+   */
+  openProjectMap() {
+    if (!this.clientData || !this.clientData.nombre) {
+      alert('Error: No se pudo obtener el nombre de la ciudad');
+      return;
+    }
+    
+    const clientId = this.clientData.id;
+    const mapUrl = `/client/map.html?city=${encodeURIComponent(this.clientData.nombre)}&client=${encodeURIComponent(clientId)}`;
+    window.open(mapUrl, 'proyectoMapa', 'width=1200,height=800,menubar=yes,toolbar=yes,status=yes');
   }
 }
 

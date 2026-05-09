@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Billing & Facturas - TraficoMap Admin</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+  <div id="app" class="d-flex">
+    <!-- Sidebar -->
+    <nav class="sidebar bg-light">
+      <div class="sidebar-header">
+        <h5>TraficoMap</h5>
+        <small>Admin Panel</small>
+      </div>
+
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a href="../index.html" class="nav-link">
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="../clientes/index.html" class="nav-link">
+            <i class="bi bi-people"></i> Clientes
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="../subscripciones/index.html" class="nav-link">
+            <i class="bi bi-credit-card"></i> Suscripciones
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link active" style="background-color: rgba(102, 126, 234, 0.2); border-left: 4px solid #667eea;">
+            <i class="bi bi-file-earmark-pdf"></i> Billing
+          </a>
+        </li>
+      </ul>
+
+      <hr />
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="btn btn-sm btn-outline-danger w-100">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content flex-grow-1">
+      <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container-fluid">
+          <span class="navbar-brand">
+            <i class="bi bi-file-earmark-pdf"></i> Billing & Facturas
+          </span>
+          <div class="ms-auto">
+            <button id="navbarLogout" class="btn btn-sm btn-outline-danger">
+              Logout
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <div class="container-fluid p-4">
+        <div id="alertas"></div>
+
+        <div class="row mb-4">
+          <div class="col">
+            <h3>Facturación</h3>
+            <p class="text-muted">Gestiona facturas, pagos e ingresos</p>
+          </div>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div id="billingDashboard" class="mb-4">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label for="searchFacturas" class="form-label">Buscar</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="searchFacturas" 
+                  placeholder="Factura, cliente o comprobante..."
+                />
+              </div>
+              <div class="col-md-4">
+                <label for="filterEstado" class="form-label">Estado</label>
+                <select class="form-select" id="filterEstado">
+                  <option value="todos">Todos</option>
+                  <option value="pendientes">Pendientes</option>
+                  <option value="pagadas">Pagadas</option>
+                  <option value="vencidas">Vencidas</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="filterPeriodo" class="form-label">Período</label>
+                <select class="form-select" id="filterPeriodo">
+                  <option value="mes_actual">Mes Actual</option>
+                  <option value="ultimos_3_meses">Últimos 3 Meses</option>
+                  <option value="ultimo_ano">Último Año</option>
+                  <option value="todos">Todos</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Facturas Table -->
+        <div class="card">
+          <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="bi bi-receipt"></i> Listado de Facturas</h5>
+          </div>
+          <div class="card-body">
+            <div id="facturasTable">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-analytics-compat.js"></script>
+
+  <script src="../js/firebase-config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/billing-manager.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        await new Promise((resolve) => {
+          const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            unsubscribe();
+            if (!user || !user.customClaims?.role === 'admin') {
+              window.location.href = '../index.html';
+              return;
+            }
+            await billingManager.init();
+            billingManager.renderDashboard();
+            resolve();
+          });
+        });
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await auth.signOut();
+      window.location.href = '../index.html';
+    });
+
+    document.getElementById('navbarLogout').addEventListener('click', async () => {
+      await auth.signOut();
+      window.location.href = '../index.html';
+    });
+  </script>
+</body>
+</html>

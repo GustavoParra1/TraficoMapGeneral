@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico TraficoMap</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <style>
+    body {
+      background: #f8f9fa;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+    
+    .log-container {
+      background: #1e1e1e;
+      color: #00ff00;
+      padding: 15px;
+      border-radius: 8px;
+      max-height: 70vh;
+      overflow-y: auto;
+      font-size: 11px;
+      line-height: 1.4;
+      border: 2px solid #00ff00;
+      margin: 15px 0;
+    }
+    
+    .log-line {
+      margin: 2px 0;
+      padding: 2px;
+    }
+    
+    .log-success { color: #00ff00; }
+    .log-warning { color: #ffff00; }
+    .log-error { color: #ff0000; }
+    .log-info { color: #00aaff; }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin: 15px 0;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 4px solid #667eea;
+    }
+    
+    .stat-card h5 {
+      margin: 0 0 10px 0;
+      color: #667eea;
+      font-size: 13px;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .stat-label {
+      font-size: 11px;
+      color: #999;
+      margin-top: 5px;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    
+    .status-ok { background: #d4edda; color: #155724; }
+    .status-error { background: #f8d7da; color: #721c24; }
+    .status-loading { background: #fff3cd; color: #856404; }
+  </style>
+</head>
+<body>
+  <div class="container-fluid p-4">
+    <div class="row">
+      <div class="col-md-12">
+        <h2><i class="bi bi-bug"></i> Diagnóstico TraficoMap</h2>
+        <p class="text-muted">Panel para debuggear carga de datos. Los logs aparecen en tiempo real.</p>
+        
+        <div class="stats-grid" id="statsGrid"></div>
+        
+        <div class="row mt-4">
+          <div class="col-md-6">
+            <h5>Estado de Firestore</h5>
+            <div id="firebaseStatus" class="mb-3"></div>
+            <button class="btn btn-sm btn-primary" onclick="testFirebase()">
+              <i class="bi bi-arrow-repeat"></i> Testear Conexión
+            </button>
+          </div>
+          <div class="col-md-6">
+            <h5>Colecciones</h5>
+            <button class="btn btn-sm btn-success" onclick="scanCollections()">
+              <i class="bi bi-search"></i> Verificar Colecciones
+            </button>
+            <div id="collectionsStatus" class="mt-2"></div>
+          </div>
+        </div>
+        
+        <h5 class="mt-4">
+          <i class="bi bi-file-earmark-text"></i> Console/Logs
+          <button class="btn btn-sm btn-outline-secondary float-end" onclick="clearLogs()">Limpiar</button>
+        </h5>
+        <div class="log-container" id="logContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Firebase Init -->
+  <script src="../js/firebase-init.js"></script>
+  
+  <script>
+    const LOG_TYPES = {
+      SUCCESS: 'log-success',
+      ERROR: 'log-error',
+      WARNING: 'log-warning',
+      INFO: 'log-info'
+    };
+    
+    const stats = {
+      firebase_connected: false,
+      total_collections: 0,
+      total_docs: 0,
+      errors: 0,
+      collections: {}
+    };
+    
+    function addLog(message, type = 'INFO') {
+      const container = document.getElementById('logContainer');
+      const line = document.createElement('div');
+      line.className = `log-line log-${type.toLowerCase()}`;
+      
+      const timestamp = new Date().toLocaleTimeString();
+      const icon = {
+        'SUCCESS': '✅',
+        'ERROR': '❌',
+        'WARNING': '⚠️',
+        'INFO': 'ℹ️'
+      }[type] || '•';
+      
+      line.textContent = `[${timestamp}] ${icon} ${message}`;
+      container.appendChild(line);
+      container.scrollTop = container.scrollHeight;
+    }
+    
+    function clearLogs() {
+      document.getElementById('logContainer').innerHTML = '';
+      stats.errors = 0;
+      updateStats();
+    }
+    
+    function updateStats() {
+      const statsGrid = document.getElementById('statsGrid');
+      statsGrid.innerHTML = `
+        <div class="stat-card">
+          <h5>Estado Firebase</h5>
+          <div class="stat-value">
+            ${stats.firebase_connected ? 
+              '<span class="status-badge status-ok">CONECTADO</span>' : 
+              '<span class="status-badge status-error">DESCONECTADO</span>'}
+          </div>
+        </div>
+        <div class="stat-card">
+          <h5>Colecciones</h5>
+          <div class="stat-value">${stats.total_collections}</div>
+          <div class="stat-label">Encontradas en tu cliente</div>
+        </div>
+        <div class="stat-card">
+          <h5>Total Documentos</h5>
+          <div class="stat-value">${stats.total_docs}</div>
+          <div class="stat-label">Cargados de todas las colecciones</div>
+        </div>
+        <div class="stat-card">
+          <h5>Errores</h5>
+          <div class="stat-value" style="color: ${stats.errors > 0 ? '#ff0000' : '#00dd00'}">
+            ${stats.errors}
+          </div>
+          <div class="stat-label">Problemas encontrados</div>
+        </div>
+      `;
+    }
+    
+    async function testFirebase() {
+      addLog('🧪 Iniciando test de conexión...', 'INFO');
+      
+      try {
+        // Esperar a que Firebase esté listo
+        if (!window.db) {
+          addLog('⏳ Esperando que Firebase se inicialice...', 'WARNING');
+          // Esperar al evento
+          await new Promise((resolve) => {
+            window.addEventListener('firebaseReady', resolve, { once: true });
+          });
+        }
+        
+        addLog('✅ Firebase inicializado', 'SUCCESS');
+        stats.firebase_connected = true;
+        
+        // Test lectura
+        const testCollection = window.db.collection('clientes');
+        const snap = await testCollection.limit(1).get();
+        addLog(`✅ Conexión a Firestore OK (${snap.size} documentos de prueba)`, 'SUCCESS');
+        
+      } catch (error) {
+        addLog(`❌ Error: ${error.message}`, 'ERROR');
+        stats.errors++;
+      }
+      
+      updateStats();
+    }
+    
+    async function scanCollections() {
+      addLog('🔍 Escaneando estructura de datos...', 'INFO');
+      
+      try {
+        if (!window.db) {
+          addLog('❌ Firebase no inicializado', 'ERROR');
+          return;
+        }
+        
+        // Obtener ID del cliente autenticado
+        const user = firebase.auth().currentUser;
+        if (!user) {
+          addLog('❌ No hay usuario autenticado', 'ERROR');
+          return;
+        }
+        
+        addLog(`👤 Usuario: ${user.email}`, 'INFO');
+        
+        // Intentar obtener datos del cliente
+        const clientList = await window.db.collection('clientes').get();
+        addLog(`📊 Clientes en Firebase: ${clientList.size}`, 'INFO');
+        
+        // Si hay cliente del usuario
+        if (clientList.size > 0) {
+          const firstClient = clientList.docs[0];
+          const clientId = firstClient.id;
+          const clientData = firstClient.data();
+          
+          addLog(`✅ Cliente encontrado: ${clientId}`, 'SUCCESS');
+          addLog(`   Nombre: ${clientData.nombre || 'N/A'}`, 'INFO');
+          
+          // Escanear subcolecc iones
+          const collections = [
+            'siniestros',
+            'cameras_publicas',
+            'cameras_privadas',
+            'semaforos',
+            'colegios_escuelas',
+            'robo',
+            'barrios',
+            'corredores_escolares',
+            'flujo',
+            'colectivos'
+          ];
+          
+          for (const collName of collections) {
+            try {
+              const colPath = `clientes/${clientId}/${collName}`;
+              const ref = window.db.collection(colPath);
+              const snap = await ref.limit(10).get();
+              const count = await ref.count().get();
+              const total = count.data().count;
+              
+              if (total > 0) {
+                addLog(`📊 ${collName}: ${total} documentos`, 'SUCCESS');
+                stats.collections[collName] = total;
+                stats.total_docs += total;
+              } else {
+                addLog(`⚠️ ${collName}: 0 documentos (está vacío)`, 'WARNING');
+              }
+            } catch (error) {
+              addLog(`❌ ${collName}: ${error.message}`, 'ERROR');
+              stats.errors++;
+            }
+          }
+          
+          stats.total_collections = Object.keys(stats.collections).filter(k => stats.collections[k] > 0).length;
+          
+        } else {
+          addLog('❌ No hay clientes en Firebase', 'ERROR');
+        }
+        
+      } catch (error) {
+        addLog(`❌ Error escaneo: ${error.message}`, 'ERROR');
+        stats.errors++;
+      }
+      
+      updateStats();
+    }
+    
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', () => {
+      addLog('🚀 Página de diagnóstico iniciada', 'INFO');
+      addLog('⏳ Esperando que Firebase se inicialice...', 'WARNING');
+      
+      setTimeout(() => {
+        testFirebase();
+      }, 2000);
+    });
+    
+    // Llamar a scanCollections después de Firebase listo
+    window.addEventListener('firebaseReady', () => {
+      addLog('🔥 Firebase ready event recibido', 'SUCCESS');
+      setTimeout(() => {
+        scanCollections();
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

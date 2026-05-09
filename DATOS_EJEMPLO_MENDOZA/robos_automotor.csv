@@ -1,0 +1,11 @@
+fecha,hora,tipo_robo,vehiculo,zona,barrio,calle,numero,lat,lng,recuperado,dias_recuperacion
+2025-04-10,22:15,Robo Total,Toyota Corolla,Centro,Centro,Avenida Sarmiento,800,-32.8890,-68.8575,Si,3
+2025-04-12,01:30,Robo de Partes,Ford Focus,Centro,Centro,Calle San Juan,380,-32.8880,-68.8575,No,0
+2025-04-15,23:45,Robo Total,Honda Civic,Dorrego,Dorrego,Calle Mitre,420,-32.8910,-68.8570,Si,15
+2025-04-18,02:20,Robo de Partes,Renault Logan,Centro,Centro,Avenida España,650,-32.8885,-68.8560,No,0
+2025-04-20,22:00,Robo Total,Peugeot 308,Godoy Cruz,Godoy Cruz,Avenida Las Heras,300,-32.8875,-68.8590,Si,7
+2025-04-22,01:15,Robo de Partes,Chevrolet Cruze,Maipú,Maipú,Calle Belgrano,450,-32.8905,-68.8585,No,0
+2025-04-25,23:30,Robo Total,Fiat Argo,Centro,Centro,Avenida Colón,900,-32.8895,-68.8580,Si,2
+2025-04-28,02:45,Robo de Partes,Kia Cerato,Dorrego,Dorrego,Avenida Mitre,520,-32.8920,-68.8565,No,0
+2025-05-01,22:30,Robo Total,Hyundai i20,Centro,Centro,Avenida Sarmiento,750,-32.8888,-68.8572,Si,5
+2025-05-03,01:00,Robo de Partes,Volkswagen Polo,Godoy Cruz,Godoy Cruz,Calle Patricias Mendocinas,420,-32.8860,-68.8590,No,0

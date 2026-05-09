@@ -1,0 +1,41 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Centro",
+        "barrio_id": "centro",
+        "city": "la-plata"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-34.9, -57.96],
+          [-34.9, -57.92],
+          [-34.94, -57.92],
+          [-34.94, -57.96],
+          [-34.9, -57.96]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "nombre": "Tolosa",
+        "barrio_id": "tolosa",
+        "city": "la-plata"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-34.94, -57.96],
+          [-34.94, -57.92],
+          [-34.98, -57.92],
+          [-34.98, -57.96],
+          [-34.94, -57.96]
+        ]]
+      }
+    }
+  ]
+}

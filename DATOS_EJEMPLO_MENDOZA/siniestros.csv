@@ -1,0 +1,17 @@
+fecha,hora,tipo,causa,participantes,barrio,calle,numero,lat,lng,gravedad,lesionados,fallecidos
+2025-05-08,08:30,Choque,Exceso de Velocidad,Auto/Moto,Centro,Avenida Sarmiento,800,-32.8890,-68.8575,Media,2,0
+2025-05-08,10:15,Choque,No Respeto Semáforo,Auto/Auto,Centro,Avenida San Martín,550,-32.8895,-68.8580,Leve,1,0
+2025-05-08,12:45,Atropello,Peatón Imprudente,Auto/Peatón,Dorrego,Calle Mitre,420,-32.8900,-68.8570,Grave,1,0
+2025-05-08,14:20,Choque,Distracción,Moto/Moto,Centro,Avenida España,650,-32.8885,-68.8575,Leve,1,0
+2025-05-08,16:00,Choque,No Respeto Semáforo,Auto/Taxi,Godoy Cruz,Calle Las Heras,300,-32.8875,-68.8590,Leve,0,0
+2025-05-08,17:30,Vuelco,Exceso de Velocidad,Camión,Centro,Avenida Colón,900,-32.8900,-68.8560,Grave,2,1
+2025-05-08,18:45,Choque,Distracción,Auto/Auto,Maipú,Calle Belgrano,450,-32.8905,-68.8585,Media,1,0
+2025-05-08,19:20,Atropello,Peatón Imprudente,Auto/Peatón,Dorrego,Avenida Las Heras,520,-32.8910,-68.8570,Media,1,0
+2025-05-09,08:00,Choque,No Respeto Semáforo,Auto/Auto,Centro,Calle San Juan,380,-32.8880,-68.8580,Leve,1,0
+2025-05-09,09:15,Choque,Exceso de Velocidad,Moto/Auto,Godoy Cruz,Avenida Mitre,650,-32.8870,-68.8595,Media,2,0
+2025-05-09,11:30,Colisión,Estacionamiento,Auto/Estructuras,Centro,Calle 9 de Julio,200,-32.8895,-68.8565,Leve,0,0
+2025-05-09,13:45,Choque,Distracción,Auto/Auto,Maipú,Avenida Tomás Godoy Cruz,850,-32.8900,-68.8600,Media,1,0
+2025-05-09,15:20,Atropello,Peatón Imprudente,Auto/Peatón,Centro,Calle Moreno,380,-32.8885,-68.8575,Leve,1,0
+2025-05-09,16:50,Choque,No Respeto Semáforo,Auto/Auto,Dorrego,Avenida España,550,-32.8915,-68.8575,Media,2,0
+2025-05-09,18:30,Vuelco,Exceso de Velocidad,Camión,Godoy Cruz,Calle Patricias Mendocinas,420,-32.8860,-68.8590,Grave,1,1
+2025-05-10,08:15,Choque,Distracción,Auto/Auto,Centro,Avenida Sarmiento,900,-32.8880,-68.8570,Leve,1,0

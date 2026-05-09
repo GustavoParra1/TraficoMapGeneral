@@ -21,14 +21,31 @@ class ClientesManager {
    */
   async init() {
     try {
-      console.log('📋 Inicializando ClientesManager...');
-      await this.loadClientes();
+      console.log('📋 [ClientesManager.init] ========== INICIANDO ==========');
+      
+      console.log('📋 [ClientesManager.init] Paso 1: Cargando clientes...');
+      const loadSuccess = await this.loadClientes();
+      if (loadSuccess) {
+        console.log('✅ [ClientesManager.init] Clientes cargados exitosamente');
+      } else {
+        console.warn('⚠️ [ClientesManager.init] Carga de clientes no exitosa, continuando...');
+      }
+      
+      console.log('📋 [ClientesManager.init] Paso 2: Renderizando tabla...');
       this.renderClientesTable();
+      console.log('✅ [ClientesManager.init] Tabla renderizada exitosamente');
+      
+      console.log('📋 [ClientesManager.init] Paso 3: Adjuntando eventos...');
       this.attachEvents();
-      console.log('✅ ClientesManager iniciado');
+      console.log('✅ [ClientesManager.init] Eventos adjuntados exitosamente');
+      
+      console.log('✅ [ClientesManager.init] ========== INICIALIZACIÓN COMPLETA ==========');
     } catch (error) {
-      console.error('❌ Error iniciando ClientesManager:', error);
-      this.showError('Error al inicializar manager: ' + error.message);
+      console.error('❌ [ClientesManager.init] Error CRÍTICO durante inicialización:', error);
+      console.error('❌ [ClientesManager.init] Error details:', {
+        code: error.code,
+        message: error.message
+      });
     }
   }
 
@@ -37,15 +54,43 @@ class ClientesManager {
    */
   async loadClientes() {
     try {
+      console.log("📥 [ClientesManager] Iniciando carga de clientes...");
+      console.log("📥 [ClientesManager] Intentando: db.collection('clientes').get()");
+      
       const snapshot = await db.collection('clientes').get();
+      
+      console.log(`✅ [ClientesManager] Query exitosa, documentos encontrados: ${snapshot.size}`);
+      
       this.clientesData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+      
       this.applyFilters();
-      console.log(`📊 Cargados ${this.clientesData.length} clientes`);
+      console.log(`📊 [ClientesManager] Cargados ${this.clientesData.length} clientes`);
+      
+      if (this.clientesData.length === 0) {
+        console.warn(`⚠️ [ClientesManager] ADVERTENCIA: No hay clientes en la colección`);
+      } else {
+        this.clientesData.forEach(c => {
+          console.log(`   📌 Cliente: ${c.nombre} (${c.id}) - Estado: ${c.estado}`);
+        });
+      }
+      
+      return true;
     } catch (error) {
-      console.error('Error cargando clientes:', error);
+      console.error('❌ [ClientesManager] Error cargando clientes:', error);
+      console.error('❌ [ClientesManager] Error code:', error.code);
+      console.error('❌ [ClientesManager] Error message:', error.message);
+      
+      if (error.code === 'permission-denied') {
+        console.error('❌🔐 [ClientesManager] ERROR DE PERMISOS (permission-denied)');
+        console.error('   - Las Firestore rules están denegando acceso');
+        console.error('   - Verifica que el usuario tenga role=admin en custom claims');
+      }
+      
+      this.clientesData = [];
+      this.applyFilters();
       throw error;
     }
   }
@@ -55,13 +100,15 @@ class ClientesManager {
    */
   async getCliente(clienteId) {
     try {
+      console.log(`   📥 Leyendo cliente: clientes/${clienteId}`);
       const doc = await db.collection('clientes').doc(clienteId).get();
       if (doc.exists) {
+        console.log(`   ✅ Cliente encontrado:`, doc.data());
         return { id: doc.id, ...doc.data() };
       }
       throw new Error('Cliente no encontrado');
     } catch (error) {
-      console.error('Error obteniendo cliente:', error);
+      console.error('❌ Error obteniendo cliente:', error);
       throw error;
     }
   }
@@ -71,6 +118,7 @@ class ClientesManager {
    */
   async getClienteSuscripcion(clienteId) {
     try {
+      console.log(`   📥 Buscando suscripción de: ${clienteId}`);
       const snapshot = await db.collection('subscripciones')
         .where('cliente_id', '==', clienteId)
         .where('activa', '==', true)
@@ -78,11 +126,13 @@ class ClientesManager {
         .get();
       
       if (snapshot.docs.length > 0) {
+        console.log(`   ✅ Suscripción encontrada`);
         return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
       }
+      console.log(`   ℹ️ Sin suscripción activa`);
       return null;
     } catch (error) {
-      console.error('Error obteniendo suscripción:', error);
+      console.error('❌ Error obteniendo suscripción:', error);
       return null;
     }
   }
@@ -279,36 +329,68 @@ class ClientesManager {
    * Renderiza tabla de clientes
    */
   renderClientesTable() {
+    console.log('📊 [renderClientesTable] Iniciando renderizado...');
+    
     const container = document.getElementById('clientesTable');
-    if (!container) return;
+    console.log('📊 [renderClientesTable] Div container encontrado:', !!container);
+    
+    if (!container) {
+      console.error('❌ [renderClientesTable] NO ENCONTRÉ el div #clientesTable');
+      return;
+    }
+
+    console.log(`📊 [renderClientesTable] Datos disponibles: ${this.filteredData.length} clientes`);
 
     if (this.filteredData.length === 0) {
+      console.warn('⚠️ [renderClientesTable] No hay clientes para mostrar');
       container.innerHTML = '<div class="alert alert-info"><i class="bi bi-info-circle"></i> No hay clientes</div>';
       return;
     }
 
-    const rows = this.filteredData.map(c => `
-      <tr>
-        <td><strong>${c.nombre}</strong><br/><small class="text-muted">${c.id}</small></td>
-        <td>${c.email}</td>
-        <td><span class="badge bg-info">${c.plan}</span></td>
-        <td><span class="badge ${c.estado === 'activo' ? 'bg-success' : 'bg-warning'}">${c.estado}</span></td>
-        <td>${formatDate(c.created_at)}</td>
-        <td>
-          <button class="btn btn-sm btn-primary" onclick="clientesManager.handleVerCliente('${c.id}')"><i class="bi bi-eye"></i></button>
-          <button class="btn btn-sm btn-warning" onclick="clientesManager.handleEditarCliente('${c.id}')"><i class="bi bi-pencil"></i></button>
-          <button class="btn btn-sm btn-${c.estado === 'activo' ? 'outline-danger' : 'outline-success'}" onclick="clientesManager.handleToggleSuspender('${c.id}')"><i class="bi bi-${c.estado === 'activo' ? 'pause' : 'play'}"></i></button>
-          <button class="btn btn-sm btn-danger" onclick="clientesManager.handleEliminarCliente('${c.id}', '${c.nombre}')"><i class="bi bi-trash"></i></button>
-        </td>
-      </tr>
-    `).join('');
+    console.log('📊 [renderClientesTable] Generando filas de tabla...');
+    const rows = this.filteredData.map(c => {
+      try {
+        const createdDate = c.created_at || c.createdAt || c.fecha_creacion || null;
+        const estado = c.estado || 'activo';
+        const plan = c.plan || 'N/A';
+        
+        return `
+          <tr>
+            <td><strong>${c.nombre || 'Sin nombre'}</strong><br/><small class="text-muted">${c.id}</small></td>
+            <td>${c.email || '-'}</td>
+            <td><span class="badge bg-info">${plan}</span></td>
+            <td><span class="badge ${estado === 'activo' ? 'bg-success' : 'bg-warning'}">${estado}</span></td>
+            <td>${formatDate(createdDate)}</td>
+            <td>
+              <button class="btn btn-sm btn-primary" onclick="clientesManager.handleVerCliente('${c.id}')"><i class="bi bi-eye"></i></button>
+              <button class="btn btn-sm btn-warning" onclick="clientesManager.handleEditarCliente('${c.id}')"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-sm btn-${estado === 'activo' ? 'outline-danger' : 'outline-success'}" onclick="clientesManager.handleToggleSuspender('${c.id}')"><i class="bi bi-${estado === 'activo' ? 'pause' : 'play'}"></i></button>
+              <button class="btn btn-sm btn-danger" onclick="clientesManager.handleEliminarCliente('${c.id}', '${c.nombre}')"><i class="bi bi-trash"></i></button>
+            </td>
+          </tr>
+        `;
+      } catch (error) {
+        console.error(`⚠️ Error renderizando cliente ${c.id}:`, error);
+        return `
+          <tr>
+            <td><strong>${c.nombre || 'Error'}</strong></td>
+            <td colspan="5" class="text-danger">Error renderizando fila</td>
+          </tr>
+        `;
+      }
+    }).join('');
 
-    container.innerHTML = `
+    console.log(`📊 [renderClientesTable] ${rows.split('<tr>').length - 1} filas generadas`);
+    
+    const html = `
       <table class="table table-striped table-hover">
         <thead><tr><th>Nombre</th><th>Email</th><th>Plan</th><th>Estado</th><th>Creado</th><th>Acciones</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     `;
+    
+    container.innerHTML = html;
+    console.log('✅ [renderClientesTable] Tabla renderizada exitosamente');
   }
 
   /**
@@ -430,11 +512,24 @@ class ClientesManager {
    */
   async handleVerCliente(clienteId) {
     try {
+      console.log(`👁️ [handleVerCliente] Abriendo detalle de cliente: ${clienteId}`);
+      
+      console.log('   1️⃣ Obteniendo cliente...');
       const cliente = await this.getCliente(clienteId);
+      console.log('   ✅ Cliente obtenido:', cliente);
+      
+      console.log('   2️⃣ Obteniendo suscripción...');
       const suscripcion = await this.getClienteSuscripcion(clienteId);
+      console.log('   ✅ Suscripción obtenida:', suscripcion);
+      
       this.currentCliente = cliente;
+      
+      console.log('   3️⃣ Mostrando modal...');
       this.showClienteDetailModal(cliente, suscripcion);
+      console.log('   ✅ Modal mostrado');
+      
     } catch (error) {
+      console.error(`❌ [handleVerCliente] Error:`, error);
       this.showError('Error: ' + error.message);
     }
   }
@@ -450,28 +545,104 @@ class ClientesManager {
       ? `${suscripcion.plan.toUpperCase()} - Vence: ${formatDate(suscripcion.expiration_date)}`
       : 'Sin suscripción activa';
 
-    content.innerHTML = `
-      <div class="card">
-        <div class="card-header bg-primary text-white"><h5 class="mb-0">${cliente.nombre}</h5></div>
+    // Obtener credenciales - pueden estar en diferentes campos
+    const email_acceso = cliente.email_admin || cliente.email || 'no disponible';
+    const contraseña = cliente.contraseña || cliente.password || cliente.contraseña_temporal || '(generada al crear)';
+    const url_acceso = cliente.url_acceso || 'https://trafico-map-general-v2.web.app/client/';
+
+    const credentialsHTML = `
+      <div class="card mb-3 border-primary">
+        <div class="card-header bg-primary text-white">
+          <h6 class="mb-0">🔐 Acceso al Panel de Cliente</h6>
+        </div>
         <div class="card-body">
-          <div class="row mb-3">
-            <div class="col-md-6"><strong>ID:</strong> ${cliente.id}</div>
-            <div class="col-md-6"><strong>Email:</strong> ${cliente.email}</div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-md-6"><strong>Ciudad:</strong> ${cliente.ciudad || '-'}</div>
-            <div class="col-md-6"><strong>Teléfono:</strong> ${cliente.telefono || '-'}</div>
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <small class="text-muted">Email (Usuario):</small><br/>
+              <code class="bg-light p-2 d-block copy-email">${email_acceso}</code>
+            </div>
+            <div class="col-md-6">
+              <small class="text-muted">Contraseña:</small><br/>
+              <code class="bg-light p-2 d-block copy-password">${contraseña}</code>
+            </div>
           </div>
           <div class="row">
-            <div class="col-md-6"><strong>Estado:</strong> <span class="badge bg-${cliente.estado === 'activo' ? 'success' : 'warning'}">${cliente.estado}</span></div>
-            <div class="col-md-6"><strong>Suscripción:</strong> <span class="badge bg-info">${sub_text}</span></div>
+            <div class="col-12">
+              <small class="text-muted">URL de Acceso:</small><br/>
+              <code class="bg-light p-2 d-block">${url_acceso}</code>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-12">
+              <button class="btn btn-sm btn-primary btn-copy-email">
+                <i class="bi bi-clipboard"></i> Copiar Email
+              </button>
+              <button class="btn btn-sm btn-primary btn-copy-password">
+                <i class="bi bi-clipboard"></i> Copiar Contraseña
+              </button>
+              <a href="${url_acceso}" target="_blank" class="btn btn-sm btn-success">
+                <i class="bi bi-arrow-up-right"></i> Ir al Panel
+              </a>
+            </div>
           </div>
         </div>
       </div>
     `;
 
+    content.innerHTML = credentialsHTML + `
+      <div class="card">
+        <div class="card-header bg-primary text-white"><h5 class="mb-0">${cliente.nombre}</h5></div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-6"><strong>ID:</strong> ${cliente.id}</div>
+            <div class="col-md-6"><strong>Email Admin:</strong> ${cliente.email}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6"><strong>Ciudad:</strong> ${cliente.ciudad || '-'}</div>
+            <div class="col-md-6"><strong>Teléfono:</strong> ${cliente.telefono || '-'}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6"><strong>Plan:</strong> <span class="badge bg-info">${cliente.plan || 'N/A'}</span></div>
+            <div class="col-md-6"><strong>Estado:</strong> <span class="badge bg-${cliente.estado === 'activo' ? 'success' : 'warning'}">${cliente.estado}</span></div>
+          </div>
+          <div class="row">
+            <div class="col-12"><strong>Suscripción:</strong> <span class="badge bg-info">${sub_text}</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Agregar event listeners
+    const btnCopyEmail = content.querySelector('.btn-copy-email');
+    const btnCopyPassword = content.querySelector('.btn-copy-password');
+    
+    if (btnCopyEmail) {
+      btnCopyEmail.addEventListener('click', () => {
+        navigator.clipboard.writeText(email_acceso);
+        alert('✅ Email copiado');
+      });
+    }
+    
+    if (btnCopyPassword) {
+      btnCopyPassword.addEventListener('click', () => {
+        navigator.clipboard.writeText(contraseña);
+        alert('✅ Contraseña copiada');
+      });
+    }
+
     const modal = document.getElementById('modalClienteDetail');
-    if (modal) modal.style.display = 'block';
+    if (modal) {
+      console.log('✅ [showClienteDetailModal] Mostrando modal...');
+      try {
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+        console.log('✅ [showClienteDetailModal] Modal mostrado correctamente');
+      } catch (error) {
+        console.error('❌ Error mostrando modal:', error);
+      }
+    } else {
+      console.error('❌ [showClienteDetailModal] NO ENCONTRÉ #modalClienteDetail');
+    }
   }
 
   /**

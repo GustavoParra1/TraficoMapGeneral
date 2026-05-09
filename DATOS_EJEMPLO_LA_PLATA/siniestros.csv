@@ -1,0 +1,51 @@
+fecha,hora,tipo,causa,participantes,barrio,calle,numero,lat,lng,gravedad,lesionados,fallecidos
+2025-05-08,08:30,Choque,Exceso de Velocidad,Auto/Moto,Centro,Calle 7,500,-34.9210,-57.9550,Media,2,0
+2025-05-08,10:15,Choque,No Respeto Semáforo,Auto/Auto,Centro,Calle 8,512,-34.9215,-57.9545,Leve,1,0
+2025-05-08,12:45,Atropello,Peatón Imprudente,Auto/Peatón,Centro,Calle 9,525,-34.9220,-57.9540,Grave,1,0
+2025-05-08,14:20,Choque,Distracción,Moto/Moto,Centro,Calle 10,530,-34.9225,-57.9535,Leve,1,0
+2025-05-08,16:00,Vuelco,Pierde Control,Camión,Centro,Calle 11,545,-34.9230,-57.9530,Grave,0,0
+2025-05-08,18:30,Choque,No Respeto Semáforo,Auto/Auto,Nordelta,Calle 1,100,-34.9050,-57.9550,Media,2,0
+2025-05-08,09:00,Atropello,Peatón Imprudente,Auto/Peatón,Nordelta,Calle 2,115,-34.9055,-57.9545,Leve,1,0
+2025-05-08,11:30,Choque,Exceso de Velocidad,Auto/Moto,Nordelta,Calle 3,220,-34.9060,-57.9540,Media,2,0
+2025-05-08,13:45,Choque,Distracción,Moto/Moto,Nordelta,Calle 4,330,-34.9065,-57.9535,Leve,1,0
+2025-05-08,15:15,Vuelco,Invasión de Carril,Auto,Nordelta,Ave 7,4500,-34.9080,-57.9520,Grave,1,0
+2025-05-08,07:45,Choque,No Respeto Semáforo,Auto/Auto,Sur,Calle 50,1500,-34.9350,-57.9550,Media,2,0
+2025-05-08,09:30,Atropello,Peatón Imprudente,Auto/Peatón,Sur,Calle 51,1620,-34.9355,-57.9545,Grave,2,1
+2025-05-08,11:00,Choque,Exceso de Velocidad,Moto/Auto,Sur,Calle 52,1800,-34.9360,-57.9540,Media,1,0
+2025-05-08,13:15,Choque,Distracción,Auto/Auto,Sur,Calle 53,2100,-34.9365,-57.9535,Leve,1,0
+2025-05-08,15:30,Vuelco,Pierde Control,Camión,Sur,Ave 11,3500,-34.9380,-57.9520,Grave,0,0
+2025-05-08,17:00,Choque,No Respeto prioridad,Auto/Moto,Oeste,Diagonal 80,8900,-34.9210,-57.9700,Media,2,0
+2025-05-08,08:45,Atropello,Peatón Imprudente,Auto/Peatón,Oeste,Diagonal 81,9100,-34.9215,-57.9705,Leve,1,0
+2025-05-08,10:30,Choque,Exceso de Velocidad,Auto/Auto,Oeste,Calle 32,3200,-34.9220,-57.9710,Media,2,0
+2025-05-08,12:15,Choque,Distracción,Moto/Auto,Oeste,Calle 33,3300,-34.9225,-57.9715,Leve,1,0
+2025-05-08,14:45,Vuelco,Invasión de Carril,Auto,Oeste,Calle 34,3400,-34.9230,-57.9720,Grave,1,0
+2025-05-08,16:30,Choque,No Respeto Semáforo,Auto/Auto,Este,Calle 100,10000,-34.9210,-57.9400,Media,2,0
+2025-05-08,09:15,Atropello,Peatón Imprudente,Auto/Peatón,Este,Calle 101,10100,-34.9215,-57.9395,Grave,1,0
+2025-05-08,11:45,Choque,Exceso de Velocidad,Moto/Moto,Este,Calle 102,10200,-34.9220,-57.9390,Media,2,0
+2025-05-08,13:30,Choque,Distracción,Auto/Auto,Este,Calle 103,10300,-34.9225,-57.9385,Leve,1,0
+2025-05-08,15:00,Vuelco,Pierde Control,Camión,Este,Ave 19,5000,-34.9235,-57.9375,Grave,0,0
+2025-05-08,17:15,Choque,Maniobra Riesgosa,Auto/Moto,Centro,Diagonal 73,7300,-34.9235,-57.9525,Media,2,0
+2025-05-08,08:00,Atropello,Peatón Imprudente,Auto/Peatón,Centro,Diagonal 74,7400,-34.9240,-57.9520,Leve,1,0
+2025-05-08,10:00,Choque,No Respeto Semáforo,Auto/Auto,Centro,Diagonal 75,7500,-34.9245,-57.9515,Media,2,0
+2025-05-08,12:30,Choque,Distracción,Moto/Auto,Centro,Plaza Moreno,9999,-34.9212,-57.9548,Leve,1,0
+2025-05-08,14:00,Vuelco,Invasión de Carril,Auto,Centro,Catedral,8888,-34.9218,-57.9542,Grave,1,0
+2025-05-08,16:15,Choque,Exceso de Velocidad,Auto/Auto,Nordelta,Ave 8,5100,-34.9085,-57.9515,Media,2,0
+2025-05-08,09:45,Atropello,Peatón Imprudente,Auto/Peatón,Nordelta,Ave 9,5200,-34.9090,-57.9510,Grave,2,0
+2025-05-08,11:15,Choque,No Respeto Semáforo,Moto/Moto,Nordelta,Ave 10,5300,-34.9095,-57.9505,Leve,1,0
+2025-05-08,13:00,Choque,Distracción,Auto/Auto,Nordelta,Calle 5,510,-34.9070,-57.9530,Media,2,0
+2025-05-08,15:45,Vuelco,Pierde Control,Camión,Nordelta,Calle 6,620,-34.9075,-57.9525,Grave,0,1
+2025-05-08,17:30,Choque,Maniobra Imprudente,Auto/Moto,Sur,Calle 54,2010,-34.9370,-57.9530,Media,2,0
+2025-05-08,08:30,Atropello,Peatón Imprudente,Auto/Peatón,Sur,Calle 55,2120,-34.9375,-57.9525,Leve,1,0
+2025-05-08,10:15,Choque,Exceso de Velocidad,Auto/Auto,Sur,Ave 12,3600,-34.9385,-57.9515,Media,2,0
+2025-05-08,12:45,Choque,No Respeto Semáforo,Moto/Auto,Sur,Ave 13,3700,-34.9390,-57.9510,Leve,1,0
+2025-05-08,14:20,Vuelco,Invasión de Carril,Auto,Sur,Ave 14,3800,-34.9395,-57.9505,Grave,1,0
+2025-05-08,16:00,Choque,Distracción,Auto/Moto,Oeste,Calle 35,3500,-34.9235,-57.9725,Media,2,0
+2025-05-08,09:00,Atropello,Peatón Imprudente,Auto/Peatón,Oeste,Ave 15,5400,-34.9240,-57.9730,Grave,1,0
+2025-05-08,11:30,Choque,No Respeto Semáforo,Auto/Auto,Oeste,Ave 16,5500,-34.9245,-57.9735,Leve,1,0
+2025-05-08,13:45,Choque,Exceso de Velocidad,Moto/Moto,Oeste,Ave 17,5600,-34.9250,-57.9740,Media,2,0
+2025-05-08,15:15,Vuelco,Pierde Control,Camión,Oeste,Ave 18,5700,-34.9255,-57.9745,Grave,0,0
+2025-05-08,17:00,Choque,Maniobra Riesgosa,Auto/Auto,Este,Ave 20,5900,-34.9240,-57.9370,Media,2,0
+2025-05-08,08:45,Atropello,Peatón Imprudente,Auto/Peatón,Este,Ave 21,6000,-34.9245,-57.9365,Leve,1,0
+2025-05-08,10:30,Choque,Distracción,Auto/Moto,Este,Ave 22,6100,-34.9250,-57.9360,Media,2,0
+2025-05-08,12:15,Choque,No Respeto Semáforo,Auto/Auto,Este,Ave 23,6200,-34.9255,-57.9355,Leve,1,0
+2025-05-08,14:45,Vuelco,Invasión de Carril,Auto,Este,Calle 104,10400,-34.9230,-57.9380,Grave,1,0

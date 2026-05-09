@@ -280,25 +280,55 @@
     // Load Firebase Config
     let firebaseConfig = null;
 
+    // Intentar cargar desde config.json primero
     fetch('config.json')
-      .then(res => res.json())
+      .then(async res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(config => {
-        firebaseConfig = config.firebase;
-        console.log('✅ Firebase config loaded:', firebaseConfig.projectId);
+        console.log('📋 Config loaded from JSON');
         
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-          firebase.initializeApp(firebaseConfig);
-          console.log('✅ Firebase initialized');
+        if (!config.firebase) {
+          throw new Error('Firebase config not found in config.json');
         }
         
-        // Initialize auth manager
-        AuthManager.init(firebase.auth());
+        firebaseConfig = config.firebase;
+        console.log('✅ Firebase config loaded from file:', firebaseConfig.projectId);
+        initializeFirebase();
       })
       .catch(err => {
-        console.error('❌ Config load error:', err);
-        showError('Error al cargar configuración: ' + err.message);
+        console.warn('⚠️ Could not load config.json, using hardcoded values:', err.message);
+        // Fallback: usar configuración hardcodeada
+        firebaseConfig = {
+          apiKey: "AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA",
+          authDomain: "trafico-map-general-v2.firebaseapp.com",
+          projectId: "trafico-map-general-v2",
+          storageBucket: "trafico-map-general-v2.firebasestorage.app",
+          messagingSenderId: "540631719751",
+          appId: "1:540631719751:web:bd410f1bbee18e9fabb662"
+        };
+        console.log('✅ Firebase config loaded from hardcoded values');
+        initializeFirebase();
       });
+
+    function initializeFirebase() {
+      // Initialize Firebase
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+        console.log('✅ Firebase initialized');
+      }
+      
+      // Initialize auth manager with LOGIN MODE (true parameter)
+      AuthManager.init(firebase.auth(), true);
+    }
+
+    // Limpiar listeners cuando se cierre la pestaña de login
+    window.addEventListener('beforeunload', () => {
+      AuthManager.cleanup();
+    });
 
     // Form submission
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -325,6 +355,22 @@
       
       try {
         const result = await AuthManager.login(email, password);
+        
+        // Guardar custom claims en localStorage para uso en otras páginas
+        try {
+          const idTokenResult = await result.user.getIdTokenResult(true); // Force refresh para obtener custom claims actualizados
+          console.log('🔍 Custom claims obtenidos:', idTokenResult.claims);
+          if (idTokenResult.claims.clienteId) {
+            localStorage.setItem('clienteId', idTokenResult.claims.clienteId);
+            console.log('✅ clienteId guardado:', idTokenResult.claims.clienteId);
+          }
+          if (idTokenResult.claims.rol) {
+            localStorage.setItem('rol', idTokenResult.claims.rol);
+            console.log('✅ rol guardado:', idTokenResult.claims.rol);
+          }
+        } catch (err) {
+          console.warn('⚠️ No se pudieron guardar custom claims:', err);
+        }
         
         showSuccess('¡Sesión iniciada! Redirigiendo...');
         

@@ -4,9 +4,25 @@
 // Formatear fecha
 function formatDate(date) {
   if (!date) return "-";
-  if (typeof date === "string") {
+  
+  // Si es un Timestamp de Firestore (tiene método toDate)
+  if (typeof date === "object" && date.toDate) {
+    date = date.toDate();
+  }
+  // Si es un string, convertir a Date
+  else if (typeof date === "string") {
     date = new Date(date);
   }
+  // Si es un número (milisegundos desde epoch)
+  else if (typeof date === "number") {
+    date = new Date(date);
+  }
+  
+  // Validar que sea una Date válida
+  if (!(date instanceof Date) || isNaN(date)) {
+    return "-";
+  }
+  
   return date.toLocaleDateString("es-AR", {
     year: "numeric",
     month: "short",
@@ -46,13 +62,15 @@ function capitalize(str) {
 
 // Badge de estado
 function getStatusBadge(status) {
+  if (!status) status = "indefinido";
   const badges = {
     "activo": "badge bg-success",
     "inactivo": "badge bg-secondary",
     "suspendido": "badge bg-warning",
     "cancelado": "badge bg-danger",
     "proximo_a_vencer": "badge bg-warning",
-    "vencido": "badge bg-danger"
+    "vencido": "badge bg-danger",
+    "indefinido": "badge bg-light text-dark"
   };
   const badgeClass = badges[status] || "badge bg-secondary";
   return `<span class="${badgeClass}">${capitalize(status.replace(/_/g, " "))}</span>`;
