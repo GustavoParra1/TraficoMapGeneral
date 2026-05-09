@@ -970,6 +970,18 @@ const SiniestrosLayer = (() => {
         setFilter('street', e.target.value);
       });
     }
+
+    // Adjuntar listener a botón de limpiar filtros
+    const clearBtn = document.getElementById('clear-filters-btn');
+    if (clearBtn) {
+      console.log('✅ Listener adjuntado a #clear-filters-btn');
+      clearBtn.addEventListener('click', () => {
+        console.log('🧹 BOTÓN LIMPIAR FILTROS CLICKEADO');
+        clearFilters();
+      });
+    } else {
+      console.error('❌ #clear-filters-btn NO ENCONTRADO en DOM');
+    }
     
     console.log('✅ setupFilterListeners() COMPLETADO');
   }
