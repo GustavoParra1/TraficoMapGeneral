@@ -492,6 +492,7 @@ if (!isClientMode && !isClientSessionRestored) {
   });
 } else {
   console.log('🔓 Modo cliente o sesión restaurada: Permitiendo acceso sin autenticación');
+  // En modo cliente, NO ejecutar onAuthStateChanged - simplemente permite acceso
 }
 </script>
 
