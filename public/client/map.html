@@ -470,6 +470,10 @@ const urlParams = window.urlParams;
 const clientCityName = urlParams.get('city');
 const isClientMode = clientCityName !== null || isClientSessionRestored;
 
+// Guardar en window para que app.js pueda leerlo
+window.isClientMode = isClientMode;
+window.clientCityName = clientCityName;
+
 console.log('🔐 Verificación de autenticación - Modo cliente:', isClientMode ? 'SÍ' : 'NO');
 if (isClientMode) {
   if (clientCityName) {
@@ -524,7 +528,7 @@ if (!isClientMode && !isClientSessionRestored) {
 <script src="../js/patrulla-layer.js?v=20260509024"></script>
 <script src="../js/patrulla-chat.js?v=20260509024"></script>
 <script src="../testing-patrullas.js?v=20260509024"></script>
-<script src="../js/app.js?v=20260509026"></script>
+<script src="../js/app.js?v=20260510003"></script>
 
 </body>
 </html>

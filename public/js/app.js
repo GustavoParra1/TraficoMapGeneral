@@ -80,13 +80,16 @@ function iniciarMapa() {
 // ============================
 // CONFIGURACIÓN DE CIUDADES
 // ============================
-let currentCity = 'mar-del-plata'; // Cambiar a mar-del-plata para usar datos reales con propiedades LPR
+// Actualizar currentCity desde window.clientCityName (establecido en map.html)
+let currentCity = (window.clientCityName || '').toLowerCase().replace(/\s+/g, '-') || 'mar-del-plata';
+console.log(`📍 [APP.JS INIT] currentCity establecido a: "${currentCity}" (desde window.clientCityName="${window.clientCityName}")`);
+
 let citiesConfig = null;
 let patullaLayer = null; // Módulo de patrullas
 
 async function loadCitiesConfig() {
   try {
-    const response = await fetch('data/cities-config.json');
+    const response = await fetch('/data/cities-config.json');
     citiesConfig = await response.json();
     console.log('✅ Configuración de ciudades cargada');
     return citiesConfig;
@@ -3111,11 +3114,31 @@ const setupImportCities = () => {
 // Inicializar mapa al cargar
 iniciarMapa();
 
+// EN MODO CLIENTE: Ocultar selector de ciudad y botón de importar
+if (window.isClientMode) {
+  console.log('🔒 Modo cliente detectado - Ocultando UI de admin');
+  const citySelector = document.getElementById('city-selector');
+  const btnImportCity = document.getElementById('btn-import-city');
+  if (citySelector) {
+    citySelector.style.display = 'none';
+    console.log('  ✓ Selector de ciudad ocultado');
+  }
+  if (btnImportCity) {
+    btnImportCity.style.display = 'none';
+    console.log('  ✓ Botón importar ciudad ocultado');
+  }
+}
+
 // Inicializar sistema de importación de ciudades (CON DELAY para asegurar que el sidebar esté listo)
-setTimeout(() => {
-  console.log('⏳ Ejecutando setupImportCities() después del delay');
-  setupImportCities();
-}, 1000);
+// ⚠️ Solo en modo NO-cliente
+if (!window.isClientMode) {
+  setTimeout(() => {
+    console.log('⏳ Ejecutando setupImportCities() después del delay');
+    setupImportCities();
+  }, 1000);
+} else {
+  console.log('🔒 Saltando setupImportCities() - Modo cliente activo');
+}
 
 // ============================
 // TOGGLE DE STREET VIEW
