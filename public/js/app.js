@@ -755,6 +755,7 @@ auth.onAuthStateChanged((user) => {
         </select>
       </div>
 
+      ${!window.isClientMode ? `
       <div class="sidebar-section">
         <div class="sidebar-title">Ciudad</div>
         <select id="city-selector" style="width: 100%; padding: 10px; border: 2px solid #0066ff; border-radius: 4px; background-color: #fff; color: #333; font-size: 13px; font-weight: 500;">
@@ -770,6 +771,7 @@ auth.onAuthStateChanged((user) => {
           ➕ Importar Nueva Ciudad
         </button>
       </div>
+      ` : ''}
       
       <div class="sidebar-section">
         <div class="sidebar-title">🗺️ Buscar Dirección</div>
@@ -3113,21 +3115,6 @@ const setupImportCities = () => {
 
 // Inicializar mapa al cargar
 iniciarMapa();
-
-// EN MODO CLIENTE: Ocultar selector de ciudad y botón de importar
-if (window.isClientMode) {
-  console.log('🔒 Modo cliente detectado - Ocultando UI de admin');
-  const citySelector = document.getElementById('city-selector');
-  const btnImportCity = document.getElementById('btn-import-city');
-  if (citySelector) {
-    citySelector.style.display = 'none';
-    console.log('  ✓ Selector de ciudad ocultado');
-  }
-  if (btnImportCity) {
-    btnImportCity.style.display = 'none';
-    console.log('  ✓ Botón importar ciudad ocultado');
-  }
-}
 
 // Inicializar sistema de importación de ciudades (CON DELAY para asegurar que el sidebar esté listo)
 // ⚠️ Solo en modo NO-cliente
