@@ -526,6 +526,15 @@ const GeoLocator = (() => {
     console.log('✅ Configuración de ciudades cargada en GeoLocator:', Object.keys(config || {}).length, 'ciudades');
   };
 
+  /**
+   * Cambia la ciudad actual (sin recargar datos locales)
+   * Útil para cambiar la ciudad en búsquedas de Google Maps
+   */
+  const setCity = (city) => {
+    currentCity = city;
+    console.log(`🏙️ Ciudad cambiada en GeoLocator: ${city}`);
+  };
+
   return {
     init,
     loadAddresses,
@@ -537,7 +546,8 @@ const GeoLocator = (() => {
     getSearchRadius: () => SEARCH_RADIUS_KM,
     getIndex: () => addressIndex,
     getAllAddresses: () => addressIndex.map(a => a.original),
-    setCitiesConfig
+    setCitiesConfig,
+    setCity
   };
 })();
 
