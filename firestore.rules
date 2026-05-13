@@ -111,6 +111,26 @@ service cloud.firestore {
         allow read: if true; // Lectura pública (autenticación en JS)
         allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
       }
+
+      match /colegios/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      }
+      
+      match /corredores/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      }
+
+      match /flujo/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      }
+      
+      match /lineas/{doc=**} {
+        allow read: if true; // Lectura pública (autenticación en JS)
+        allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      }
       
       match /operadores/{doc=**} {
         allow read: if true; // Lectura pública (autenticación en JS)
