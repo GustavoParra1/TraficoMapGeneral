@@ -346,6 +346,7 @@ class ClientDashboard {
                 <div class="d-flex gap-2 mb-2">
                   <label class="form-label mb-0"><strong>Semáforos</strong></label>
                   <button class="btn btn-sm btn-outline-secondary help-btn" data-help="semaforos" style="padding: 0 6px; font-size: 12px;">?</button>
+                  <button class="btn btn-sm btn-outline-danger clear-btn" data-collection="semaforos" style="padding: 2px 6px; font-size: 11px;">🗑️ Limpiar</button>
                 </div>
                 <div class="upload-area" id="uploadSemafor">
                   <p><i class="bi bi-traffic-light" style="font-size: 28px; color: #ffc107;"></i></p>
@@ -360,6 +361,7 @@ class ClientDashboard {
                 <div class="d-flex gap-2 mb-2">
                   <label class="form-label mb-0"><strong>Colegios / Escuelas</strong></label>
                   <button class="btn btn-sm btn-outline-secondary help-btn" data-help="colegios" style="padding: 0 6px; font-size: 12px;">?</button>
+                  <button class="btn btn-sm btn-outline-danger clear-btn" data-collection="colegios" style="padding: 2px 6px; font-size: 11px;">🗑️ Limpiar</button>
                 </div>
                 <div class="upload-area" id="uploadColegios">
                   <p><i class="bi bi-building" style="font-size: 28px; color: #6f42c1;"></i></p>
@@ -374,6 +376,7 @@ class ClientDashboard {
                 <div class="d-flex gap-2 mb-2">
                   <label class="form-label mb-0"><strong>Corredores Escolares</strong></label>
                   <button class="btn btn-sm btn-outline-secondary help-btn" data-help="corredores" style="padding: 0 6px; font-size: 12px;">?</button>
+                  <button class="btn btn-sm btn-outline-danger clear-btn" data-collection="corredores" style="padding: 2px 6px; font-size: 11px;">🗑️ Limpiar</button>
                 </div>
                 <div class="upload-area" id="uploadCorredores">
                   <p><i class="bi bi-pentagon" style="font-size: 28px; color: #20c997;"></i></p>
@@ -388,6 +391,7 @@ class ClientDashboard {
                 <div class="d-flex gap-2 mb-2">
                   <label class="form-label mb-0"><strong>Flujo Vehicular</strong></label>
                   <button class="btn btn-sm btn-outline-secondary help-btn" data-help="flujo" style="padding: 0 6px; font-size: 12px;">?</button>
+                  <button class="btn btn-sm btn-outline-danger clear-btn" data-collection="flujo" style="padding: 2px 6px; font-size: 11px;">🗑️ Limpiar</button>
                 </div>
                 <div class="upload-area" id="uploadFlujo">
                   <p><i class="bi bi-diagram-3" style="font-size: 28px; color: #fd7e14;"></i></p>
@@ -402,6 +406,7 @@ class ClientDashboard {
                 <div class="d-flex gap-2 mb-2">
                   <label class="form-label mb-0"><strong>Robo Automotor</strong></label>
                   <button class="btn btn-sm btn-outline-secondary help-btn" data-help="robo" style="padding: 0 6px; font-size: 12px;">?</button>
+                  <button class="btn btn-sm btn-outline-danger clear-btn" data-collection="robo" style="padding: 2px 6px; font-size: 11px;">🗑️ Limpiar</button>
                 </div>
                 <div class="upload-area" id="uploadRobo">
                   <p><i class="bi bi-car-front" style="font-size: 28px; color: #e83e8c;"></i></p>
@@ -416,6 +421,7 @@ class ClientDashboard {
                 <div class="d-flex gap-2 mb-2">
                   <label class="form-label mb-0"><strong>Líneas de Colectivos</strong></label>
                   <button class="btn btn-sm btn-outline-secondary help-btn" data-help="colectivos" style="padding: 0 6px; font-size: 12px;">?</button>
+                  <button class="btn btn-sm btn-outline-danger clear-btn" data-collection="colectivos" style="padding: 2px 6px; font-size: 11px;">🗑️ Limpiar</button>
                 </div>
                 <div class="upload-area" id="uploadColectivos">
                   <p><i class="bi bi-bus-front" style="font-size: 28px; color: #0dcaf0;"></i></p>
