@@ -141,6 +141,32 @@ class ClientAuth {
     console.log("✅ Cliente autenticado:", clienteData.nombre);
     this.clientData = clienteData;
     
+    // ✅ INICIALIZAR FIREBASE DEL CLIENTE
+    try {
+      if (clienteData.firebase_cliente) {
+        console.log("🔥 Inicializando Firebase del cliente...");
+        const clientFirebaseConfig = clienteData.firebase_cliente;
+        
+        // Crear nueva instancia de Firebase para el cliente
+        if (!this.clientFirebaseApp) {
+          this.clientFirebaseApp = firebase.initializeApp(clientFirebaseConfig, `client-${clienteId}`);
+          console.log("✅ Nueva instancia de Firebase creada para cliente");
+        }
+        
+        // Obtener references de esta instancia
+        this.clientDb = this.clientFirebaseApp.firestore();
+        this.clientAuth = this.clientFirebaseApp.auth();
+        
+        console.log("✅ Firestore del cliente inicializado correctamente");
+      } else {
+        console.warn("⚠️ No hay credenciales firebase_cliente guardadas");
+      }
+    } catch (error) {
+      console.error("❌ Error inicializando Firebase del cliente:", error.message);
+      this.showError("Error al conectar con los datos: " + error.message);
+      return;
+    }
+    
     // Mostrar panel del cliente
     this.showClientPanel();
     
