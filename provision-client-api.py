@@ -74,6 +74,19 @@ def create_client():
         
         # ===== PASO 2: Crear documento en /clientes
         print(f"   📄 Creando documento cliente en Firestore...")
+        
+        # ⭐ CREDENCIALES DE FIREBASE COMPARTIDAS (trafico-map-general-v2)
+        # Todos los clientes usan el mismo Firebase pero datos aislados en clientes/{clienteId}
+        firebase_cliente_config = {
+            'apiKey': 'AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA',
+            'authDomain': 'trafico-map-general-v2.firebaseapp.com',
+            'projectId': 'trafico-map-general-v2',
+            'storageBucket': 'trafico-map-general-v2.firebasestorage.app',
+            'messagingSenderId': '540631719751',
+            'appId': '1:540631719751:web:bd410f1bbee18e9fabb662',
+            'databaseURL': 'https://trafico-map-general-v2-default-rtdb.firebaseio.com'
+        }
+        
         cliente_doc = {
             'id': cliente_id,
             'nombre': nombre,
@@ -86,9 +99,11 @@ def create_client():
             'lng': lng,
             'created_at': datetime.now(),
             'updated_at': datetime.now(),
+            'firebase_cliente': firebase_cliente_config,  # ⭐ AGREGADO: Credenciales para map.html
         }
         db.collection('clientes').document(cliente_id).set(cliente_doc)
         print(f"   ✅ Documento cliente creado")
+        print(f"   ✅ firebase_cliente agregado")
         
         # ===== PASO 3: Asignar custom claims
         print(f"   🔑 Asignando custom claims...")

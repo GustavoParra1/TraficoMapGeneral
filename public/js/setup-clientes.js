@@ -7,27 +7,39 @@ async function setupClientesCollection() {
   try {
     console.log('🔧 ===== INICIANDO SETUP DE CLIENTES =====');
     
+    // ⭐ CREDENCIALES COMPARTIDAS DE FIREBASE
+    // Todos los clientes usan el mismo Firebase pero datos aislados en clientes/{clienteId}
+    const firebaseClienteConfig = {
+      apiKey: 'AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA',
+      authDomain: 'trafico-map-general-v2.firebaseapp.com',
+      projectId: 'trafico-map-general-v2',
+      storageBucket: 'trafico-map-general-v2.firebasestorage.app',
+      messagingSenderId: '540631719751',
+      appId: '1:540631719751:web:bd410f1bbee18e9fabb662',
+      databaseURL: 'https://trafico-map-general-v2-default-rtdb.firebaseio.com'
+    };
+    
     // Datos de prueba
     const clientesData = [
       {
         email: 'admin@laplatamaps.com.ar',
         ciudad: 'la-plata',
         rol: 'cliente',
-        firebase_config: null,
+        firebase_cliente: firebaseClienteConfig,
         nombre: 'La Plata Maps'
       },
       {
         email: 'cliente@cordoba.com',
         ciudad: 'cordoba',
         rol: 'cliente',
-        firebase_config: null,
+        firebase_cliente: firebaseClienteConfig,
         nombre: 'Córdoba Maps'
       },
       {
         email: 'cliente@mardelplata.com',
         ciudad: 'mar-del-plata',
         rol: 'cliente',
-        firebase_config: null,
+        firebase_cliente: firebaseClienteConfig,
         nombre: 'Mar del Plata Maps'
       }
     ];

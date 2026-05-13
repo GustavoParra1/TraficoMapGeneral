@@ -19,8 +19,8 @@ async function setupTestCliente() {
   try {
     console.log('🚀 Creando cliente de prueba La Plata...\n');
 
-    const clienteId = 'laplatamaps-52a3b';
-    const email = 'admin@laplatamaps.com.ar';
+    const clienteId = 'laplata';
+    const email = 'admin@laplata.com';
 
     // PASO 1: Crear documento cliente en Firestore
     console.log('📝 PASO 1: Creando documento cliente...');
@@ -35,15 +35,16 @@ async function setupTestCliente() {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       
-      // Credenciales de Firebase del cliente
+      // ⭐ CREDENCIALES DE FIREBASE COMPARTIDAS (trafico-map-general-v2)
+      // Todos los clientes usan el mismo Firebase pero datos aislados en clientes/{clienteId}
       firebase_cliente: {
-        apiKey: 'AIzaSyAY2jYGrXdwv3eyH19r8p7sw7iy5V5ApXg',
-        authDomain: 'laplatamaps-52a3b.firebaseapp.com',
-        projectId: 'laplatamaps-52a3b',
-        storageBucket: 'laplatamaps-52a3b.firebasestorage.app',
-        messagingSenderId: '9948736453',
-        appId: '1:9948736453:web:0f607caf88bb9478bdf9ac',
-        databaseURL: 'https://laplatamaps-52a3b-default-rtdb.firebaseio.com'
+        apiKey: 'AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA',
+        authDomain: 'trafico-map-general-v2.firebaseapp.com',
+        projectId: 'trafico-map-general-v2',
+        storageBucket: 'trafico-map-general-v2.firebasestorage.app',
+        messagingSenderId: '540631719751',
+        appId: '1:540631719751:web:bd410f1bbee18e9fabb662',
+        databaseURL: 'https://trafico-map-general-v2-default-rtdb.firebaseio.com'
       },
       
       suscripcion: {
@@ -90,12 +91,12 @@ async function setupTestCliente() {
     console.log(`   Nombre: La Plata`);
     console.log(`   Email: ${email}`);
     console.log(`   Plan: Profesional`);
-    console.log(`   Firebase Project: laplatamaps-52a3b`);
+    console.log(`   Firebase Project: trafico-map-general-v2 (Compartido)`);
     console.log('\n🔑 Credenciales de Firebase guardadas en Firestore');
     console.log('\n🎯 PRÓXIMO PASO:');
     console.log('   1. Entra en: https://trafico-map-general-v2.web.app/client/');
     console.log(`   2. Email: ${email}`);
-    console.log('   3. Contraseña: (la que creaste en laplatamaps-52a3b)');
+    console.log('   3. Contraseña: (la que asignaste)');
     console.log('═══════════════════════════════════════════════════════════════\n');
 
     process.exit(0);

@@ -136,6 +136,18 @@ class MultiTenantAuth {
     try {
       console.log(`📦 Provisionando nuevo cliente: ${clienteData.id}`);
 
+      // ⭐ CREDENCIALES DE FIREBASE COMPARTIDAS (trafico-map-general-v2)
+      // Todos los clientes usan el mismo Firebase pero datos aislados en clientes/{clienteId}
+      const firebaseClienteConfig = {
+        apiKey: 'AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA',
+        authDomain: 'trafico-map-general-v2.firebaseapp.com',
+        projectId: 'trafico-map-general-v2',
+        storageBucket: 'trafico-map-general-v2.firebasestorage.app',
+        messagingSenderId: '540631719751',
+        appId: '1:540631719751:web:bd410f1bbee18e9fabb662',
+        databaseURL: 'https://trafico-map-general-v2-default-rtdb.firebaseio.com'
+      };
+
       // Crear documento cliente
       await db.collection('clientes').doc(clienteData.id).set({
         nombre: clienteData.nombre,
@@ -143,6 +155,7 @@ class MultiTenantAuth {
         email: clienteData.email,
         activo: true,
         createdAt: new Date(),
+        firebase_cliente: firebaseClienteConfig,  // ⭐ AGREGADO: Credenciales para map.html
         config: {
           lat: clienteData.lat || -34.9,
           lng: clienteData.lng || -57.5,
