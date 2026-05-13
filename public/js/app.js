@@ -955,6 +955,12 @@ let authInitialized = false;
 auth.onAuthStateChanged((user) => {
   const sidebar = document.getElementById('sidebar');
   
+  // 🔐 SI ESTAMOS EN MODO CLIENTE CON SESIÓN VÁLIDA: SALTAR LOGIN
+  if (window.isClientMode && window.restoredClienteId) {
+    console.log('🔓 MODO CLIENTE CON SESIÓN: Saltando login de Firebase');
+    return; // Mapa ya cargado, no mostrar login
+  }
+  
   if (!user) {
     // Usuario NO autenticado
     // Solo si es la primera carga, mostrar login
