@@ -100,14 +100,23 @@ async function loadCitiesConfig() {
 // CARGAR DATOS DESDE FIRESTORE DEL CLIENTE
 // ============================
 async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
-  // Si no se proporciona clientDb, intentar usar window.clientDb
-  if (!clientDb && window.clientDb) {
+  // Si no se proporciona clientDb, esperar a que window.clientDb esté disponible
+  if (!clientDb) {
+    // Esperar hasta 5 segundos a que window.clientDb esté disponible
+    let attempts = 0;
+    while (!window.clientDb && attempts < 50) {
+      await new Promise(r => setTimeout(r, 100));
+      attempts++;
+    }
+    
     clientDb = window.clientDb;
-    console.log(`🔥 Usando window.clientDb que fue inicializado en map.html`);
+    if (clientDb) {
+      console.log(`🔥 Usando window.clientDb que fue inicializado en map.html (después de ${attempts * 100}ms)`);
+    }
   }
   
   if (!clientDb) {
-    console.error(`❌ No hay Firestore del cliente disponible`);
+    console.error(`❌ No hay Firestore del cliente disponible después de esperar 5 segundos`);
     return null;
   }
   

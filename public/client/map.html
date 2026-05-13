@@ -520,6 +520,9 @@ async function initializeClientFirebase() {
     let clienteData = window.restoredClienteData;
     let clienteId = window.restoredClienteId;
     
+    console.log(`  📋 restoredClienteData inicial:`, clienteData);
+    console.log(`  📋 clienteId: ${clienteId}`);
+    
     // Si no tenemos firebase_cliente en la sesión restaurada, buscarlo en Firestore
     if (!clienteData || !clienteData.firebase_cliente) {
       console.log('🔍 Buscando datos completos del cliente en Firestore...');
@@ -534,6 +537,10 @@ async function initializeClientFirebase() {
             clienteData = clienteDoc.data();
             window.restoredClienteData = clienteData;
             console.log('✅ Datos del cliente obtenidos desde Firestore:', clienteData.nombre);
+            console.log('  📋 Campos disponibles:', Object.keys(clienteData));
+            console.log('  📋 firebase_cliente está:', !!clienteData.firebase_cliente);
+          } else {
+            console.error('❌ Documento del cliente no encontrado en Firestore:', clienteId);
           }
         } catch (error) {
           console.error('❌ Error obteniendo datos del cliente:', error.message);
@@ -576,6 +583,7 @@ async function initializeClientFirebase() {
       console.log('⚠️ No se pudo obtener las credenciales firebase_cliente');
       console.log(`  - isClientMode: ${window.isClientMode}`);
       console.log(`  - clienteData: ${!!clienteData}`);
+      console.log(`  - clienteData keys: ${clienteData ? Object.keys(clienteData) : 'N/A'}`);
       console.log(`  - firebase_cliente: ${!!clienteData?.firebase_cliente}`);
     }
   } else {
