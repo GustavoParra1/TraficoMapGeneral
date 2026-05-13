@@ -2413,10 +2413,23 @@ auth.onAuthStateChanged((user) => {
     if (addressSearchBtn) {
       addressSearchBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        const query = addressSearchInput.value.trim();
+        let query = addressSearchInput.value.trim();
         if (query.length === 0) {
           addressResults.style.display = 'none';
           return;
+        }
+
+        // Obtener el nombre de la ciudad actual para la búsqueda
+        let cityName = '';
+        if (typeof currentCityConfig !== 'undefined' && currentCityConfig && currentCityConfig.name) {
+          cityName = currentCityConfig.name;
+        } else if (typeof currentCity !== 'undefined' && currentCity) {
+          // Fallback: usar currentCity (id) y capitalizar
+          cityName = currentCity.replace(/-/g, ' ');
+          cityName = cityName.charAt(0).toUpperCase() + cityName.slice(1);
+        }
+        if (cityName && !query.toLowerCase().includes(cityName.toLowerCase())) {
+          query = `${query}, ${cityName}`;
         }
 
         if (typeof GeoLocator === 'undefined') {
