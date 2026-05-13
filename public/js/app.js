@@ -99,6 +99,261 @@ async function loadCitiesConfig() {
   }
 }
 
+// ============================
+// CARGAR DATOS DESDE FIRESTORE DEL CLIENTE
+// ============================
+async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
+  // Si no se proporciona clientDb, intentar usar window.clientDb
+  if (!clientDb && window.clientDb) {
+    clientDb = window.clientDb;
+    console.log(`🔥 Usando window.clientDb que fue inicializado en map.html`);
+  }
+  
+  if (!clientDb) {
+    console.error(`❌ No hay Firestore del cliente disponible`);
+    return null;
+  }
+  
+  console.log(`🔥 Iniciando carga de datos desde Firestore del cliente: ${clienteId}`);
+  
+  try {
+    let bariosGeoJson = null;
+    
+    // Helper para convertir documentos de Firestore a GeoJSON
+    const firestoreColToGeoJSON = (docs, idField = 'id') => {
+      const features = [];
+      docs.forEach(doc => {
+        const data = doc.data();
+        
+        // Si ya es un feature, usarlo directamente
+        if (data.type === 'Feature' && data.geometry) {
+          features.push({
+            ...data,
+            properties: {
+              ...data.properties,
+              _id: doc.id,
+              _docId: doc.id
+            }
+          });
+        } else if (data.lat !== undefined && data.lng !== undefined) {
+          // Convertir documento con lat/lng a Feature
+          features.push({
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [parseFloat(data.lng), parseFloat(data.lat)]
+            },
+            properties: {
+              ...data,
+              _id: doc.id,
+              _docId: doc.id
+            }
+          });
+        }
+      });
+      
+      return {
+        type: 'FeatureCollection',
+        features: features
+      };
+    };
+    
+    // CARGAR BARRIOS
+    try {
+      console.log(`📍 Cargando barrios del cliente...`);
+      const barrios = await clientDb.collection(`clientes/${clienteId}/barrios`).get();
+      if (barrios.size > 0) {
+        bariosGeoJson = firestoreColToGeoJSON(barrios.docs);
+        console.log(`  ✓ ${bariosGeoJson.features.length} barrios cargados`);
+        GeoLayers.loadEmbeddedGeoJson('Zonas / Barrios', bariosGeoJson, false);
+        SiniestrosLayer.setBarriosGeoJson(bariosGeoJson);
+      } else {
+        console.log(`  ℹ️ No hay barrios en la base de datos del cliente`);
+      }
+    } catch (error) {
+      console.warn(`⚠️ Error cargando barrios:`, error.message);
+    }
+    
+    // CARGAR SINIESTROS
+    try {
+      console.log(`📍 Cargando siniestros del cliente...`);
+      const siniestros = await clientDb.collection(`clientes/${clienteId}/siniestros`).get();
+      if (siniestros.size > 0) {
+        const sinGeoJson = firestoreColToGeoJSON(siniestros.docs);
+        console.log(`  ✓ ${sinGeoJson.features.length} siniestros cargados`);
+        SiniestrosLayer.clearFilters();
+        SiniestrosLayer.loadFromGeoJson(sinGeoJson, true);
+        heatmapLayer.setData(sinGeoJson);
+        if (bariosGeoJson) {
+          heatmapLayer.setBarriosGeoJson(bariosGeoJson);
+        }
+      } else {
+        console.log(`  ℹ️ No hay siniestros en la base de datos del cliente`);
+      }
+    } catch (error) {
+      console.warn(`⚠️ Error cargando siniestros:`, error.message);
+    }
+    
+    // CARGAR CÁMARAS PÚBLICAS
+    try {
+      console.log(`📷 Cargando cámaras públicas del cliente...`);
+      const cameras = await clientDb.collection(`clientes/${clienteId}/cameras`).get();
+      if (cameras.size > 0) {
+        const camGeoJson = firestoreColToGeoJSON(cameras.docs);
+        console.log(`  ✓ ${camGeoJson.features.length} cámaras públicas cargadas`);
+        CamerasLayer.clearFilters();
+        await CamerasLayer.loadFromGeoJson(camGeoJson, true);
+        if (bariosGeoJson) {
+          CamerasLayer.setBarriosGeoJson(bariosGeoJson);
+        }
+        // Pasar cámaras a ColectivosLayer
+        if (typeof ColectivosLayer !== 'undefined' && ColectivosLayer.setCamerasData) {
+          ColectivosLayer.setCamerasData(CamerasLayer.getAll());
+        }
+        // Pasar cámaras a LprLayer
+        if (typeof LprLayer !== 'undefined' && LprLayer.setData) {
+          LprLayer.setData(CamerasLayer.getAll());
+        }
+      } else {
+        console.log(`  ℹ️ No hay cámaras públicas en la base de datos del cliente`);
+      }
+    } catch (error) {
+      console.warn(`⚠️ Error cargando cámaras públicas:`, error.message);
+    }
+    
+    // CARGAR CÁMARAS PRIVADAS
+    try {
+      console.log(`📷 Cargando cámaras privadas del cliente...`);
+      const privateCameras = await clientDb.collection(`clientes/${clienteId}/cameras_privadas`).get();
+      if (privateCameras.size > 0) {
+        const privCamGeoJson = firestoreColToGeoJSON(privateCameras.docs);
+        console.log(`  ✓ ${privCamGeoJson.features.length} cámaras privadas cargadas`);
+        PrivateCamerasLayer.clearFilters();
+        PrivateCamerasLayer.loadFromGeoJson(privCamGeoJson, true);
+        if (bariosGeoJson) {
+          PrivateCamerasLayer.setBarriosGeoJson(bariosGeoJson);
+        }
+      } else {
+        console.log(`  ℹ️ No hay cámaras privadas en la base de datos del cliente`);
+      }
+    } catch (error) {
+      console.warn(`⚠️ Error cargando cámaras privadas:`, error.message);
+    }
+    
+    // CARGAR CAPAS OPCIONALES DEL CLIENTE
+    
+    // Semáforos
+    try {
+      console.log(`🚦 Cargando semáforos del cliente...`);
+      const semaforos = await clientDb.collection(`clientes/${clienteId}/semaforos`).get();
+      if (semaforos.size > 0) {
+        const semaforosGeoJson = firestoreColToGeoJSON(semaforos.docs);
+        console.log(`  ✓ ${semaforosGeoJson.features.length} semáforos cargados`);
+        SemaforosLayer.loadFromGeoJson(semaforosGeoJson);
+        if (bariosGeoJson) {
+          SemaforosLayer.setBarriosGeoJson(bariosGeoJson);
+        }
+      }
+    } catch (error) {
+      console.debug(`ℹ️ Semáforos no disponibles:`, error.message);
+    }
+    
+    // Colegios
+    try {
+      console.log(`🏫 Cargando colegios del cliente...`);
+      const colegios = await clientDb.collection(`clientes/${clienteId}/colegios_escuelas`).get();
+      if (colegios.size > 0) {
+        const colegiosGeoJson = firestoreColToGeoJSON(colegios.docs);
+        console.log(`  ✓ ${colegiosGeoJson.features.length} colegios cargados`);
+        ColegiosLayer.loadFromGeoJson(colegiosGeoJson);
+        if (bariosGeoJson) {
+          ColegiosLayer.setBarriosGeoJson(bariosGeoJson);
+        }
+      }
+    } catch (error) {
+      console.debug(`ℹ️ Colegios no disponibles:`, error.message);
+    }
+    
+    // Corredores
+    try {
+      console.log(`📍 Cargando corredores del cliente...`);
+      const corredores = await clientDb.collection(`clientes/${clienteId}/corredores_escolares`).get();
+      if (corredores.size > 0) {
+        const corredoresGeoJson = firestoreColToGeoJSON(corredores.docs);
+        console.log(`  ✓ ${corredoresGeoJson.features.length} corredores cargados`);
+        CorredoresLayer.loadFromGeoJson(corredoresGeoJson);
+      }
+    } catch (error) {
+      console.debug(`ℹ️ Corredores no disponibles:`, error.message);
+    }
+    
+    // Flujo
+    try {
+      console.log(`🚗 Cargando datos de flujo del cliente...`);
+      const flujo = await clientDb.collection(`clientes/${clienteId}/flujo`).get();
+      if (flujo.size > 0) {
+        const flujoGeoJson = firestoreColToGeoJSON(flujo.docs);
+        console.log(`  ✓ ${flujoGeoJson.features.length} registros de flujo cargados`);
+      }
+    } catch (error) {
+      console.debug(`ℹ️ Flujo no disponible:`, error.message);
+    }
+    
+    // Robo Automotor
+    try {
+      console.log(`🚗 Cargando robos automotores del cliente...`);
+      const robos = await clientDb.collection(`clientes/${clienteId}/robo`).get();
+      if (robos.size > 0) {
+        const robosGeoJson = firestoreColToGeoJSON(robos.docs);
+        console.log(`  ✓ ${robosGeoJson.features.length} robos cargados`);
+        RoboLayer.loadRoboFromGeoJSON(robosGeoJson);
+        if (bariosGeoJson) {
+          RoboLayer.setBarriosData(bariosGeoJson);
+        }
+        setTimeout(() => {
+          populateRoboFilters();
+        }, 500);
+      }
+    } catch (error) {
+      console.debug(`ℹ️ Robos no disponibles:`, error.message);
+    }
+    
+    // Colectivos
+    try {
+      console.log(`🚌 Cargando líneas de colectivos del cliente...`);
+      const colectivos = await clientDb.collection(`clientes/${clienteId}/colectivos`).get();
+      if (colectivos.size > 0) {
+        console.log(`  ✓ ${colectivos.size} líneas de colectivos cargadas`);
+        const lineasData = {};
+        colectivos.forEach(doc => {
+          lineasData[doc.id] = doc.data();
+        });
+        // Pasar datos a ColectivosLayer
+        if (typeof ColectivosLayer !== 'undefined') {
+          ColectivosLayer.setManualData(lineasData);
+        }
+      }
+    } catch (error) {
+      console.debug(`ℹ️ Colectivos no disponibles:`, error.message);
+    }
+    
+    console.log(`✅ Carga de datos de cliente completada`);
+    
+    // Habilitar checkbox de aforos después de carga
+    const aforosCheckbox = document.getElementById('aforos-checkbox');
+    if (aforosCheckbox) {
+      aforosCheckbox.disabled = false;
+      aforosCheckbox.style.opacity = '1';
+    }
+    
+    return bariosGeoJson;
+    
+  } catch (error) {
+    console.error(`❌ Error cargando datos del cliente desde Firestore:`, error);
+    return null;
+  }
+}
+
 // Variables globales para seguimiento de ciudad actual
 let currentCityConfig = null;
 let checkboxLocks = {};
@@ -106,6 +361,7 @@ let checkboxLocks = {};
 // Cargar datos geográficos dinámicamente según ciudad
 async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
   console.log(`📍 INICIO: Cargando datos para ciudad: ${cityId}`);
+  console.log(`🔍 Modo cliente: ${window.isClientMode}, clienteId: ${window.restoredClienteId}`);
   
   // Deshabilitar checkbox de aforos durante carga
   const aforosCheckbox = document.getElementById('aforos-checkbox');
@@ -115,6 +371,11 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
     aforosCheckbox.style.opacity = '0.5';
     console.log('⏸️ Checkbox de aforos deshabilitado durante carga...');
   }
+  
+  // ✅ SI ES MODO CLIENTE: Cargar desde Firestore del cliente
+  if (window.isClientMode && window.restoredClienteId) {
+    console.log(`🔥 MODO CLIENTE DETECTADO - Cargando desde Firestore del cliente...`);
+    return await cargarDatosFromClienteFirestore(window.restoredClienteId);
   
   if (!citiesConfig) {
     citiesConfig = await loadCitiesConfig();

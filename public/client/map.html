@@ -503,6 +503,39 @@ if (!isClientMode && !isClientSessionRestored) {
 <!-- Verificación de Firebase Initialization -->
 <script src="../firebase-init-check.js?v=20260509024"></script>
 
+<!-- Inicializar Firebase del cliente en modo cliente -->
+<script>
+(async () => {
+  console.log('🔧 Inicializando Firebase del cliente si está en modo cliente...');
+  
+  if (window.isClientMode && window.restoredClienteData && window.restoredClienteData.firebase_cliente) {
+    try {
+      console.log('🔥 Modo cliente detectado - Inicializando Firebase del cliente...');
+      
+      const clientFirebaseConfig = window.restoredClienteData.firebase_cliente;
+      const clienteId = window.restoredClienteId;
+      
+      // Crear nueva instancia de Firebase para el cliente
+      const clientApp = firebase.initializeApp(clientFirebaseConfig, `client-map-${clienteId}`);
+      
+      // Crear referencias globales  
+      window.clientDb = clientApp.firestore();
+      window.clientAuth = clientApp.auth();
+      window.clientApp = clientApp;
+      
+      console.log('✅ Firebase del cliente inicializado correctamente en map.html');
+      console.log(`   clienteId: ${clienteId}`);
+      console.log(`   projectId: ${clientFirebaseConfig.projectId}`);
+      
+    } catch (error) {
+      console.error('❌ Error inicializando Firebase del cliente:', error.message);
+    }
+  } else {
+    console.log('ℹ️ No es modo cliente o credenciales no disponibles');
+  }
+})();
+</script>
+
 <!-- Maps API (with Street View support) -->
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBp2ZiKA4lYieyjX_aJJjE023NeqKrRhJc&libraries=places"></script>
 
