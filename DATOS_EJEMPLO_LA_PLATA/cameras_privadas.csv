@@ -1,61 +1,51 @@
 nombre,tipo,direccion,barrio,propietario,lat,lng,estado
-Cámara Privada Banco Centro,dome,Calle 8 y 50,Centro,Banco Provincia,-34.9215,-57.9545,activa
-Cámara Privada Empresa Tech,fixed,Calle 10 y 55,Centro,TechCorp,-34.9225,-57.9535,activa
-Cámara Privada Hotel,dome,Calle 6 y 46,Centro,Hotel Provincial,-34.9205,-57.9555,activa
-Cámara Privada Comercio 1,fixed,Calle 9 y 52,Centro,Local Comercial,-34.9220,-57.9540,activa
-Cámara Privada Comercio 2,dome,Diagonal 73 y 8,Centro,Tienda ABC,-34.9235,-57.9525,activa
-Cámara Privada Farmacia,fixed,Calle 11 y 56,Centro,Farmacia Plus,-34.9230,-57.9530,activa
-Cámara Privada Supermercado 1,dome,Ave 50 y Centro,Nordelta,Carrefour,-34.9050,-57.9550,activa
-Cámara Privada Estación,fixed,Terminal de Omnibus,Nordelta,Empresa TBA,-34.9055,-57.9545,activa
-Cámara Privada Shopping,dome,Shopping La Plata,Centro,-34.9212,-57.9548,activa
-Cámara Privada Industria,fixed,Calle 1 y 60,Nordelta,Fábrica XYZ,-34.9060,-57.9540,activa
-Cámara Privada Centro 11,dome,Calle 7 y 48,Centro,Consultorio Médico,-34.9210,-57.9550,activa
-Cámara Privada Centro 12,fixed,Calle 8 y 49,Centro,Oficina Legal,-34.9215,-57.9545,activa
-Cámara Privada Centro 13,dome,Calle 9 y 50,Centro,Estudios Rosario,-34.9220,-57.9540,activa
-Cámara Privada Centro 14,fixed,Calle 10 y 51,Centro,Taller Mecánico,-34.9225,-57.9535,activa
-Cámara Privada Centro 15,dome,Calle 11 y 52,Centro,Casa Música,-34.9230,-57.9530,activa
-Cámara Privada Nordelta 11,fixed,Calle 2 y 61,Nordelta,Restaurante Mar,-34.9055,-57.9545,activa
-Cámara Privada Nordelta 12,dome,Calle 3 y 62,Nordelta,Oficina Contable,-34.9060,-57.9540,activa
-Cámara Privada Nordelta 13,fixed,Calle 4 y 63,Nordelta,Centro Médico,-34.9065,-57.9535,activa
-Cámara Privada Nordelta 14,dome,Calle 5 y 64,Nordelta,Librería Cultural,-34.9070,-57.9530,activa
-Cámara Privada Nordelta 15,fixed,Calle 6 y 65,Nordelta,Café Literario,-34.9075,-57.9525,activa
-Cámara Privada Sur 11,dome,Calle 50 y 15,Sur,Fábrica Textil,-34.9350,-57.9550,activa
-Cámara Privada Sur 12,fixed,Calle 51 y 16,Sur,Planta Industrial,-34.9355,-57.9545,activa
-Cámara Privada Sur 13,dome,Calle 52 y 17,Sur,Depósito de Mercadería,-34.9360,-57.9540,activa
-Cámara Privada Sur 14,fixed,Calle 53 y 18,Sur,Taller de Autos,-34.9365,-57.9535,activa
-Cámara Privada Sur 15,dome,Calle 54 y 19,Sur,Fábrica de Plásticos,-34.9370,-57.9530,activa
-Cámara Privada Oeste 11,fixed,Diagonal 80 y 30,Oeste,Oficina de Ingeniería,-34.9210,-57.9700,activa
-Cámara Privada Oeste 12,dome,Diagonal 81 y 31,Oeste,Constructora Mar,-34.9215,-57.9705,activa
-Cámara Privada Oeste 13,fixed,Calle 32 y 3,Oeste,Estudio Arquitectónico,-34.9220,-57.9710,activa
-Cámara Privada Oeste 14,dome,Calle 33 y 4,Oeste,Laboratorio Químico,-34.9225,-57.9715,activa
-Cámara Privada Oeste 15,fixed,Calle 34 y 5,Oeste,Veterinaria Plata,-34.9230,-57.9720,activa
-Cámara Privada Este 11,dome,Calle 100 y 70,Este,Oficina Ejecutiva,-34.9210,-57.9400,activa
-Cámara Privada Este 12,fixed,Calle 101 y 71,Este,Centro de Datos,-34.9215,-57.9395,activa
-Cámara Privada Este 13,dome,Calle 102 y 72,Este,Servidor Cloud,-34.9220,-57.9390,activa
-Cámara Privada Este 14,fixed,Calle 103 y 73,Este,Empresa Software,-34.9225,-57.9385,activa
-Cámara Privada Este 15,dome,Calle 104 y 74,Este,Consultoría IT,-34.9230,-57.9380,activa
-Cámara Privada Centro 16,fixed,Diagonal 73 y 7,Centro,Galería Arte,-34.9235,-57.9525,activa
-Cámara Privada Centro 17,dome,Diagonal 74 y 8,Centro,Museo Local,-34.9240,-57.9520,activa
-Cámara Privada Centro 18,fixed,Diagonal 75 y 9,Centro,Teatro La Plata,-34.9245,-57.9515,activa
-Cámara Privada Centro 19,dome,Plaza Moreno,Centro,Iglesia Metropolitana,-34.9212,-57.9548,activa
-Cámara Privada Centro 20,fixed,Catedral,Centro,Basílica Sagrado Corazón,-34.9218,-57.9542,activa
-Cámara Privada Nordelta 16,dome,Ave 7 y 120,Nordelta,Gimnasio FitLife,-34.9080,-57.9520,activa
-Cámara Privada Nordelta 17,fixed,Ave 8 y 121,Nordelta,Piscina Municipal,-34.9085,-57.9515,activa
-Cámara Privada Nordelta 18,dome,Ave 9 y 122,Nordelta,Parque Recreativo,-34.9090,-57.9510,activa
-Cámara Privada Nordelta 19,fixed,Ave 10 y 123,Nordelta,Campo Deportivo,-34.9095,-57.9505,activa
-Cámara Privada Nordelta 20,dome,Calle 1 y 60,Nordelta,Club Social,-34.9050,-57.9550,activa
-Cámara Privada Sur 16,fixed,Ave 11 y 140,Sur,Complejo Deportivo,-34.9380,-57.9520,activa
-Cámara Privada Sur 17,dome,Ave 12 y 141,Sur,Centro Equitación,-34.9385,-57.9515,activa
-Cámara Privada Sur 18,fixed,Ave 13 y 142,Sur,Hipódromo La Plata,-34.9390,-57.9510,activa
-Cámara Privada Sur 19,dome,Ave 14 y 143,Sur,Tranquera Las Flores,-34.9395,-57.9505,activa
-Cámara Privada Sur 20,fixed,Calle 55 y 20,Sur,Estancia Modelo,-34.9375,-57.9525,activa
-Cámara Privada Oeste 16,dome,Ave 15 y 155,Oeste,Granja Agroecológica,-34.9240,-57.9730,activa
-Cámara Privada Oeste 17,fixed,Ave 16 y 156,Oeste,Apicultura Natural,-34.9245,-57.9735,activa
-Cámara Privada Oeste 18,dome,Ave 17 y 157,Oeste,Viverismo Forestal,-34.9250,-57.9740,activa
-Cámara Privada Oeste 19,fixed,Ave 18 y 158,Oeste,Hacienda Santa Rosa,-34.9255,-57.9745,activa
-Cámara Privada Oeste 20,dome,Diagonal 80 y 30,Oeste,Chacra El Tala,-34.9210,-57.9700,activa
-Cámara Privada Este 16,fixed,Ave 19 y 170,Este,Oficina de Importación,-34.9235,-57.9375,activa
-Cámara Privada Este 17,dome,Ave 20 y 171,Este,Centro Logístico,-34.9240,-57.9370,activa
-Cámara Privada Este 18,fixed,Ave 21 y 172,Este,Puerto Seco,-34.9245,-57.9365,activa
-Cámara Privada Este 19,dome,Ave 22 y 173,Este,Depósito Fiscal,-34.9250,-57.9360,activa
-Cámara Privada Este 20,fixed,Ave 23 y 174,Este,Terminal Fluvial,-34.9255,-57.9355,activa
+Cámara Privada 1,lpr,Avenida 13 y Calle 60,Melchor Romero,Empresa de Seguridad Alpha,-34.955079,-57.979724,mantenimiento
+Cámara Privada 2,ptz,Diagonal 80 y Calle 10,Villa Elvira,Empresa de Seguridad Alpha,-34.901485,-57.941583,activa
+Cámara Privada 3,lpr,Calle 10 y 55,Abasto,Empresa de Seguridad Alpha,-34.893618,-57.925144,mantenimiento
+Cámara Privada 4,fixed,Pasaje García,Nordelta,Farmacia Plus,-34.899053,-57.958762,mantenimiento
+Cámara Privada 5,ptz,Calle 50 y 120,Nordelta,Estación Terminal,-34.928076,-57.936884,activa
+Cámara Privada 6,dome,Calle 50 y 120,Los Hornos,Estación Terminal,-34.894191,-57.9338,activa
+Cámara Privada 7,dome,Diagonal 73 y Calle 7,Abasto,Tienda ABC,-34.959109,-57.980213,activa
+Cámara Privada 8,dome,Avenida 7 y Calle 50,Tolosa,Local Comercial,-34.912521,-57.990006,activa
+Cámara Privada 9,lpr,Pasaje García,Gonnet,Supermercado Central,-34.967773,-57.989113,activa
+Cámara Privada 10,fixed,Avenida 13 y Calle 60,Abasto,Banco Provincia,-34.917899,-57.959474,activa
+Cámara Privada 11,lpr,Avenida 13 y Calle 60,Tolosa,Banco de la Nación,-34.925434,-57.953041,activa
+Cámara Privada 12,ptz,Plaza Moreno,Etcheverry,Farmacia Plus,-34.899593,-57.94485,activa
+Cámara Privada 13,fixed,Calle 120 y 33,Nordelta,Local Comercial,-34.916785,-57.916281,activa
+Cámara Privada 14,ptz,Pasaje García,Nordelta,Farmacia Plus,-34.912825,-57.958896,activa
+Cámara Privada 15,fixed,Calle 8 y 50,Ringuelet,Shopping La Plata,-34.936085,-57.917342,activa
+Cámara Privada 16,lpr,Avenida 1,Nordelta,Estación Terminal,-34.937184,-57.948712,activa
+Cámara Privada 17,fixed,Diagonal 80 y Calle 10,Gonnet,Carrefour,-34.926323,-57.917083,activa
+Cámara Privada 18,dome,Avenida 19 y Calle 70,Los Hornos,Hotel Provincial,-34.968742,-57.949581,activa
+Cámara Privada 19,dome,Calle 50 y 120,Ringuelet,Shopping La Plata,-34.964671,-57.951506,activa
+Cámara Privada 20,fixed,Pasaje García,Nordelta,Carrefour,-34.894653,-57.921851,activa
+Cámara Privada 21,dome,Avenida 1,Centro,Banco de la Nación,-34.909302,-57.912656,activa
+Cámara Privada 22,fixed,Diagonal 80 y Calle 10,Gonnet,TechCorp,-34.95241,-57.950535,activa
+Cámara Privada 23,lpr,Diagonal 73 y Calle 7,Abasto,TechCorp,-34.898097,-57.966792,activa
+Cámara Privada 24,fixed,Calle 120 y 33,Melchor Romero,Tienda ABC,-34.943013,-57.953182,mantenimiento
+Cámara Privada 25,fixed,Calle 8 y 50,Centro,Farmacia Plus,-34.91735,-57.924325,activa
+Cámara Privada 26,fixed,Avenida 7 y Calle 50,Nordelta,Banco de la Nación,-34.959756,-57.935083,activa
+Cámara Privada 27,dome,Calle 50 y 120,Ringuelet,Banco Provincia,-34.962945,-57.915632,activa
+Cámara Privada 28,dome,Calle 5 y 47,Ringuelet,Municipalidad,-34.944678,-57.996016,activa
+Cámara Privada 29,dome,Diagonal 80 y Calle 10,Nordelta,Policía Local,-34.965408,-57.918327,activa
+Cámara Privada 30,dome,Avenida 1,Tolosa,Banco de la Nación,-34.961085,-57.98487,activa
+Cámara Privada 31,dome,Avenida de los Trabajadores,Tolosa,Carrefour,-34.891841,-57.935101,mantenimiento
+Cámara Privada 32,dome,Plaza Moreno,Ringuelet,Carrefour,-34.952747,-57.961287,activa
+Cámara Privada 33,ptz,Calle 5 y 47,Etcheverry,Banco de la Nación,-34.907008,-57.972531,activa
+Cámara Privada 34,ptz,Avenida 7 y Calle 50,Abasto,Tienda ABC,-34.943127,-57.998462,mantenimiento
+Cámara Privada 35,ptz,Avenida 1,Gonnet,Estación Terminal,-34.935249,-57.922414,mantenimiento
+Cámara Privada 36,ptz,Avenida 13 y Calle 60,Tolosa,Clínica Privada,-34.935417,-57.945038,activa
+Cámara Privada 37,dome,Avenida 19 y Calle 70,Etcheverry,Empresa de Seguridad Beta,-34.920192,-57.926413,mantenimiento
+Cámara Privada 38,lpr,Diagonal 73 y Calle 7,Centro,Tienda ABC,-34.911435,-57.964287,mantenimiento
+Cámara Privada 39,fixed,Diagonal 73 y Calle 7,Tolosa,Carrefour,-34.893772,-57.922759,activa
+Cámara Privada 40,lpr,Avenida 13 y Calle 60,Ringuelet,Policía Local,-34.894937,-57.984753,activa
+Cámara Privada 41,fixed,Pasaje García,Melchor Romero,Banco Provincia,-34.935825,-57.986603,activa
+Cámara Privada 42,dome,Pasaje García,Nordelta,Local Comercial,-34.951955,-57.933677,activa
+Cámara Privada 43,lpr,Pasaje García,Ringuelet,Shopping La Plata,-34.953218,-57.951736,mantenimiento
+Cámara Privada 44,ptz,Calle 50 y 120,Nordelta,Farmacia Plus,-34.900831,-57.97407,activa
+Cámara Privada 45,lpr,Diagonal 80 y Calle 10,Melchor Romero,Municipalidad,-34.928186,-57.961773,activa
+Cámara Privada 46,ptz,Diagonal 73 y Calle 7,Tolosa,Supermercado Central,-34.901777,-57.931171,activa
+Cámara Privada 47,dome,Diagonal 80 y Calle 10,Etcheverry,Tienda ABC,-34.965615,-57.986944,activa
+Cámara Privada 48,dome,Calle 5 y 47,Abasto,Municipalidad,-34.899207,-57.926586,activa
+Cámara Privada 49,fixed,Diagonal 80 y Calle 10,Melchor Romero,Empresa de Seguridad Alpha,-34.919622,-57.93145,activa
+Cámara Privada 50,fixed,Avenida de los Trabajadores,Melchor Romero,Empresa de Seguridad Beta,-34.947128,-57.995872,activa

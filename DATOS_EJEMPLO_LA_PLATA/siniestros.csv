@@ -1,51 +1,51 @@
-fecha,hora,tipo,causa,participantes,barrio,calle,numero,lat,lng,gravedad,lesionados,fallecidos
-2025-05-08,08:30,Choque,Exceso de Velocidad,Auto/Moto,Centro,Calle 7,500,-34.9210,-57.9550,Media,2,0
-2025-05-08,10:15,Choque,No Respeto Semáforo,Auto/Auto,Centro,Calle 8,512,-34.9215,-57.9545,Leve,1,0
-2025-05-08,12:45,Atropello,Peatón Imprudente,Auto/Peatón,Centro,Calle 9,525,-34.9220,-57.9540,Grave,1,0
-2025-05-08,14:20,Choque,Distracción,Moto/Moto,Centro,Calle 10,530,-34.9225,-57.9535,Leve,1,0
-2025-05-08,16:00,Vuelco,Pierde Control,Camión,Centro,Calle 11,545,-34.9230,-57.9530,Grave,0,0
-2025-05-08,18:30,Choque,No Respeto Semáforo,Auto/Auto,Nordelta,Calle 1,100,-34.9050,-57.9550,Media,2,0
-2025-05-08,09:00,Atropello,Peatón Imprudente,Auto/Peatón,Nordelta,Calle 2,115,-34.9055,-57.9545,Leve,1,0
-2025-05-08,11:30,Choque,Exceso de Velocidad,Auto/Moto,Nordelta,Calle 3,220,-34.9060,-57.9540,Media,2,0
-2025-05-08,13:45,Choque,Distracción,Moto/Moto,Nordelta,Calle 4,330,-34.9065,-57.9535,Leve,1,0
-2025-05-08,15:15,Vuelco,Invasión de Carril,Auto,Nordelta,Ave 7,4500,-34.9080,-57.9520,Grave,1,0
-2025-05-08,07:45,Choque,No Respeto Semáforo,Auto/Auto,Sur,Calle 50,1500,-34.9350,-57.9550,Media,2,0
-2025-05-08,09:30,Atropello,Peatón Imprudente,Auto/Peatón,Sur,Calle 51,1620,-34.9355,-57.9545,Grave,2,1
-2025-05-08,11:00,Choque,Exceso de Velocidad,Moto/Auto,Sur,Calle 52,1800,-34.9360,-57.9540,Media,1,0
-2025-05-08,13:15,Choque,Distracción,Auto/Auto,Sur,Calle 53,2100,-34.9365,-57.9535,Leve,1,0
-2025-05-08,15:30,Vuelco,Pierde Control,Camión,Sur,Ave 11,3500,-34.9380,-57.9520,Grave,0,0
-2025-05-08,17:00,Choque,No Respeto prioridad,Auto/Moto,Oeste,Diagonal 80,8900,-34.9210,-57.9700,Media,2,0
-2025-05-08,08:45,Atropello,Peatón Imprudente,Auto/Peatón,Oeste,Diagonal 81,9100,-34.9215,-57.9705,Leve,1,0
-2025-05-08,10:30,Choque,Exceso de Velocidad,Auto/Auto,Oeste,Calle 32,3200,-34.9220,-57.9710,Media,2,0
-2025-05-08,12:15,Choque,Distracción,Moto/Auto,Oeste,Calle 33,3300,-34.9225,-57.9715,Leve,1,0
-2025-05-08,14:45,Vuelco,Invasión de Carril,Auto,Oeste,Calle 34,3400,-34.9230,-57.9720,Grave,1,0
-2025-05-08,16:30,Choque,No Respeto Semáforo,Auto/Auto,Este,Calle 100,10000,-34.9210,-57.9400,Media,2,0
-2025-05-08,09:15,Atropello,Peatón Imprudente,Auto/Peatón,Este,Calle 101,10100,-34.9215,-57.9395,Grave,1,0
-2025-05-08,11:45,Choque,Exceso de Velocidad,Moto/Moto,Este,Calle 102,10200,-34.9220,-57.9390,Media,2,0
-2025-05-08,13:30,Choque,Distracción,Auto/Auto,Este,Calle 103,10300,-34.9225,-57.9385,Leve,1,0
-2025-05-08,15:00,Vuelco,Pierde Control,Camión,Este,Ave 19,5000,-34.9235,-57.9375,Grave,0,0
-2025-05-08,17:15,Choque,Maniobra Riesgosa,Auto/Moto,Centro,Diagonal 73,7300,-34.9235,-57.9525,Media,2,0
-2025-05-08,08:00,Atropello,Peatón Imprudente,Auto/Peatón,Centro,Diagonal 74,7400,-34.9240,-57.9520,Leve,1,0
-2025-05-08,10:00,Choque,No Respeto Semáforo,Auto/Auto,Centro,Diagonal 75,7500,-34.9245,-57.9515,Media,2,0
-2025-05-08,12:30,Choque,Distracción,Moto/Auto,Centro,Plaza Moreno,9999,-34.9212,-57.9548,Leve,1,0
-2025-05-08,14:00,Vuelco,Invasión de Carril,Auto,Centro,Catedral,8888,-34.9218,-57.9542,Grave,1,0
-2025-05-08,16:15,Choque,Exceso de Velocidad,Auto/Auto,Nordelta,Ave 8,5100,-34.9085,-57.9515,Media,2,0
-2025-05-08,09:45,Atropello,Peatón Imprudente,Auto/Peatón,Nordelta,Ave 9,5200,-34.9090,-57.9510,Grave,2,0
-2025-05-08,11:15,Choque,No Respeto Semáforo,Moto/Moto,Nordelta,Ave 10,5300,-34.9095,-57.9505,Leve,1,0
-2025-05-08,13:00,Choque,Distracción,Auto/Auto,Nordelta,Calle 5,510,-34.9070,-57.9530,Media,2,0
-2025-05-08,15:45,Vuelco,Pierde Control,Camión,Nordelta,Calle 6,620,-34.9075,-57.9525,Grave,0,1
-2025-05-08,17:30,Choque,Maniobra Imprudente,Auto/Moto,Sur,Calle 54,2010,-34.9370,-57.9530,Media,2,0
-2025-05-08,08:30,Atropello,Peatón Imprudente,Auto/Peatón,Sur,Calle 55,2120,-34.9375,-57.9525,Leve,1,0
-2025-05-08,10:15,Choque,Exceso de Velocidad,Auto/Auto,Sur,Ave 12,3600,-34.9385,-57.9515,Media,2,0
-2025-05-08,12:45,Choque,No Respeto Semáforo,Moto/Auto,Sur,Ave 13,3700,-34.9390,-57.9510,Leve,1,0
-2025-05-08,14:20,Vuelco,Invasión de Carril,Auto,Sur,Ave 14,3800,-34.9395,-57.9505,Grave,1,0
-2025-05-08,16:00,Choque,Distracción,Auto/Moto,Oeste,Calle 35,3500,-34.9235,-57.9725,Media,2,0
-2025-05-08,09:00,Atropello,Peatón Imprudente,Auto/Peatón,Oeste,Ave 15,5400,-34.9240,-57.9730,Grave,1,0
-2025-05-08,11:30,Choque,No Respeto Semáforo,Auto/Auto,Oeste,Ave 16,5500,-34.9245,-57.9735,Leve,1,0
-2025-05-08,13:45,Choque,Exceso de Velocidad,Moto/Moto,Oeste,Ave 17,5600,-34.9250,-57.9740,Media,2,0
-2025-05-08,15:15,Vuelco,Pierde Control,Camión,Oeste,Ave 18,5700,-34.9255,-57.9745,Grave,0,0
-2025-05-08,17:00,Choque,Maniobra Riesgosa,Auto/Auto,Este,Ave 20,5900,-34.9240,-57.9370,Media,2,0
-2025-05-08,08:45,Atropello,Peatón Imprudente,Auto/Peatón,Este,Ave 21,6000,-34.9245,-57.9365,Leve,1,0
-2025-05-08,10:30,Choque,Distracción,Auto/Moto,Este,Ave 22,6100,-34.9250,-57.9360,Media,2,0
-2025-05-08,12:15,Choque,No Respeto Semáforo,Auto/Auto,Este,Ave 23,6200,-34.9255,-57.9355,Leve,1,0
-2025-05-08,14:45,Vuelco,Invasión de Carril,Auto,Este,Calle 104,10400,-34.9230,-57.9380,Grave,1,0
+lat,lng,nombre,hora,descripcion_tipo,fecha,causa,participantes,descripcion,barrio
+-34.928165,-57.946514,Siniestro 1,06:11,accidente,2026-05-13,EV,COL,Evento de tráfico en La Plata #1,Centro
+-34.940623,-57.965145,Siniestro 2,06:05,accidente,2026-05-13,D,COL,Evento de tráfico en La Plata #2,Etcheverry
+-34.968804,-57.993346,Siniestro 3,04:37,accidente,2026-05-13,D,A/P,Evento de tráfico en La Plata #3,Ringuelet
+-34.897802,-57.959002,Siniestro 4,15:58,accidente,2026-05-13,EV,COL,Evento de tráfico en La Plata #4,Centro
+-34.915095,-57.987239,Siniestro 5,03:04,accidente,2026-05-13,D,A/P,Evento de tráfico en La Plata #5,Nordelta
+-34.930041,-57.958391,Siniestro 6,09:12,accidente,2026-05-13,EV,COL,Evento de tráfico en La Plata #6,Centro
+-34.963224,-57.998019,Siniestro 7,04:57,accidente,2026-05-13,EV,A/P,Evento de tráfico en La Plata #7,Gonnet
+-34.937048,-57.920537,Siniestro 8,19:38,accidente,2026-05-13,D,COL,Evento de tráfico en La Plata #8,Abasto
+-34.898361,-57.978947,Siniestro 9,13:26,accidente,2026-05-13,MI,A/P,Evento de tráfico en La Plata #9,Los Hornos
+-34.908062,-57.957505,Siniestro 10,07:56,accidente,2026-05-13,D,A/P,Evento de tráfico en La Plata #10,Centro
+-34.932361,-57.936037,Siniestro 11,14:03,accidente,2026-05-13,NR,A/P,Evento de tráfico en La Plata #11,Tolosa
+-34.968399,-57.957032,Siniestro 12,13:11,accidente,2026-05-13,NR,A/P,Evento de tráfico en La Plata #12,Los Hornos
+-34.900703,-57.971154,Siniestro 13,06:57,accidente,2026-05-13,MI,COL,Evento de tráfico en La Plata #13,Etcheverry
+-34.968473,-57.981656,Siniestro 14,07:44,accidente,2026-05-13,D,COL,Evento de tráfico en La Plata #14,Villa Elvira
+-34.894253,-57.940261,Siniestro 15,09:36,accidente,2026-05-13,D,B,Evento de tráfico en La Plata #15,Tolosa
+-34.926269,-57.955828,Siniestro 16,17:39,accidente,2026-05-13,MI,B,Evento de tráfico en La Plata #16,Abasto
+-34.939057,-57.971522,Siniestro 17,22:34,accidente,2026-05-13,D,COL,Evento de tráfico en La Plata #17,Gonnet
+-34.923818,-57.962434,Siniestro 18,22:22,accidente,2026-05-13,NR,B,Evento de tráfico en La Plata #18,Villa Elvira
+-34.965202,-57.998758,Siniestro 19,09:04,accidente,2026-05-13,NR,COL,Evento de tráfico en La Plata #19,Ringuelet
+-34.948519,-57.931791,Siniestro 20,10:20,accidente,2026-05-13,MI,COL,Evento de tráfico en La Plata #20,Gonnet
+-34.948908,-57.973758,Siniestro 21,15:14,accidente,2026-05-13,D,B,Evento de tráfico en La Plata #21,Los Hornos
+-34.946077,-57.931515,Siniestro 22,05:48,accidente,2026-05-13,EV,A/P,Evento de tráfico en La Plata #22,Melchor Romero
+-34.897396,-57.96635,Siniestro 23,17:14,accidente,2026-05-13,MI,A/P,Evento de tráfico en La Plata #23,Villa Elvira
+-34.927767,-57.96375,Siniestro 24,21:38,accidente,2026-05-13,NR,B,Evento de tráfico en La Plata #24,Ringuelet
+-34.940105,-57.960622,Siniestro 25,21:57,accidente,2026-05-13,MI,A/P,Evento de tráfico en La Plata #25,Los Hornos
+-34.929742,-57.920808,Siniestro 26,11:39,accidente,2026-05-13,NR,COL,Evento de tráfico en La Plata #26,Villa Elvira
+-34.909315,-57.977216,Siniestro 27,16:04,accidente,2026-05-13,D,A/P,Evento de tráfico en La Plata #27,Nordelta
+-34.906913,-57.955237,Siniestro 28,17:43,accidente,2026-05-13,NR,A/P,Evento de tráfico en La Plata #28,Nordelta
+-34.905596,-57.98485,Siniestro 29,01:24,accidente,2026-05-13,MI,COL,Evento de tráfico en La Plata #29,Centro
+-34.896809,-57.968431,Siniestro 30,14:45,accidente,2026-05-13,MI,COL,Evento de tráfico en La Plata #30,Ringuelet
+-34.96211,-57.972976,Siniestro 31,20:01,accidente,2026-05-13,MI,A/P,Evento de tráfico en La Plata #31,Ringuelet
+-34.94983,-57.991368,Siniestro 32,00:32,accidente,2026-05-13,MI,B,Evento de tráfico en La Plata #32,Abasto
+-34.917657,-57.949791,Siniestro 33,15:08,accidente,2026-05-13,EV,A/P,Evento de tráfico en La Plata #33,Melchor Romero
+-34.950439,-57.953892,Siniestro 34,03:55,accidente,2026-05-13,D,COL,Evento de tráfico en La Plata #34,Los Hornos
+-34.898441,-57.935504,Siniestro 35,18:02,accidente,2026-05-13,MI,COL,Evento de tráfico en La Plata #35,Villa Elvira
+-34.932346,-57.967732,Siniestro 36,03:04,accidente,2026-05-13,NR,B,Evento de tráfico en La Plata #36,Etcheverry
+-34.942844,-57.941837,Siniestro 37,04:14,accidente,2026-05-13,NR,B,Evento de tráfico en La Plata #37,Melchor Romero
+-34.967248,-57.966465,Siniestro 38,00:48,accidente,2026-05-13,D,COL,Evento de tráfico en La Plata #38,Abasto
+-34.950834,-57.9985,Siniestro 39,21:22,accidente,2026-05-13,MI,A/P,Evento de tráfico en La Plata #39,Nordelta
+-34.896566,-57.96108,Siniestro 40,11:28,accidente,2026-05-13,MI,A/P,Evento de tráfico en La Plata #40,Ringuelet
+-34.964195,-57.96554,Siniestro 41,03:02,accidente,2026-05-13,MI,COL,Evento de tráfico en La Plata #41,Gonnet
+-34.951399,-57.944014,Siniestro 42,06:26,accidente,2026-05-13,MI,B,Evento de tráfico en La Plata #42,Villa Elvira
+-34.942435,-57.920816,Siniestro 43,08:26,accidente,2026-05-13,MI,COL,Evento de tráfico en La Plata #43,Tolosa
+-34.919323,-57.973714,Siniestro 44,09:51,accidente,2026-05-13,EV,A/P,Evento de tráfico en La Plata #44,Abasto
+-34.892787,-57.922716,Siniestro 45,21:12,accidente,2026-05-13,NR,B,Evento de tráfico en La Plata #45,Nordelta
+-34.959701,-57.955704,Siniestro 46,00:06,accidente,2026-05-13,NR,B,Evento de tráfico en La Plata #46,Etcheverry
+-34.893087,-57.994467,Siniestro 47,22:05,accidente,2026-05-13,D,A/P,Evento de tráfico en La Plata #47,Etcheverry
+-34.920525,-57.956445,Siniestro 48,12:55,accidente,2026-05-13,D,A/P,Evento de tráfico en La Plata #48,Melchor Romero
+-34.910298,-57.952257,Siniestro 49,11:58,accidente,2026-05-13,D,B,Evento de tráfico en La Plata #49,Etcheverry
+-34.898701,-57.952859,Siniestro 50,09:23,accidente,2026-05-13,D,B,Evento de tráfico en La Plata #50,Ringuelet

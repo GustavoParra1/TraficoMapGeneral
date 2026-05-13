@@ -1,51 +1,51 @@
 nombre,tipo,direccion,barrio,lat,lng,estado
-Cámara Centro 1,dome,Calle 7 entre 48 y 49,Centro,-34.9210,-57.9550,activa
-Cámara Centro 2,fixed,Calle 8 entre 49 y 50,Centro,-34.9215,-57.9545,activa
-Cámara Centro 3,lpr,Calle 9 entre 50 y 51,Centro,-34.9220,-57.9540,activa
-Cámara Centro 4,dome,Calle 10 y 55,Centro,-34.9225,-57.9535,activa
-Cámara Centro 5,fixed,Calle 11 y 56,Centro,-34.9230,-57.9530,activa
-Cámara Centro 6,dome,Diagonal 73 y Calle 7,Centro,-34.9235,-57.9525,activa
-Cámara Centro 7,lpr,Diagonal 74 y Calle 8,Centro,-34.9240,-57.9520,activa
-Cámara Centro 8,fixed,Diagonal 75 y Calle 9,Centro,-34.9245,-57.9515,activa
-Cámara Centro 9,dome,Plaza Moreno,Centro,-34.9212,-57.9548,activa
-Cámara Centro 10,fixed,Catedral,Centro,-34.9218,-57.9542,activa
-Cámara Nordelta 1,dome,Calle 1 y 60,Nordelta,-34.9050,-57.9550,activa
-Cámara Nordelta 2,fixed,Calle 2 y 61,Nordelta,-34.9055,-57.9545,activa
-Cámara Nordelta 3,lpr,Calle 3 y 62,Nordelta,-34.9060,-57.9540,activa
-Cámara Nordelta 4,dome,Calle 4 y 63,Nordelta,-34.9065,-57.9535,activa
-Cámara Nordelta 5,fixed,Calle 5 y 64,Nordelta,-34.9070,-57.9530,activa
-Cámara Nordelta 6,dome,Calle 6 y 65,Nordelta,-34.9075,-57.9525,activa
-Cámara Nordelta 7,fixed,Ave 7 y 120,Nordelta,-34.9080,-57.9520,activa
-Cámara Nordelta 8,lpr,Ave 8 y 121,Nordelta,-34.9085,-57.9515,activa
-Cámara Nordelta 9,dome,Ave 9 y 122,Nordelta,-34.9090,-57.9510,activa
-Cámara Nordelta 10,fixed,Ave 10 y 123,Nordelta,-34.9095,-57.9505,activa
-Cámara Sur 1,dome,Calle 50 y 15,Sur,-34.9350,-57.9550,activa
-Cámara Sur 2,fixed,Calle 51 y 16,Sur,-34.9355,-57.9545,activa
-Cámara Sur 3,lpr,Calle 52 y 17,Sur,-34.9360,-57.9540,activa
-Cámara Sur 4,dome,Calle 53 y 18,Sur,-34.9365,-57.9535,activa
-Cámara Sur 5,fixed,Calle 54 y 19,Sur,-34.9370,-57.9530,activa
-Cámara Sur 6,dome,Calle 55 y 20,Sur,-34.9375,-57.9525,activa
-Cámara Sur 7,fixed,Ave 11 y 140,Sur,-34.9380,-57.9520,activa
-Cámara Sur 8,lpr,Ave 12 y 141,Sur,-34.9385,-57.9515,activa
-Cámara Sur 9,dome,Ave 13 y 142,Sur,-34.9390,-57.9510,activa
-Cámara Sur 10,fixed,Ave 14 y 143,Sur,-34.9395,-57.9505,activa
-Cámara Oeste 1,dome,Diagonal 80 y Calle 30,Oeste,-34.9210,-57.9700,activa
-Cámara Oeste 2,fixed,Diagonal 81 y Calle 31,Oeste,-34.9215,-57.9705,activa
-Cámara Oeste 3,lpr,Calle 32 y 3,Oeste,-34.9220,-57.9710,activa
-Cámara Oeste 4,dome,Calle 33 y 4,Oeste,-34.9225,-57.9715,activa
-Cámara Oeste 5,fixed,Calle 34 y 5,Oeste,-34.9230,-57.9720,activa
-Cámara Oeste 6,dome,Calle 35 y 6,Oeste,-34.9235,-57.9725,activa
-Cámara Oeste 7,fixed,Ave 15 y 155,Oeste,-34.9240,-57.9730,activa
-Cámara Oeste 8,lpr,Ave 16 y 156,Oeste,-34.9245,-57.9735,activa
-Cámara Oeste 9,dome,Ave 17 y 157,Oeste,-34.9250,-57.9740,activa
-Cámara Oeste 10,fixed,Ave 18 y 158,Oeste,-34.9255,-57.9745,activa
-Cámara Este 1,dome,Calle 100 y 70,Este,-34.9210,-57.9400,activa
-Cámara Este 2,fixed,Calle 101 y 71,Este,-34.9215,-57.9395,activa
-Cámara Este 3,lpr,Calle 102 y 72,Este,-34.9220,-57.9390,activa
-Cámara Este 4,dome,Calle 103 y 73,Este,-34.9225,-57.9385,activa
-Cámara Este 5,fixed,Calle 104 y 74,Este,-34.9230,-57.9380,activa
-Cámara Este 6,dome,Ave 19 y 170,Este,-34.9235,-57.9375,activa
-Cámara Este 7,fixed,Ave 20 y 171,Este,-34.9240,-57.9370,activa
-Cámara Este 8,lpr,Ave 21 y 172,Este,-34.9245,-57.9365,activa
-Cámara Este 9,dome,Ave 22 y 173,Este,-34.9250,-57.9360,activa
-Cámara Este 10,fixed,Ave 23 y 174,Este,-34.9255,-57.9355,activa
+Cámara Pública 1,fixed,Avenida 13 y Calle 60,Ringuelet,-34.892776,-57.930306,activa
+Cámara Pública 2,dome,Calle 120 y 33,Gonnet,-34.897579,-57.998458,mantenimiento
+Cámara Pública 3,fixed,Avenida 19 y Calle 70,Los Hornos,-34.963012,-57.974781,activa
+Cámara Pública 4,ptz,Pasaje García,Etcheverry,-34.933601,-57.998613,mantenimiento
+Cámara Pública 5,lpr,Calle 8 y 50,Gonnet,-34.9602,-57.937101,activa
+Cámara Pública 6,lpr,Calle 5 y 47,Etcheverry,-34.926164,-57.94138,activa
+Cámara Pública 7,ptz,Plaza Moreno,Nordelta,-34.950841,-57.936449,activa
+Cámara Pública 8,dome,Avenida de los Trabajadores,Etcheverry,-34.960411,-57.984827,activa
+Cámara Pública 9,dome,Calle 50 y 120,Abasto,-34.901617,-57.978479,activa
+Cámara Pública 10,lpr,Avenida 13 y Calle 60,Ringuelet,-34.900397,-57.936129,activa
+Cámara Pública 11,dome,Calle 8 y 50,Centro,-34.910873,-57.990986,activa
+Cámara Pública 12,fixed,Avenida 19 y Calle 70,Ringuelet,-34.935384,-57.943182,activa
+Cámara Pública 13,dome,Avenida 19 y Calle 70,Abasto,-34.941305,-57.942221,activa
+Cámara Pública 14,lpr,Calle 1 y 44,Villa Elvira,-34.921486,-57.946257,activa
+Cámara Pública 15,lpr,Calle 10 y 55,Los Hornos,-34.950505,-57.944484,activa
+Cámara Pública 16,ptz,Plaza Moreno,Los Hornos,-34.934225,-57.961282,mantenimiento
+Cámara Pública 17,ptz,Calle 5 y 47,Nordelta,-34.902144,-57.971063,activa
+Cámara Pública 18,ptz,Plaza Moreno,Abasto,-34.910491,-57.986151,activa
+Cámara Pública 19,fixed,Calle 10 y 55,Centro,-34.95918,-57.950454,mantenimiento
+Cámara Pública 20,dome,Plaza Moreno,Abasto,-34.947153,-57.936498,mantenimiento
+Cámara Pública 21,ptz,Avenida 13 y Calle 60,Villa Elvira,-34.954501,-57.951253,activa
+Cámara Pública 22,lpr,Avenida de los Trabajadores,Etcheverry,-34.944908,-57.915303,activa
+Cámara Pública 23,ptz,Calle 10 y 55,Nordelta,-34.949459,-57.936377,activa
+Cámara Pública 24,lpr,Diagonal 74 y Calle 8,Villa Elvira,-34.945272,-57.931599,activa
+Cámara Pública 25,lpr,Avenida de los Trabajadores,Villa Elvira,-34.969799,-57.944147,mantenimiento
+Cámara Pública 26,dome,Plaza Moreno,Villa Elvira,-34.901455,-57.976659,activa
+Cámara Pública 27,dome,Calle 10 y 55,Los Hornos,-34.915807,-57.955113,activa
+Cámara Pública 28,ptz,Pasaje García,Melchor Romero,-34.909204,-57.965162,activa
+Cámara Pública 29,fixed,Avenida de los Trabajadores,Centro,-34.899598,-57.927262,activa
+Cámara Pública 30,fixed,Avenida 7 y Calle 50,Ringuelet,-34.967638,-57.914775,activa
+Cámara Pública 31,dome,Diagonal 80 y Calle 10,Centro,-34.907424,-57.925493,activa
+Cámara Pública 32,lpr,Diagonal 73 y Calle 7,Etcheverry,-34.956802,-57.927985,mantenimiento
+Cámara Pública 33,lpr,Calle 5 y 47,Ringuelet,-34.956326,-57.972332,mantenimiento
+Cámara Pública 34,dome,Diagonal 74 y Calle 8,Villa Elvira,-34.902935,-57.951114,activa
+Cámara Pública 35,lpr,Avenida de los Trabajadores,Los Hornos,-34.94983,-57.937338,activa
+Cámara Pública 36,dome,Plaza Moreno,Gonnet,-34.927585,-57.982414,mantenimiento
+Cámara Pública 37,ptz,Avenida 7 y Calle 50,Nordelta,-34.941902,-57.914296,mantenimiento
+Cámara Pública 38,dome,Calle 50 y 120,Villa Elvira,-34.945563,-57.938707,activa
+Cámara Pública 39,fixed,Calle 10 y 55,Los Hornos,-34.91955,-57.998648,activa
+Cámara Pública 40,dome,Calle 50 y 120,Abasto,-34.946848,-57.946784,mantenimiento
+Cámara Pública 41,ptz,Plaza Moreno,Gonnet,-34.900007,-57.921648,mantenimiento
+Cámara Pública 42,ptz,Calle 10 y 55,Nordelta,-34.932142,-57.971282,activa
+Cámara Pública 43,fixed,Avenida 1,Gonnet,-34.967791,-57.932673,activa
+Cámara Pública 44,ptz,Calle 5 y 47,Melchor Romero,-34.916514,-57.93838,activa
+Cámara Pública 45,lpr,Avenida 1,Ringuelet,-34.953153,-57.913701,activa
+Cámara Pública 46,ptz,Calle 10 y 55,Centro,-34.922956,-57.933036,activa
+Cámara Pública 47,dome,Pasaje García,Villa Elvira,-34.929054,-57.933389,activa
+Cámara Pública 48,ptz,Avenida 13 y Calle 60,Melchor Romero,-34.907443,-57.941529,activa
+Cámara Pública 49,ptz,Avenida 19 y Calle 70,Los Hornos,-34.909768,-57.952581,activa
+Cámara Pública 50,lpr,Pasaje García,Nordelta,-34.969092,-57.992653,activa

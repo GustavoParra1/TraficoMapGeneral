@@ -11,7 +11,18 @@ function iniciarMapa() {
   if (!map) {
     try {
       console.log('🗺️ Iniciando mapa...');
-      map = L.map('map').setView([-38.0, -57.55], 12);
+      // Determinar coordenadas y zoom según currentCity
+      let lat = -38.0, lng = -57.55, zoom = 12;
+      if (currentCity === 'la-plata') {
+        lat = -34.9;
+        lng = -57.956;
+        zoom = 13;
+      } else if (currentCity === 'cordoba') {
+        lat = -31.415;
+        lng = -64.189;
+        zoom = 13;
+      }
+      map = L.map('map').setView([lat, lng], zoom);
       console.log('✅ Mapa Leaflet creado');
       
       // Capa OSM
@@ -1012,16 +1023,16 @@ auth.onAuthStateChanged((user) => {
     
   } else if (isUserAuthenticated || hasValidSession) {
     // Usuario autenticado O cliente con sesión válida
-    if (isUserAuthenticated) {
+    if (true) {  // ← GENERAR SIDEBAR SIEMPRE, para user auth O cliente
       // Mostrar panel de usuario autenticado
     sidebar.innerHTML = `
       <div id="logo">🗺️ TraficoMap</div>
       <div class="sidebar-section">
         <div class="sidebar-title">Usuario</div>
         <div style="font-size: 12px; margin-bottom: 10px;">
-          ${user.email}
+          ${isUserAuthenticated ? user.email : 'Modo Cliente'}
         </div>
-        <button id="logout-btn">Cerrar Sesión</button>
+        ${isUserAuthenticated ? `<button id="logout-btn">Cerrar Sesión</button>` : ''}
       </div>
       
       <div class="sidebar-section">
@@ -1396,10 +1407,12 @@ auth.onAuthStateChanged((user) => {
     }
     
     // Event listeners
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      window.close();
-      setTimeout(() => { window.location.href = '/login.html'; }, 500);
-    });
+    if (isUserAuthenticated && document.getElementById('logout-btn')) {
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        window.close();
+        setTimeout(() => { window.location.href = '/login.html'; }, 500);
+      });
+    }
     
     // Selector de mapa base
     document.getElementById('base-map-selector').addEventListener('change', (e) => {

@@ -2,8 +2,8 @@ import admin from 'firebase-admin';
 import fs from 'fs';
 
 const generalCredentialsPath = 'c:\\Users\\gparra\\Downloads\\trafico-map-general-v2-firebase-adminsdk-fbsvc-85301b19d1.json';
-const userEmail = 'admin@laplatamaps.com.ar';
-const clientId = 'laplatamaps-52a3b';
+const userEmail = 'admin@laplata.com';
+const clientId = 'laplata';
 
 async function assignCustomClaims() {
   try {
@@ -31,7 +31,7 @@ async function assignCustomClaims() {
     console.log(`\n🔧 Asignando custom claims...`);
     await auth.setCustomUserClaims(user.uid, {
       role: 'admin',
-      cliente_id: clientId
+      clienteId: clientId
     });
     
     console.log(`✅ Custom claims asignados`);
