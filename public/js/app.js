@@ -376,6 +376,7 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
   if (window.isClientMode && window.restoredClienteId) {
     console.log(`🔥 MODO CLIENTE DETECTADO - Cargando desde Firestore del cliente...`);
     return await cargarDatosFromClienteFirestore(window.restoredClienteId);
+  }
   
   if (!citiesConfig) {
     citiesConfig = await loadCitiesConfig();
