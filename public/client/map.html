@@ -503,9 +503,25 @@ if (!isClientMode && !isClientSessionRestored) {
 <!-- Verificación de Firebase Initialization -->
 <script src="../firebase-init-check.js?v=20260509024"></script>
 
-<!-- Inicializar Firebase del cliente en modo cliente -->
+<!-- Restaurar sesión del cliente (DEBE IR ANTES de inicializar Firebase del cliente) -->
+<script src="js/client-auth.js"></script>
+
+<!-- Inicializar Firebase del cliente en modo cliente (DESPUÉS de client-auth.js) -->
 <script>
-(async () => {
+// Esperar a que client-auth.js haya se haya ejecutado (máximo 2s)
+async function initializeClientFirebase() {
+  let attempts = 0;
+  const maxAttempts = 20; // 2 segundos total
+  
+  while (attempts < maxAttempts) {
+    if (window.restoredClienteData && window.restoredClienteData.firebase_cliente) {
+      console.log('🔧 Datos del cliente restaurados, inicializando Firebase...');
+      break;
+    }
+    await new Promise(r => setTimeout(r, 100));
+    attempts++;
+  }
+  
   console.log('🔧 Inicializando Firebase del cliente si está en modo cliente...');
   
   if (window.isClientMode && window.restoredClienteData && window.restoredClienteData.firebase_cliente) {
@@ -531,9 +547,14 @@ if (!isClientMode && !isClientSessionRestored) {
       console.error('❌ Error inicializando Firebase del cliente:', error.message);
     }
   } else {
-    console.log('ℹ️ No es modo cliente o credenciales no disponibles');
+    console.log('⚠️ No se pudo inicializar Firebase del cliente');
+    console.log(`  - isClientMode: ${window.isClientMode}`);
+    console.log(`  - restoredClienteData: ${!!window.restoredClienteData}`);
+    console.log(`  - firebase_cliente: ${!!window.restoredClienteData?.firebase_cliente}`);
   }
-})();
+}
+
+initializeClientFirebase();
 </script>
 
 <!-- Maps API (with Street View support) -->
