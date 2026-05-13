@@ -392,71 +392,107 @@
       reader.onload = async (e) => {
         try {
           const csv = e.target.result;
-          const lines = csv.split('\n');
-          const headers = lines[0].split(',').map(h => h.trim());
+          const file = event.target.files[0];
+          if (!file) return;
 
-          // Detectar tipo de colección
-          let tipo = null;
-          if (headers.some(h => h.toLowerCase().includes('camara'))) tipo = 'camaras';
-          else if (headers.some(h => h.toLowerCase().includes('siniestro'))) tipo = 'siniestros';
-          else if (headers.some(h => h.toLowerCase().includes('operador'))) tipo = 'operadores';
-          else if (headers.some(h => h.toLowerCase().includes('patrulla'))) tipo = 'patrullas';
+          console.log('📁 Archivo seleccionado:', file.name);
 
-          if (!tipo) {
-            alert('No se pudo detectar el tipo de datos. Verifica los encabezados.');
-            return;
-          }
+          // Códigos válidos de causa y participantes
+          const causasValidas = [
+            'D','A','AV','EV','FV','G','MI','MR','NR','NSD','P','PC','PI','VS','DF','DESCOMPENSAN','IC','PERSECUCIÓN','?'
+          ];
+          const participantesValidos = [
+            'A','M','P','CAM','B','COL','CTA','BOMBEROS','PERRO','POLICIA','MONOPATIN','AMB','PATRULLA','CABALLO'
+          ];
 
-          // Mostrar progreso
-          document.getElementById('progressContainer').style.display = 'block';
+          const reader = new FileReader();
+          reader.onload = async (e) => {
+            try {
+              const csv = e.target.result;
+              const lines = csv.split('\n');
+              const headers = lines[0].split(',').map(h => h.trim());
 
-          // Parsear y guardar datos
-          let count = 0;
-          const total = lines.length - 1;
+              // Detectar tipo de colección
+              let tipo = null;
+              if (headers.some(h => h.toLowerCase().includes('camara'))) tipo = 'camaras';
+              else if (headers.some(h => h.toLowerCase().includes('siniestro'))) tipo = 'siniestros';
+              else if (headers.some(h => h.toLowerCase().includes('operador'))) tipo = 'operadores';
+              else if (headers.some(h => h.toLowerCase().includes('patrulla'))) tipo = 'patrullas';
 
-          for (let i = 1; i < lines.length; i++) {
-            if (!lines[i].trim()) continue;
+              if (!tipo) {
+                alert('No se pudo detectar el tipo de datos. Verifica los encabezados.');
+                return;
+              }
 
-            const values = lines[i].split(',').map(v => v.trim());
-            const obj = {};
-            headers.forEach((h, idx) => {
-              obj[h.toLowerCase().replace(/[^\w]/g, '')] = values[idx] || '';
-            });
+              // Mostrar progreso
+              document.getElementById('progressContainer').style.display = 'block';
 
-            // Guardar en Firestore
-            await db.collection('clientes').document(currentClienteId).collection(tipo).add({
-              ...obj,
-              timestamp: new Date()
-            });
+              // Parsear y guardar datos
+              let count = 0;
+              let errores = [];
+              const total = lines.length - 1;
 
-            count++;
-            const progress = Math.round((count / total) * 100);
-            document.getElementById('progressBar').style.width = progress + '%';
-            document.getElementById('progressText').textContent = `${count} de ${total} registros cargados`;
-          }
+              for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
 
-          document.getElementById('progressContainer').style.display = 'none';
-          showResult('✅ Datos cargados exitosamente!', 'success');
+                const values = lines[i].split(',').map(v => v.trim());
+                const obj = {};
+                headers.forEach((h, idx) => {
+                  obj[h.toLowerCase().replace(/[^\w]/g, '')] = values[idx] || '';
+                });
 
-          // Recargar estadísticas
-          location.reload();
+                // Validación solo para siniestros
+                if (tipo === 'siniestros') {
+                  // lat y lng obligatorios
+                  if (!obj.lat || !obj.lng) {
+                    errores.push(`Fila ${i+1}: Falta lat o lng.`);
+                    continue;
+                  }
+                  // causa (si existe) debe ser válida
+                  if (obj.causa && !causasValidas.includes(obj.causa)) {
+                    errores.push(`Fila ${i+1}: Causa inválida (${obj.causa}).`);
+                    continue;
+                  }
+                  // participantes (si existe) deben ser válidos
+                  if (obj.participantes) {
+                    const parts = obj.participantes.split('/').map(p => p.trim());
+                    const partsInvalidos = parts.filter(p => !participantesValidos.includes(p));
+                    if (partsInvalidos.length > 0) {
+                      errores.push(`Fila ${i+1}: Participantes inválidos (${partsInvalidos.join(', ')}).`);
+                      continue;
+                    }
+                  }
+                }
 
-        } catch (error) {
-          console.error('Error:', error);
-          showResult('❌ Error al procesar archivo: ' + error.message, 'danger');
+                // Guardar en Firestore
+                await db.collection('clientes').document(currentClienteId).collection(tipo).add({
+                  ...obj,
+                  timestamp: new Date()
+                });
+
+                count++;
+                const progress = Math.round((count / total) * 100);
+                document.getElementById('progressBar').style.width = progress + '%';
+                document.getElementById('progressText').textContent = `${count} de ${total} registros cargados`;
+              }
+
+              document.getElementById('progressContainer').style.display = 'none';
+              if (errores.length > 0) {
+                showResult('⚠️ Algunos registros no se cargaron:<br>' + errores.join('<br>'), 'warning');
+              } else {
+                showResult('✅ Datos cargados exitosamente!', 'success');
+              }
+              // Recargar estadísticas
+              location.reload();
+
+            } catch (error) {
+              console.error('Error:', error);
+              showResult('❌ Error al procesar archivo: ' + error.message, 'danger');
+            }
+          };
+
+          reader.readAsText(file);
         }
-      };
-
-      reader.readAsText(file);
-    }
-
-    function showResult(message, type) {
-      const resultDiv = document.getElementById('resultMessage');
-      resultDiv.textContent = message;
-      resultDiv.className = `alert alert-${type}`;
-      resultDiv.style.display = 'block';
-    }
-
     function goToMap() {
       window.location.href = `/map-cliente.html?clienteId=${currentClienteId}`;
     }

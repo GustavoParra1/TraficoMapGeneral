@@ -41,14 +41,16 @@ const FormatHelp = (() => {
 -38.0060,-57.5525,14:15,A,M/P,2024-01-16,Caída de moto`,
       csvInfo: `
         <p style="background: #ffe0e0; padding: 10px; border-radius: 4px; margin: 10px 0;">
-          <strong>⚠️ IMPORTANTE:</strong> Las columnas <code>lat</code> y <code>lng</code> son <strong>OBLIGATORIAS</strong>.
-          No se soporta lookup por cámara. Todos los siniestros deben tener coordenadas exactas.
+          <strong>⚠️ IMPORTANTE:</strong> Las columnas <code>lat</code> y <code>lng</code> son <strong>OBLIGATORIAS</strong>.<br>
+          No se soporta lookup por cámara. Todos los siniestros deben tener coordenadas exactas.<br>
+          <strong>La validación es estricta:</strong> Si hay algún error en causas, participantes o formato de hora, <u>no se subirá ningún dato</u> y se mostrarán los errores detectados.<br>
+          <strong>Funciona para cualquier ciudad:</strong> Solo cambia el archivo CSV y el cliente correspondiente.
         </p>
         <p style="background: #fff3cd; padding: 10px; border-radius: 4px; margin: 10px 0;">
-          <strong>🕐 Propiedad RECOMENDADA - hora:</strong> Formato <code>HH:MM</code> (ej: 09:30, 14:15, 23:59)
+          <strong>🕐 Propiedad RECOMENDADA - hora:</strong> Formato <code>HH:MM</code> (ej: 09:30, 14:15, 23:59).<br>
           Si no se proporciona, el sistema generará horas automáticas basadas en el contenido del registro.
         </p>
-        <p><strong>🔴 Códigos de Causas (obligatorio si tienes el dato):</strong></p>
+        <p><strong>🔴 Códigos de Causas (solo se aceptan estos):</strong></p>
         <ul style="font-size: 12px; column-count: 2;">
           <li><code>D</code> - Distracción</li>
           <li><code>A</code> - Alcohol</li>
@@ -70,7 +72,7 @@ const FormatHelp = (() => {
           <li><code>PERSECUCIÓN</code> - Persecución</li>
           <li><code>?</code> - Desconocido</li>
         </ul>
-        <p><strong>👥 Códigos de Participantes:</strong></p>
+        <p><strong>👥 Códigos de Participantes (solo se aceptan estos):</strong></p>
         <ul style="font-size: 12px; column-count: 2;">
           <li><code>A</code> - Auto</li>
           <li><code>M</code> - Moto</li>

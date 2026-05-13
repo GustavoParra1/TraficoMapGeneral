@@ -1,0 +1,21 @@
+lat,lng,hora,causa,participantes,fecha,descripcion
+-38.0055,-57.5521,09:30,D,A/B,2025-10-03,Accidente en Av. Ajo y Colón
+-38.0060,-57.5525,16:17,G,A/M,2025-10-03,Accidente en J. B. Justo y P. Dutto
+-38.0070,-57.5530,17:25,NSD,A/M,2025-10-03,Accidente en San Juan y Avellaneda
+-38.0080,-57.5535,15:10,NSD,CTA/M,2025-10-04,Accidente en Colón y Funes
+-38.0090,-57.5540,20:05,NSD,CTA/M,2025-10-04,Accidente en Calle 473 y Colectora
+-38.0100,-57.5545,19:00,NSD,A/M,2025-10-04,Accidente en Calabria y Tomas Edison
+-38.0110,-57.5550,12:00,NSD,A,2025-10-04,Accidente en Independencia y San Martín
+-38.0120,-57.5555,07:30,NSD,M/POLICIA,2025-10-05,Accidente en Estado de Israel y Berutti
+-38.0130,-57.5560,23:00,NR,COL/M,2025-10-05,Accidente en Talcahuano y Magallanes
+-38.0140,-57.5565,21:30,VS,A/A,2025-10-05,Accidente en Independencia y Belgrano
+-38.0150,-57.5570,08:00,NSD,POLICIA/A,2025-10-05,Accidente en Paso y Dorrego
+-38.0160,-57.5575,20:00,NSD,A/B,2025-10-05,Accidente en Villa Primera
+-38.0170,-57.5580,21:00,NSD,POLICIA/A,2025-10-05,Accidente en Polonia y Solís
+-38.0180,-57.5585,23:00,NSD,A/B,2025-10-05,Accidente en Vertiz y Camusso
+-38.0190,-57.5590,08:00,NSD,A/M,2025-10-05,Accidente en Santa Rita
+-38.0200,-57.5595,09:00,NSD,A/M,2025-10-05,Accidente en Santa Mónica
+-38.0210,-57.5600,10:00,NSD,A/M,2025-10-05,Accidente en Centro
+-38.0220,-57.5605,11:00,NSD,A/M,2025-10-05,Accidente en Termas Huincó
+-38.0230,-57.5610,12:00,NSD,A/M,2025-10-05,Accidente en San Patricio
+-38.0240,-57.5615,13:00,NSD,A/M,2025-10-05,Accidente en Don Bosco

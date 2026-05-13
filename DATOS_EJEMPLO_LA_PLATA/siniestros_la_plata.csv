@@ -1,0 +1,21 @@
+Latitud,Longitud,fecha,descripcion,causa,participantes
+-34.9214,-57.9544,2026-05-01,Colisión entre auto y moto en Av. 7 y 50,D,A/M
+-34.9202,-57.9531,2026-05-01,Atropello de peatón en Calle 12 y 60,PI,P/A
+-34.9178,-57.9500,2026-05-02,Choque múltiple en Av. 13 y 38,EV,A/M/CAM
+-34.9132,-57.9475,2026-05-02,Colisión simple en Calle 44 y 10,FV,A
+-34.9220,-57.9600,2026-05-03,Incidente con bicicleta en Av. 19 y 32,G,B/A
+-34.9250,-57.9650,2026-05-03,Atropello de peatón en Calle 25 y 72,PI,P/A
+-34.9300,-57.9700,2026-05-04,Colisión entre autos en Av. 31 y 60,DESCOMPENSAN,A
+-34.9350,-57.9750,2026-05-04,Choque múltiple en Calle 38 y 137,MI,M/A
+-34.9400,-57.9800,2026-05-05,Atropello de peatón en Av. 44 y 155,NR,A/M
+-34.9450,-57.9850,2026-05-05,Colisión simple en Calle 60 y 173,A,A
+-34.9500,-57.9900,2026-05-06,Incidente con bicicleta en Av. 72 y 25,CAM,A/CAM
+-34.9550,-57.9950,2026-05-06,Violación de semáforo en Calle 137 y 38,VS,A/M
+-34.9600,-58.0000,2026-05-07,Peatón en zona peligrosa en Av. 155 y 44,P,P
+-34.9650,-58.0050,2026-05-07,Perdida de control en Calle 173 y 60,PC,A
+-34.9700,-58.0100,2026-05-08,Ambulancia involucrada en Av. 25 y 72,DF,AMB/A
+-34.9750,-58.0150,2026-05-08,Policía en persecución en Calle 38 y 137,PERSECUCIÓN,POLICIA/A
+-34.9800,-58.0200,2026-05-09,Colisión con patrulla en Av. 44 y 155,MR,PATRULLA/A
+-34.9850,-58.0250,2026-05-09,Invasión de carril en Calle 60 y 173,IC,A/M
+-34.9900,-58.0300,2026-05-10,No se determinó en Av. 72 y 25,NSD,A
+-34.9950,-58.0350,2026-05-10,Colisión con bomberos en Calle 137 y 38,BOMBEROS,A/BOMBEROS

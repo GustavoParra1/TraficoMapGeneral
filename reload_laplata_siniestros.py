@@ -40,17 +40,48 @@ def reload_laplata_siniestros():
         print(f"   Columnas: {list(df.columns)}")
         
         # 3. Verificar columnas críticas
-        required_cols = ['lat', 'lng', 'causa']
+        # Columnas requeridas según instructivo
+        required_cols = ['lat', 'lng', 'hora', 'causa', 'participantes', 'fecha', 'descripcion']
         missing_cols = [col for col in required_cols if col not in df.columns]
         if missing_cols:
             print(f"   ❌ Columnas faltantes: {missing_cols}")
+            print(f"   El archivo debe tener exactamente estas columnas (en cualquier orden): {required_cols}")
             return False
-        
-        # 4. Verificar datos de causa
-        print(f"\n2️⃣  Validando datos...")
-        print(f"   Valores únicos en 'causa': {df['causa'].unique().tolist()}")
-        print(f"   Ejemplo de datos:")
-        print(df[['lat', 'lng', 'causa']].head(3).to_string())
+
+        # 4. Validar datos de cada fila
+        print(f"\n2️⃣  Validando datos de cada fila...")
+        causa_validos = [
+            'D','A','AV','EV','FV','G','MI','MR','NR','NSD','P','PC','PI','VS','DF','DESCOMPENSAN','IC','PERSECUCIÓN','?'
+        ]
+        participantes_validos = [
+            'A','M','P','CAM','B','COL','CTA','BOMBEROS','PERRO','POLICIA','MONOPATIN','AMB','PATRULLA','CABALLO'
+        ]
+        errores = []
+        for idx, row in df.iterrows():
+            # lat/lng obligatorios
+            if pd.isna(row['lat']) or pd.isna(row['lng']):
+                errores.append(f"Fila {idx+1}: Falta lat o lng")
+            # causa (si está presente)
+            causa = str(row['causa']).strip()
+            if causa and causa not in causa_validos:
+                errores.append(f"Fila {idx+1}: Causa inválida '{causa}'")
+            # participantes (si está presente)
+            part = str(row['participantes']).strip()
+            if part:
+                for p in part.split('/'):
+                    if p and p not in participantes_validos:
+                        errores.append(f"Fila {idx+1}: Participante inválido '{p}'")
+            # hora (si está presente)
+            hora = str(row['hora']).strip()
+            if hora and not (len(hora)==5 and hora[2]==':'):
+                errores.append(f"Fila {idx+1}: Formato de hora inválido '{hora}' (debe ser HH:MM)")
+        if errores:
+            print(f"   ❌ Errores encontrados en el archivo:")
+            for err in errores:
+                print(f"      - {err}")
+            print(f"   Corrige los errores y vuelve a intentar.")
+            return False
+        print(f"   ✅ Validación estricta completada. Todas las filas son válidas.")
         
         # 5. Eliminar datos antiguos
         print(f"\n3️⃣  Eliminando documentos antiguos de Firestore...")
@@ -72,23 +103,18 @@ def reload_laplata_siniestros():
                 sin_data = {
                     'lat': float(row['lat']),
                     'lng': float(row['lng']),
-                    'causa': str(row['causa']).strip(),  # CRÍTICO: asegurar que sea string limpio
-                    'fecha': datetime.now() if pd.isna(row.get('fecha')) else row['fecha'],
-                    'participantes': int(row['participantes']) if 'participantes' in row and not pd.isna(row['participantes']) else 0,
-                    'heridos': int(row['heridos']) if 'heridos' in row and not pd.isna(row['heridos']) else 0,
-                    'muertos': int(row['muertos']) if 'muertos' in row and not pd.isna(row['muertos']) else 0,
-                    'lugar': str(row['lugar']) if 'lugar' in row and not pd.isna(row['lugar']) else 'La Plata',
-                    'descripcion_tipo': str(row['descripcion_tipo']) if 'descripcion_tipo' in row and not pd.isna(row['descripcion_tipo']) else 'accidente'
+                    'hora': str(row['hora']).strip() if not pd.isna(row['hora']) else '',
+                    'causa': str(row['causa']).strip(),
+                    'participantes': str(row['participantes']).strip() if not pd.isna(row['participantes']) else '',
+                    'fecha': str(row['fecha']).strip() if not pd.isna(row['fecha']) else '',
+                    'descripcion': str(row['descripcion']).strip() if not pd.isna(row['descripcion']) else ''
                 }
-                
                 # Generar ID único
                 doc_id = f"sin_laplata_{idx:03d}"
                 siniestros_col.document(doc_id).set(sin_data)
                 loaded_count += 1
-                
                 if (idx + 1) % 10 == 0:
                     print(f"   ✅ {loaded_count} siniestros cargados...")
-                    
             except Exception as e:
                 print(f"   ⚠️  Error en fila {idx}: {str(e)}")
                 continue

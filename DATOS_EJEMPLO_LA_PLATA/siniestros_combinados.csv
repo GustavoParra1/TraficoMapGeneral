@@ -1,0 +1,71 @@
+lat,lng,nombre,hora,descripcion_tipo,fecha,causa,participantes,descripcion,barrio
+-34.921,-57.955,Siniestro 1,20:07,accidente,2024-06-01,D,A/P,Evento de tráfico en La Plata #1,Centro
+-34.920,-57.956,Siniestro 2,01:14,accidente,2025-12-17,EV,B,Evento de tráfico en La Plata #2,Centro
+-34.922,-57.954,Siniestro 3,12:21,accidente,2025-09-16,NR,COL,Evento de tráfico en La Plata #3,Centro
+-34.925,-57.952,Siniestro 4,01:28,accidente,2024-10-26,MI,B,Evento de tráfico en La Plata #4,Este
+-34.918,-57.958,Siniestro 5,20:35,accidente,2024-12-28,P,CAM,Evento de tráfico en La Plata #5,Oeste
+-34.930,-57.950,Siniestro 6,20:42,accidente,2025-03-24,A,COL,Evento de tráfico en La Plata #6,Tolosa
+-34.915,-57.960,Siniestro 7,14:49,accidente,2024-06-30,VS,A,Evento de tráfico en La Plata #7,Oeste
+-34.935,-57.940,Siniestro 8,13:56,accidente,2026-05-03,EV,A/M,Evento de tráfico en La Plata #8,Villa Elvira
+-34.940,-57.945,Siniestro 9,01:03,accidente,2024-01-24,NR,A/P,Evento de tráfico en La Plata #9,Gonnet
+-34.910,-57.965,Siniestro 10,02:10,accidente,2024-01-12,MI,CAM,Evento de tráfico en La Plata #10,Este
+-34.945,-57.935,Siniestro 11,15:17,accidente,2025-09-12,VS,M/P,Evento de tráfico en La Plata #11,Oeste
+-34.905,-57.970,Siniestro 12,18:24,accidente,2025-05-30,D,B,Evento de tráfico en La Plata #12,Parque Saavedra
+-34.928,-57.948,Siniestro 13,10:31,accidente,2024-06-13,EV,A,Evento de tráfico en La Plata #13,Tolosa
+-34.950,-57.930,Siniestro 14,01:38,accidente,2024-05-19,MI,A,Evento de tráfico en La Plata #14,Barrio Universitario
+-34.918,-57.962,Siniestro 15,05:45,accidente,2024-06-07,PC,M/P,Evento de tráfico en La Plata #15,Centro
+-34.912,-57.968,Siniestro 16,18:52,accidente,2025-01-02,?,COL,Evento de tráfico en La Plata #16,Zona Sur
+-34.942,-57.938,Siniestro 17,19:59,accidente,2024-11-20,A,COL,Evento de tráfico en La Plata #17,Nueva República
+-34.925,-57.950,Siniestro 18,21:06,accidente,2025-05-13,EV,CAM,Evento de tráfico en La Plata #18,Centro
+-34.935,-57.955,Siniestro 19,17:13,accidente,2025-01-04,D,CAM,Evento de tráfico en La Plata #19,Abella
+-34.915,-57.960,Siniestro 20,11:20,accidente,2026-01-16,NR,COL,Evento de tráfico en La Plata #20,Oeste
+-34.920,-57.958,Siniestro 21,14:27,accidente,2025-02-24,VS,COL,Evento de tráfico en La Plata #21,Centro
+-34.925,-57.956,Siniestro 22,01:34,accidente,2024-04-05,MI,A/M,Evento de tráfico en La Plata #22,Este
+-34.930,-57.948,Siniestro 23,02:41,accidente,2024-09-30,EV,P,Evento de tráfico en La Plata #23,Tolosa
+-34.918,-57.952,Siniestro 24,00:48,accidente,2024-05-22,D,A,Evento de tráfico en La Plata #24,Centro
+-34.940,-57.962,Siniestro 25,12:55,accidente,2024-02-14,NR,COL,Evento de tráfico en La Plata #25,Gonnet
+-34.922,-57.960,Siniestro 26,22:02,accidente,2024-06-24,PC,P,Evento de tráfico en La Plata #26,Centro
+-34.945,-57.940,Siniestro 27,04:09,accidente,2025-05-05,VS,A,Evento de tráfico en La Plata #27,Barrio Universitario
+-34.915,-57.958,Siniestro 28,09:16,accidente,2026-01-08,A,M,Evento de tráfico en La Plata #28,Oeste
+-34.928,-57.965,Siniestro 29,18:23,accidente,2025-07-28,EV,P,Evento de tráfico en La Plata #29,Este
+-34.910,-57.950,Siniestro 30,23:30,accidente,2024-06-04,MI,M,Evento de tráfico en La Plata #30,Centro
+-34.935,-57.952,Siniestro 31,14:37,accidente,2024-08-11,D,CAM,Evento de tráfico en La Plata #31,Tolosa
+-34.920,-57.962,Siniestro 32,18:44,accidente,2025-10-13,NR,A/M,Evento de tráfico en La Plata #32,Oeste
+-34.925,-57.958,Siniestro 33,10:51,accidente,2025-02-14,VS,B,Evento de tráfico en La Plata #33,Parque Saavedra
+-34.918,-57.960,Siniestro 34,12:58,accidente,2024-04-30,PC,A/P,Evento de tráfico en La Plata #34,Centro
+-34.940,-57.945,Siniestro 35,17:05,accidente,2025-07-16,EV,COL,Evento de tráfico en La Plata #35,Gonnet
+-34.930,-57.955,Siniestro 36,19:12,accidente,2024-12-10,A,CAM,Evento de tráfico en La Plata #36,Este
+-34.912,-57.950,Siniestro 37,00:19,accidente,2024-09-28,MI,M/P,Evento de tráfico en La Plata #37,Parque Saavedra
+-34.945,-57.960,Siniestro 38,16:26,accidente,2024-08-11,VS,M,Evento de tráfico en La Plata #38,Barrio Universitario
+-34.920,-57.948,Siniestro 39,10:33,accidente,2025-06-18,D,M,Evento de tráfico en La Plata #39,Centro
+-34.928,-57.962,Siniestro 40,10:40,accidente,2025-05-14,NR,COL,Evento de tráfico en La Plata #40,Oeste
+-34.938,-57.935,Siniestro 41,05:47,accidente,2026-03-08,PC,B,Evento de tráfico en La Plata #41,Nueva República
+-34.915,-57.955,Siniestro 42,16:54,accidente,2025-01-28,EV,A/P,Evento de tráfico en La Plata #42,Centro
+-34.925,-57.965,Siniestro 43,12:01,accidente,2026-01-02,MI,CAM,Evento de tráfico en La Plata #43,Zona Sur
+-34.920,-57.950,Siniestro 44,04:08,accidente,2024-11-17,A,A,Evento de tráfico en La Plata #44,Parque Saavedra
+-34.940,-57.958,Siniestro 45,00:15,accidente,2025-11-09,VS,M/P,Evento de tráfico en La Plata #45,Gonnet
+-34.930,-57.962,Siniestro 46,11:22,accidente,2025-05-24,D,M,Evento de tráfico en La Plata #46,Este
+-34.918,-57.956,Siniestro 47,23:29,accidente,2024-07-16,NR,P,Evento de tráfico en La Plata #47,Centro
+-34.935,-57.960,Siniestro 48,00:36,accidente,2024-08-27,EV,M,Evento de tráfico en La Plata #48,Barrio Universitario
+-34.922,-57.952,Siniestro 49,03:43,accidente,2026-04-02,PC,P,Evento de tráfico en La Plata #49,Oeste
+-34.925,-57.955,Siniestro 50,23:50,accidente,2024-12-30,A,M,Evento de tráfico en La Plata #50,Centro
+-34.9214,-57.9544,,,,2026-05-01,D,A/M,Colisión entre auto y moto en Av. 7 y 50,
+-34.9202,-57.9531,,,,2026-05-01,PI,P/A,Atropello de peatón en Calle 12 y 60,
+-34.9178,-57.9500,,,,2026-05-02,EV,A/M/CAM,Choque múltiple en Av. 13 y 38,
+-34.9132,-57.9475,,,,2026-05-02,FV,A,Colisión simple en Calle 44 y 10,
+-34.9220,-57.9600,,,,2026-05-03,G,B/A,Incidente con bicicleta en Av. 19 y 32,
+-34.9250,-57.9650,,,,2026-05-03,PI,P/A,Atropello de peatón en Calle 25 y 72,
+-34.9300,-57.9700,,,,2026-05-04,DESCOMPENSAN,A,Colisión entre autos en Av. 31 y 60,
+-34.9350,-57.9750,,,,2026-05-04,MI,M/A,Choque múltiple en Calle 38 y 137,
+-34.9400,-57.9800,,,,2026-05-05,NR,A/M,Atropello de peatón en Av. 44 y 155,
+-34.9450,-57.9850,,,,2026-05-05,A,A,Colisión simple en Calle 60 y 173,
+-34.9500,-57.9900,,,,2026-05-06,CAM,A/CAM,Incidente con bicicleta en Av. 72 y 25,
+-34.9550,-57.9950,,,,2026-05-06,VS,A/M,Violación de semáforo en Calle 137 y 38,
+-34.9600,-58.0000,,,,2026-05-07,P,P,Peatón en zona peligrosa en Av. 155 y 44,
+-34.9650,-58.0050,,,,2026-05-07,PC,A,Perdida de control en Calle 173 y 60,
+-34.9700,-58.0100,,,,2026-05-08,DF,AMB/A,Ambulancia involucrada en Av. 25 y 72,
+-34.9750,-58.0150,,,,2026-05-08,PERSECUCIÓN,POLICIA/A,Policía en persecución en Calle 38 y 137,
+-34.9800,-58.0200,,,,2026-05-09,MR,PATRULLA/A,Colisión con patrulla en Av. 44 y 155,
+-34.9850,-58.0250,,,,2026-05-09,IC,A/M,Invasión de carril en Calle 60 y 173,
+-34.9900,-58.0300,,,,2026-05-10,NSD,A,No se determinó en Av. 72 y 25,
+-34.9950,-58.0350,,,,2026-05-10,BOMBEROS,A/BOMBEROS,Colisión con bomberos en Calle 137 y 38,

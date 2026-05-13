@@ -66,62 +66,82 @@ def upload_siniestros_from_csv(csv_path):
     print(f"\n📂 Leyendo CSV: {csv_path}")
     
     siniestros = []
+    errores = []
+    # Códigos válidos (igual que reload_laplata_siniestros.py)
+    causa_validos = set([
+        'D','A','AV','EV','FV','G','MI','MR','NR','NSD','P','PC','PI','VS','DF','DESCOMPENSAN','IC','PERSECUCIÓN','?'
+    ])
+    participantes_validos = set([
+        'A','M','P','CAM','B','COL','CTA','BOMBEROS','PERRO','POLICIA','MONOPATIN','AMB','PATRULLA','CABALLO'
+    ])
     try:
         with open(csv_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
-            for row in reader:
-                # Convertir lat/lng a float
-                lat = float(row['lat'])
-                lng = float(row['lng'])
-                
-                # Obtener código de causa del CSV
+            for idx, row in enumerate(reader):
+                # Validar lat/lng
+                try:
+                    lat = float(row['lat'])
+                    lng = float(row['lng'])
+                except Exception:
+                    errores.append(f"Fila {idx+2}: lat/lng inválido")
+                    continue
+                # Validar causa
                 causa_code = row['causa'].strip().upper()
-                
-                # Obtener descripción de causa o usar código como fallback
-                causa_description = CAUSA_DESCRIPTIONS.get(causa_code, causa_code)
-                
-                siniestro = {
-                    'lat': lat,
-                    'lng': lng,
-                    'nombre': row['nombre'],
-                    'tipo': row['descripcion_tipo'],  # accidente, robo, etc.
-                    'causa': causa_code,  # Código: D, EV, PC, etc.
-                    'causa_descripcion': causa_description,  # Descripción completa
-                    'fecha': row['fecha'],
-                    'participantes': row['participantes'],
-                    'descripcion': row['descripcion'],
-                    'barrio': row['barrio'],
-                    'timestamp': datetime.now().isoformat(),
-                    'geopoint': {
-                        'latitude': lat,
-                        'longitude': lng
+                if not causa_code or causa_code not in causa_validos:
+                    errores.append(f"Fila {idx+2}: Causa inválida '{row['causa']}'")
+                # Validar participantes
+                part = row['participantes'].strip()
+                if part:
+                    for p in part.split('/'):
+                        if p and p not in participantes_validos:
+                            errores.append(f"Fila {idx+2}: Participante inválido '{p}'")
+                # Validar hora si existe
+                hora = row.get('hora', '').strip()
+                if hora and not (len(hora)==5 and hora[2]==':'):
+                    errores.append(f"Fila {idx+2}: Formato de hora inválido '{hora}' (debe ser HH:MM)")
+                # Si no hay errores para esta fila, agregar a siniestros
+                if not errores or (len(errores) > 0 and errores[-1].startswith(f"Fila {idx+2}")) == False:
+                    causa_description = CAUSA_DESCRIPTIONS.get(causa_code, causa_code)
+                    siniestro = {
+                        'lat': lat,
+                        'lng': lng,
+                        'nombre': row['nombre'],
+                        'tipo': row.get('descripcion_tipo', ''),
+                        'causa': causa_code,
+                        'causa_descripcion': causa_description,
+                        'fecha': row['fecha'],
+                        'participantes': row['participantes'],
+                        'descripcion': row['descripcion'],
+                        'barrio': row.get('barrio', ''),
+                        'timestamp': datetime.now().isoformat(),
+                        'geopoint': {
+                            'latitude': lat,
+                            'longitude': lng
+                        }
                     }
-                }
-                siniestros.append(siniestro)
-                
-                print(f"  ✓ {row['nombre']}: causa={causa_code} ({causa_description})")
-        
+                    siniestros.append(siniestro)
+                    print(f"  ✓ {row['nombre']}: causa={causa_code} ({causa_description})")
+        if errores:
+            print(f"\n❌ Errores encontrados en el archivo:")
+            for err in errores:
+                print(f"   - {err}")
+            print(f"Corrige los errores y vuelve a intentar. No se subió ningún dato.")
+            return False
         print(f"\n📦 Total de siniestros a cargar: {len(siniestros)}")
-        
         # Cargar a Firestore en lotes
         print("\n📡 Cargando a Firestore en lotes...")
         collection = db.collection('clientes').document('laplata').collection('siniestros')
-        
         batch_size = 100
         for batch_idx in range(0, len(siniestros), batch_size):
             batch = db.batch()
             batch_items = siniestros[batch_idx:batch_idx + batch_size]
-            
             for siniestro in batch_items:
                 doc_id = siniestro['nombre'].replace(' ', '_').lower()
                 batch.set(collection.document(doc_id), siniestro)
-            
             batch.commit()
             print(f"  ✅ Lote [{batch_idx + len(batch_items)}/{len(siniestros)}] cargado")
-        
         print(f"\n✅ Todos los {len(siniestros)} siniestros cargados exitosamente!")
         return True
-        
     except FileNotFoundError:
         print(f"❌ Archivo no encontrado: {csv_path}")
         return False

@@ -1,0 +1,11 @@
+lat,lng,hora,causa,participantes,fecha,descripcion
+-38.0055,-57.5521,09:30,D,A/M,2024-01-15,Choque doble
+-38.0060,-57.5525,14:15,A,M/P,2024-01-16,Caída de moto
+-38.0070,-57.5530,18:45,EV,A,2024-01-17,Exceso de velocidad en curva
+-38.0080,-57.5540,22:10,NR,COL/A,2024-01-18,Colectivo no respeta semáforo
+-38.0090,-57.5550,07:50,NSD,P,2024-01-19,Peatón cruzando fuera de senda
+-38.0100,-57.5560,12:00,PC,A/CAM,2024-01-20,Auto choca camión estacionado
+-38.0110,-57.5570,16:30,MR,M,2024-01-21,Moto realiza maniobra riesgosa
+-38.0120,-57.5580,20:00,PI,P,2024-01-22,Peatón imprudente
+-38.0130,-57.5590,10:20,FV,A,2024-01-23,Falta de visibilidad por niebla
+-38.0140,-57.5600,13:40,IC,A/M,2024-01-24,Intervención de terceros
