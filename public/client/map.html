@@ -454,21 +454,28 @@ const savedClienteId = sessionStorage.getItem('clienteId');
 const savedClienteData = sessionStorage.getItem('clienteData');
 const isClientSessionRestored = savedClienteId && savedClienteData;
 
+// 🔧 EXTRAER clienteId DE URL PARAMS como fallback si no hay sesión
+const urlParams = new URLSearchParams(window.location.search);
+const urlClienteId = urlParams.get('client'); // Ej: client=laplata
+
+// Usar clienteId de sesión o de URL params
+const clienteId = savedClienteId || urlClienteId;
+
 // Guardar en window para que otros scripts lo usen
-window.restoredClienteId = savedClienteId;
+window.restoredClienteId = clienteId;
 window.restoredClienteData = savedClienteData ? JSON.parse(savedClienteData) : null;
 
 console.log('🔐 Restauración de sesión cliente:', isClientSessionRestored ? 'SÍ' : 'NO');
+console.log(`🔐 clienteId (session o URL): ${clienteId}`);
 if (isClientSessionRestored) {
   console.log('✅ Cliente restaurado:', window.restoredClienteData.nombre);
 }
 
 // Detectar si estamos en modo cliente
 // ✅ IMPORTANTE: Guardar urlParams en window para que app.js pueda acceder
-window.urlParams = new URLSearchParams(window.location.search);
-const urlParams = window.urlParams;
+window.urlParams = urlParams;
 const clientCityName = urlParams.get('city');
-const isClientMode = clientCityName !== null || isClientSessionRestored;
+const isClientMode = clientCityName !== null || clienteId !== null;
 
 // Guardar en window para que app.js pueda leerlo
 window.isClientMode = isClientMode;
@@ -527,7 +534,7 @@ async function initializeClientFirebase() {
     if (!clienteData || !clienteData.firebase_cliente) {
       console.log('🔍 Buscando datos completos del cliente en Firestore...');
       
-      // Si tenemos clienteId, usarlo para consultar directamente
+      // Si tenemos clienteId (de sesión o URL params), usarlo para consultar directamente
       if (clienteId) {
         try {
           const db = firebase.firestore();
@@ -536,6 +543,7 @@ async function initializeClientFirebase() {
           if (clienteDoc.exists) {
             clienteData = clienteDoc.data();
             window.restoredClienteData = clienteData;
+            window.restoredClienteId = clienteId; // Asegurar que está en window
             console.log('✅ Datos del cliente obtenidos desde Firestore:', clienteData.nombre);
             console.log('  📋 Campos disponibles:', Object.keys(clienteData));
             console.log('  📋 firebase_cliente está:', !!clienteData.firebase_cliente);
@@ -545,6 +553,8 @@ async function initializeClientFirebase() {
         } catch (error) {
           console.error('❌ Error obteniendo datos del cliente:', error.message);
         }
+      } else {
+        console.log('⚠️ No hay clienteId para buscar en Firestore');
       }
     }
     
@@ -582,9 +592,15 @@ async function initializeClientFirebase() {
     } else {
       console.log('⚠️ No se pudo obtener las credenciales firebase_cliente');
       console.log(`  - isClientMode: ${window.isClientMode}`);
+      console.log(`  - clienteId: ${clienteId}`);
       console.log(`  - clienteData: ${!!clienteData}`);
-      console.log(`  - clienteData keys: ${clienteData ? Object.keys(clienteData) : 'N/A'}`);
-      console.log(`  - firebase_cliente: ${!!clienteData?.firebase_cliente}`);
+      if (clienteData) {
+        console.log(`  - clienteData keys: ${Object.keys(clienteData).join(', ')}`);
+        console.log(`  - firebase_cliente field: ${!!clienteData.firebase_cliente}`);
+        if (!clienteData.firebase_cliente) {
+          console.log('  ⚠️ Documento del cliente NO contiene firebase_cliente. Necesita actualización manual.');
+        }
+      }
     }
   } else {
     console.log('ℹ️ No es modo cliente');
