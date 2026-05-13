@@ -955,13 +955,11 @@ let authInitialized = false;
 auth.onAuthStateChanged((user) => {
   const sidebar = document.getElementById('sidebar');
   
-  // 🔐 SI ESTAMOS EN MODO CLIENTE CON SESIÓN VÁLIDA: SALTAR LOGIN
-  if (window.isClientMode && window.restoredClienteId) {
-    console.log('🔓 MODO CLIENTE CON SESIÓN: Saltando login de Firebase');
-    return; // Mapa ya cargado, no mostrar login
-  }
+  // 🔐 VERIFICAR: Modo cliente con sesión válida O usuario autenticado
+  const hasValidSession = window.isClientMode && window.restoredClienteId;
+  const isUserAuthenticated = !!user;
   
-  if (!user) {
+  if (!isUserAuthenticated && !hasValidSession) {
     // Usuario NO autenticado
     // Solo si es la primera carga, mostrar login
     // Si pierde sesión después (logout en otra ventana), mantener el mapa funcionando
@@ -1012,8 +1010,10 @@ auth.onAuthStateChanged((user) => {
       }
     }
     
-  } else {
-    // Usuario autenticado - mostrar panel
+  } else if (isUserAuthenticated || hasValidSession) {
+    // Usuario autenticado O cliente con sesión válida
+    if (isUserAuthenticated) {
+      // Mostrar panel de usuario autenticado
     sidebar.innerHTML = `
       <div id="logo">🗺️ TraficoMap</div>
       <div class="sidebar-section">
@@ -2575,6 +2575,10 @@ auth.onAuthStateChanged((user) => {
         console.log('🧹 Búsqueda y marcador limpiados');
       });
     }
+    
+    } // Fin del bloque de usuario autenticado
+    
+    // ===== CÓDIGO COMPARTIDO: Se ejecuta para usuario autenticado O cliente con sesión =====
     
     // Mostrar mapa
     document.getElementById('map').style.opacity = '1';
