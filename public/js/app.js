@@ -11,19 +11,18 @@ function iniciarMapa() {
   if (!map) {
     try {
       console.log('🗺️ Iniciando mapa...');
-      // Determinar coordenadas y zoom según currentCity
+      // Usar configuración de citiesConfig para la ciudad activa
       let lat = -38.0, lng = -57.55, zoom = 12;
-      if (currentCity === 'la-plata') {
-        lat = -34.9;
-        lng = -57.956;
-        zoom = 13;
-      } else if (currentCity === 'cordoba') {
-        lat = -31.415;
-        lng = -64.189;
-        zoom = 13;
+      if (typeof citiesConfig !== 'undefined' && citiesConfig) {
+        const cityConfig = citiesConfig.find(c => c.id === currentCity);
+        if (cityConfig && cityConfig.coordinates) {
+          lat = cityConfig.coordinates.lat;
+          lng = cityConfig.coordinates.lng;
+          zoom = cityConfig.zoom || 12;
+        }
       }
       map = L.map('map').setView([lat, lng], zoom);
-      console.log('✅ Mapa Leaflet creado');
+      console.log(`✅ Mapa Leaflet creado en ${currentCity} (${lat}, ${lng}) zoom ${zoom}`);
       
       // Capa OSM
       layers.osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -2243,9 +2242,27 @@ auth.onAuthStateChanged((user) => {
     }
 
     document.getElementById('center-map-btn').addEventListener('click', () => {
-      if (map) {
-        map.setView([-38.0, -57.55], 12);
-        console.log('✅ Mapa centrado');
+      // Centrar mapa en la ciudad actualmente seleccionada, siempre con zoom 15
+      let cityId;
+      const citySelector = document.getElementById('city-selector');
+      if (citySelector && citySelector.value) {
+        cityId = citySelector.value;
+      } else if (typeof currentCity !== 'undefined' && currentCity) {
+        cityId = currentCity;
+      } else {
+        cityId = 'mar-del-plata';
+      }
+      if (map && citiesConfig) {
+        const cityConfig = citiesConfig.find(c => c.id === cityId);
+        if (cityConfig && cityConfig.coordinates) {
+          const lat = cityConfig.coordinates.lat;
+          const lng = cityConfig.coordinates.lng;
+          const zoom = 15;
+          map.setView([lat, lng], zoom);
+          console.log(`✅ Mapa centrado en ${cityId} (${lat}, ${lng}) con zoom 15`);
+        } else {
+          console.warn(`⚠️ Configuración de ciudad no encontrada para ${cityId}`);
+        }
       }
     });
     
@@ -2254,21 +2271,22 @@ auth.onAuthStateChanged((user) => {
       
       // 0. Obtener ciudad actualmente seleccionada (NO cambiar a Mar del Plata)
       const citySelector = document.getElementById('city-selector');
-      const currentCity = citySelector?.value || 'mar-del-plata';
-      console.log(`  • Ciudad actual seleccionada: ${currentCity}`);
-      
+      // Usar el valor del selector si existe y es válido, si no, usar el currentCity global
+      let cityId = (citySelector && citySelector.value) ? citySelector.value : (typeof currentCity !== 'undefined' && currentCity ? currentCity : 'mar-del-plata');
+      console.log(`  • Ciudad actual seleccionada para reset: ${cityId}`);
+
       // 1. Resetear vista del mapa a la ciudad actual
       if (map && citiesConfig) {
         // Buscar la configuración de la ciudad en citiesConfig (que es un array)
-        const cityConfig = citiesConfig.find(c => c.id === currentCity);
+        const cityConfig = citiesConfig.find(c => c.id === cityId);
         if (cityConfig && cityConfig.coordinates) {
           const lat = cityConfig.coordinates.lat;
           const lng = cityConfig.coordinates.lng;
           const zoom = cityConfig.zoom || 12;
           map.setView([lat, lng], zoom);
-          console.log(`  ✓ Mapa centrado en ${currentCity} (${lat}, ${lng})`);
+          console.log(`  ✓ Mapa centrado en ${cityId} (${lat}, ${lng})`);
         } else {
-          console.warn(`⚠️ Configuración de ciudad no encontrada para ${currentCity}`);
+          console.warn(`⚠️ Configuración de ciudad no encontrada para ${cityId}`);
         }
       }
       
@@ -2609,8 +2627,14 @@ auth.onAuthStateChanged((user) => {
     // Mostrar mapa
     document.getElementById('map').style.opacity = '1';
     
-    // Inicializar mapa si no existe
-    iniciarMapa();
+    // Inicializar mapa solo cuando citiesConfig esté cargado
+    if (!citiesConfig) {
+      loadCitiesConfig().then(() => {
+        iniciarMapa();
+      });
+    } else {
+      iniciarMapa();
+    }
     
     // Re-renderizar selector LPR después de que autenticación complete el sidebar
     if (typeof LprLayer !== 'undefined' && LprLayer.renderLprSelector) {
@@ -3420,8 +3444,7 @@ const setupImportCities = () => {
   }, 500);
 };
 
-// Inicializar mapa al cargar
-iniciarMapa();
+// (Eliminado: inicialización prematura de mapa. Ahora solo se inicializa tras cargar config y ciudad correctas)
 
 // Inicializar sistema de importación de ciudades (CON DELAY para asegurar que el sidebar esté listo)
 // ⚠️ Solo en modo NO-cliente
