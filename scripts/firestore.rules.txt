@@ -1,0 +1,284 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================
+    // HELPERS
+    // ============================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isSuperAdmin() {
+      return isAuthenticated() && 
+             (request.auth.token.rol == 'super_admin' || 
+              request.auth.token.rol == 'admin' ||
+              request.auth.token.role == 'admin' ||
+              request.auth.token.email == 'admin@trafico-map.com' ||
+              request.auth.email == 'admin@trafico-map.com');
+    }
+    function isClienteUser() {
+      return isAuthenticated() && 
+             request.auth.token.clienteId != null;
+    }
+    function getUserClienteId() {
+      return request.auth.token.clienteId;
+    }
+
+    // ============================
+    // COLECCIÓN: admins
+    // ============================
+    match /admins/{doc=**} {
+      allow read, write: if isSuperAdmin();
+    }
+
+    // ============================
+    // COLECCIÓN: usuarios
+    // ============================
+    match /usuarios/{uid} {
+      allow read: if request.auth.uid == uid;
+      allow create, update, delete: if isSuperAdmin();
+    }
+
+    // ============================
+    // COLECCIÓN: clientes (MULTI-TENANT)
+    // ============================
+    match /clientes/{clienteId} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+    match /clientes/{clienteId}/config/{doc=**} {
+      allow read: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow write: if isSuperAdmin();
+    }
+    match /clientes/{clienteId}/camaras/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/cameras/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/camaras_privadas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/cameras_privadas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/siniestros/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/barrios/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/robo/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/robos/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/robos_automotor/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/semaforos/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/escuelas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/colegios/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/colegios_escuelas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/corredores/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/flujo/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/lineas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/operadores/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/patrullas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/listas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+    match /clientes/{clienteId}/usuarios_clientes/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+      allow delete: if isSuperAdmin() || (isClienteUser() && getUserClienteId() == clienteId);
+    }
+
+    // ============================
+    // COLECCIONES raíz (para compatibilidad)
+    // ============================
+    match /barrios/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /camaras/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /cameras/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /camaras_privadas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /cameras_privadas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /siniestros/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /semaforos/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /robos/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /robo/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /escuelas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /colegios/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /colegios_escuelas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /corredores/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /flujo/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /lineas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /operadores/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /patrullas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /listas/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+    match /usuarios_clientes/{doc=**} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // ============================
+    // COLECCIÓN: operaciones (global)
+    // ============================
+    match /operaciones/{doc=**} {
+      allow read, write: if isSuperAdmin();
+    }
+    // ============================
+    // COLECCIÓN: subscripciones (global)
+    // ============================
+    match /subscripciones/{doc=**} {
+      allow read, write: if isSuperAdmin();
+    }
+    // ============================
+    // COLECCIÓN: billing (global)
+    // ============================
+    match /billing/{doc=**} {
+      allow read, write: if isSuperAdmin();
+    }
+    // ============================
+    // COLECCIÓN: pagos (global)
+    // ============================
+    match /pagos/{doc=**} {
+      allow read, write: if isSuperAdmin();
+    }
+    // ============================
+    // DEFAULT: DENY
+    // ============================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

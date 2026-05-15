@@ -1,0 +1,176 @@
+{
+  "type": "FeatureCollection",
+  "name": "barrios_laplata_operativo",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1,
+        "nombre": "Casco Urbano"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-57.9765, -34.9215],
+          [-57.9400, -34.9215],
+          [-57.9400, -34.8900],
+          [-57.9765, -34.8900],
+          [-57.9765, -34.9215]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 2,
+        "nombre": "Tolosa"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-57.9950, -34.9200],
+          [-57.9650, -34.9200],
+          [-57.9650, -34.8950],
+          [-57.9950, -34.8950],
+          [-57.9950, -34.9200]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 3,
+        "nombre": "Ringuelet"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-57.9900, -34.9000],
+          [-57.9600, -34.9000],
+          [-57.9600, -34.8750],
+          [-57.9900, -34.8750],
+          [-57.9900, -34.9000]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 4,
+        "nombre": "Gonnet"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-58.0300, -34.8900],
+          [-57.9950, -34.8900],
+          [-57.9950, -34.8550],
+          [-58.0300, -34.8550],
+          [-58.0300, -34.8900]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 5,
+        "nombre": "City Bell"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-58.0600, -34.8900],
+          [-58.0250, -34.8900],
+          [-58.0250, -34.8450],
+          [-58.0600, -34.8450],
+          [-58.0600, -34.8900]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 6,
+        "nombre": "Villa Elisa"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-58.0900, -34.8700],
+          [-58.0450, -34.8700],
+          [-58.0450, -34.8250],
+          [-58.0900, -34.8250],
+          [-58.0900, -34.8700]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 7,
+        "nombre": "Los Hornos"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-58.0300, -34.9700],
+          [-57.9800, -34.9700],
+          [-57.9800, -34.9200],
+          [-58.0300, -34.9200],
+          [-58.0300, -34.9700]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 8,
+        "nombre": "San Carlos"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-58.0100, -34.9400],
+          [-57.9600, -34.9400],
+          [-57.9600, -34.9000],
+          [-58.0100, -34.9000],
+          [-58.0100, -34.9400]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 9,
+        "nombre": "Villa Elvira"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-57.9800, -34.9800],
+          [-57.9300, -34.9800],
+          [-57.9300, -34.9300],
+          [-57.9800, -34.9300],
+          [-57.9800, -34.9800]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 10,
+        "nombre": "Melchor Romero"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-58.1000, -34.9800],
+          [-58.0300, -34.9800],
+          [-58.0300, -34.9100],
+          [-58.1000, -34.9100],
+          [-58.1000, -34.9800]
+        ]]
+      }
+    }
+  ]
+}

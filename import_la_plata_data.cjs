@@ -249,24 +249,33 @@ async function importRobos() {
   for (const robo of robos) {
     const lat = parseFloat(robo.lat);
     const lng = parseFloat(robo.lng);
-    
     if (isNaN(lat) || isNaN(lng)) continue;
-    
     const docRef = robosRef.doc();
-    batch.set(docRef, {
-      lat: lat,
-      lng: lng,
-      fecha: robo.fecha || new Date().toISOString().split('T')[0],
-      resultado: robo.resultado || '',
-      observaciones: robo.observaciones || '',
-      año: parseInt(robo.año) || new Date().getFullYear(),
-      created_at: new Date(),
-      city_id: CITY_ID
-    });
-    
+
+    // Copiar todos los campos originales
+    const roboDoc = { ...robo };
+    // Normalizar año
+    roboDoc.año = parseInt(robo.año) || new Date().getFullYear();
+    // Normalizar fecha
+    roboDoc.fecha = robo.fecha || new Date().toISOString().split('T')[0];
+    // Normalizar lat/lng
+    roboDoc.lat = lat;
+    roboDoc.lng = lng;
+    // Normalizar resultado
+    roboDoc.resultado = robo.resultado || '';
+    // Normalizar observaciones
+    roboDoc.observaciones = robo.observaciones || '';
+    // city_id y created_at
+    roboDoc.city_id = CITY_ID;
+    roboDoc.created_at = new Date();
+    // Asegurar los tres campos de código
+    roboDoc.codigo = robo.codigo || robo.resultado_codigo || robo.resultadoCodigo || '';
+    roboDoc.resultado_codigo = robo.resultado_codigo || robo.codigo || robo.resultadoCodigo || '';
+    roboDoc.resultadoCodigo = robo.resultadoCodigo || robo.codigo || robo.resultado_codigo || '';
+
+    batch.set(docRef, roboDoc);
     batchCount++;
     count++;
-    
     if (batchCount === 500) {
       await batch.commit();
       console.log(`  ✓ ${count} robos...`);

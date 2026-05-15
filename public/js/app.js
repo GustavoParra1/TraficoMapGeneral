@@ -143,9 +143,8 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
       const features = [];
       docs.forEach(doc => {
         const data = doc.data();
-        
-        // Si ya es un feature, usarlo directamente
-        if (data.type === 'Feature' && data.geometry) {
+        // Si ya tiene geometry, usarlo como Feature (Polygon, etc)
+        if (data.geometry && data.type === 'Feature') {
           features.push({
             ...data,
             properties: {
@@ -154,8 +153,19 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
               _docId: doc.id
             }
           });
+        } else if (data.geometry && data.geometry.type && data.geometry.coordinates) {
+          // Si tiene geometry pero no type: 'Feature', armar el Feature
+          features.push({
+            type: 'Feature',
+            geometry: data.geometry,
+            properties: {
+              ...data,
+              _id: doc.id,
+              _docId: doc.id
+            }
+          });
         } else if (data.lat !== undefined && data.lng !== undefined) {
-          // Convertir documento con lat/lng a Feature
+          // Convertir documento con lat/lng a Feature tipo Point
           features.push({
             type: 'Feature',
             geometry: {
@@ -170,7 +180,6 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
           });
         }
       });
-      
       return {
         type: 'FeatureCollection',
         features: features
@@ -184,7 +193,7 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
       if (barrios.size > 0) {
         bariosGeoJson = firestoreColToGeoJSON(barrios.docs);
         console.log(`  ✓ ${bariosGeoJson.features.length} barrios cargados`);
-        GeoLayers.loadEmbeddedGeoJson('Zonas / Barrios', bariosGeoJson, false);
+        GeoLayers.loadEmbeddedGeoJson('Zonas / Barrios', bariosGeoJson, true);
         SiniestrosLayer.setBarriosGeoJson(bariosGeoJson);
       } else {
         console.log(`  ℹ️ No hay barrios en la base de datos del cliente`);
@@ -930,7 +939,6 @@ function populateRoboFilters() {
       // Limpiar opciones anteriores (excepto la primera)
       const existingOptions = resultadoFilter.querySelectorAll('option:not(:first-child)');
       existingOptions.forEach(opt => opt.remove());
-      
       metadata.resultados.forEach(resultado => {
         const option = document.createElement('option');
         option.value = resultado;

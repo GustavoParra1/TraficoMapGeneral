@@ -4,20 +4,17 @@
 class CSVParser {
   parseCSV(csvText) {
     console.log("📖 Parseando CSV...");
-    
     const lines = csvText.trim().split('\n');
     if (lines.length < 2) throw new Error('CSV vacío');
 
-    // Extraer headers
-    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    // Extraer headers originales (sin toLowerCase para mantener nombres)
+    const headers = lines[0].split(',').map(h => h.trim());
+    const headersLower = headers.map(h => h.toLowerCase());
     console.log("📋 Headers encontrados:", headers);
 
     // Mapear columnas esperadas
-    const latIndex = this.findColumnIndex(headers, ['latitud', 'lat', 'latitude', 'y']);
-    const lngIndex = this.findColumnIndex(headers, ['longitud', 'lng', 'longitude', 'x']);
-    const tipoIndex = this.findColumnIndex(headers, ['tipo', 'type', 'categoria', 'category']);
-    const descIndex = this.findColumnIndex(headers, ['descripcion', 'description', 'desc', 'nombre', 'name']);
-    const fechaIndex = this.findColumnIndex(headers, ['fecha', 'date', 'timestamp']);
+    const latIndex = this.findColumnIndex(headersLower, ['latitud', 'lat', 'latitude', 'y']);
+    const lngIndex = this.findColumnIndex(headersLower, ['longitud', 'lng', 'longitude', 'x']);
 
     if (latIndex === -1 || lngIndex === -1) {
       throw new Error('CSV debe contener columnas de latitud y longitud');
@@ -30,23 +27,21 @@ class CSVParser {
       if (!line) continue;
 
       const values = this.parseCSVLine(line);
-      
       try {
         const lat = parseFloat(values[latIndex]);
         const lng = parseFloat(values[lngIndex]);
-
         if (isNaN(lat) || isNaN(lng)) {
           console.warn(`⚠️ Fila ${i + 1}: coordenadas inválidas. Saltando.`);
           continue;
         }
 
-        const item = {
-          lat,
-          lng,
-          tipo: tipoIndex !== -1 ? values[tipoIndex] : 'Punto',
-          descripcion: descIndex !== -1 ? values[descIndex] : '',
-          fecha: fechaIndex !== -1 ? values[fechaIndex] : null
-        };
+        // Copiar todas las columnas originales como propiedades
+        const item = { lat, lng };
+        for (let j = 0; j < headers.length; j++) {
+          // No sobrescribir lat/lng
+          if (j === latIndex || j === lngIndex) continue;
+          item[headers[j]] = values[j] !== undefined ? values[j] : '';
+        }
 
         data.push(item);
       } catch (error) {

@@ -12,20 +12,33 @@ const RoboLayer = (() => {
   let isVisible = false;
   let barriosGeoJson = null;
 
-  // Colores para resultados de robos - COLORES DISTINTIVOS
-  const resultadoColors = {
-    'Asiste Policia y Libera': '#f39c12',      // 🟠 Naranja vibrante
-    'Hallazgo Automotor': '#27ae60',           // 🟢 Verde oscuro
-    'Persecucion Y Detencion': '#e74c3c',      // 🔴 Rojo
-    'Detencion': '#c0392b',                    // 🔴 Rojo oscuro
-    'Se Realiza Seguimiento del Evento': '#3498db',  // 🔵 Azul
-    'No Asiste': '#f1c40f',                    // 🟡 Amarillo
-    'Secuestro De Vehiculo': '#9b59b6',        // 🟣 Púrpura
-    'Asiste Bomberos': '#e67e22',              // 🟠 Naranja oscuro
-    'Persecucion Y Perdida': '#34495e',        // ⚫ Gris oscuro
-    'Asiste Unidad Sanitaria y Traslada': '#1abc9c',  // 🔷 Cian
-    'Otros': '#95a5a6'                         // ⚫ Gris
+  // Diccionario de códigos y colores para resultados de robos
+  const resultadoCodigos = {
+    'asiste policia y libera': { codigo: 'APL', color: '#f39c12', label: 'Asiste Policía y Libera' },
+    'hallazgo de automotor': { codigo: 'HA', color: '#27ae60', label: 'Hallazgo de Automotor' },
+    'persecucion y detencion': { codigo: 'PD', color: '#e74c3c', label: 'Persecución y Detención' },
+    'detencion': { codigo: 'D', color: '#c0392b', label: 'Detención' },
+    'seguimiento del evento': { codigo: 'SE', color: '#3498db', label: 'Seguimiento del Evento' },
+    'no asiste': { codigo: 'NA', color: '#f1c40f', label: 'No Asiste' },
+    'secuestro de vehiculo': { codigo: 'SV', color: '#9b59b6', label: 'Secuestro de Vehículo' },
+    'asiste bomberos': { codigo: 'AB', color: '#e67e22', label: 'Asiste Bomberos' },
+    'persecucion y perdida': { codigo: 'PP', color: '#34495e', label: 'Persecución y Pérdida' },
+    'asiste unidad sanitaria': { codigo: 'AUS', color: '#1abc9c', label: 'Asiste Unidad Sanitaria' },
+    'otros': { codigo: 'OT', color: '#95a5a6', label: 'Otros' }
   };
+
+  // Normaliza y mapea un resultado a su código y label
+  function mapResultado(resultado) {
+    const norm = normalizeString(resultado);
+    // Buscar coincidencia exacta o parcial
+    for (const key in resultadoCodigos) {
+      if (norm.includes(key)) {
+        return resultadoCodigos[key];
+      }
+    }
+    // Si no coincide, devolver Otros
+    return resultadoCodigos['otros'];
+  }
 
   // Función helper para parsear líneas CSV correctamente
   function parseCSVLine(line) {
@@ -107,6 +120,9 @@ const RoboLayer = (() => {
         // Parsear encabezado - manejar espacios y caracteres especiales
         const headerLine = lines[0];
         const headers = headerLine.split(',').map(h => h.trim().toLowerCase());
+
+        // Detectar si existe columna codigo
+        let codigoIdx = headers.findIndex(h => h === 'codigo' || h === 'resultado_codigo');
         console.log(`🚗 Headers: ${headers.join(', ')}`);
         
         // Detectar índices de columnas automáticamente
@@ -189,6 +205,7 @@ const RoboLayer = (() => {
         console.log(`🚗 Índices detectados: lat[${latIdx}], lng[${lngIdx}], fecha[${fechaIdx}], resultado[${resultadoIdx}]`);
         
         // Cargar datos
+        let resultadosUnicos = new Set();
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
           if (!line) continue;
@@ -202,21 +219,29 @@ const RoboLayer = (() => {
           const lat = parseFloat(values[latIdx].replace(',', '.'));
           const lng = parseFloat(values[lngIdx].replace(',', '.'));
           const fecha = fechaIdx !== null && fechaIdx < values.length ? values[fechaIdx] : '';
-          const resultado = resultadoIdx !== null && resultadoIdx < values.length ? values[resultadoIdx] : 'Otros';
+          let resultado = resultadoIdx !== null && resultadoIdx < values.length ? values[resultadoIdx] : '';
+          if (!resultado || resultado.trim() === '') resultado = 'Otros';
+          resultado = resultado.replace(/\s+/g, ' ').trim();
+          const resultadoMap = mapResultado(resultado);
+          resultadosUnicos.add(`${resultadoMap.label} (${resultadoMap.codigo})`);
           const observaciones = obsIdx !== null && obsIdx < values.length ? values[obsIdx] : '';
-          
-          // Validar coordenadas (rango amplio para Argentina)
+          // Si existe columna codigo, usarla; si no, usar el mapeo
+          let codigo = codigoIdx !== -1 && codigoIdx < values.length ? values[codigoIdx].trim() : resultadoMap.codigo;
           if (!isNaN(lat) && !isNaN(lng) && lat < -20 && lat > -56 && lng < -50 && lng > -75) {
             roboData.push({
               lat,
               lng,
               fecha,
-              resultado: resultado.substring(0, 50), // Limitar a 50 caracteres
-              observaciones: observaciones.substring(0, 100), // Limitar a 100 caracteres
+              resultado: resultadoMap.label,
+              resultadoCodigo: codigo,
+              resultado_codigo: codigo,
+              codigo: codigo,
+              observaciones: observaciones.substring(0, 100),
               year: extraerYear(fecha)
             });
           }
         }
+        console.log('🚗 Valores únicos de resultado al cargar CSV:', Array.from(resultadosUnicos));
         
         console.log(`🚗 ${roboData.length} robos cargados desde CSV`);
         applyFilters();
@@ -243,15 +268,26 @@ const RoboLayer = (() => {
       geojson.features.forEach(feature => {
         const coords = feature.geometry?.coordinates;
         if (!coords || coords.length !== 2) return;
-        
+
         const props = feature.properties || {};
+        // Buscar campo codigo en distintas variantes
+        let codigo = props.codigo || props.resultado_codigo || props.resultadoCodigo || null;
+        // Si no existe, intentar mapear desde resultado
+        if (!codigo && props.resultado) {
+          const resultadoMap = mapResultado(props.resultado);
+          codigo = resultadoMap.codigo;
+        }
+
         roboData.push({
           lat: coords[1],
           lng: coords[0],
           fecha: props.fecha || props.date || '',
           resultado: props.resultado || props.result || 'Otros',
           observaciones: props.observaciones || props.notes || '',
-          year: extraerYear(props.fecha || props.date || '')
+          year: extraerYear(props.fecha || props.date || ''),
+          resultado_codigo: codigo,
+          resultadoCodigo: codigo,
+          codigo: codigo
         });
       });
       
@@ -312,6 +348,18 @@ const RoboLayer = (() => {
   }
 
   /**
+   * Normaliza un string para comparar ignorando mayúsculas, acentos y espacios
+   */
+  function normalizeString(str) {
+    return (str || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  /**
    * Aplica los filtros actuales
    */
   function applyFilters() {
@@ -322,14 +370,21 @@ const RoboLayer = (() => {
           return false;
         }
       }
-      
-      // Filtro por resultado
+
+      // Filtro por resultado (por código, igual que siniestros)
       if (filters.resultado !== 'all') {
-        if (robo.resultado !== filters.resultado) {
+        // El valor del filtro es "Descripción (CODIGO)", extraer el código
+        const match = filters.resultado.match(/\(([^)]+)\)$/);
+        const codigoFiltro = match ? match[1] : filters.resultado;
+        if (
+          robo.codigo !== codigoFiltro &&
+          robo.resultado_codigo !== codigoFiltro &&
+          robo.resultadoCodigo !== codigoFiltro
+        ) {
           return false;
         }
       }
-      
+
       // Filtro por barrio global (si hay datos de barrios)
       if (filters.globalBarrio !== 'all' && barriosGeoJson) {
         const roboPoint = L.latLng(robo.lat, robo.lng);
@@ -343,10 +398,10 @@ const RoboLayer = (() => {
         });
         if (!barrioEncontrado) return false;
       }
-      
+
       return true;
     });
-    
+
     console.log(`🚗 ${filteredRobo.length} robos después de filtros`);
     renderRobos();
   }
@@ -417,8 +472,12 @@ const RoboLayer = (() => {
     }
     
     filteredRobo.forEach(robo => {
-      const color = resultadoColors[robo.resultado] || resultadoColors['Otros'];
-      
+      // Buscar color por código
+      let color = resultadoCodigos[normalizeString(robo.resultado)]?.color;
+      if (!color) {
+        // Buscar por código
+        color = Object.values(resultadoCodigos).find(e => e.codigo === robo.resultadoCodigo)?.color || resultadoCodigos['otros'].color;
+      }
       const marker = L.circleMarker([robo.lat, robo.lng], {
         radius: 6,
         fillColor: color,
@@ -428,22 +487,19 @@ const RoboLayer = (() => {
         fillOpacity: 0.7,
         interactive: true
       });
-      
       // Popup con información del robo
       const popupContent = `
         <div style="font-size: 12px; width: 200px; max-height: 200px; overflow-y: auto;">
           <strong style="color: ${color}">🚗 Robo Automotor</strong><br>
-          <strong>Resultado:</strong> ${robo.resultado}<br>
+          <strong>Resultado:</strong> ${robo.resultado} (${robo.resultadoCodigo})<br>
           <strong>Fecha:</strong> ${robo.fecha}<br>
           ${robo.observaciones ? `<strong>Notas:</strong> ${robo.observaciones}<br>` : ''}
           <strong>Coordenadas:</strong> ${robo.lat.toFixed(4)}, ${robo.lng.toFixed(4)}
         </div>
       `;
-      
       marker.bindPopup(popupContent);
       marker.on('mouseover', function() { this.openPopup(); });
       marker.on('mouseout', function() { this.closePopup(); });
-      
       roboLayer.addLayer(marker);
     });
     
@@ -459,8 +515,17 @@ const RoboLayer = (() => {
    */
   function getMetadata() {
     const years = [...new Set(roboData.map(r => r.year))].sort((a, b) => a - b);
-    const resultados = [...new Set(roboData.map(r => r.resultado))].sort();
-    
+    // Agrupar por código y label para el filtro (soporta codigo, resultado_codigo y resultadoCodigo)
+    const resultadoFiltroMap = new Map();
+    roboData.forEach(r => {
+      const codigo = r.codigo || r.resultado_codigo || r.resultadoCodigo;
+      const label = r.resultado || '';
+      if (codigo && !resultadoFiltroMap.has(codigo)) {
+        resultadoFiltroMap.set(codigo, `${label} (${codigo})`);
+      }
+    });
+    const resultados = Array.from(resultadoFiltroMap.values()).sort();
+    console.log('🚗 Valores únicos de resultado en getMetadata:', resultados);
     return {
       years,
       resultados,

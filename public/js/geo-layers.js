@@ -133,29 +133,31 @@ const GeoLayers = (() => {
       layer.bindPopup(getPopupContent(feature));
     }
 
-    // Highlight on hover - DESHABILITADO si hay un barrio resaltado
-    layer.on('mouseover', function() {
-      // NO hacer nada si hay un barrio resaltado
-      if (highlightedBarrio) {
-        return;
-      }
-      
-      this.setStyle({
-        weight: 4,
-        opacity: 1,
-        fillOpacity: 0.6
+    // Highlight on hover - solo si el layer es un polígono (tiene setStyle)
+    if (typeof layer.setStyle === 'function') {
+      layer.on('mouseover', function() {
+        // NO hacer nada si hay un barrio resaltado
+        if (highlightedBarrio) {
+          return;
+        }
+        this.setStyle({
+          weight: 4,
+          opacity: 1,
+          fillOpacity: 0.6
+        });
+        if (typeof this.bringToFront === 'function') {
+          this.bringToFront();
+        }
       });
-      this.bringToFront();
-    });
 
-    layer.on('mouseout', function() {
-      // NO hacer nada si hay un barrio resaltado
-      if (highlightedBarrio) {
-        return;
-      }
-      
-      this.setStyle(styleFeature(feature));
-    });
+      layer.on('mouseout', function() {
+        // NO hacer nada si hay un barrio resaltado
+        if (highlightedBarrio) {
+          return;
+        }
+        this.setStyle(styleFeature(feature));
+      });
+    }
   }
 
   return {
