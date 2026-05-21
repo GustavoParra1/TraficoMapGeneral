@@ -1,0 +1,9 @@
+{
+  "projectId": "trafico-map-general-v2",
+  "apiKey": "AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA",
+  "authDomain": "trafico-map-general-v2.firebaseapp.com",
+  "databaseURL": "https://trafico-map-general-v2-default-rtdb.firebaseio.com",
+  "storageBucket": "trafico-map-general-v2.appspot.com",
+  "messagingSenderId": "540631719751",
+  "appId": "1:540631719751:web:bd410f1bbee18e9fabb662"
+}

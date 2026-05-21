@@ -2,6 +2,38 @@
 // Manejo del mapa interactivo del cliente
 
 class ClientMapManager {
+    // Cargar patrullas desde la colección nueva
+    async loadPatrullas() {
+      try {
+        const colPath = `clientes/${this.clientId}/patrullas`;
+        console.log(`🚓 Cargando patrullas desde: ${colPath}`);
+        const ref = firebase.firestore().collection(colPath);
+        const snap = await ref.get();
+        let count = 0;
+        snap.forEach(doc => {
+          const data = doc.data();
+          // Si en el futuro hay lat/lng, usarlo. Por ahora, solo nombre/usuario.
+          // Aquí puedes agregar lógica para mostrar en el mapa si hay coordenadas.
+          // Ejemplo: si data.lat && data.lng
+          if (data.lat && data.lng) {
+            const marker = this.createMarker([data.lat, data.lng], {
+              title: data.nombre || data.usuario || 'Patrulla',
+              type: 'patrullas',
+              icon: 'https://cdn-icons-png.flaticon.com/512/616/616494.png',
+              iconSize: [30, 30]
+            });
+            marker.bindPopup(`<b>Patrulla:</b> ${data.nombre || data.usuario}<br><b>Usuario:</b> ${data.usuario}<br><b>Contraseña:</b> ${data.password}`);
+            marker.addTo(this.map);
+            this.expandBounds([data.lat, data.lng]);
+            count++;
+          }
+        });
+        const action = count > 0 ? '✅' : '⚠️';
+        console.log(`${action} ${count} patrullas cargadas`);
+      } catch (error) {
+        console.error('❌ Error cargando patrullas:', error);
+      }
+    }
   constructor() {
     this.map = null;
     this.layers = {}; // Guardar referencias a las capas
@@ -115,37 +147,23 @@ class ClientMapManager {
     try {
       console.log('📍 Cargando datos del cliente:', this.clientId);
 
-      // Cámaras públicas
-      await this.loadCameras('cameras', 'cameras');
 
-      // Cámaras privadas
-      await this.loadCameras('private_cameras', 'cameras_privadas');
+      // Solo patrullas vigentes (nueva colección)
+      await this.loadPatrullas();
 
-      // Siniestros
-      await this.loadSiniestros();
+      // (Opcional: puedes agregar aquí loadOperarios si quieres mostrar operarios en el mapa)
 
-      // Semáforos
-      await this.loadMarkers('semaforos', 'semaforos');
-
-      // Colegios/Escuelas
-      await this.loadMarkers('colegios', 'colegios_escuelas');
-
-      // Robo automotor
-      await this.loadMarkers('robo', 'robo');
-
-      // Capas GeoJSON
-
-      // Barrios
-      await this.loadGeoJSON('barrios', 'barrios');
-
-      // Corredores escolares
-      await this.loadGeoJSON('corredores', 'corredores_escolares');
-
-      // Flujo vehicular (aforos)
-      await this.loadMarkers('flujo', 'flujo');
-
-      // Líneas de colectivos
-      await this.loadColectivos();
+      // Si quieres mantener otras capas, descomenta las siguientes líneas:
+      // await this.loadCameras('cameras', 'cameras');
+      // await this.loadCameras('private_cameras', 'cameras_privadas');
+      // await this.loadSiniestros();
+      // await this.loadMarkers('semaforos', 'semaforos');
+      // await this.loadMarkers('colegios', 'colegios_escuelas');
+      // await this.loadMarkers('robo', 'robo');
+      // await this.loadGeoJSON('barrios', 'barrios');
+      // await this.loadGeoJSON('corredores', 'corredores_escolares');
+      // await this.loadMarkers('flujo', 'flujo');
+      // await this.loadColectivos();
 
       console.log('✅ Todos los datos cargados');
       console.log('📊 Bounds actual:', this.bounds);

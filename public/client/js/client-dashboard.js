@@ -2,6 +2,188 @@
 // Dashboard y páginas del panel del cliente
 
 class ClientDashboard {
+    // --- Métodos para carga uno a uno ---
+
+    async agregarPatrullaInput(valor = "") {
+      const lista = document.getElementById('listaPatrullas');
+      if (!lista) return;
+      const li = document.createElement('li');
+      li.className = 'list-group-item d-flex align-items-center gap-2';
+      li.innerHTML = `
+        <input type="text" class="form-control form-control-sm patrulla-input" placeholder="Nombre patrulla" value="${valor}" style="max-width:180px;">
+        <button class="btn btn-sm btn-primary generar-btn">Generar</button>
+        <span class="credenciales ms-2"></span>
+      `;
+      li.querySelector('.generar-btn').onclick = async () => {
+        const nombre = li.querySelector('input').value.trim();
+        if (!nombre) return;
+        const usuario = `patrulla_${nombre.replace(/\W+/g,'').toLowerCase()}`;
+        const password = Math.random().toString(36).slice(-8);
+        li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${usuario} <b>Pass:</b> ${password}`;
+        li.querySelector('input').disabled = true;
+        li.querySelector('.generar-btn').disabled = true;
+        // Guardar en Firestore
+        await this.guardarPatrullaFirestore({ nombre, usuario, password });
+        // Agrega un nuevo input automáticamente si es el último
+        if (li.parentElement.lastElementChild === li) this.agregarPatrullaInput();
+      };
+      lista.appendChild(li);
+      setTimeout(() => {
+        li.querySelector('input').focus();
+      }, 100);
+    }
+
+    async agregarOperarioInput(valor = "") {
+      const lista = document.getElementById('listaOperarios');
+      if (!lista) return;
+      const li = document.createElement('li');
+      li.className = 'list-group-item d-flex align-items-center gap-2';
+      li.innerHTML = `
+        <input type="text" class="form-control form-control-sm operario-input" placeholder="Nombre operario" value="${valor}" style="max-width:180px;">
+        <button class="btn btn-sm btn-primary generar-btn">Generar</button>
+        <span class="credenciales ms-2"></span>
+      `;
+      li.querySelector('.generar-btn').onclick = async () => {
+        const nombre = li.querySelector('input').value.trim();
+        if (!nombre) return;
+        const usuario = `operario_${nombre.replace(/\W+/g,'').toLowerCase()}`;
+        const password = Math.random().toString(36).slice(-8);
+        li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${usuario} <b>Pass:</b> ${password}`;
+        li.querySelector('input').disabled = true;
+        li.querySelector('.generar-btn').disabled = true;
+        // Guardar en Firestore
+        await this.guardarOperarioFirestore({ nombre, usuario, password });
+        if (li.parentElement.lastElementChild === li) this.agregarOperarioInput();
+      };
+      lista.appendChild(li);
+      setTimeout(() => {
+        li.querySelector('input').focus();
+      }, 100);
+    }
+
+    async guardarPatrullaFirestore({ nombre, usuario, password }) {
+      // Guardar SOLO en la colección global para el mapa/tracking
+      const municipio = (this.clientData.municipio || this.clientData.nombre || '').toLowerCase();
+      const municipioSinGuiones = municipio.replace(/-/g, '').replace(/\s+/g, '');
+      const coleccion = `patrullas_${municipioSinGuiones}`;
+      // Usar el nombre como patente (formato: PATRULLA_XX)
+      let patente = nombre.trim().toUpperCase();
+      if (!patente.startsWith('PATRULLA_')) {
+        patente = 'PATRULLA_' + patente.replace(/\W+/g, '');
+      }
+      // Datos mínimos para que aparezca en el mapa
+      const data = {
+        lat: this.clientData.lat || -34.92, // fallback: La Plata
+        lng: this.clientData.lng || -57.945,
+        online: true,
+        emergencia: false,
+        estado: 'activo',
+        accuracy: 10,
+        speed: 0,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        usuario,
+        nombre,
+        password // para referencia en el panel
+      };
+      try {
+        await firebase.firestore().collection(coleccion).doc(patente).set(data, { merge: true });
+        console.log(`✅ Patrulla guardada en ${coleccion}:`, patente, data);
+      } catch (e) {
+        console.error('❌ Error guardando patrulla:', e);
+        alert('Error guardando patrulla: ' + e.message);
+      }
+    }
+
+    async guardarOperarioFirestore({ nombre, usuario, password }) {
+      const clientId = this.clientData && this.clientData.id;
+      console.log('[guardarOperarioFirestore] clientData:', this.clientData);
+      if (!clientId) {
+        console.error('❌ [guardarOperarioFirestore] clientId indefinido:', this.clientData);
+        alert('Error: No se pudo identificar el cliente. Vuelve a iniciar sesión.');
+        return;
+      }
+      const ref = firebase.firestore().collection(`clientes/${clientId}/operarios`);
+      try {
+        const result = await ref.add({ nombre, usuario, password, created_at: new Date() });
+        console.log(`✅ Operario guardado: ${nombre} (${usuario})`, result);
+        // Recargar lista tras guardar
+        this.cargarOperariosFirestore().then(operarios => {
+          const lista = document.getElementById('listaOperarios');
+          if (lista) lista.innerHTML = '';
+          if (!operarios || operarios.length === 0) {
+            const aviso = document.createElement('div');
+            aviso.className = 'alert alert-warning';
+            aviso.innerHTML = 'No se encontraron operarios guardados.';
+            lista.appendChild(aviso);
+          } else {
+            operarios.forEach(o => {
+              this.agregarOperarioInput(o ? o.nombre : "");
+              if (o) {
+                const li = lista.lastElementChild;
+                li.querySelector('input').value = o.nombre;
+                li.querySelector('input').disabled = true;
+                li.querySelector('.generar-btn').disabled = true;
+                li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${o.usuario} <b>Pass:</b> ${o.password}`;
+              }
+            });
+          }
+        });
+      } catch (e) {
+        console.error('❌ Error guardando operario:', e);
+        alert('Error guardando operario: ' + e.message);
+      }
+    }
+
+    async cargarPatrullasFirestore() {
+      // Leer SOLO de la colección global
+      const municipio = (this.clientData.municipio || this.clientData.nombre || '').toLowerCase();
+      const municipioSinGuiones = municipio.replace(/-/g, '').replace(/\s+/g, '');
+      const coleccion = `patrullas_${municipioSinGuiones}`;
+      try {
+        const ref = firebase.firestore().collection(coleccion);
+        const snap = await ref.get();
+        return snap.docs.map(doc => doc.data());
+      } catch (e) {
+        console.error('❌ Error cargando patrullas:', e);
+        return [];
+      }
+    }
+
+    async cargarOperariosFirestore() {
+      const clientId = this.clientData.id;
+      const ref = firebase.firestore().collection(`clientes/${clientId}/operarios`);
+      const snap = await ref.get();
+      return snap.docs.map(doc => doc.data());
+    }
+
+    agregarOperarioInput(valor = "") {
+      const lista = document.getElementById('listaOperarios');
+      if (!lista) return;
+      const li = document.createElement('li');
+      li.className = 'list-group-item d-flex align-items-center gap-2';
+      li.innerHTML = `
+        <input type="text" class="form-control form-control-sm operario-input" placeholder="Nombre operario" value="${valor}" style="max-width:180px;">
+        <button class="btn btn-sm btn-primary generar-btn">Generar</button>
+        <span class="credenciales ms-2"></span>
+      `;
+      li.querySelector('.generar-btn').onclick = async () => {
+        const nombre = li.querySelector('input').value.trim();
+        if (!nombre) return;
+        const usuario = `operario_${nombre.replace(/\W+/g,'').toLowerCase()}`;
+        const password = Math.random().toString(36).slice(-8);
+        li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${usuario} <b>Pass:</b> ${password}`;
+        li.querySelector('input').disabled = true;
+        li.querySelector('.generar-btn').disabled = true;
+        // Guardar en Firestore
+        await this.guardarOperarioFirestore({ nombre, usuario, password });
+        // Agrega un nuevo input automáticamente si es el último
+        if (li.parentElement.lastElementChild === li) this.agregarOperarioInput();
+      };
+      lista.appendChild(li);
+      setTimeout(() => {
+        li.querySelector('input').focus();
+      }, 100);
+    }
   constructor() {
     this.currentPage = 'dashboard';
     this.clientData = null;
@@ -236,16 +418,35 @@ class ClientDashboard {
   showCargar() {
     const content = document.getElementById('clientContent');
     content.innerHTML = `
+      <div id='usuariosMasivosContainer' style='margin-bottom:30px;'>
+        <div class='row'>
+          <div class='col-md-6'>
+            <div class='card mb-3'>
+              <div class='card-header bg-primary text-white'>Carga de Patrullas (uno por uno)</div>
+              <div class='card-body'>
+                <ul id='listaPatrullas' class='list-group'></ul>
+                <button id='agregarPatrullaBtn' class='btn btn-success mt-2'><b>+</b> Agregar Patrulla</button>
+              </div>
+            </div>
+          </div>
+          <div class='col-md-6'>
+            <div class='card mb-3'>
+              <div class='card-header bg-info text-white'>Carga de Operarios (uno por uno)</div>
+              <div class='card-body'>
+                <ul id='listaOperarios' class='list-group'></ul>
+                <button id='agregarOperarioBtn' class='btn btn-success mt-2'><b>+</b> Agregar Operario</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div>
         <h2 class="mb-4">Cargar Datos</h2>
-        
         <!-- Status - VISIBLE AL TOP -->
         <div id="uploadStatus" class="mb-4" style="min-height: 60px;"></div>
-
         <div class="alert alert-info mb-4">
           <i class="bi bi-info-circle"></i> Puedes cargar archivos CSV o GeoJSON con tus datos. Todos los campos son opcionales. Haz click en <strong>?</strong> para ver el formato requerido.
         </div>
-
         <!-- SECCIÓN: DATOS PRINCIPALES -->
         <div class="card mb-4" style="border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
           <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
@@ -267,7 +468,6 @@ class ClientDashboard {
                   <input type="file" class="uploadFile" accept=".json,.geojson" style="display: none;" data-type="barrios">
                 </div>
               </div>
-
               <!-- Cámaras Públicas -->
               <div class="col-md-6 mb-4">
                 <div class="d-flex gap-2 mb-2">
@@ -282,7 +482,6 @@ class ClientDashboard {
                   <input type="file" class="uploadFile" accept=".csv" style="display: none;" data-type="cameras_public">
                 </div>
               </div>
-
               <!-- Cámaras Privadas -->
               <div class="col-md-6 mb-4">
                 <div class="d-flex gap-2 mb-2">
@@ -297,7 +496,6 @@ class ClientDashboard {
                   <input type="file" class="uploadFile" accept=".csv" style="display: none;" data-type="cameras_private">
                 </div>
               </div>
-
               <!-- Siniestros -->
               <div class="col-md-6 mb-4">
                 <div class="d-flex gap-2 mb-2">
@@ -315,7 +513,6 @@ class ClientDashboard {
             </div>
           </div>
         </div>
-
         <!-- SECCIÓN: CAPAS OPCIONALES -->
         <div class="card mb-4" style="border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
           <div class="card-header" style="background: #f9f9f9; border: none;">
@@ -337,7 +534,6 @@ class ClientDashboard {
                   <input type="file" class="uploadFile" accept=".csv" style="display: none;" data-type="semaforos">
                 </div>
               </div>
-
               <!-- Colegios/Escuelas -->
               <div class="col-md-6 mb-4">
                 <div class="d-flex gap-2 mb-2">
@@ -352,7 +548,6 @@ class ClientDashboard {
                   <input type="file" class="uploadFile" accept=".csv,.json,.geojson" style="display: none;" data-type="colegios">
                 </div>
               </div>
-
               <!-- Corredores Escolares -->
               <div class="col-md-6 mb-4">
                 <div class="d-flex gap-2 mb-2">
@@ -367,7 +562,6 @@ class ClientDashboard {
                   <input type="file" class="uploadFile" accept=".json,.geojson" style="display: none;" data-type="corredores">
                 </div>
               </div>
-
               <!-- Flujo Vehicular -->
               <div class="col-md-6 mb-4">
                 <div class="d-flex gap-2 mb-2">
@@ -382,7 +576,6 @@ class ClientDashboard {
                   <input type="file" class="uploadFile" accept=".csv" style="display: none;" data-type="flujo">
                 </div>
               </div>
-
               <!-- Robo Automotor -->
               <div class="col-md-6 mb-4">
                 <div class="d-flex gap-2 mb-2">
@@ -397,7 +590,6 @@ class ClientDashboard {
                   <input type="file" class="uploadFile" accept=".csv" style="display: none;" data-type="robo">
                 </div>
               </div>
-
               <!-- Colectivos -->
               <div class="col-md-6 mb-4">
                 <div class="d-flex gap-2 mb-2">
@@ -417,6 +609,50 @@ class ClientDashboard {
         </div>
       </div>
     `;
+
+    // Inicializar carga uno a uno con datos persistentes
+    this.cargarPatrullasFirestore().then(patrullas => {
+      const lista = document.getElementById('listaPatrullas');
+      if (lista) lista.innerHTML = '';
+      if (!patrullas || patrullas.length === 0) {
+        const aviso = document.createElement('div');
+        aviso.className = 'alert alert-warning';
+        aviso.innerHTML = 'No se encontraron patrullas guardadas.';
+        lista.appendChild(aviso);
+      } else {
+        patrullas.forEach(p => {
+          this.agregarPatrullaInput(p.nombre);
+          const li = lista.lastElementChild;
+          li.querySelector('input').value = p.nombre;
+          li.querySelector('input').disabled = true;
+          li.querySelector('.generar-btn').disabled = true;
+          li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${p.usuario} <b>Pass:</b> ${p.password}`;
+        });
+      }
+    });
+    this.cargarOperariosFirestore().then(operarios => {
+      const lista = document.getElementById('listaOperarios');
+      if (lista) lista.innerHTML = '';
+      if (!operarios || operarios.length === 0) {
+        const aviso = document.createElement('div');
+        aviso.className = 'alert alert-warning';
+        aviso.innerHTML = 'No se encontraron operarios guardados.';
+        lista.appendChild(aviso);
+      } else {
+        operarios.forEach(o => {
+          this.agregarOperarioInput(o.nombre);
+          const li = lista.lastElementChild;
+          li.querySelector('input').value = o.nombre;
+          li.querySelector('input').disabled = true;
+          li.querySelector('.generar-btn').disabled = true;
+          li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${o.usuario} <b>Pass:</b> ${o.password}`;
+        });
+      }
+    });
+    const btnPatrulla = document.getElementById('agregarPatrullaBtn');
+    if (btnPatrulla) btnPatrulla.onclick = () => this.agregarPatrullaInput();
+    const btnOperario = document.getElementById('agregarOperarioBtn');
+    if (btnOperario) btnOperario.onclick = () => this.agregarOperarioInput();
 
     // Adjuntar eventos
     this.attachUploadEvents();
@@ -879,94 +1115,9 @@ class ClientDashboard {
     this.loadBillingData();
   }
 
-  async loadBillingData() {
-    try {
-      // Buscar facturas del cliente
-      const billingRef = firebase.firestore().collection('billing');
-      const snap = await billingRef.where('cliente_id', '==', this.clientData.id).get();
-      
-      const tbody = document.getElementById('billingTable');
-      
-      if (snap.empty) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Sin facturas</td></tr>';
-        return;
-      }
-      
-      let html = '';
-      snap.forEach(doc => {
-        const data = doc.data();
-        const badge = data.pagado ? 'bg-success' : 'bg-warning';
-        const status = data.pagado ? 'Pagado' : 'Pendiente';
-        
-        html += `
-          <tr>
-            <td>${data.periodo}</td>
-            <td>${formatCurrency(data.monto)}</td>
-            <td><span class="badge ${badge}">${status}</span></td>
-            <td>
-              <button class="btn btn-sm btn-info" onclick="alert('Descarga en desarrollo')">
-                <i class="bi bi-download"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      });
-      
-      tbody.innerHTML = html;
-    } catch (error) {
-      console.error("❌ Error:", error);
-      document.getElementById('billingTable').innerHTML = 
-        '<tr><td colspan="4" class="text-danger">Error cargando facturas</td></tr>';
-    }
-  }
-
-  showAPI() {
-    const content = document.getElementById('clientContent');
-    const apiKey = this.clientData.api_key || 'sk_' + generateId();
-    
-    content.innerHTML = `
-      <div>
-        <h2 class="mb-4">API Key</h2>
-        
-        <div class="alert alert-warning mb-4">
-          <i class="bi bi-shield-exclamation"></i> 
-          Mantén tu API Key segura. No la compartas públicamente.
-        </div>
-
-        <div class="card" style="border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-          <div class="card-body">
-            <label class="form-label">Tu API Key:</label>
-            <div class="input-group mb-3">
-              <input type="password" class="form-control" id="apiKeyInput" value="${apiKey}" readonly>
-              <button class="btn btn-outline-secondary" type="button" onclick="
-                document.getElementById('apiKeyInput').type = 
-                  document.getElementById('apiKeyInput').type === 'password' ? 'text' : 'password';
-              ">
-                <i class="bi bi-eye"></i>
-              </button>
-              <button class="btn btn-outline-primary" type="button" onclick="
-                navigator.clipboard.writeText('${apiKey}');
-                alert('¡Copiado!');
-              ">
-                <i class="bi bi-clipboard"></i> Copiar
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card mt-4" style="border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-          <div class="card-header" style="background: #f9f9f9; border: none;">
-            <h5 class="mb-0">Ejemplo de Uso</h5>
-          </div>
-          <div class="card-body">
-            <pre><code>curl https://api.trafico-map.com/v1/cameras \\
-  -H "Authorization: Bearer ${apiKey}"</code></pre>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
+  // async loadBillingData() {
+  //   // (Función eliminada por error de sintaxis)
+  // }
   /**
    * Abre el mapa en una ventana nueva con filtro de ciudad
    */
@@ -975,7 +1126,6 @@ class ClientDashboard {
       alert('Error: No se pudo obtener el nombre de la ciudad');
       return;
     }
-    
     const clientId = this.clientData.id;
     const mapUrl = `/client/map.html?city=${encodeURIComponent(this.clientData.nombre)}&client=${encodeURIComponent(clientId)}`;
     window.open(mapUrl, 'proyectoMapa', 'width=1200,height=800,menubar=yes,toolbar=yes,status=yes');

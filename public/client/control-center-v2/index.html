@@ -506,9 +506,9 @@
   async function initializeFirebase() {
     try {
       // Cargar configuración desde config.json
-      const response = await fetch('../config.json');
+      const response = await fetch('config.json');
       const config = await response.json();
-      firebaseConfig = config.firebase;
+      firebaseConfig = config.firebase || config;
 
       if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
@@ -522,15 +522,18 @@
       // Verificar autenticación
       auth.onAuthStateChanged(async (user) => {
         if (!user) {
-          console.warn('⚠️ No authenticated user. Redirecting to login...');
-          window.location.href = '/login.html';
+          // Modo solo lectura para La Plata si no hay login
+          municipio = 'laplata';
+          console.warn('⚠️ No authenticated user. Modo solo lectura para La Plata.');
+          setupControlCenter();
+          // Opcional: deshabilitar controles de chat y emergencia
+          document.querySelectorAll('.control-panel button, .patrulla-actions button').forEach(btn => btn.disabled = true);
+          document.getElementById('message-input').disabled = true;
         } else {
           console.log('✅ Authenticated user:', user.email);
-          
           // Obtener el custom claim 'city' del usuario
           const idTokenResult = await user.getIdTokenResult();
           const userCity = idTokenResult.claims.city;
-          
           if (userCity) {
             municipio = userCity;
             console.log(`📍 Ciudad del usuario (custom claim): ${municipio}`);
@@ -541,17 +544,13 @@
             console.log('📦 localStorage.getItem("selectedCity"):', storedCity);
             console.log('📦 Tipo:', typeof storedCity);
             if (storedCity) {
-              // Las colecciones en Firestore están sin guiones
               municipio = storedCity.replace(/-/g, '');
               console.log(`📍 Ciudad del localStorage: ${storedCity} → ${municipio}`);
             } else {
-              // Por defecto mardelplata
               municipio = 'mardelplata';
               console.warn('⚠️ No se encontró city en custom claims ni localStorage, usando mardelplata');
             }
           }
-          
-          // Iniciar la aplicación
           setupControlCenter();
         }
       });
