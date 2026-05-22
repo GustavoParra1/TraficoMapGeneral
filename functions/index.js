@@ -23,6 +23,10 @@ const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
 
+// Importar y exportar función crearUsuarioPanel
+const { crearUsuarioPanel } = require('./crearUsuarioPanel');
+exports.crearUsuarioPanel = crearUsuarioPanel;
+
 // ============================================================================
 // FUNCIÓN 1: CREAR CLIENTE
 // ============================================================================
@@ -619,3 +623,116 @@ function generateSecurePassword() {
 function logOperacion(tipo, datos) {
   console.log(`[${new Date().toISOString()}] ${tipo}:`, datos);
 }
+
+// ============================================================================
+// FUNCIÓN: Asignar claims automáticamente al crear usuario patrulla/operario
+// ============================================================================
+exports.setCustomClaimsOnCreate = functions.auth.user().onCreate(async (user) => {
+  const email = user.email || '';
+  let claims = {};
+
+  // Ejemplo: Si es patrulla de La Plata
+  if (email.endsWith('@seguridad.com')) {
+    // Extraer número de patrulla si aplica
+    const patrullaMatch = email.match(/patrulla_(\d+)/);
+    claims = {
+      role: 'patrulla',
+      rol: 'patrulla',
+      city: 'laplata',
+      cliente_id: 'laplata',
+      ...(patrullaMatch ? { patrulla: patrullaMatch[1] } : {})
+    };
+  }
+  // Puedes agregar más lógica para operarios, admins, etc.
+
+  if (Object.keys(claims).length > 0) {
+    await admin.auth().setCustomUserClaims(user.uid, claims);
+    console.log(`✅ Claims asignados automáticamente a ${email}`);
+  } else {
+    console.log(`ℹ️ Usuario creado sin claims automáticos: ${email}`);
+  }
+});
+
+
+// ============================================================================
+// FUNCIÓN: CREAR OPERARIO DESDE PANEL ADMIN (CALLABLE)
+// ============================================================================
+/**
+ * Cloud Function Callable para crear operario
+ * Solo accesible por usuarios con role admin
+ * Params esperados: { nombre, email, ciudad, cliente_id }
+ */
+exports.createOperario = functions.https.onCall(async (data, context) => {
+  try {
+    // Validar autenticación y permisos
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'No autenticado');
+    }
+    const claims = context.auth.token;
+    if (claims.role !== 'admin') {
+      throw new functions.https.HttpsError('permission-denied', 'Solo admin puede crear operarios');
+    }
+
+    const { nombre, email, ciudad, cliente_id } = data;
+    if (!nombre || !email || !ciudad || !cliente_id) {
+      throw new functions.https.HttpsError('invalid-argument', 'Faltan datos requeridos');
+    }
+
+    // Validar formato de email
+    if (!/^operario_[a-zA-Z0-9]+@seguridad\.com$/.test(email)) {
+      throw new functions.https.HttpsError('invalid-argument', 'El email debe ser operario_nombre@seguridad.com');
+    }
+
+    // Crear password temporal seguro
+    const password = generateSecurePassword();
+
+    // Crear usuario en Firebase Auth
+    let userRecord;
+    try {
+      userRecord = await admin.auth().createUser({
+        email,
+        displayName: nombre,
+        password,
+        disabled: false
+      });
+    } catch (err) {
+      if (err.code === 'auth/email-already-exists') {
+        throw new functions.https.HttpsError('already-exists', 'El email ya existe');
+      }
+      throw err;
+    }
+
+    // Asignar custom claims
+    await admin.auth().setCustomUserClaims(userRecord.uid, {
+      role: 'operario',
+      rol: 'operario',
+      city: ciudad,
+      cliente_id: cliente_id
+    });
+
+    // Registrar en Firestore
+    await db.collection(`operarios_${ciudad}`).doc(userRecord.uid).set({
+      uid: userRecord.uid,
+      nombre,
+      email,
+      ciudad,
+      cliente_id,
+      creado_en: new Date().toISOString(),
+      activo: true
+    });
+
+    // Opcional: enviar password por email (requiere configuración de SMTP)
+    // ...
+
+    return {
+      success: true,
+      uid: userRecord.uid,
+      email,
+      password, // Mostrar solo en respuesta inmediata
+      mensaje: 'Operario creado correctamente'
+    };
+  } catch (error) {
+    console.error('❌ Error creando operario:', error);
+    throw error;
+  }
+});

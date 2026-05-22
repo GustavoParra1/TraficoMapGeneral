@@ -1,7 +1,41 @@
+// --- BLOQUEO DE FACTURACIÓN SOLO PARA ADMIN PRINCIPAL ---
+document.addEventListener('DOMContentLoaded', function() {
+  function checkAdminFacturacion() {
+    if (typeof firebase === 'undefined' || !firebase.auth) {
+      setTimeout(checkAdminFacturacion, 200);
+      return;
+    }
+    firebase.auth().onAuthStateChanged(function(user) {
+      var facturacionMenu = document.querySelector('[data-section="facturacion"], [href="#facturacion"]');
+      if (!user || !facturacionMenu) return;
+      // Solo mostrar si es admin principal
+      if (user.email && user.email.toLowerCase() === 'admin@laplata.com') {
+        facturacionMenu.style.display = '';
+      } else {
+        facturacionMenu.style.display = 'none';
+        // Si accede por URL, bloquear
+        if (window.location.hash === '#facturacion' || window.location.pathname.includes('facturacion')) {
+          alert('Acceso denegado. Solo el administrador principal puede ver Facturación.');
+          window.location.hash = '#dashboard';
+        }
+      }
+    });
+  }
+  checkAdminFacturacion();
+});
 // js/client-dashboard.js
 // Dashboard y páginas del panel del cliente
 
 class ClientDashboard {
+  constructor() {
+    // Mostrar recordatorio al cargar el dashboard (unificado)
+    setTimeout(() => {
+      const panel = document.getElementById('panelCargaDatos') || document.body;
+      const aviso = document.createElement('div');
+      // Aviso eliminado: ya no es necesario ejecutar sync_patrullas_auth.js, los claims se asignan automáticamente.
+      panel.prepend(aviso);
+    }, 500);
+  }
     // --- Métodos para carga uno a uno ---
 
     async agregarPatrullaInput(valor = "") {
@@ -17,7 +51,8 @@ class ClientDashboard {
       li.querySelector('.generar-btn').onclick = async () => {
         const nombre = li.querySelector('input').value.trim();
         if (!nombre) return;
-        const usuario = `patrulla_${nombre.replace(/\W+/g,'').toLowerCase()}`;
+        const usuarioBase = `patrulla_${nombre.replace(/\W+/g,'').toLowerCase()}`;
+        const usuario = `${usuarioBase}@seguridad.com`;
         const password = Math.random().toString(36).slice(-8);
         li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${usuario} <b>Pass:</b> ${password}`;
         li.querySelector('input').disabled = true;
@@ -46,7 +81,8 @@ class ClientDashboard {
       li.querySelector('.generar-btn').onclick = async () => {
         const nombre = li.querySelector('input').value.trim();
         if (!nombre) return;
-        const usuario = `operario_${nombre.replace(/\W+/g,'').toLowerCase()}`;
+        const usuarioBase = `operario_${nombre.replace(/\W+/g,'').toLowerCase()}`;
+        const usuario = `${usuarioBase}@seguridad.com`;
         const password = Math.random().toString(36).slice(-8);
         li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${usuario} <b>Pass:</b> ${password}`;
         li.querySelector('input').disabled = true;
@@ -62,18 +98,38 @@ class ClientDashboard {
     }
 
     async guardarPatrullaFirestore({ nombre, usuario, password }) {
-      // Guardar SOLO en la colección global para el mapa/tracking
+      // Crear usuario patrulla vía Cloud Function segura
+      try {
+        const city = (this.clientData.municipio || this.clientData.nombre || '').toLowerCase();
+        const rol = 'patrulla';
+        const displayName = nombre;
+        await firebase.app().functions('us-central1').httpsCallable('crearUsuarioPanel')({
+          email: usuario,
+          password,
+          displayName,
+          city,
+          rol
+        });
+        console.log(`✅ Usuario patrulla creado en Auth y claims asignados: ${usuario}`);
+      } catch (e) {
+        if (e.message && e.message.includes('email-already-exists')) {
+          console.warn(`⚠️ Usuario ya existe en Auth: ${usuario}`);
+        } else {
+          console.error('❌ Error creando usuario patrulla:', e);
+          alert('Error creando usuario patrulla: ' + (e.message || e));
+          return;
+        }
+      }
+      // Guardar en Firestore (opcional, para tracking/mapa)
       const municipio = (this.clientData.municipio || this.clientData.nombre || '').toLowerCase();
       const municipioSinGuiones = municipio.replace(/-/g, '').replace(/\s+/g, '');
       const coleccion = `patrullas_${municipioSinGuiones}`;
-      // Usar el nombre como patente (formato: PATRULLA_XX)
       let patente = nombre.trim().toUpperCase();
       if (!patente.startsWith('PATRULLA_')) {
         patente = 'PATRULLA_' + patente.replace(/\W+/g, '');
       }
-      // Datos mínimos para que aparezca en el mapa
       const data = {
-        lat: this.clientData.lat || -34.92, // fallback: La Plata
+        lat: this.clientData.lat || -34.92,
         lng: this.clientData.lng || -57.945,
         online: true,
         emergencia: false,
@@ -83,7 +139,7 @@ class ClientDashboard {
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         usuario,
         nombre,
-        password // para referencia en el panel
+        password
       };
       try {
         await firebase.firestore().collection(coleccion).doc(patente).set(data, { merge: true });
@@ -184,16 +240,7 @@ class ClientDashboard {
         li.querySelector('input').focus();
       }, 100);
     }
-  constructor() {
-    this.currentPage = 'dashboard';
-    this.clientData = null;
-    this.map = null;
-    this.dataStats = {
-      camaras: 0,
-      siniestros: 0,
-      alertas: 0
-    };
-  }
+
 
   async showPage(page) {
     try {

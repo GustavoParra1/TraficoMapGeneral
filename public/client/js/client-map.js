@@ -12,22 +12,33 @@ class ClientMapManager {
         let count = 0;
         snap.forEach(doc => {
           const data = doc.data();
-          // Si en el futuro hay lat/lng, usarlo. Por ahora, solo nombre/usuario.
-          // Aquí puedes agregar lógica para mostrar en el mapa si hay coordenadas.
-          // Ejemplo: si data.lat && data.lng
           if (data.lat && data.lng) {
+            const nombreLimpio = limpiarNombre(data.nombre || '');
+            const usuarioLimpio = limpiarNombre(data.usuario || '');
             const marker = this.createMarker([data.lat, data.lng], {
-              title: data.nombre || data.usuario || 'Patrulla',
+              title: nombreLimpio || usuarioLimpio,
               type: 'patrullas',
               icon: 'https://cdn-icons-png.flaticon.com/512/616/616494.png',
               iconSize: [30, 30]
             });
-            marker.bindPopup(`<b>Patrulla:</b> ${data.nombre || data.usuario}<br><b>Usuario:</b> ${data.usuario}<br><b>Contraseña:</b> ${data.password}`);
+            marker.bindPopup(`<b>Unidad:</b> ${nombreLimpio || usuarioLimpio}<br><b>Usuario:</b> ${usuarioLimpio}<br><b>Contraseña:</b> ${data.password}`);
             marker.addTo(this.map);
             this.expandBounds([data.lat, data.lng]);
             count++;
           }
         });
+        // Función global para limpiar la palabra 'PATRULLA' de cualquier texto
+        function limpiarNombre(nombre) {
+          if (!nombre) return '';
+          // Elimina todas las ocurrencias de 'PATRULLA' (mayúsculas/minúsculas) y separadores
+          let limpio = nombre;
+          while (/patrulla[_\-\s]*/i.test(limpio)) {
+            limpio = limpio.replace(/patrulla[_\-\s]*/i, '');
+          }
+          limpio = limpio.replace(/^[_\-\s]+/, ''); // Quita separadores al inicio
+          limpio = limpio.replace(/^0+/, ''); // Quita ceros a la izquierda
+          return limpio.trim();
+        }
         const action = count > 0 ? '✅' : '⚠️';
         console.log(`${action} ${count} patrullas cargadas`);
       } catch (error) {

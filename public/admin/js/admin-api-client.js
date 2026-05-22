@@ -135,6 +135,22 @@ class AdminApiClient {
       subscripcionId
     });
   }
+
+  /**
+   * POST /createOperario - Crear operario desde panel admin
+   * @param {string} nombre
+   * @param {string} email
+   * @param {string} ciudad
+   * @param {string} cliente_id
+   */
+  async crearOperario(nombre, email, ciudad, cliente_id) {
+    return this.request('/createOperario', {
+      nombre,
+      email,
+      ciudad,
+      cliente_id
+    });
+  }
 }
 
 // Instancia singleton

@@ -478,9 +478,24 @@ class UsuariosManager {
     try {
       showLoading(document.body);
 
-      const email = document.getElementById('emailUsuario').value;
-      const nombre = document.getElementById('nombreUsuario').value;
+      let email = document.getElementById('emailUsuario').value.trim();
+      const nombre = document.getElementById('nombreUsuario').value.trim();
       const role = document.getElementById('roleUsuario').value;
+
+      // Si es operario y el email está vacío, autogenerar
+      if (role === 'operator' && (!email || !isValidEmail(email))) {
+        // Generar email tipo operario_nombre@seguridad.com
+        // Normalizar nombre: quitar espacios, tildes, pasar a minúsculas
+        let nombreBase = nombre
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar tildes
+          .replace(/[^a-zA-Z0-9]/g, '_') // solo letras/números/_
+          .replace(/_+/g, '_') // evitar dobles guiones
+          .replace(/^_+|_+$/g, '') // quitar _ inicial/final
+          .toLowerCase();
+        if (!nombreBase) throw new Error('Nombre inválido para generar email');
+        email = `operario_${nombreBase}@seguridad.com`;
+        document.getElementById('emailUsuario').value = email;
+      }
 
       await this.criarUsuario({ email, nombre, role });
 

@@ -1,441 +1,270 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📱 Patrulla - TraficoMap</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patrulla GPS + Cámara</title>
 
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Leaflet MAPA -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-  <!-- Firebase v8 -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<style>
+    .card h3 { font-size:2em; margin-top:24px; margin-bottom:10px; }
+  body { font-family: Arial, Helvetica, sans-serif; padding:20px; background:#f3f4f6; }
+  .card { background:white; padding:20px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+  .card h2 { font-size:2.6em; margin-bottom:10px; }
+  #movilAsignado { font-size:2.2em; margin-bottom:16px; }
+  button, input { width:100%; padding:18px 20px; margin-top:12px; border-radius:8px; border:1px solid #ccc; font-size:20px; font-family:inherit; min-height:56px; }
+  #chatInput { font-size:28px; min-height:56px; padding:18px 20px; margin-top:12px; border-radius:8px; border:1px solid #ccc; }
+  #enviarChatBtn { background:#1d4ed8; color:white; font-weight:bold; cursor:pointer; font-size:20px; min-height:56px; display:flex; align-items:center; justify-content:center; margin-top:12px; border-radius:8px; border:1px solid #ccc; }
+  #enviarChatBtn:hover { background:#1e40af; }
+  #enviarChatBtn:disabled { background:#9ca3af; cursor:not-allowed; }
+  button { background:#1d4ed8; color:white; font-weight:bold; cursor:pointer; font-size:20px; min-height:56px; display:flex; align-items:center; justify-content:center; }
+  button:hover { background:#1e40af; }
+  button:disabled { background:#9ca3af; cursor:not-allowed; }
+  #estado { margin-top:15px; padding:10px; border-radius:8px; background:#e5e7eb; }
+    .emergency { background:#dc2626 !important; }
+    .success { background:#10b981 !important; }
+    .status-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: #10b981; margin-right: 6px; vertical-align: middle; transition: background 0.2s; }
+  .emergency { background:#dc2626 !important; }
+  .success { background:#10b981 !important; }
+  #map { height:150px; margin-top:12px; border-radius:10px; transition: height 0.3s ease; }
+  #map.expanded { height:250px; }
+  #toggleMapBtn { 
+    background:#4b5563; 
+    font-size:14px; 
+    min-height:40px; 
+    padding:8px; 
+    margin-top:8px;
+  }
+  #cameraViewerContainer {
+    position: relative;
+    width: 100%;
+    height: 50vh; /* 50% de la pantalla */
+    min-height: 280px;
+    background: black;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+  #localVideo { 
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Mostrar video completo sin recortar */
+    margin-top: 0;
+  }
 
-  <style>
-    * { box-sizing: border-box; }
-    
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0f172a;
-    }
-
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* HEADER */
-    .app-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      flex: 0 0 auto;
-    }
-
-    .app-header h1 {
-      margin: 0;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .app-header .status {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 14px;
-    }
-
-    .btn-logout {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: all 0.2s ease;
-      font-weight: 500;
-    }
-
-    .btn-logout:hover {
-      background: rgba(255, 255, 255, 0.3);
-      border-color: rgba(255, 255, 255, 0.5);
-    }
-
-    .status-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
-    }
-
-    .status-dot.emergencia {
-      background: #ef4444;
-      animation: pulse 0.6s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    /* MAIN CONTAINER */
-    .container {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-      gap: 0;
-    }
-
-    /* MAP SECTION */
-    .map-section {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: #0f172a;
-    }
-
-    #map {
-      flex: 1;
-      background: #0f172a;
-    }
-
-    .map-info {
-      background: #1e293b;
-      padding: 12px 16px;
-      border-top: 1px solid #334155;
-      font-size: 12px;
-      color: #94a3b8;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .map-info .coords {
-      display: flex;
-      gap: 12px;
-    }
-
-    .map-info .speed {
-      font-weight: bold;
-      color: #60a5fa;
-    }
-
-    /* CHAT SECTION */
+  /* --- CHAT PROFESIONAL Y RESPONSIVO --- */
+  .chat-section {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 16px 10px 10px 10px;
+    margin-top: 18px;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 340px;
+    box-sizing: border-box;
+  }
+  .chat-header h3 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #1d4ed8;
+    letter-spacing: 0.5px;
+  }
+  .messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 2px 6px 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 1.15em;
+    background: #f3f4f6;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    min-height: 120px;
+    max-height: 260px;
+  }
+  .message {
+    display: flex;
+    flex-direction: column;
+    max-width: 90%;
+    word-break: break-word;
+    border-radius: 10px;
+    padding: 10px 14px 7px 14px;
+    font-size: 1.08em;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin-bottom: 2px;
+  }
+  .message.outgoing {
+    align-self: flex-end;
+    background: linear-gradient(90deg, #2563eb 60%, #1e40af 100%);
+    color: #fff;
+    font-weight: 500;
+  }
+  .message.incoming {
+    align-self: flex-start;
+    background: #e0e7ff;
+    color: #1e293b;
+    font-weight: 500;
+  }
+  .message.broadcast {
+    align-self: center;
+    background: #fbbf24;
+    color: #78350f;
+    font-weight: bold;
+    border: 2px solid #f59e42;
+  }
+  .message-content {
+    font-size: 1.13em;
+    margin-bottom: 2px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .message-meta {
+    font-size: 0.93em;
+    color: #64748b;
+    font-weight: bold;
+    margin-top: 2px;
+    letter-spacing: 0.2px;
+  }
+  .message.outgoing .message-meta {
+    color: #dbeafe;
+    font-weight: bold;
+  }
+  .message.incoming .message-meta {
+    color: #475569;
+    font-weight: bold;
+  }
+  .message.broadcast .message-meta {
+    color: #78350f;
+    font-weight: bold;
+  }
+  .empty-messages {
+    color: #9ca3af;
+    text-align: center;
+    font-size: 1.1em;
+    margin-top: 18px;
+  }
+  .message-input-area {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: stretch;
+  }
+  #message-input {
+    width: 100%;
+    font-size: 1.18em;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    padding: 14px 12px;
+    min-height: 48px;
+    background: #fff;
+    color: #1e293b;
+    font-family: inherit;
+    outline: none;
+    transition: border 0.2s;
+    box-sizing: border-box;
+    margin: 0;
+    display: block;
+  }
+  #message-input:focus {
+    border: 1.5px solid #2563eb;
+    background: #f1f5f9;
+  }
+  #btn-send {
+    width: 100%;
+    background: #2563eb;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    font-size: 1.1em;
+    padding: 0 18px;
+    min-height: 48px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: block;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  #btn-send:hover {
+    background: #1e40af;
+  }
+  @media (max-width: 600px) {
+    body { padding: 6px; }
+    .container { padding: 0; }
     .chat-section {
-      width: 340px;
-      background: #1e293b;
-      border-left: 1px solid #334155;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      width: 100vw;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 8px 0 6px 0;
+      min-height: 220px;
+      margin-left: 0;
+      margin-right: 0;
+      box-sizing: border-box;
     }
-
-    .chat-header {
-      padding: 12px 16px;
-      background: #0f172a;
-      border-bottom: 1px solid #334155;
-      flex: 0 0 auto;
-    }
-
-    .chat-header h3 {
-      margin: 0;
-      font-size: 14px;
-      color: #e2e8f0;
-    }
-
     .messages-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      font-size: 1em;
+      min-height: 80px;
+      max-height: 160px;
+      padding: 2px 1px 2px 1px;
     }
-
     .message {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      animation: slideIn 0.3s ease-out;
+      font-size: 1em;
+      padding: 8px 8px 6px 10px;
     }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .message.incoming {
-      align-items: flex-start;
-    }
-
-    .message.outgoing {
-      align-items: flex-end;
-    }
-
-    .message.broadcast {
-      align-items: center;
-      text-align: center;
-    }
-
     .message-content {
-      padding: 10px 12px;
-      border-radius: 8px;
-      max-width: 90%;
-      word-wrap: break-word;
-      font-size: 13px;
-      line-height: 1.4;
+      font-size: 1em;
     }
-
-    .message.incoming .message-content {
-      background: #334155;
-      color: #e2e8f0;
-    }
-
-    .message.outgoing .message-content {
-      background: #667eea;
-      color: white;
-    }
-
-    .message.broadcast .message-content {
-      background: #10b981;
-      color: white;
-      font-size: 12px;
-      width: 90%;
-      border-radius: 4px;
-    }
-
     .message-meta {
-      font-size: 11px;
-      color: #64748b;
-      padding: 0 8px;
+      font-size: 0.85em;
     }
-
-    .empty-messages {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: #64748b;
-      text-align: center;
-      font-size: 12px;
-    }
-
-    /* INPUT AREA */
     .message-input-area {
-      padding: 12px;
-      border-top: 1px solid #334155;
-      background: #0f172a;
-      display: flex;
-      gap: 8px;
-      flex: 0 0 auto;
+      gap: 4px;
+      align-items: stretch;
     }
-
-    .message-input-area input {
-      flex: 1;
-      padding: 10px 12px;
-      border: 1px solid #334155;
-      border-radius: 20px;
-      background: #1e293b;
-      color: #e2e8f0;
-      font-size: 13px;
-      outline: none;
-    }
-
-    .message-input-area input:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .message-input-area input::placeholder {
-      color: #64748b;
-    }
-
-    .message-input-area button {
-      padding: 10px 16px;
-      background: #667eea;
-      color: white;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 13px;
-      transition: all 0.2s;
-    }
-
-    .message-input-area button:hover {
-      background: #5568d3;
-    }
-
-    .message-input-area button:active {
-      transform: scale(0.95);
-    }
-
-    /* CONTROL BAR */
-    .control-bar {
-      background: #1e293b;
-      border-top: 1px solid #334155;
-      padding: 12px;
-      display: flex;
-      gap: 8px;
-      flex: 0 0 auto;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #334155;
-      border-radius: 6px;
-      background: #0f172a;
-      color: #e2e8f0;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: bold;
-      transition: all 0.2s;
-    }
-
-    .btn:hover {
-      background: #1e293b;
-      border-color: #475569;
-    }
-
-    .btn.emergencia {
-      background: #ef4444;
-      color: white;
-      border-color: #dc2626;
-    }
-
-    .btn.emergencia:hover {
-      background: #dc2626;
-    }
-
-    /* SCROLLBAR */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 3px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
-
-    /* PATROL MARKER */
-    .patrol-marker,
-    .my-patrol-marker {
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-    }
-
-    .patrol-marker img,
-    .my-patrol-marker img {
-      display: none !important;
-    }
-
-    /* MODAL FOR PATRULLA SELECT */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: #1e293b;
-      padding: 24px;
-      border-radius: 12px;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-content h2 {
-      margin: 0 0 16px 0;
-      color: #e2e8f0;
-      font-size: 18px;
-    }
-
-    .modal-content p {
-      color: #94a3b8;
-      margin: 0 0 16px 0;
-      font-size: 14px;
-    }
-
-    .modal-content select {
+    #message-input {
+      font-size: 1em;
+      min-height: 38px;
+      padding: 8px 6px;
+      margin: 0;
       width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      border: 1px solid #334155;
-      border-radius: 6px;
-      background: #0f172a;
-      color: #e2e8f0;
-      font-size: 14px;
     }
-
-    .modal-content button {
+    #btn-send {
+      font-size: 1em;
+      min-height: 38px;
+      padding: 0 8px;
+      margin: 0;
       width: 100%;
-      padding: 12px;
-      background: #667eea;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.2s;
     }
+  }
+</style>
 
-    .modal-content button:hover {
-      background: #5568d3;
-    }
-  </style>
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 </head>
 
 <body>
 
+
 <!-- HEADER -->
 <div class="app-header">
-  <h1>
-    <span id="patrulla-id">📱 Patrulla</span>
-  </h1>
+  <h1><span id="patrulla-id">📱 Patrulla</span></h1>
   <div class="status">
-    <div class="status-dot" id="status-dot"></div>
+    <span class="status-dot" id="status-dot"></span>
     <span id="status-text">Conectando...</span>
     <button class="btn-logout" onclick="logout()" title="Cerrar sesión">Salir</button>
   </div>
@@ -453,7 +282,9 @@
       </div>
       <div style="display: flex; gap: 8px;">
         <button class="btn" id="btn-start-tracking" style="width: auto; background: #10b981;">📍 Iniciar Rastreo</button>
-        <button class="btn emergencia" id="btn-emergencia" style="width: auto;">🚨 EMERGENCIA</button>
+      <button class="btn" id="btn-emergencia" style="width: auto;">🚨 EMERGENCIA</button>
+      <button class="btn" id="btn-salir-emergencia" style="width: auto; display:none; background:#991b1b;">🛑 SALIR DE EMERGENCIA</button>
+      <span class="status-dot" id="status-dot"></span>
       </div>
     </div>
   </div>
@@ -475,21 +306,10 @@
 
 <!-- CONTROL BAR -->
 <div class="control-bar">
-  <button class="btn" id="btn-select-patrulla">🔄 Cambiar Patrulla</button>
+  <button class="btn" id="btn-select-patrulla" style="display:none;">🔄 Cambiar Patrulla</button>
   <button class="btn" id="btn-clear-messages">🗑️ Limpiar Chat</button>
 </div>
 
-<!-- MODAL -->
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <h2>Selecciona tu Patrulla</h2>
-    <p>¿Cuál eres?</p>
-    <select id="patrulla-options">
-      <option value="">-- Cargando patrullas --</option>
-    </select>
-    <button type="button" id="btn-continue">Continuar</button>
-  </div>
-</div>
 
   <script>
   // ========================================
@@ -500,6 +320,7 @@
   let auth = null;
 
   async function initializeFirebase() {
+      // Ya no se fuerza logout automático al cargar la app
     try {
       // Cargar configuración desde config.json
       const response = await fetch('../config.json');
@@ -515,29 +336,81 @@
 
       console.log('✅ Firebase initialized for patrulla-app');
 
+
       // Verificar autenticación
       auth.onAuthStateChanged(async (user) => {
         if (!user) {
-          console.warn('⚠️ No authenticated user. Redirecting to login...');
-          window.location.href = '/login.html';
+          // Diagnóstico detallado de cierre
+          let reason = 'Firebase Auth: usuario no autenticado (user=null)';
+          let lastError = window.__lastAuthError || '';
+          let lastToken = '';
+          try {
+            lastToken = localStorage.getItem('firebaseIdToken') || '';
+          } catch(e) {}
+          console.warn('🛑', reason, lastError);
+          try {
+            const logDiv = document.createElement('div');
+            logDiv.style = 'background: #dc2626; color: white; padding: 24px; font-size: 20px; position: fixed; top: 0; left: 0; width: 100vw; z-index: 9999;';
+            logDiv.innerHTML =
+              '<b>🛑 Sesión no válida o expirada</b><br>' +
+              '<div style="font-size:16px;margin-top:10px;">Motivo: ' + reason + '</div>' +
+              (lastError ? '<div style="font-size:14px;margin-top:8px;">Último error: ' + lastError + '</div>' : '') +
+              (lastToken ? '<div style="font-size:12px;margin-top:8px;word-break:break-all;">Token: ' + lastToken + '</div>' : '') +
+              '<div style="font-size:14px;margin-top:16px;">Redirigiendo a login.html...</div>';
+            document.body.appendChild(logDiv);
+          } catch(e) { console.error('No se pudo mostrar mensaje de cierre:', e); }
+          setTimeout(() => {
+            // NO limpiar el DOM antes de mostrar el mensaje
+            localStorage.setItem('postLoginRedirect', window.location.pathname);
+            window.location.href = '/login.html';
+          }, 2000);
           return;
         }
-        
-        console.log('✅ Authenticated user:', user.email);
-        
-        // Obtener el custom claim 'city' del usuario
-        const idTokenResult = await user.getIdTokenResult();
-        const userCity = idTokenResult.claims.city;
-        
+
+        console.log('✅ Usuario autenticado:', user.email);
+
+
+        // Reintentar obtener el custom claim 'city' hasta 5 veces
+        let userCity = null;
+        let userEmail = user.email || '';
+        for (let i = 0; i < 5; i++) {
+          const idTokenResult = await user.getIdTokenResult(true); // force refresh
+          userCity = idTokenResult.claims.city;
+          if (userCity) break;
+          console.warn(`⏳ Intento ${i+1}: custom claim 'city' no disponible, reintentando...`);
+          await new Promise(res => setTimeout(res, 700));
+        }
+
         if (userCity) {
           municipio = userCity;
           console.log(`📍 Ciudad del usuario: ${municipio}`);
         } else {
-          console.warn('⚠️ No se encontró city en custom claims');
+          console.warn('⚠️ No se encontró city en custom claims tras varios intentos');
+          alert('No se encontró la ciudad asignada a tu usuario. Contacta a soporte.');
           window.location.href = '/login.html';
           return;
         }
-        
+
+        // Si el usuario es patrulla (correo patrulla_XXX@seguridad.com), forzar patrullaId y ocultar selector/modal
+        const patrullaMatch = userEmail.match(/^patrulla_([a-zA-Z0-9]+)@seguridad\.com$/);
+        if (patrullaMatch) {
+          patrullaId = `patrulla_${patrullaMatch[1]}`;
+          localStorage.setItem('patrullaId', patrullaId);
+          // Ocultar botón Cambiar Patrulla
+          setTimeout(() => {
+            const btnCambiar = document.getElementById('btn-select-patrulla');
+            if (btnCambiar) {
+              btnCambiar.style.display = 'none';
+            }
+            // Ocultar modal si existe
+            const modal = document.getElementById('modal');
+            if (modal) modal.style.display = 'none';
+            // Actualizar header
+            const headerElement = document.getElementById('patrulla-id');
+            if (headerElement) headerElement.textContent = `📱 ${patrullaId}`;
+          }, 500);
+        }
+
         // Iniciar la aplicación DESPUÉS de estar autenticado y tener ciudad
         // Disparar evento personalizado para que DOMContentLoaded sepa que está listo
         window.authReady = true;
@@ -787,7 +660,7 @@
   async function renderMessages() {
     const container = document.getElementById('messages-container');
     const coleccion = `chat_${municipio}`;
-
+    console.log('[DEBUG] renderMessages patrulla', {coleccion, patrullaId, municipio});
     try {
       // Obtener TODOS los mensajes sin filtros
       const snapshot = await db.collection(coleccion)
@@ -795,7 +668,9 @@
         .get();
 
       let allMessages = [];
+      let allRawMessages = [];
 
+      const patrullaIdNorm = (patrullaId || '').toUpperCase();
       snapshot.forEach((doc) => {
         const data = doc.data();
         const msg = {
@@ -803,16 +678,26 @@
           ...data,
           timestamp: data.timestamp?.toDate(),
         };
-
-        // Filtrar: mensajes dirigidos a esta patrulla, broadcasts, O mensajes que ENVIE esta patrulla
-        const isForMe = data.to === patrullaId;
+        allRawMessages.push(msg); // Guardar todos los mensajes crudos
+        // Normalizar destinatario/remitente para comparar sin case sensitive
+        const fromNorm = (data.from || '').toUpperCase();
+        const toNorm = (data.to || '').toUpperCase();
         const isBroadcast = data.type === 'broadcast';
-        const isFromMe = data.from === patrullaId;
-
-        if (isForMe || isBroadcast || isFromMe) {
+        // SOLO mostrar en el chat principal:
+        // 1. Mensajes enviados por la patrulla
+        // 2. Mensajes enviados por CENTRO_CONTROL a la patrulla
+        // 3. Mensajes broadcast
+        const isFromPatrulla = fromNorm === patrullaIdNorm;
+        const isCentroToPatrulla = fromNorm === 'CENTRO_CONTROL' && toNorm === patrullaIdNorm;
+        if (isFromPatrulla || isCentroToPatrulla || isBroadcast) {
           allMessages.push(msg);
         }
       });
+
+      // Eliminar recuadro de debug visual de mensajes RAW para producción
+      const debugDivId = 'debug-messages-raw';
+      const debugDiv = document.getElementById(debugDivId);
+      if (debugDiv) debugDiv.remove();
 
       // Ordenar por timestamp
       allMessages.sort((a, b) => a.timestamp - b.timestamp);
@@ -866,7 +751,7 @@
 
     try {
       const coleccion = `chat_${municipio}`;
-
+      console.log('[DEBUG] enviarMensaje patrulla', {coleccion, patrullaId, municipio, texto});
       await db.collection(coleccion).add({
         from: patrullaId,
         to: 'CENTRO_CONTROL',
@@ -874,7 +759,6 @@
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         read: false
       });
-
       console.log('✅ Mensaje enviado');
       input.value = '';
       renderMessages();
@@ -891,15 +775,29 @@
       const coleccion = `patrullas_${municipio}`;
       emergencia = !emergencia;
 
-      await db.collection(coleccion).doc(patrullaId).update({
-        emergencia: emergencia,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
+      const patrullaRef = db.collection(coleccion).doc(patrullaId);
+      const docSnap = await patrullaRef.get();
+      if (!docSnap.exists) {
+        // Crear documento con datos mínimos
+        await patrullaRef.set({
+          emergencia: emergencia,
+          online: true,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log('🆕 Documento de patrulla creado:', patrullaId);
+      } else {
+        await patrullaRef.update({
+          emergencia: emergencia,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
 
       updateStatus();
       console.log(`${emergencia ? '🚨' : '✅'} Estado actualizado`);
     } catch (error) {
       console.error('Error:', error);
+      alert('Error al activar emergencia: ' + (error.message || error));
     }
   }
 
@@ -917,13 +815,33 @@
 
         const dot = document.getElementById('status-dot');
         const text = document.getElementById('status-text');
+        const btnEmergencia = document.getElementById('btn-emergencia');
+        const btnSalirEmergencia = document.getElementById('btn-salir-emergencia');
+
+        // Cambiar color del marcador en el mapa
+        if (window.myMarker) {
+          const numPatrulla = (patrullaId || '').replace('PATRULLA_', '');
+          let markerColor = emergencia ? '#dc2626' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+          let borderColor = emergencia ? '#991b1b' : 'white';
+          window.myMarker.setIcon(L.divIcon({
+            html: `<div style="width: 50px; height: 50px; background: ${markerColor}; border: 3px solid ${borderColor}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; font-family: Arial, sans-serif; box-shadow: 0 3px 10px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.3);">${numPatrulla}</div>` ,
+            iconSize: [50, 50],
+            iconAnchor: [25, 25],
+            popupAnchor: [0, -25],
+            className: 'my-patrol-marker'
+          }));
+        }
 
         if (emergencia) {
           dot.classList.add('emergencia');
           text.textContent = '🚨 EMERGENCIA';
+          if (btnEmergencia) btnEmergencia.classList.add('emergencia-activa');
+          if (btnSalirEmergencia) btnSalirEmergencia.style.display = 'flex';
         } else {
           dot.classList.remove('emergencia');
           text.textContent = '✅ En línea';
+          if (btnEmergencia) btnEmergencia.classList.remove('emergencia-activa');
+          if (btnSalirEmergencia) btnSalirEmergencia.style.display = 'none';
         }
       }
     } catch (error) {
@@ -935,19 +853,25 @@
   // EVENT LISTENERS
   // ========================================
   document.addEventListener('DOMContentLoaded', async () => {
-    console.log('📱 DOMContentLoaded disparado');
-    
-    // ESPERAR a que la autenticación esté lista
-    if (!window.authReady) {
-      console.log('⏳ Esperando a que la autenticación esté lista...');
-      await new Promise(resolve => window.addEventListener('authReady', resolve, { once: true }));
-      console.log('✅ Autenticación lista, continuando...');
-    }
-    
-    // Asignar listeners de botones del control bar (siempre disponibles)
-    const btnClearMessages = document.getElementById('btn-clear-messages');
-    if (btnClearMessages) {
-      btnClearMessages.addEventListener('click', async () => {
+      console.log('📱 DOMContentLoaded disparado', window.__DOMContentLoadedCount);
+      if (!window.__DOMContentLoadedCount) window.__DOMContentLoadedCount = 1; else window.__DOMContentLoadedCount++;
+      console.log('🟠 DOMContentLoaded count:', window.__DOMContentLoadedCount);
+
+      // Log para detectar doble inicialización
+      if (window.isInitialized) {
+        console.warn('⚠️ DOMContentLoaded: App ya estaba inicializada (isInitialized=true)');
+      }
+      // ESPERAR a que la autenticación esté lista
+      if (!window.authReady) {
+        console.log('⏳ Esperando a que la autenticación esté lista...');
+        await new Promise(resolve => window.addEventListener('authReady', resolve, { once: true }));
+        console.log('✅ Autenticación lista, continuando...');
+      }
+
+      // Asignar listeners de botones del control bar (siempre disponibles)
+      const btnClearMessages = document.getElementById('btn-clear-messages');
+      if (btnClearMessages) {
+        btnClearMessages.addEventListener('click', async () => {
         if (confirm('¿Limpiar TODO el chat? (Se eliminarán todos los mensajes)')) {
           console.log('🗑️ Limpiando chat de Firestore...');
           
@@ -993,24 +917,25 @@
     
     // Intentar cargar patrulla del localStorage
     const hasPatrulla = loadPatrollaFromStorage();
+    // Si es patrulla, nunca mostrar modal ni selector
+    const userEmail = auth && auth.currentUser ? auth.currentUser.email : '';
+    const isPatrulla = userEmail && /^patrulla_([a-zA-Z0-9]+)@seguridad\.com$/.test(userEmail);
 
     if (hasPatrulla && patrullaId) {
       // Patrulla ya guardada - inicializar directamente
       console.log(`✅ Iniciando con patrulla guardada: ${patrullaId}`);
       document.getElementById('patrulla-id').textContent = `📱 ${patrullaId}`;
       setTimeout(() => init(), 100);  // Pequeño delay para asegurar que DOM está listo
-    } else {
-      // No hay patrulla - mostrar modal
+    } else if (!isPatrulla) {
+      // Solo para usuarios NO patrulla: mostrar modal
       console.log('❌ No hay patrulla guardada, mostrando modal');
       await showSelectPatrullaModal();
-      
       // Agregar evento al botón Continuar - MORE ROBUST
       const btnContinue = document.getElementById('btn-continue');
       if (btnContinue) {
         // Remover cualquier listener previo
         const newBtnContinue = btnContinue.cloneNode(true);
         btnContinue.parentNode.replaceChild(newBtnContinue, btnContinue);
-        
         // Agregar listener al nuevo botón
         document.getElementById('btn-continue').addEventListener('click', (e) => {
           e.preventDefault();  // Prevenir comportamiento por defecto
@@ -1072,33 +997,53 @@
   }
 
   function init() {
+
     if (isInitialized) {
-      console.warn('⚠️ App ya inicializada, saltando...');
+      console.warn('⚠️ init(): App ya inicializada, saltando...');
       return;
     }
 
     console.log(`🚀 Inicializando app para patrulla: ${patrullaId}`);
+
 
     if (!patrullaId) {
       console.error('❌ ERROR: patrullaId está vacío en init()');
       return;
     }
 
+
     try {
+      console.log('🟢 Llamando initMap()');
       initMap();
+      console.log('🟢 Llamando listenToMessages()');
       listenToMessages();
+      console.log('🟢 Llamando updateStatus()');
       updateStatus();
 
       // NO iniciar tracking automáticamente - esperar a que usuario presione el botón
       // Esto es importante en móvil: muchos navegadores requieren gesto del usuario
 
       // Agregar event listeners
-      document.getElementById('btn-send').addEventListener('click', enviarMensaje);
+
+      document.getElementById('btn-send').addEventListener('click', () => {
+        console.log('🟢 btn-send CLICK');
+        enviarMensaje();
+      });
       document.getElementById('message-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') enviarMensaje();
+        if (e.key === 'Enter') {
+          console.log('🟢 message-input ENTER');
+          enviarMensaje();
+        }
       });
 
-      document.getElementById('btn-emergencia').addEventListener('click', toggleEmergencia);
+      document.getElementById('btn-emergencia').addEventListener('click', () => {
+        console.log('🟢 btn-emergencia CLICK');
+        toggleEmergencia();
+      });
+      document.getElementById('btn-salir-emergencia').addEventListener('click', () => {
+        console.log('🟢 btn-salir-emergencia CLICK');
+        if (emergencia) toggleEmergencia();
+      });
 
       // Botón para iniciar rastreo manualmente
       document.getElementById('btn-start-tracking').addEventListener('click', () => {
@@ -1116,13 +1061,16 @@
         location.reload();
       });
 
-      // Actualizar status cada 10 segundos
-      setInterval(updateStatus, 10000);
 
-      // Renderizar mensajes cada 3 segundos
-      setInterval(renderMessages, 3000);
+      // Actualizar status cada 10 segundos
+      setInterval(() => {
+        console.log('⏰ Interval updateStatus');
+        updateStatus();
+      }, 10000);
+      // Eliminado el setInterval de renderMessages (solo onSnapshot actualiza el chat)
 
       isInitialized = true;
+      window.isInitialized = true;
       console.log('✅ App inicializada correctamente');
     } catch (error) {
       console.error('❌ Error inicializando app:', error);
@@ -1135,15 +1083,21 @@
   // ========================================
   function logout() {
     if (confirm('¿Cerrar sesión en esta ventana?')) {
-      console.log('🚪 Cerrando ventana de patrulla-app');
-      // Solo cerrar esta ventana sin afectar otras ventanas
-      window.close();
-      // Si no se puede cerrar (popup bloqueado), redirigir al login
-      setTimeout(() => {
-        window.location.href = '/login.html';
-      }, 500);
+      console.log('🚪 Cerrando sesión de patrulla-app');
+      window.location.href = '/login.html';
     }
   }
+</script>
+<script>
+// Log global de errores JS para diagnóstico
+window.addEventListener('error', function(e) {
+  console.error('[GLOBAL ERROR]', e.message, e.error);
+  alert('Error crítico: ' + e.message + '\nVer consola para detalles.');
+});
+window.addEventListener('unhandledrejection', function(e) {
+  console.error('[GLOBAL PROMISE REJECTION]', e.reason);
+  alert('Error crítico: ' + e.reason);
+});
 </script>
 </body>
 </html>

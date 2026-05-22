@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎛️ Control de Patrullas - TraficoMap</title>
+  <title>🎛️ Control Center - TraficoMap</title>
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
@@ -454,9 +454,9 @@
         </div>
       </div>
 
-      <!-- Patrullas -->
+      <!-- Unidades -->
       <div id="patrullas-list" class="patrullas-list">
-        <div class="loading">Cargando patrullas...</div>
+        <div class="loading">Cargando unidades...</div>
       </div>
     </div>
   </div>
@@ -478,7 +478,7 @@
       <div class="control-input">
         <label>Enviar a</label>
         <select id="patrulla-select">
-          <option value="">-- Selecciona patrulla --</option>
+          <option value="">-- Selecciona unidad --</option>
         </select>
       </div>
 
@@ -531,6 +531,10 @@
           document.getElementById('message-input').disabled = true;
         } else {
           console.log('✅ Authenticated user:', user.email);
+          // Habilitar controles de chat y emergencia
+          document.querySelectorAll('.control-panel button, .patrulla-actions button').forEach(btn => btn.disabled = false);
+          const messageInput = document.getElementById('message-input');
+          if (messageInput) messageInput.disabled = false;
           // Obtener el custom claim 'city' del usuario
           const idTokenResult = await user.getIdTokenResult();
           const userCity = idTokenResult.claims.city;
@@ -624,17 +628,27 @@
       console.log(`📊 Snapshot recibido: ${snapshot.size} patrullas`);
       patrullas.clear();
 
+      // Unificación: Mapear por número de patrulla normalizado
+      const patrullasUnificadas = new Map();
       snapshot.forEach((doc) => {
         const data = doc.data();
-        console.log(`✅ ${doc.id}: lat=${data.lat}, lng=${data.lng}, online=${data.online}`);
-        
-        patrullas.set(doc.id, {
-          id: doc.id,
-          ...data
-        });
+        // Normalizar: quitar prefijos y ceros a la izquierda, todo mayúsculas
+        let num = doc.id.replace(/^(patrulla|PATRULLA)[_\-]?/i, '').replace(/^0+/, '').toUpperCase();
+        if (!num) num = doc.id.toUpperCase();
+        if (!patrullasUnificadas.has(num)) {
+          patrullasUnificadas.set(num, { ...data, id: doc.id, _allIds: [doc.id] });
+        } else {
+          // Si hay duplicados, priorizar la patrulla online o la que tenga más datos
+          const prev = patrullasUnificadas.get(num);
+          if (data.online) patrullasUnificadas.set(num, { ...data, id: doc.id, _allIds: [...prev._allIds, doc.id] });
+          else prev._allIds.push(doc.id);
+        }
       });
-
-      console.log(`🔄 Actualizando UI con ${patrullas.size} patrullas`);
+      // Ahora poblar el Map patrullas con solo una por número
+      patrullasUnificadas.forEach((p, num) => {
+        patrullas.set(p.id, p);
+      });
+      console.log(`🔄 Actualizando UI con ${patrullas.size} patrullas (unificadas)`);
       actualizarUI();
     }, (error) => {
       console.error('❌ Error escuchando patrullas:', error);
@@ -689,8 +703,10 @@
       .forEach((p) => {
         const estado = p.emergencia ? 'emergencia' : (p.online ? 'online' : 'offline');
         const estadoTexto = p.emergencia ? '🚨 EMERGENCIA' : (p.online ? '✅ En línea' : '❌ Offline');
-        // Extraer número de patrulla (patrulla-01 → 01, PATRULLA_01 → 01)
-        const numPatrulla = p.id.replace(/^(patrulla|PATRULLA)[_-]/, '');
+        // Extraer número de patrulla eliminando todos los prefijos 'PATRULLA', guiones o guiones bajos
+        let numPatrulla = p.id.replace(/(patrulla|PATRULLA)[_\-]*/gi, '');
+        // Si queda vacío, mostramos el id completo
+        if (!numPatrulla.trim()) numPatrulla = p.id;
 
         const card = document.createElement('div');
         card.className = `patrulla-card ${estado}`;
@@ -716,14 +732,22 @@
     const select = document.getElementById('patrulla-select');
     const opcionesActuales = new Set();
 
-    Array.from(patrullas.keys()).forEach((id) => {
-      if (!select.querySelector(`option[value="${id}"]`)) {
-        const option = document.createElement('option');
-        option.value = id;
-        option.textContent = id;
-        select.appendChild(option);
+    // Mostrar solo una opción por número de patrulla unificado
+    const numerosUnicos = new Set();
+    Array.from(patrullas.values()).forEach((p) => {
+      let num = p.id.replace(/^(patrulla|PATRULLA)[_\-]?/i, '').replace(/^0+/, '').toUpperCase();
+      if (!num) num = p.id.toUpperCase();
+      if (!numerosUnicos.has(num)) {
+        if (!select.querySelector(`option[data-num="${num}"]`)) {
+          const option = document.createElement('option');
+          option.value = p.id;
+          option.textContent = `PATRULLA_${num}`;
+          option.setAttribute('data-num', num);
+          select.appendChild(option);
+        }
+        numerosUnicos.add(num);
       }
-      opcionesActuales.add(id);
+      opcionesActuales.add(p.id);
     });
 
     // Remover opciones que ya no existen
@@ -937,16 +961,18 @@
   async function renderMessages() {
     const container = document.getElementById('messages-container');
     const coleccion = `chat_${municipio}`;
-
+    console.log('[DEBUG] renderMessages control-center', {coleccion, selectedPatrolId, municipio});
     try {
-      // Obtener TODOS los mensajes sin filtros
+      // Obtener TODOS los mensajes planos
       const snapshot = await db.collection(coleccion)
         .orderBy('timestamp', 'asc')
-        .limit(50)
         .get();
 
       let allMessages = [];
+      let allRawMessages = [];
 
+      // Normalizar el ID seleccionado para comparar (quitar prefijos y ceros a la izquierda, mayúsculas)
+      const patrolIdNorm = (selectedPatrolId || '').replace(/^(patrulla|PATRULLA)[_\-]?/i, '').replace(/^0+/, '').toUpperCase();
       snapshot.forEach((doc) => {
         const data = doc.data();
         const msg = {
@@ -954,21 +980,18 @@
           ...data,
           timestamp: data.timestamp?.toDate(),
         };
-
-        // Filtrar mensajes según si hay patrulla seleccionada
-        let mostrarMensaje = false;
+        allRawMessages.push(msg);
+        // Normalizar remitente y destinatario
+        const fromNorm = (data.from || '').replace(/^(patrulla|PATRULLA)[_\-]?/i, '').replace(/^0+/, '').toUpperCase();
+        const toNorm = (data.to || '').replace(/^(patrulla|PATRULLA)[_\-]?/i, '').replace(/^0+/, '').toUpperCase();
         const isBroadcast = data.type === 'broadcast';
-
-        if (!selectedPatrolId) {
-          // Sin patrulla seleccionada: mostrar solo broadcasts
-          mostrarMensaje = isBroadcast;
-        } else {
-          // Con patrulla seleccionada: mostrar conversación 1-a-1 Y broadcasts
-          const esDeEstaPatrulla = data.from === selectedPatrolId || data.to === selectedPatrolId;
-          mostrarMensaje = esDeEstaPatrulla || isBroadcast;
-        }
-
-        if (mostrarMensaje) {
+        // Mostrar:
+        // 1. Mensajes enviados por la patrulla seleccionada (unificada)
+        // 2. Mensajes enviados por CENTRO_CONTROL a la patrulla seleccionada (unificada)
+        // 3. Mensajes broadcast
+        const isFromPatrulla = fromNorm === patrolIdNorm;
+        const isCentroToPatrulla = fromNorm === 'CENTRO_CONTROL' && toNorm === patrolIdNorm;
+        if (isFromPatrulla || isCentroToPatrulla || isBroadcast) {
           allMessages.push(msg);
         }
       });
@@ -988,11 +1011,11 @@
       container.innerHTML = '';
 
       allMessages.forEach((msg) => {
+        const isOutgoing = msg.from === 'CENTRO_CONTROL';
         const isBroadcast = msg.type === 'broadcast';
-        const isFromCentro = msg.from === 'CENTRO_CONTROL';
 
         const div = document.createElement('div');
-        div.className = `message ${isBroadcast ? 'broadcast' : (isFromCentro ? 'outgoing' : 'incoming')}`;
+        div.className = `message ${isBroadcast ? 'broadcast' : (isOutgoing ? 'outgoing' : 'incoming')}`;
 
         const timeStr = msg.timestamp
           ? msg.timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
@@ -1001,7 +1024,7 @@
         let fromText = msg.from;
         if (isBroadcast) {
           fromText = '📢 BROADCAST';
-        } else if (isFromCentro) {
+        } else if (isOutgoing) {
           fromText = '🎛️ Yo';
         }
 

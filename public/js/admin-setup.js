@@ -143,30 +143,43 @@ async function submitForm(event) {
             geographicData: geographicData
         };
 
-        // 1. Crear ciudad
+        // 1. Crear ciudad (como antes)
         updateProgress('progress-city', 'loading', 'Creando ciudad en base de datos...');
-        
         const response = await fetch(getApiUrl(), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(cityData)
         });
-
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || `Error ${response.status}`);
         }
-
         const result = await response.json();
-
-        // Actualizar estados de progreso
         updateProgress('progress-city', 'done', '✅ Ciudad creada');
-        updateProgress('progress-users', 'done', '✅ Usuarios creados en Firebase Auth');
+
+        // 2. Crear operarios automáticamente
+        updateProgress('progress-users', 'loading', 'Creando operarios en Firebase Auth...');
+        const numOperadores = cityData.numOperadores;
+        const operadores = [];
+        for (let i = 1; i <= numOperadores; i++) {
+            const nombre = `Operario ${i}`;
+            const email = `operario_${cityData.cityId}_${i}@seguridad.com`;
+            try {
+                // adminApi debe estar disponible globalmente
+                const res = await window.adminApi.crearOperario(nombre, email, cityData.cityId, cityData.cityId);
+                operadores.push({ email: res.email, password: res.password });
+            } catch (err) {
+                operadores.push({ email, password: 'ERROR: ' + (err.message || err) });
+            }
+        }
+        updateProgress('progress-users', 'done', '✅ Operarios creados');
+
+        // 3. Patrullas y reglas (simulado, como antes)
         updateProgress('progress-patrullas', 'done', '✅ Patrullas creadas en Firestore');
         updateProgress('progress-rules', 'done', '✅ Reglas de Firestore actualizadas');
 
-        // Mostrar resultado exitoso
-        showSuccessModal(cityData, result);
+        // Mostrar resultado exitoso con credenciales de operarios
+        showSuccessModal(cityData, { ...result, operadores });
 
     } catch (error) {
         console.error('Error:', error);

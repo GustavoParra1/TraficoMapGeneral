@@ -231,6 +231,17 @@ const AuthManager = (() => {
         return;
       }
 
+      // Si hay una URL de redirección guardada, úsala
+      const postLoginRedirect = localStorage.getItem('postLoginRedirect');
+      if (postLoginRedirect) {
+        console.log('🔄 Redirigiendo a URL original tras login:', postLoginRedirect);
+        localStorage.removeItem('postLoginRedirect');
+        setTimeout(() => {
+          window.location.href = postLoginRedirect;
+        }, 500);
+        return;
+      }
+
       // Aquí hay usuario válido
       const role = await this.getUserRole(user.email);
       console.log(`🔀 Rol detectado: "${role}" para usuario: ${user.email}`);

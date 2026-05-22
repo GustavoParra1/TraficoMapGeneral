@@ -66,7 +66,7 @@ class AdminAuth {
 
   // Verificar si es admin
   isAdmin() {
-    return this.role === "admin";
+    return this.role === "admin" || this.role === "superadmin";
   }
 
   // Login con email/password
