@@ -165,6 +165,9 @@ class PatullaLayer {
   actualizarPatrulla(patente, data) {
     const { lat, lng, online, emergencia, estado, timestamp, accuracy, speed } = data;
 
+    // LOG DETALLADO DE COORDENADAS
+    console.log(`🛰️ [DEPURACION] actualizarPatrulla: ${patente} -> lat:`, lat, 'lng:', lng, 'online:', online, 'emergencia:', emergencia, 'estado:', estado, 'timestamp:', timestamp, 'accuracy:', accuracy, 'speed:', speed);
+
     if (!this.patrullas.has(patente)) {
       // Crear nueva patrulla
       const icon = this.crearIcon(patente, online, emergencia);

@@ -12,6 +12,8 @@ class ClientMapManager {
         let count = 0;
         snap.forEach(doc => {
           const data = doc.data();
+          // LOG DETALLADO DE DEPURACIÓN
+          console.log(`[DEBUG] Patrulla doc.id: ${doc.id}, nombre: ${data.nombre}, usuario: ${data.usuario}, lat: ${data.lat}, lng: ${data.lng}`);
           if (data.lat && data.lng) {
             const nombreLimpio = limpiarNombre(data.nombre || '');
             const usuarioLimpio = limpiarNombre(data.usuario || '');
@@ -112,8 +114,15 @@ class ClientMapManager {
     console.log('🗺️ Inicializando mapa para cliente:', this.clientId);
     console.log('📋 Datos del cliente:', clientData);
 
-    // Crear mapa - vista Argentina por defecto (cubre La Plata + Mar del Plata)
-    this.map = L.map(containerId).setView([-37.5, -58.5], 9);
+    // Centrar el mapa en la ciudad del cliente
+    let cityCoords = [-34.9205, -57.9545]; // Default: La Plata
+    if (clientData && clientData.coords && Array.isArray(clientData.coords) && clientData.coords.length === 2) {
+      cityCoords = clientData.coords;
+    } else if (clientData && clientData.nombre && clientData.nombre.toLowerCase().includes('mar del plata')) {
+      cityCoords = [-38.0, -57.55];
+    }
+
+    this.map = L.map(containerId).setView(cityCoords, 13);
 
     // Agregar capa base (OSM)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -147,8 +156,9 @@ class ClientMapManager {
     // Cargar datos
     await this.loadAllData();
 
-    // Auto-zoom a los datos
-    this.fitBounds();
+    // No hacer auto-zoom a los datos, mantener centrado en la ciudad
+    // (Si quieres permitir auto-zoom, descomenta la siguiente línea)
+    // this.fitBounds();
 
     console.log('✅ Mapa inicializado');
   }
