@@ -92,45 +92,57 @@ class ClientAuth {
   async handleLogin() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    
     try {
       console.log("🔐 Validando credenciales contra Firestore:", email);
-      
       // ✅ PASO 1: Buscar cliente en Firestore (sin autenticar)
       const db = firebase.firestore();
       const clientesSnapshot = await db.collection('clientes')
         .where('email_admin', '==', email)
         .limit(1)
         .get();
-      
       if (clientesSnapshot.empty) {
         throw new Error("Usuario no encontrado. Verifica el email.");
       }
-      
       const clienteDoc = clientesSnapshot.docs[0];
       const clienteData = clienteDoc.data();
       const clienteId = clienteDoc.id;
-      
       console.log("🔍 Cliente encontrado:", clienteData.nombre);
-      
       // ✅ PASO 2: Validar contraseña
       const passwordStored = clienteData.contraseña || clienteData.password;
       if (passwordStored !== password) {
         throw new Error("Contraseña incorrecta.");
       }
-      
       console.log("✅ Credenciales válidas");
-      
       // ✅ PASO 3: Guardar datos del cliente en sessionStorage
       sessionStorage.setItem('clienteId', clienteId);
       sessionStorage.setItem('clienteData', JSON.stringify(clienteData));
       sessionStorage.setItem('email_acceso', email);
-      
       console.log("✅ Login exitoso con credenciales de Firestore");
-      
-      // ✅ PASO 4: Cargar el cliente
+
+      // ✅ PASO 4: Real login en Firebase Auth GENERAL
+      let authUser = null;
+      try {
+        authUser = await firebase.auth().signInWithEmailAndPassword(email, password);
+        console.log("✅ Usuario autenticado en Firebase Auth GENERAL", authUser.user?.email);
+      } catch (authError) {
+        // Si el usuario no existe en Auth, mostrar error claro
+        if (authError.code === 'auth/user-not-found') {
+          throw new Error("El usuario no existe en el sistema de autenticación. Contacta al administrador.");
+        } else if (authError.code === 'auth/wrong-password') {
+          throw new Error("Contraseña incorrecta en el sistema de autenticación.");
+        } else {
+          throw authError;
+        }
+      }
+
+      // ✅ PASO 5: Forzar refresh del token para obtener claims actualizados
+      const user = firebase.auth().currentUser;
+      if (user) {
+        await user.getIdToken(true);
+        console.log("🔄 Token de sesión forzado a refrescar (claims actualizados)");
+      }
+      // Ahora cargar el cliente
       await this.onClientAuthenticated(clienteId, clienteData);
-      
     } catch (error) {
       console.error("❌ Error de login:", error);
       this.showError(error.message || this.getErrorMessage(error.code || 'unknown-error'));

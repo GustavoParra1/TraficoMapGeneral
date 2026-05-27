@@ -1,5 +1,5 @@
-// Script para asignar custom claims a un usuario en Firebase (CommonJS)
-// Renombrado a .cjs para Node.js con "type": "module"
+// Script para asignar custom claims a un usuario en Firebase
+// Requiere Node.js y el paquete firebase-admin instalado
 
 const admin = require('firebase-admin');
 const serviceAccount = require('./trafico-map-general-v2-firebase-adminsdk-fbsvc-c8f1cfe957.json');

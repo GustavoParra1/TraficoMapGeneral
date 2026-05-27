@@ -28,6 +28,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 class ClientDashboard {
   constructor() {
+    // Inicializar estadísticas vacías para evitar errores
+    this.dataStats = {
+      camaras: 0,
+      siniestros: 0,
+      alertas: 0
+    };
     // Mostrar recordatorio al cargar el dashboard (unificado)
     setTimeout(() => {
       const panel = document.getElementById('panelCargaDatos') || document.body;
@@ -47,24 +53,66 @@ class ClientDashboard {
         <input type="text" class="form-control form-control-sm patrulla-input" placeholder="Nombre patrulla" value="${valor}" style="max-width:180px;">
         <button class="btn btn-sm btn-primary generar-btn">Generar</button>
         <span class="credenciales ms-2"></span>
+        <button class="btn btn-sm btn-danger borrar-btn" style="display:none;" title="Borrar patrulla">🗑️</button>
       `;
-      li.querySelector('.generar-btn').onclick = async () => {
-        const nombre = li.querySelector('input').value.trim();
-        if (!nombre) return;
-        const usuarioBase = `patrulla_${nombre.replace(/\W+/g,'').toLowerCase()}`;
-        const usuario = `${usuarioBase}@seguridad.com`;
-        const password = Math.random().toString(36).slice(-8);
-        li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${usuario} <b>Pass:</b> ${password}`;
-        li.querySelector('input').disabled = true;
-        li.querySelector('.generar-btn').disabled = true;
-        // Guardar en Firestore
-        await this.guardarPatrullaFirestore({ nombre, usuario, password });
-        // Agrega un nuevo input automáticamente si es el último
-        if (li.parentElement.lastElementChild === li) this.agregarPatrullaInput();
-      };
+      // Mostrar botón borrar solo si es admin
+      const user = firebase.auth().currentUser;
+      user?.getIdTokenResult().then(tokenResult => {
+        if (tokenResult.claims?.admin || tokenResult.claims?.city === (this.clientData?.municipio || this.clientData?.nombre)?.toLowerCase()) {
+          li.querySelector('.borrar-btn').style.display = '';
+        }
+      });
+      const borrarBtn = li.querySelector('.borrar-btn');
+      if (borrarBtn) {
+        borrarBtn.onclick = async () => {
+          const input = li.querySelector('input');
+          const nombre = input ? input.value.trim() : '';
+          if (!nombre) return;
+          if (!confirm(`¿Seguro que quieres borrar la patrulla "${nombre}"?`)) return;
+          const usuarioBase = `patrulla_${nombre.replace(/\W+/g,'').toLowerCase()}`;
+          const email = `${usuarioBase}@seguridad.com`;
+          try {
+            // Eliminar de Auth
+            const functions = firebase.app().functions('us-central1');
+            const borrarUsuario = functions.httpsCallable('borrarUsuarioPanel');
+            await borrarUsuario({ email });
+            // Eliminar de Firestore
+            const municipio = (this.clientData.municipio || this.clientData.nombre || '').toLowerCase();
+            const municipioSinGuiones = municipio.replace(/-/g, '').replace(/\s+/g, '');
+            const coleccion = `patrullas_${municipioSinGuiones}`;
+            await firebase.firestore().collection(coleccion).where('email', '==', email).get().then(snap => {
+              snap.forEach(doc => doc.ref.delete());
+            });
+            li.remove();
+            alert('Patrulla eliminada correctamente.');
+          } catch (e) {
+            alert('Error al borrar patrulla: ' + (e.message || e));
+          }
+        };
+      }
+      const generarBtn = li.querySelector('.generar-btn');
+      if (generarBtn) {
+        generarBtn.onclick = async () => {
+          const input = li.querySelector('input');
+          const nombre = input ? input.value.trim() : '';
+          if (!nombre) return;
+          const usuarioBase = `patrulla_${nombre.replace(/\W+/g,'').toLowerCase()}`;
+          const usuario = `${usuarioBase}@seguridad.com`;
+          const password = Math.random().toString(36).slice(-8);
+          const credenciales = li.querySelector('.credenciales');
+          if (credenciales) credenciales.innerHTML = `<b>Usuario:</b> ${usuario} <b>Pass:</b> ${password}`;
+          if (input) input.disabled = true;
+          if (generarBtn) generarBtn.disabled = true;
+          // Guardar en Firestore
+          await this.guardarPatrullaFirestore({ nombre, usuario, password });
+          // Agrega un nuevo input automáticamente si es el último
+          if (li.parentElement && li.parentElement.lastElementChild === li) this.agregarPatrullaInput();
+        };
+      }
       lista.appendChild(li);
       setTimeout(() => {
-        li.querySelector('input').focus();
+        const input = li.querySelector('input');
+        if (input) input.focus();
       }, 100);
     }
 
@@ -77,23 +125,66 @@ class ClientDashboard {
         <input type="text" class="form-control form-control-sm operario-input" placeholder="Nombre operario" value="${valor}" style="max-width:180px;">
         <button class="btn btn-sm btn-primary generar-btn">Generar</button>
         <span class="credenciales ms-2"></span>
+        <button class="btn btn-sm btn-danger borrar-btn" style="display:none;" title="Borrar operario">🗑️</button>
       `;
-      li.querySelector('.generar-btn').onclick = async () => {
-        const nombre = li.querySelector('input').value.trim();
-        if (!nombre) return;
-        const usuarioBase = `operario_${nombre.replace(/\W+/g,'').toLowerCase()}`;
-        const usuario = `${usuarioBase}@seguridad.com`;
-        const password = Math.random().toString(36).slice(-8);
-        li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${usuario} <b>Pass:</b> ${password}`;
-        li.querySelector('input').disabled = true;
-        li.querySelector('.generar-btn').disabled = true;
-        // Guardar en Firestore
-        await this.guardarOperarioFirestore({ nombre, usuario, password });
-        if (li.parentElement.lastElementChild === li) this.agregarOperarioInput();
-      };
+      // Mostrar botón borrar solo si es admin
+      const user = firebase.auth().currentUser;
+      user?.getIdTokenResult().then(tokenResult => {
+        if (tokenResult.claims?.admin || tokenResult.claims?.city === (this.clientData?.municipio || this.clientData?.nombre)?.toLowerCase()) {
+          const borrarBtn = li.querySelector('.borrar-btn');
+          if (borrarBtn) borrarBtn.style.display = '';
+        }
+      });
+      const borrarBtn = li.querySelector('.borrar-btn');
+      if (borrarBtn) {
+        borrarBtn.onclick = async () => {
+          const input = li.querySelector('input');
+          const nombre = input ? input.value.trim() : '';
+          if (!nombre) return;
+          if (!confirm(`¿Seguro que quieres borrar el operario "${nombre}"?`)) return;
+          const usuario = `operario_${nombre.replace(/\W+/g,'').toLowerCase()}@seguridad.com`;
+          try {
+            // Eliminar de Auth
+            console.log('[BORRAR USUARIO] Llamando borrarUsuarioPanel con:', usuario);
+            const functions = firebase.app().functions('us-central1');
+            const borrarUsuario = functions.httpsCallable('borrarUsuarioPanel');
+            await borrarUsuario({ email: usuario });
+            // Eliminar de Firestore
+            const clientId = this.clientData?.id || this.clientData?.clientId;
+            if (clientId) {
+              await firebase.firestore().collection(`clientes/${clientId}/operarios`).where('usuario', '==', usuario).get().then(snap => {
+                snap.forEach(doc => doc.ref.delete());
+              });
+            }
+            li.remove();
+            alert('Operario eliminado correctamente.');
+          } catch (e) {
+            alert('Error al borrar operario: ' + (e.message || e));
+          }
+        };
+      }
+      const generarBtn = li.querySelector('.generar-btn');
+      if (generarBtn) {
+        generarBtn.onclick = async () => {
+          const input = li.querySelector('input');
+          const nombre = input ? input.value.trim() : '';
+          if (!nombre) return;
+          const usuarioBase = `operario_${nombre.replace(/\W+/g,'').toLowerCase()}`;
+          const usuario = `${usuarioBase}@seguridad.com`;
+          const password = Math.random().toString(36).slice(-8);
+          const credenciales = li.querySelector('.credenciales');
+          if (credenciales) credenciales.innerHTML = `<b>Usuario:</b> ${usuario} <b>Pass:</b> ${password}`;
+          if (input) input.disabled = true;
+          if (generarBtn) generarBtn.disabled = true;
+          // Guardar en Firestore
+          await this.guardarOperarioFirestore({ nombre, usuario, password });
+          if (li.parentElement && li.parentElement.lastElementChild === li) this.agregarOperarioInput();
+        };
+      }
       lista.appendChild(li);
       setTimeout(() => {
-        li.querySelector('input').focus();
+        const input = li.querySelector('input');
+        if (input) input.focus();
       }, 100);
     }
 
@@ -103,14 +194,17 @@ class ClientDashboard {
         const city = (this.clientData.municipio || this.clientData.nombre || '').toLowerCase();
         const rol = 'patrulla';
         const displayName = nombre;
-        await firebase.app().functions('us-central1').httpsCallable('crearUsuarioPanel')({
+        console.log('[guardarPatrullaFirestore] Llamando crearUsuarioPanel', { usuario, password, displayName, city, rol });
+        const functions = firebase.app().functions('us-central1');
+        const crearUsuario = functions.httpsCallable('crearUsuarioPanel');
+        const result = await crearUsuario({
           email: usuario,
           password,
           displayName,
           city,
           rol
         });
-        console.log(`✅ Usuario patrulla creado en Auth y claims asignados: ${usuario}`);
+        console.log('[guardarPatrullaFirestore] Resultado crearUsuarioPanel', result);
       } catch (e) {
         if (e.message && e.message.includes('email-already-exists')) {
           console.warn(`⚠️ Usuario ya existe en Auth: ${usuario}`);
@@ -158,8 +252,36 @@ class ClientDashboard {
         alert('Error: No se pudo identificar el cliente. Vuelve a iniciar sesión.');
         return;
       }
-      const ref = firebase.firestore().collection(`clientes/${clientId}/operarios`);
       try {
+        // Diagnóstico de Firebase antes de llamar a la función
+        console.log('=== DIAGNÓSTICO FIREBASE ===');
+        console.log('firebase:', typeof firebase !== 'undefined' ? firebase : 'NO DEFINIDO');
+        console.log('firebase.apps:', typeof firebase !== 'undefined' ? firebase.apps : 'NO DEFINIDO');
+        console.log('firebase.functions:', typeof firebase !== 'undefined' && firebase.functions ? firebase.functions : 'NO DEFINIDO');
+        if (typeof firebase !== 'undefined' && firebase.apps) {
+          firebase.apps.forEach((app, idx) => {
+            console.log(`App[${idx}]:`, app.name, app.options);
+          });
+        }
+        // Crear usuario en Auth vía Cloud Function
+        const city = (this.clientData.municipio || this.clientData.nombre || '').toLowerCase();
+        const rol = 'operario';
+        const displayName = nombre;
+
+        // Usar SIEMPRE la instancia principal para llamar la función (evita CORS/internal)
+        // Usar siempre el SDK compat y la instancia principal
+        const functions = firebase.app().functions('us-central1');
+        const crearUsuario = functions.httpsCallable('crearUsuarioPanel');
+        await crearUsuario({
+          email: usuario,
+          password,
+          displayName,
+          city,
+          rol
+        });
+
+        // Guardar en Firestore solo si Auth fue exitoso
+        const ref = firebase.firestore().collection(`clientes/${clientId}/operarios`);
         const result = await ref.add({ nombre, usuario, password, created_at: new Date() });
         console.log(`✅ Operario guardado: ${nombre} (${usuario})`, result);
         // Recargar lista tras guardar
@@ -179,14 +301,19 @@ class ClientDashboard {
                 li.querySelector('input').value = o.nombre;
                 li.querySelector('input').disabled = true;
                 li.querySelector('.generar-btn').disabled = true;
-                li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${o.usuario} <b>Pass:</b> ${o.password}`;
+                // Mostrar siempre el usuario como correo
+                let usuarioCorreo = o.usuario;
+                if (usuarioCorreo && !usuarioCorreo.includes('@')) {
+                  usuarioCorreo = `${usuarioCorreo}@seguridad.com`;
+                }
+                li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${usuarioCorreo} <b>Pass:</b> ${o.password}`;
               }
             });
           }
         });
       } catch (e) {
         console.error('❌ Error guardando operario:', e);
-        alert('Error guardando operario: ' + e.message);
+        alert('Error creando operario: ' + e.message);
       }
     }
 
@@ -212,34 +339,7 @@ class ClientDashboard {
       return snap.docs.map(doc => doc.data());
     }
 
-    agregarOperarioInput(valor = "") {
-      const lista = document.getElementById('listaOperarios');
-      if (!lista) return;
-      const li = document.createElement('li');
-      li.className = 'list-group-item d-flex align-items-center gap-2';
-      li.innerHTML = `
-        <input type="text" class="form-control form-control-sm operario-input" placeholder="Nombre operario" value="${valor}" style="max-width:180px;">
-        <button class="btn btn-sm btn-primary generar-btn">Generar</button>
-        <span class="credenciales ms-2"></span>
-      `;
-      li.querySelector('.generar-btn').onclick = async () => {
-        const nombre = li.querySelector('input').value.trim();
-        if (!nombre) return;
-        const usuario = `operario_${nombre.replace(/\W+/g,'').toLowerCase()}`;
-        const password = Math.random().toString(36).slice(-8);
-        li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${usuario} <b>Pass:</b> ${password}`;
-        li.querySelector('input').disabled = true;
-        li.querySelector('.generar-btn').disabled = true;
-        // Guardar en Firestore
-        await this.guardarOperarioFirestore({ nombre, usuario, password });
-        // Agrega un nuevo input automáticamente si es el último
-        if (li.parentElement.lastElementChild === li) this.agregarOperarioInput();
-      };
-      lista.appendChild(li);
-      setTimeout(() => {
-        li.querySelector('input').focus();
-      }, 100);
-    }
+
 
 
   async showPage(page) {
@@ -668,12 +768,41 @@ class ClientDashboard {
         lista.appendChild(aviso);
       } else {
         patrullas.forEach(p => {
-          this.agregarPatrullaInput(p.nombre);
+          this.agregarPatrullaInput(p && p.nombre ? p.nombre : "");
           const li = lista.lastElementChild;
-          li.querySelector('input').value = p.nombre;
+          li.querySelector('input').value = p && p.nombre ? p.nombre : "";
           li.querySelector('input').disabled = true;
           li.querySelector('.generar-btn').disabled = true;
-          li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${p.usuario} <b>Pass:</b> ${p.password}`;
+          li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${p && p.usuario ? p.usuario : ''} <b>Pass:</b> ${p && p.password ? p.password : ''}`;
+          // Mostrar SIEMPRE el botón borrar para admin
+          const borrarBtn = li.querySelector('.borrar-btn');
+          borrarBtn.style.display = '';
+          borrarBtn.onclick = async () => {
+            const nombre = p && p.nombre ? p.nombre : "";
+            if (!nombre) {
+              alert('Nombre de patrulla indefinido. No se puede borrar.');
+              return;
+            }
+            if (!confirm(`¿Seguro que quieres borrar la patrulla "${nombre}"?`)) return;
+            const usuarioBase = `patrulla_${nombre.replace(/\W+/g,'').toLowerCase()}`;
+            const email = `${usuarioBase}@seguridad.com`;
+            try {
+              const functions = firebase.app().functions('us-central1');
+              const borrarUsuario = functions.httpsCallable('borrarUsuarioPanel');
+              await borrarUsuario({ email });
+              // Eliminar de Firestore
+              const municipio = (this.clientData.municipio || this.clientData.nombre || '').toLowerCase();
+              const municipioSinGuiones = municipio.replace(/-/g, '').replace(/\s+/g, '');
+              const coleccion = `patrullas_${municipioSinGuiones}`;
+              await firebase.firestore().collection(coleccion).where('email', '==', email).get().then(snap => {
+                snap.forEach(doc => doc.ref.delete());
+              });
+              li.remove();
+              alert('Patrulla eliminada correctamente.');
+            } catch (e) {
+              alert('Error al borrar patrulla: ' + (e.message || e));
+            }
+          };
         });
       }
     });
@@ -687,12 +816,40 @@ class ClientDashboard {
         lista.appendChild(aviso);
       } else {
         operarios.forEach(o => {
-          this.agregarOperarioInput(o.nombre);
+          this.agregarOperarioInput(o && o.nombre ? o.nombre : "");
           const li = lista.lastElementChild;
-          li.querySelector('input').value = o.nombre;
+          li.querySelector('input').value = o && o.nombre ? o.nombre : "";
           li.querySelector('input').disabled = true;
           li.querySelector('.generar-btn').disabled = true;
-          li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${o.usuario} <b>Pass:</b> ${o.password}`;
+          li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${o && o.usuario ? o.usuario : ''} <b>Pass:</b> ${o && o.password ? o.password : ''}`;
+          // Mostrar SIEMPRE el botón borrar para admin
+          const borrarBtn = li.querySelector('.borrar-btn');
+          borrarBtn.style.display = '';
+          borrarBtn.onclick = async () => {
+            const nombre = o && o.nombre ? o.nombre : "";
+            if (!nombre) {
+              alert('Nombre de operario indefinido. No se puede borrar.');
+              return;
+            }
+            if (!confirm(`¿Seguro que quieres borrar el operario "${nombre}"?`)) return;
+            const usuario = `operario_${nombre.replace(/\W+/g,'').toLowerCase()}@seguridad.com`;
+            try {
+              const functions = firebase.app().functions('us-central1');
+              const borrarUsuario = functions.httpsCallable('borrarUsuarioPanel');
+              await borrarUsuario({ email: usuario });
+              // Eliminar de Firestore
+              const clientId = this.clientData?.id || this.clientData?.clientId;
+              if (clientId) {
+                await firebase.firestore().collection(`clientes/${clientId}/operarios`).where('usuario', '==', usuario).get().then(snap => {
+                  snap.forEach(doc => doc.ref.delete());
+                });
+              }
+              li.remove();
+              alert('Operario eliminado correctamente.');
+            } catch (e) {
+              alert('Error al borrar operario: ' + (e.message || e));
+            }
+          };
         });
       }
     });

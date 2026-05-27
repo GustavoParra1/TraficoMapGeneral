@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Prueba Firebase Callable</title>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-functions-compat.js"></script>
+</head>
+<body>
+<h2>Prueba directa crearUsuarioPanel</h2>
+<p>Haz clic en el botón para probar la creación de un operario.<br>
+Revisa el resultado aquí mismo, sin abrir la consola.</p>
+<button id="btnCrear">Probar creación de operario</button>
+<pre id="output" style="background:#222;color:#0f0;padding:1em;"></pre>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA",
+  authDomain: "trafico-map-general-v2.firebaseapp.com",
+  projectId: "trafico-map-general-v2",
+  storageBucket: "trafico-map-general-v2.appspot.com",
+  messagingSenderId: "540631719751",
+  appId: "1:540631719751:web:bd410f1bbee18e9fabb662"
+};
+firebase.initializeApp(firebaseConfig);
+
+const adminEmail = "admin@laplata.com";
+const adminPassword = "Temporallaplata2024!"; // <-- ACTUALIZA aquí si tu contraseña real es diferente
+
+document.getElementById('btnCrear').onclick = async function() {
+  const output = document.getElementById('output');
+  output.textContent = 'Iniciando sesión como admin...';
+  try {
+    await firebase.auth().signInWithEmailAndPassword(adminEmail, adminPassword);
+    output.textContent += '\n✅ Sesión iniciada como admin';
+    output.textContent += '\nLlamando función crearUsuarioPanel...';
+    const result = await firebase.functions().httpsCallable('crearUsuarioPanel')({
+      email: "test_operario@laplata.com",
+      password: "test1234",
+      displayName: "Test Operario",
+      city: "laplata",
+      rol: "operario"
+    });
+    output.textContent += '\n✅ Operario creado correctamente:';
+    output.textContent += '\n' + JSON.stringify(result, null, 2);
+  } catch(e) {
+    output.textContent += '\n❌ Error: ' + (e.message || e);
+    if (e.details) output.textContent += '\nDetalles: ' + JSON.stringify(e.details);
+  }
+};
+</script>
+</body>
+</html>
