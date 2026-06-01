@@ -615,10 +615,6 @@ function init() {
       
       reader.readAsDataURL(file);
     };
-      };
-      
-      reader.readAsDataURL(file);
-    };
 
     document.getElementById('file-camera').addEventListener('change', handleFileSelect, false);
     document.getElementById('file-gallery').addEventListener('change', handleFileSelect, false);
