@@ -607,10 +607,8 @@ class Dashboard {
                   </div>
                 </div>
 
-                <div class="mb-3">
-                  <label class="form-label">Contraseña Temporal *</label>
-                  <input type="password" class="form-control" id="passwordCliente" placeholder="Contraseña para admin" required>
-                  <small class="text-muted">El cliente deberá cambiarla en primer login</small>
+                <div class="alert alert-info">
+                  <i class="bi bi-info-circle"></i> La contraseña será generada automáticamente y se mostrará después de crear el cliente.
                 </div>
               </div>
               <div class="modal-footer">
@@ -621,6 +619,177 @@ class Dashboard {
           </div>
         </div>
       </div>
+
+      <!-- Modal: Credenciales Cliente -->
+      <div class="modal fade" id="modalCredencialesCliente" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+              <h5 class="modal-title"><i class="bi bi-shield-check"></i> ✅ Cliente Creado - Credenciales de Acceso</h5>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> Guarda estas credenciales en un lugar seguro. La contraseña no se mostrará nuevamente.
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Email de Acceso:</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="credencialesEmail" readonly>
+                    <button class="btn btn-outline-secondary" type="button" onclick="copiarAlPortapapeles('credencialesEmail')">
+                      <i class="bi bi-clipboard"></i> Copiar
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Contraseña Temporal:</label>
+                  <div class="input-group">
+                    <input type="password" class="form-control" id="credencialesPassword" readonly>
+                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('credencialesPassword')">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" type="button" onclick="copiarAlPortapapeles('credencialesPassword')">
+                      <i class="bi bi-clipboard"></i> Copiar
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-12">
+                  <label class="form-label fw-bold">URL de Acceso al Panel:</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="credencialesUrl" readonly>
+                    <button class="btn btn-outline-secondary" type="button" onclick="copiarAlPortapapeles('credencialesUrl')">
+                      <i class="bi bi-clipboard"></i> Copiar
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="alert alert-warning mt-4">
+                <i class="bi bi-exclamation-triangle"></i> <strong>Importante:</strong> El cliente deberá cambiar la contraseña en su primer acceso.
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" data-bs-dismiss="modal">
+                ✅ Entendido, recargar lista
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal: Editar Cliente -->
+      <div class="modal fade" id="modalEditarCliente" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+              <h5 class="modal-title"><i class="bi bi-pencil"></i> Editar Cliente</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEditarCliente">
+              <div class="modal-body">
+                <input type="hidden" id="editClienteId">
+                
+                <div class="mb-3">
+                  <label class="form-label">Municipio *</label>
+                  <input type="text" class="form-control" id="editNombreCliente" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Email Admin <small class="text-muted">(No se puede cambiar)</small></label>
+                  <input type="email" class="form-control" id="editEmailCliente" readonly>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Plan *</label>
+                  <select class="form-select" id="editPlanCliente" required>
+                    <option value="">-- Seleccionar plan --</option>
+                    <option value="basico">Básico ($1.000/mes)</option>
+                    <option value="profesional">Profesional ($5.000/mes)</option>
+                    <option value="enterprise">Enterprise (Personalizado)</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Dominio/Ciudad</label>
+                  <input type="text" class="form-control" id="editDominioCliente">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Teléfono</label>
+                  <input type="text" class="form-control" id="editTelefonoCliente">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-check-circle"></i> Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 1: Confirmación Inicial de Eliminación -->
+    <div class="modal fade" id="modalConfirmarEliminar" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content border-danger">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <h6>⚠️ ADVERTENCIA</h6>
+            <p class="text-danger mb-3"><strong>Vas a eliminar el cliente: <span id="nombreClienteEliminar"></span></strong></p>
+            <p>Esto eliminará de manera permanente e IRREVERSIBLE:</p>
+            <ul>
+              <li>✗ El cliente</li>
+              <li>✗ Su suscripción</li>
+              <li>✗ Sus facturas/billing</li>
+              <li>✗ Su usuario en Firebase Auth</li>
+              <li>✗ Toda su información</li>
+            </ul>
+            <p class="text-danger"><strong>Esta acción NO se puede deshacer.</strong></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" onclick="clientesManager.mostrarConfirmacionFinal()">
+              <i class="bi bi-trash"></i> Continuar Eliminación
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 2: Escribir Nombre Cliente para Confirmar -->
+    <div class="modal fade" id="modalConfirmarEscribirNombre" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content border-danger">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title"><i class="bi bi-shield-exclamation"></i> Confirmación Final</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p>Para confirmar la eliminación, escribe el nombre del cliente:</p>
+            <p class="bg-light p-2 rounded"><strong id="nombreClienteConfirmar"></strong></p>
+            <input type="text" class="form-control" id="inputNombreClienteConfirmar" placeholder="Escribe aquí...">
+            <small class="text-muted">
+              Si el nombre coincide EXACTAMENTE, podrás eliminarlo.
+            </small>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" onclick="clientesManager.procederEliminacion()" id="btnEliminacionFinal">
+              <i class="bi bi-trash"></i> Eliminar PERMANENTEMENTE
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     `;
   }
 
@@ -646,11 +815,10 @@ class Dashboard {
         const email = document.getElementById('emailCliente').value;
         const plan = document.getElementById('planCliente').value;
         const dominio = document.getElementById('dominioCliente').value || '';
-        const password = document.getElementById('passwordCliente').value;
         const lat = parseFloat(document.getElementById('latCliente').value) || null;
         const lng = parseFloat(document.getElementById('lngCliente').value) || null;
 
-        if (!nombre || !email || !plan || !password) {
+        if (!nombre || !email || !plan) {
           adminAuth.showError('Completa todos los campos requeridos');
           return;
         }
@@ -658,122 +826,146 @@ class Dashboard {
         try {
           console.log('📤 Creando cliente:', { nombre, email, plan, lat, lng });
           
-          // Llamar a función para crear cliente
-          await this.crearClienteAPI({ 
+          // Llamar a función para crear cliente (usar dashboard para acceder a crearClienteAPI)
+          const resultadoCreacion = await dashboard.crearClienteAPI({ 
             nombre, 
             email, 
             plan, 
             dominio,
-            password,
             lat,
             lng
           });
 
+          // ✅ NUEVA: No cerrar modal ni recargar - el modal de credenciales se abre automáticamente
+          // El usuario puede copiar las credenciales y luego cerrar
           formCrear.reset();
-          bootstrap.Modal.getInstance(document.getElementById('modalCrearCliente')).hide();
-          adminAuth.showSuccess('✅ Cliente creado exitosamente. Recargando...');
           
-          // Recargar lista de clientes
-          setTimeout(() => {
-            location.reload();
-          }, 2000);
         } catch (error) {
           console.error('❌ Error crear cliente:', error);
           adminAuth.showError('Error: ' + error.message);
         }
       });
     }
+
+    // Event listener para el formulario de edición
+    const formEditar = document.getElementById('formEditarCliente');
+    if (formEditar) {
+      formEditar.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const clienteId = document.getElementById('editClienteId').value;
+        try {
+          await clientesManager.handleGuardarEdicion(clienteId);
+        } catch (error) {
+          console.error('❌ Error al guardar edición:', error);
+          adminAuth.showError('Error: ' + error.message);
+        }
+      });
+    }
+
+    // Event listener para validación en tiempo real del campo de confirmación de eliminación
+    const inputConfirmacion = document.getElementById('inputNombreClienteConfirmar');
+    const btnEliminarFinal = document.getElementById('btnEliminacionFinal');
+    if (inputConfirmacion && btnEliminarFinal) {
+      inputConfirmacion.addEventListener('input', (e) => {
+        const nombreEscrito = e.target.value;
+        const nombreEsperado = document.getElementById('nombreClienteConfirmar').textContent;
+        
+        // Habilitar botón solo si el nombre coincide EXACTAMENTE
+        btnEliminarFinal.disabled = nombreEscrito !== nombreEsperado;
+        
+        if (nombreEscrito === nombreEsperado && nombreEscrito !== '') {
+          btnEliminarFinal.classList.add('btn-danger-pulse');
+        } else {
+          btnEliminarFinal.classList.remove('btn-danger-pulse');
+        }
+      });
+    }
   }
 
-  // Llamar API para crear cliente (llama a Python backend)
+  // Llamar función Cloud Function callable para crear cliente
   async crearClienteAPI(clientData) {
-    showLoading('Preparando provisión de cliente...');
+    showLoading('Creando cliente...');
     
     try {
-      const { nombre, email, plan, password, lat, lng } = clientData;
+      const { nombre, email, plan, dominio, lat, lng } = clientData;
       
-      // Generar comando Python
-      const latLng = lat && lng ? ` ${lat} ${lng}` : '';
-      const comando = `python create-new-client.py "${nombre}" "${email}" "${plan}" "${password}"${latLng}`;
+      console.log('📤 Llamando Cloud Function callable criarClienteAdmin:', { nombre, email, plan });
       
-      const mensaje = `
-✅ CLIENTE LISTO PARA PROVISIONAR
-
-📋 DATOS DEL CLIENTE:
-   Nombre: ${nombre}
-   Email: ${email}
-   Plan: ${plan}
-   Ubicación: (${lat || '-38.0'}, ${lng || '-57.5'})
-
-🔐 INSTRUCCIONES:
-
-1. Abre una terminal/PowerShell
-2. Ve a la carpeta del proyecto
-3. Ejecuta este comando:
-
-${comando}
-
-⏳ El script provisará:
-   ✓ Usuario en Firebase Auth
-   ✓ Colección cliente en Firestore
-   ✓ Custom claims para autenticación
-   ✓ Colecciones de datos (cámaras, siniestros, etc)
-   ✓ Configuración del mapa
-
-Luego el cliente podrá entrar en:
-   https://trafico-map-general-v2.web.app/login.html
-   Con email: ${email}
-   Y contraseña: ${password}
-      `;
+      // Usar Cloud Functions callable (sin CORS)
+      const criarClienteAdmin = firebase.functions().httpsCallable('criarClienteAdmin');
+      const response = await criarClienteAdmin({
+        nombreCliente: nombre,
+        email: email,
+        plan: plan,
+        ciudad: dominio || '',
+        telefono: ''
+      });
       
       hideLoading();
       
-      // Mostrar modal con instrucciones
-      const modalContent = document.createElement('div');
-      modalContent.innerHTML = `
-        <div class="alert alert-info mb-3">
-          <h5>✅ Cliente listo para provisionar</h5>
-          <p class="small mb-0">Copia el comando de abajo y ejecútalo en una terminal</p>
-        </div>
-        
-        <div class="mb-3">
-          <label class="form-label">📊 Datos del Cliente:</label>
-          <div class="bg-light p-3 rounded small">
-            <div><strong>Nombre:</strong> ${nombre}</div>
-            <div><strong>Email:</strong> ${email}</div>
-            <div><strong>Plan:</strong> ${plan}</div>
-            <div><strong>Ubicación:</strong> (${lat || '-38.0'}, ${lng || '-57.5'})</div>
-          </div>
-        </div>
-        
-        <div class="mb-3">
-          <label class="form-label">🖥️ Comando a ejecutar:</label>
-          <textarea class="form-control font-monospace small" rows="3" readonly>${comando}</textarea>
-          <button class="btn btn-sm btn-secondary mt-2" onclick="navigator.clipboard.writeText('${comando}'); alert('✅ Comando copiado')">
-            <i class="bi bi-clipboard"></i> Copiar comando
-          </button>
-        </div>
-        
-        <div class="alert alert-warning small mb-0">
-          <strong>ℹ️ Nota:</strong> 
-          <ul class="mb-0 mt-2">
-            <li>Ejecuta el comando en la carpeta raíz del proyecto</li>
-            <li>Requiere Python 3 y firebase-admin instalados</li>
-            <li>El cliente podrá ingresar inmediatamente después</li>
-          </ul>
-        </div>
-      `;
+      console.log('✅ Respuesta de Cloud Function:', response.data);
+
+      // ✅ Extraer credenciales de la respuesta
+      const credenciales = response.data.admin_user;
+      const clienteId = response.data.cliente?.id;
       
-      // Mostrar en un alert elegante o modal
-      adminAuth.showSuccess(mensaje);
+      // ✅ Intentar poblar modal de credenciales
+      const emailEl = document.getElementById('credencialesEmail');
+      const passwordEl = document.getElementById('credencialesPassword');
+      const urlEl = document.getElementById('credencialesUrl');
       
-      return { success: true, comando };
+      if (emailEl && passwordEl && urlEl) {
+        // ✅ Mostrar modal de credenciales si existen los elementos
+        emailEl.value = credenciales.email;
+        passwordEl.value = credenciales.password;
+        urlEl.value = 'https://trafico-map-general-v2.web.app/login.html';
+        
+        // ✅ Cerrar modal de crear DESPUÉS de llenar los campos
+        const modalCrear = document.getElementById('modalCrearCliente');
+        const instanceCrear = bootstrap.Modal.getInstance(modalCrear);
+        if (instanceCrear) instanceCrear.hide();
+        
+        // Esperar a que se cierre el primer modal antes de abrir el segundo
+        setTimeout(() => {
+          const modalCredencialesEl = document.getElementById('modalCredencialesCliente');
+          const modalCredenciales = new bootstrap.Modal(modalCredencialesEl, { backdrop: 'static' });
+          
+          // ✅ Agregar evento para recargar cuando se cierre el modal
+          modalCredencialesEl.addEventListener('hidden.bs.modal', () => {
+            console.log('📥 Modal cerrado, recargando lista...');
+            location.reload(); // Recarga inmediata sin delay
+          }, { once: true });
+          
+          modalCredenciales.show();
+        }, 300); // Pequeño delay para que cierre el primer modal
+      } else {
+        // ❌ Si no existen, mostrar toast con las credenciales
+        const modalCrear = document.getElementById('modalCrearCliente');
+        const instanceCrear = bootstrap.Modal.getInstance(modalCrear);
+        if (instanceCrear) instanceCrear.hide();
+        
+        const mensaje = `✅ Cliente creado con éxito!
+Email: ${credenciales.email}
+Contraseña: ${credenciales.password}
+URL: https://trafico-map-general-v2.web.app/login.html`;
+        
+        adminAuth.showSuccess(mensaje);
+        
+        // Recargar página después de que el usuario vea el mensaje
+        setTimeout(() => {
+          location.reload();
+        }, 3000);
+      }
+      
+      return response.data;
       
     } catch (error) {
-      console.error('❌ Error preparar cliente:', error);
-      throw error;
-    } finally {
       hideLoading();
+      console.error('❌ Error crear cliente:', error);
+      
+      const errorMsg = error.message || 'Error desconocido al crear cliente';
+      adminAuth.showError('Error: ' + errorMsg);
+      throw error;
     }
   }
 
@@ -981,6 +1173,9 @@ Luego el cliente podrá entrar en:
   }
 }
 
+// Instancia global de Admin API Client
+const adminApiClient = new AdminApiClient();
+
 // Instancia global
 const dashboard = new Dashboard();
 
@@ -1003,4 +1198,39 @@ function openMapDemo() {
   window.open(demoUrl, 'mapaDemo', 'width=1400,height=900,left=100,top=100');
 }
 
-console.log("Dashboard loaded");
+/**
+ * Copia el contenido de un elemento al portapapeles
+ */
+function copiarAlPortapapeles(elementId) {
+  const elemento = document.getElementById(elementId);
+  if (!elemento) return;
+  
+  elemento.select();
+  document.execCommand('copy');
+  
+  // Mostrar feedback visual
+  const btn = event.target.closest('button');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<i class="bi bi-check"></i> ¡Copiado!';
+  setTimeout(() => {
+    btn.innerHTML = originalText;
+  }, 2000);
+}
+
+/**
+ * Toggle para mostrar/ocultar contraseña
+ */
+function togglePasswordVisibility(elementId) {
+  const elemento = document.getElementById(elementId);
+  if (!elemento) return;
+  
+  const btn = event.target.closest('button');
+  if (elemento.type === 'password') {
+    elemento.type = 'text';
+    btn.innerHTML = '<i class="bi bi-eye-slash"></i>';
+  } else {
+    elemento.type = 'password';
+    btn.innerHTML = '<i class="bi bi-eye"></i>';
+  }
+}
+

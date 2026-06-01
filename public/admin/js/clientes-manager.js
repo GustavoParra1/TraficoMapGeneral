@@ -648,8 +648,68 @@ class ClientesManager {
   /**
    * Editar cliente
    */
-  handleEditarCliente(clienteId) {
-    alert('Edición de cliente - próximamente implementado');
+  async handleEditarCliente(clienteId) {
+    try {
+      console.log(`📝 [handleEditarCliente] Abriendo editor para: ${clienteId}`);
+      
+      // Obtener datos del cliente
+      const cliente = await this.getCliente(clienteId);
+      
+      // Poblar el modal de edición
+      document.getElementById('editClienteId').value = cliente.id;
+      document.getElementById('editNombreCliente').value = cliente.nombre || '';
+      document.getElementById('editEmailCliente').value = cliente.email || '';
+      document.getElementById('editPlanCliente').value = cliente.plan || '';
+      document.getElementById('editDominioCliente').value = cliente.ciudad || '';
+      document.getElementById('editTelefonoCliente').value = cliente.telefono || '';
+      
+      // Mostrar modal de edición
+      const modal = new bootstrap.Modal(document.getElementById('modalEditarCliente'));
+      modal.show();
+      
+    } catch (error) {
+      console.error('❌ Error abriendo editor:', error);
+      showError('Error al abrir el editor');
+    }
+  }
+
+  /**
+   * Guardar cambios del cliente
+   */
+  async handleGuardarEdicion(clienteId) {
+    try {
+      console.log(`💾 [handleGuardarEdicion] Guardando cambios para: ${clienteId}`);
+      
+      const datosActualizados = {
+        nombre: document.getElementById('editNombreCliente').value,
+        plan: document.getElementById('editPlanCliente').value,
+        ciudad: document.getElementById('editDominioCliente').value,
+        telefono: document.getElementById('editTelefonoCliente').value,
+        updated_at: new Date().toISOString()
+      };
+      
+      // Validar campos requeridos (sin email, ya que no se puede cambiar)
+      if (!datosActualizados.nombre || !datosActualizados.plan) {
+        showError('Completa los campos requeridos');
+        return;
+      }
+      
+      // Actualizar en Firestore
+      await db.collection('clientes').doc(clienteId).update(datosActualizados);
+      console.log('✅ Cliente actualizado exitosamente');
+      
+      // Cerrar modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarCliente'));
+      if (modal) modal.hide();
+      
+      // Recargar tabla
+      await this.init();
+      adminAuth.showSuccess('✅ Cliente actualizado exitosamente');
+      
+    } catch (error) {
+      console.error('❌ Error guardando edición:', error);
+      showError('Error al guardar: ' + error.message);
+    }
   }
 
   /**
@@ -673,65 +733,79 @@ class ClientesManager {
    * Eliminar cliente
    */
   async handleEliminarCliente(clienteId, nombreCliente) {
-    // Pedir confirmación
-    const confirmacion = confirm(
-      `⚠️ ADVERTENCIA: ¿Deseas eliminar el cliente "${nombreCliente}"?\n\n` +
-      `Esto eliminará:\n` +
-      `- El cliente\n` +
-      `- Su suscripción\n` +
-      `- Sus facturas\n\n` +
-      `Esta acción NO se puede deshacer.`
-    );
+    // Guardar datos en variables globales para usarlas en los modales
+    window.clienteEnEliminacion = { id: clienteId, nombre: nombreCliente };
+    
+    // Mostrar primera modal de confirmación
+    document.getElementById('nombreClienteEliminar').textContent = nombreCliente;
+    const modal = new bootstrap.Modal(document.getElementById('modalConfirmarEliminar'));
+    modal.show();
+  }
 
-    if (!confirmacion) {
-      console.log('Eliminación cancelada');
+  /**
+   * Mostrar segunda confirmación (escribir nombre)
+   */
+  mostrarConfirmacionFinal() {
+    const { nombre } = window.clienteEnEliminacion;
+    
+    // Cerrar primera modal
+    const modalPrimera = bootstrap.Modal.getInstance(document.getElementById('modalConfirmarEliminar'));
+    if (modalPrimera) modalPrimera.hide();
+    
+    // Limpiar y mostrar segunda modal
+    document.getElementById('nombreClienteConfirmar').textContent = nombre;
+    document.getElementById('inputNombreClienteConfirmar').value = '';
+    document.getElementById('inputNombreClienteConfirmar').focus();
+    
+    // Pequeño delay para que se cierre la primera modal
+    setTimeout(() => {
+      const modalSegunda = new bootstrap.Modal(document.getElementById('modalConfirmarEscribirNombre'));
+      modalSegunda.show();
+    }, 300);
+  }
+
+  /**
+   * Proceder con la eliminación después de validar
+   */
+  async procederEliminacion() {
+    const { id: clienteId, nombre: nombreCliente } = window.clienteEnEliminacion;
+    const nombreEscrito = document.getElementById('inputNombreClienteConfirmar').value;
+    
+    // Validar que el nombre coincida EXACTAMENTE
+    if (nombreEscrito !== nombreCliente) {
+      adminAuth.showError(`❌ El nombre no coincide. Escribiste: "${nombreEscrito}" pero el cliente se llama "${nombreCliente}"`);
       return;
     }
-
+    
     try {
       console.log(`🗑️ Eliminando cliente: ${clienteId}`);
-      
       showLoading(document.body);
 
-      // Eliminar cliente
-      await db.collection('clientes').doc(clienteId).delete();
-      console.log('✅ Cliente eliminado');
-
-      // Eliminar suscripciones
-      const subSnapshot = await db.collection('subscripciones')
-        .where('cliente_id', '==', clienteId)
-        .get();
+      // Llamar Cloud Function callable para eliminar
+      const eliminarClienteFunc = firebase.functions().httpsCallable('eliminarCliente');
+      const resultado = await eliminarClienteFunc({ clienteId, nombreCliente });
       
-      const batch = db.batch();
-      subSnapshot.docs.forEach(doc => {
-        batch.delete(doc.ref);
-      });
-      await batch.commit();
-      console.log('✅ Suscripciones eliminadas');
-
-      // Eliminar facturas
-      const billSnapshot = await db.collection('billing')
-        .where('cliente_id', '==', clienteId)
-        .get();
+      console.log('✅ Cliente eliminado completamente');
       
-      const batch2 = db.batch();
-      billSnapshot.docs.forEach(doc => {
-        batch2.delete(doc.ref);
-      });
-      await batch2.commit();
-      console.log('✅ Facturas eliminadas');
-
+      // Cerrar modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('modalConfirmarEscribirNombre'));
+      if (modal) modal.hide();
+      
       hideLoading();
-      this.showSuccess(`Cliente "${nombreCliente}" eliminado correctamente`);
       
-      // Recargar tabla
-      await this.loadClientes();
-      this.renderClientesTable();
+      // Mostrar éxito y recargar página después de 1 segundo
+      adminAuth.showSuccess(`✅ Cliente "${nombreCliente}" eliminado PERMANENTEMENTE`);
+      
+      // Pequeño delay y luego recargar la página completamente
+      setTimeout(() => {
+        console.log('🔄 Recargando página...');
+        location.reload();
+      }, 1500);
 
     } catch (error) {
       hideLoading();
       console.error('❌ Error eliminando cliente:', error);
-      this.showError('Error al eliminar cliente: ' + error.message);
+      adminAuth.showError('❌ Error al eliminar: ' + error.message);
     }
   }
 

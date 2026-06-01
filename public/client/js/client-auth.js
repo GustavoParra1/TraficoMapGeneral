@@ -139,7 +139,11 @@ class ClientAuth {
 
   async onClientAuthenticated(clienteId, clienteData) {
     console.log("✅ Cliente autenticado:", clienteData.nombre);
-    this.clientData = clienteData;
+    // Agregar el ID del cliente a los datos
+    this.clientData = {
+      ...clienteData,
+      id: clienteId  // Agregar ID para referencia en operaciones
+    };
     
     // ✅ INICIALIZAR FIREBASE DEL CLIENTE
     try {

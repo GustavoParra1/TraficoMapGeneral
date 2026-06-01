@@ -20,7 +20,30 @@ const auth = admin.auth();
 
 // Express app para HTTP triggers
 const app = express();
-app.use(cors({ origin: true }));
+
+// ✅ Middleware CORS personalizado (ejecutarse PRIMERO)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
+  res.header('Access-Control-Max-Age', '3600');
+  
+  // Manejar preflight OPTIONS
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
+app.use(cors({ 
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  credentials: false
+}));
+
+// ✅ Parsear form-urlencoded Y JSON
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Importar y exportar función crearUsuarioPanel
@@ -93,16 +116,396 @@ exports.loginClientePanel = functions.https.onCall(async (data, context) => {
 });
 
 // ============================================================================
-// FUNCIÓN 1: CREAR CLIENTE
+// Cloud Function Callable: CREAR PATRULLA USUARIO
+// ============================================================================
+exports.crearPatrulaAdmin = functions.https.onCall(async (data, context) => {
+  try {
+    const { 
+      email,
+      password,
+      displayName = '',
+      ciudadId = '',
+      clienteId = ''
+    } = data || {};
+
+    // Validación
+    if (!email || !password) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email y password son requeridos');
+    }
+    if (!clienteId) {
+      throw new functions.https.HttpsError('invalid-argument', 'clienteId es requerido');
+    }
+
+    console.log(`🚀 [crearPatrulaAdmin] Creando usuario patrulla: ${email} para cliente: ${clienteId}`);
+
+    // 1️⃣ Crear usuario en Firebase Auth
+    let userPatrulla;
+    try {
+      userPatrulla = await auth.createUser({
+        email: email,
+        password: password,
+        displayName: displayName || email,
+        disabled: false
+      });
+
+      console.log(`✅ Usuario patrulla creado en Auth: ${email} (uid: ${userPatrulla.uid})`);
+    } catch (authError) {
+      if (authError.code === 'auth/email-already-exists') {
+        console.log(`⚠️ Email ya existe, obteniendo usuario existente...`);
+        userPatrulla = await auth.getUserByEmail(email);
+      } else {
+        throw authError;
+      }
+    }
+
+    // 2️⃣ Asignar custom claims (rol: patrulla, ciudad)
+    try {
+      await auth.setCustomUserClaims(userPatrulla.uid, {
+        role: 'patrulla',
+        city: ciudadId || 'laplata',
+        cliente_id: clienteId
+      });
+      console.log(`✅ Custom claims asignados a patrulla: ${email}`);
+    } catch (claimsError) {
+      console.warn(`⚠️ Error asignando claims: ${claimsError.message}`);
+      // No fallar por esto, continuar
+    }
+
+    // 3️⃣ Guardar en Firestore (estructura anidada: clientes/{clienteId}/patrullas/)
+    const patenteLimpia = (displayName || email).replace(/\W+/g, '').toUpperCase().substring(0, 20);
+    const patrnte = `PATRULLA_${patenteLimpia}`;
+
+    const dataPatrulla = {
+      uid: userPatrulla.uid,
+      email: email,
+      displayName: displayName || email,
+      nombre: displayName || email,  // ✅ Para compatibilidad con cliente
+      usuario: email,  // ✅ Para compatibilidad con cliente
+      password: password,  // ✅ Para compatibilidad con cliente
+      online: false,
+      emergencia: false,
+      estado: 'activo',
+      lat: 0,
+      lng: 0,
+      accuracy: 0,
+      speed: 0,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      created_at: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+      await db.collection(`clientes/${clienteId}/patrullas`).doc(patrnte).set(dataPatrulla, { merge: true });
+      console.log(`✅ Patrulla guardada en clientes/${clienteId}/patrullas:`, patrnte);
+    } catch (firestoreError) {
+      console.warn(`⚠️ Error guardando en Firestore: ${firestoreError.message}`);
+      // No fallar por esto, el usuario está creado en Auth
+    }
+
+    // RESPUESTA
+    return {
+      success: true,
+      patrulla: {
+        uid: userPatrulla.uid,
+        email: email,
+        displayName: displayName || email,
+        coleccion: `clientes/${clienteId}/patrullas`,
+        patente: patrnte
+      },
+      mensaje: `Patrulla "${displayName || email}" creada exitosamente`
+    };
+
+  } catch (error) {
+    console.error('❌ Error en crearPatrulaAdmin:', error);
+    throw error;
+  }
+});
+
+// ============================================================================
+// FUNCIÓN 1: CREAR CLIENTE (callable - sin CORS)
 // ============================================================================
 /**
- * Orquestar creación completa de cliente:
- * 1. Crear documento en clientes/
- * 2. Crear usuarios admin/operador en Firebase Auth
- * 3. Crear suscripción inicial
- * 4. Crear factura inicial
- * 5. Crear proyecto independiente (simulado)
+ * Crear cliente vía Cloud Function callable (sin problemas CORS)
+ * Se puede llamar desde el cliente con: firebase.functions().httpsCallable('criarClienteAdmin')
  */
+exports.criarClienteAdmin = functions.https.onCall(async (data, context) => {
+  try {
+    const { 
+      nombreCliente, 
+      email, 
+      plan, 
+      ciudad = '',
+      telefono = ''
+    } = data || {};
+
+    // Validación
+    if (!nombreCliente || !email || !plan) {
+      throw new functions.https.HttpsError('invalid-argument', 'Faltan datos requeridos (nombreCliente, email, plan)');
+    }
+
+    const planesValidos = ['basico', 'profesional', 'enterprise'];
+    if (!planesValidos.includes(plan)) {
+      throw new functions.https.HttpsError('invalid-argument', 'Plan inválido');
+    }
+
+    console.log(`🚀 [onCall] Creando cliente: ${nombreCliente}`);
+
+    // ✅ NUEVA: Generar contraseña PRIMERO
+    const passwordAdmin = generateSecurePassword();
+    console.log(`🔐 Contraseña generada para ${nombreCliente}`);
+
+    // Generar clienteId
+    const slug = nombreCliente
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .substring(0, 20);
+    const clienteId = `${slug}-${Date.now()}`;
+    console.log(`📱 Cliente ID generado: ${clienteId}`);
+
+    const ahora = new Date().toISOString();
+
+    const datosCliente = {
+      id: clienteId,
+      nombre: nombreCliente,
+      email: email,
+      email_admin: email, // ✅ NUEVA: campo adicional para búsqueda
+      plan: plan,
+      estado: 'activo',
+      ciudad: ciudad || '',
+      telefono: telefono || '',
+      password: passwordAdmin, // ✅ NUEVA: Guardar contraseña en el documento
+      contraseña: passwordAdmin, // ✅ NUEVA: También con tilde por compatibilidad
+      created_at: ahora,
+      updated_at: ahora,
+      firebase_project_id: null,
+      firebase_cliente: null,
+      api_key: generateApiKey(),
+      usuarios_creados: [],
+      suscripcion: {
+        plan: plan,
+        estado: 'activo',
+        expiration_date: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString()
+      }
+    };
+
+    // PASO 1: Crear documento en clientes/
+    await db.collection('clientes').doc(clienteId).set(datosCliente);
+    console.log('✅ Documento cliente creado con contraseña temporal');
+
+    // PASO 2: Crear usuario en Firebase Auth
+    const emailAdmin = email;
+    let userAdmin;
+    try {
+      userAdmin = await auth.createUser({
+        email: emailAdmin,
+        password: passwordAdmin, // ✅ Usar contraseña generada
+        displayName: `Admin - ${nombreCliente}`,
+        disabled: false
+      });
+
+      await auth.setCustomUserClaims(userAdmin.uid, {
+        role: 'admin',
+        cliente_id: clienteId
+      });
+
+      console.log(`✅ Usuario admin creado: ${emailAdmin}`);
+    } catch (error) {
+      if (error.code === 'auth/email-already-exists') {
+        console.log('⚠️ Usuario ya existe, actualizando custom claims...');
+        const existingUser = await auth.getUserByEmail(emailAdmin);
+        await auth.setCustomUserClaims(existingUser.uid, {
+          role: 'admin',
+          cliente_id: clienteId
+        });
+        userAdmin = existingUser;
+      } else {
+        throw error;
+      }
+    }
+
+    // PASO 3: Crear suscripción inicial
+    const precios = { basico: 1000, profesional: 5000, enterprise: 15000 };
+    const subscripcionId = `sub_${Date.now()}`;
+    const vencimiento = new Date();
+    vencimiento.setFullYear(vencimiento.getFullYear() + 1);
+
+    const datosSubscripcion = {
+      id: subscripcionId,
+      cliente_id: clienteId,
+      plan: plan,
+      precio_mensual: precios[plan],
+      precio_anual: precios[plan] * 12,
+      expiration_date: vencimiento.toISOString(),
+      activa: true,
+      created_at: ahora,
+      updated_at: ahora,
+      renovaciones: 0,
+      cambios_plan: []
+    };
+
+    await db.collection('subscripciones').doc(subscripcionId).set(datosSubscripcion);
+    console.log('✅ Suscripción creada');
+
+    // PASO 4: Crear factura inicial
+    const facturaId = `fac_${Date.now()}`;
+    const datosBilling = {
+      id: facturaId,
+      cliente_id: clienteId,
+      subscripcion_id: subscripcionId,
+      monto: precios[plan] * 12,
+      moneda: 'ARS',
+      descripcion: `Suscripción ${plan.toUpperCase()} - Año 1`,
+      periodo_desde: ahora,
+      periodo_hasta: vencimiento.toISOString(),
+      estado: 'pendiente',
+      creada_en: ahora,
+      vence_en: vencimiento.toISOString(),
+      pagada: false,
+      fecha_pago: null,
+      metodo_pago: 'pendiente',
+      numero_comprobante: ''
+    };
+
+    await db.collection('billing').add(datosBilling);
+    console.log('✅ Factura inicial creada');
+
+    // RESPUESTA
+    return {
+      success: true,
+      cliente: datosCliente,
+      subscripcion: datosSubscripcion,
+      billing: datosBilling,
+      admin_user: { 
+        email: emailAdmin, 
+        uid: userAdmin?.uid,
+        password: passwordAdmin // ✅ NUEVA: Devolver contraseña en respuesta
+      },
+      mensaje: 'Cliente creado exitosamente'
+    };
+
+  } catch (error) {
+    console.error('❌ Error en criarClienteAdmin:', error);
+    throw error;
+  }
+});
+
+// ============================================================================
+// Cloud Function Callable: ELIMINAR CLIENTE COMPLETAMENTE
+// ============================================================================
+exports.eliminarCliente = functions.https.onCall(async (data, context) => {
+  try {
+    // Validar autenticación
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'Debe estar autenticado');
+    }
+
+    const { clienteId, nombreCliente } = data;
+
+    if (!clienteId || !nombreCliente) {
+      throw new functions.https.HttpsError('invalid-argument', 'clienteId y nombreCliente son requeridos');
+    }
+
+    console.log(`🗑️ Iniciando eliminación del cliente: ${clienteId} (${nombreCliente})`);
+
+    // 1️⃣ Obtener cliente para encontrar el UID de Firebase Auth
+    const clienteDoc = await db.collection('clientes').doc(clienteId).get();
+    if (!clienteDoc.exists) {
+      throw new functions.https.HttpsError('not-found', 'Cliente no encontrado');
+    }
+
+    const clienteData = clienteDoc.data();
+    const firebaseUI = clienteData.firebase_uid; // UID del usuario en Firebase Auth
+
+    // 2️⃣ Obtener subscripciones del cliente
+    const subsSnapshot = await db.collection('subscripciones')
+      .where('cliente_id', '==', clienteId)
+      .get();
+    console.log(`📋 Encontradas ${subsSnapshot.docs.length} suscripciones para eliminar`);
+
+    // 3️⃣ Obtener facturas/billing del cliente
+    const billingSnapshot = await db.collection('billing')
+      .where('cliente_id', '==', clienteId)
+      .get();
+    console.log(`💰 Encontrados ${billingSnapshot.docs.length} registros de billing para eliminar`);
+
+    // 4️⃣ Obtener usuarios creados por este cliente
+    const usuariosSnapshot = await db.collection('usuarios')
+      .where('cliente_id', '==', clienteId)
+      .get();
+    console.log(`👥 Encontrados ${usuariosSnapshot.docs.length} usuarios para este cliente`);
+
+    // 5️⃣ ELIMINAR USUARIO de Firebase Auth si existe
+    if (firebaseUI) {
+      try {
+        await auth.deleteUser(firebaseUI);
+        console.log(`✅ Usuario de Auth eliminado: ${firebaseUI}`);
+      } catch (authError) {
+        if (authError.code !== 'auth/user-not-found') {
+          console.error('⚠️ Error al eliminar usuario de Auth:', authError);
+          // No lanzar error, continuar con el borrado de Firestore
+        }
+      }
+    }
+
+    // 6️⃣ ELIMINAR DOCUMENTOS EN BATCH
+    const batch = db.batch();
+
+    // Eliminar suscripciones
+    subsSnapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    // Eliminar billing/facturas
+    billingSnapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    // Eliminar usuario principal del cliente
+    batch.delete(clienteDoc.ref);
+
+    // Ejecutar batch
+    await batch.commit();
+    console.log('✅ Documentos de Firestore eliminados');
+
+    // 7️⃣ ELIMINAR USUARIOS (opcional: mantenerlos o borrar)
+    // Por ahora NO eliminamos usuarios, solo marcamos que el cliente fue eliminado
+    // Esto permite auditoría de datos históricos
+    if (usuariosSnapshot.docs.length > 0) {
+      const usuarioBatch = db.batch();
+      usuariosSnapshot.docs.forEach(doc => {
+        // Opción 1: Marcar como inactivo
+        usuarioBatch.update(doc.ref, { activo: false, fecha_cliente_eliminado: new Date().toISOString() });
+        // Opción 2: Eliminar (descomentar si se prefiere)
+        // usuarioBatch.delete(doc.ref);
+      });
+      await usuarioBatch.commit();
+      console.log(`✅ ${usuariosSnapshot.docs.length} usuarios marcados como inactivos`);
+    }
+
+    console.log(`✅ CLIENTE COMPLETAMENTE ELIMINADO: ${clienteId} (${nombreCliente})`);
+
+    return {
+      success: true,
+      mensaje: `Cliente "${nombreCliente}" eliminado permanentemente`,
+      datosEliminados: {
+        cliente: 1,
+        subscripciones: subsSnapshot.docs.length,
+        facturación: billingSnapshot.docs.length,
+        usuariosAfectados: usuariosSnapshot.docs.length
+      }
+    };
+
+  } catch (error) {
+    console.error('❌ Error en eliminarCliente:', error);
+    throw error;
+  }
+});
+
+// ============================================================================
+// FUNCIÓN 1: CREAR CLIENTE (Endpoint Express - Legacy)
+// ============================================================================
 app.post('/criarCliente', async (req, res) => {
   try {
     const { 
@@ -111,19 +514,12 @@ app.post('/criarCliente', async (req, res) => {
       plan, 
       ciudad, 
       telefono,
-      firebaseConfig  // ✅ NUEVO: Credenciales de Firebase del cliente
+      firebaseConfig  // Opcional: Credenciales de Firebase del cliente
     } = req.body;
 
     // Validación
     if (!nombreCliente || !email || !plan) {
       return res.status(400).json({ error: 'Faltan datos requeridos' });
-    }
-
-    // ✅ Validar que Firebase config esté presente
-    if (!firebaseConfig || !firebaseConfig.projectId) {
-      return res.status(400).json({ 
-        error: 'Credenciales de Firebase requeridas (projectId, apiKey, etc.)' 
-      });
     }
 
     const planesValidos = ['basico', 'profesional', 'enterprise'];
@@ -132,10 +528,25 @@ app.post('/criarCliente', async (req, res) => {
     }
 
     console.log(`🚀 Creando cliente: ${nombreCliente}`);
-    console.log(`📱 Firebase Project: ${firebaseConfig.projectId}`);
+    
+    // Generar clienteId: si hay firebaseConfig usar projectId, sino generar slug + timestamp
+    let clienteId;
+    if (firebaseConfig && firebaseConfig.projectId) {
+      clienteId = firebaseConfig.projectId;
+      console.log(`📱 Firebase Project: ${firebaseConfig.projectId}`);
+    } else {
+      // Generar ID único sin firebaseConfig (común en admin panel)
+      const slug = nombreCliente
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remover acentos
+        .replace(/[^\w\s-]/g, '') // Remover caracteres especiales
+        .replace(/\s+/g, '-') // Espacios a guiones
+        .substring(0, 20); // Limitar longitud
+      clienteId = `${slug}-${Date.now()}`;
+      console.log(`📱 Cliente ID generado: ${clienteId}`);
+    }
 
-    // PASO 1: Crear documento en clientes/ (con credenciales de Firebase)
-    const clienteId = firebaseConfig.projectId; // Usar projectId como cliente ID
     const ahora = new Date().toISOString();
 
     const datosCliente = {
@@ -148,10 +559,10 @@ app.post('/criarCliente', async (req, res) => {
       telefono: telefono || '',
       created_at: ahora,
       updated_at: ahora,
-      firebase_project_id: firebaseConfig.projectId,
       
-      // ✅ GUARDAR CREDENCIALES DEL CLIENTE
-      firebase_cliente: {
+      // ✅ Guardar firebaseConfig si existe, sino null
+      firebase_project_id: firebaseConfig?.projectId || null,
+      firebase_cliente: firebaseConfig ? {
         apiKey: firebaseConfig.apiKey,
         authDomain: firebaseConfig.authDomain,
         projectId: firebaseConfig.projectId,
@@ -159,7 +570,7 @@ app.post('/criarCliente', async (req, res) => {
         messagingSenderId: firebaseConfig.messagingSenderId,
         appId: firebaseConfig.appId,
         databaseURL: firebaseConfig.databaseURL || ''
-      },
+      } : null,
       
       api_key: generateApiKey(),
       usuarios_creados: [],

@@ -156,80 +156,34 @@ class ClientDashboard {
     }
 
     async guardarPatrullaFirestore({ nombre, usuario, password }) {
-      // Crear usuario patrulla vía Cloud Function segura
+      // Crear usuario patrulla vía Cloud Function callable (sin CORS)
       try {
-        const city = (this.clientData.municipio || this.clientData.nombre || '').toLowerCase();
-        const rol = 'patrulla';
-        const displayName = nombre;
-        const currentUser = await this.ensureFirebaseSession();
-        const idToken = await currentUser.getIdToken(true);
-        const response = await fetch('/api/crearUsuarioPanelHttp', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`
-          },
-          body: JSON.stringify({
-            idToken,
-            clientId: (this.clientData && this.clientData.id) || '',
-            adminEmail: localStorage.getItem('email_acceso') || (this.clientData && this.clientData.email_admin) || '',
-            adminPassword: localStorage.getItem('admin_password') || (this.clientData && (this.clientData.contraseña || this.clientData.password || this.clientData.password_plain)) || '',
-            email: usuario,
-            password,
-            displayName,
-            city,
-            rol
-          })
+        const ciudadId = (this.clientData.municipio || this.clientData.nombre || 'laplata').toLowerCase();
+        const clienteId = this.clientData.id || this.clientData.nombre;
+        
+        console.log(`🚀 Llamando Cloud Function crearPatrulaAdmin para: ${usuario}`);
+        
+        // Obtener Cloud Functions desde cliente Firebase general
+        const crearPatrulaFunc = firebase.functions().httpsCallable('crearPatrulaAdmin');
+        
+        const resultado = await crearPatrulaFunc({
+          email: usuario,
+          password: password,
+          displayName: nombre,
+          ciudadId: ciudadId,
+          clienteId: clienteId
         });
 
-        if (!response.ok) {
-          let errorText = `HTTP ${response.status}`;
-          try {
-            const errorData = await response.json();
-            errorText = errorData.error || errorText;
-          } catch (_) {}
-          throw new Error(errorText);
-        }
+        console.log(`✅ Patrulla creada exitosamente:`, resultado.data);
 
-        await response.json();
-        console.log(`✅ Usuario patrulla creado en Auth y claims asignados: ${usuario}`);
       } catch (e) {
-        if (e.message && e.message.includes('email-already-exists')) {
-          console.warn(`⚠️ Usuario ya existe en Auth: ${usuario}`);
-        } else {
-          console.error('❌ Error creando usuario patrulla:', e);
-          alert('Error creando usuario patrulla: ' + (e.message || e));
-          return;
-        }
+        console.error('❌ Error creando usuario patrulla:', e);
+        alert('Error creando patrulla: ' + (e.message || e));
+        return;
       }
-      // Guardar en Firestore (opcional, para tracking/mapa)
-      const municipio = (this.clientData.municipio || this.clientData.nombre || '').toLowerCase();
-      const municipioSinGuiones = municipio.replace(/-/g, '').replace(/\s+/g, '');
-      const coleccion = `patrullas_${municipioSinGuiones}`;
-      let patente = nombre.trim().toUpperCase();
-      if (!patente.startsWith('PATRULLA_')) {
-        patente = 'PATRULLA_' + patente.replace(/\W+/g, '');
-      }
-      const data = {
-        lat: this.clientData.lat || -34.92,
-        lng: this.clientData.lng || -57.945,
-        online: true,
-        emergencia: false,
-        estado: 'activo',
-        accuracy: 10,
-        speed: 0,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        usuario,
-        nombre,
-        password
-      };
-      try {
-        await firebase.firestore().collection(coleccion).doc(patente).set(data, { merge: true });
-        console.log(`✅ Patrulla guardada en ${coleccion}:`, patente, data);
-      } catch (e) {
-        console.error('❌ Error guardando patrulla:', e);
-        alert('Error guardando patrulla: ' + e.message);
-      }
+      
+      // Patrulla ya fue guardada en Firestore por la Cloud Function
+      console.log(`✅ Patrulla guardada en Firestore por Cloud Function: ${nombre}`);
     }
 
     async guardarOperarioFirestore({ nombre, usuario, password }) {
@@ -273,14 +227,17 @@ class ClientDashboard {
     }
 
     async cargarPatrullasFirestore() {
-      // Leer SOLO de la colección global
-      const municipio = (this.clientData.municipio || this.clientData.nombre || '').toLowerCase();
-      const municipioSinGuiones = municipio.replace(/-/g, '').replace(/\s+/g, '');
-      const coleccion = `patrullas_${municipioSinGuiones}`;
+      // Leer de la estructura anidada: clientes/{clienteId}/patrullas/
+      const clientId = this.clientData.id || this.clientData.nombre;
       try {
-        const ref = firebase.firestore().collection(coleccion);
+        const ref = firebase.firestore().collection(`clientes/${clientId}/patrullas`);
         const snap = await ref.get();
-        return snap.docs.map(doc => doc.data());
+        return snap.docs
+          .map(doc => doc.data())
+          .filter(p => {
+            // Validar que tenga los campos requeridos
+            return p && p.nombre && p.usuario && p.password;
+          });
       } catch (e) {
         console.error('❌ Error cargando patrullas:', e);
         return [];
@@ -323,6 +280,88 @@ class ClientDashboard {
       }, 100);
     }
 
+    // ========== EDITAR PATRULLA ==========
+    editarPatrulla(patrulla, liElement) {
+      const nombre = prompt(`Editar nombre de patrulla (actual: ${patrulla.nombre}):`, patrulla.nombre);
+      if (!nombre || nombre === patrulla.nombre) return;
+      
+      const clientId = this.clientData.id || this.clientData.nombre;
+      const patente = `PATRULLA_${patrulla.nombre.replace(/\W+/g, '').toUpperCase()}`;
+      
+      // Actualizar en Firestore (estructura anidada)
+      firebase.firestore().collection(`clientes/${clientId}/patrullas`).doc(patente).update({
+        nombre: nombre
+      }).then(() => {
+        alert('✅ Patrulla actualizada');
+        liElement.querySelector('input').value = nombre;
+      }).catch(e => {
+        alert('❌ Error: ' + e.message);
+      });
+    }
+
+    // ========== ELIMINAR PATRULLA ==========
+    eliminarPatrulla(nombrePatrulla, liElement) {
+      // Validar parámetros
+      if (!nombrePatrulla || nombrePatrulla === 'undefined') {
+        alert('❌ No se puede eliminar: datos inválidos');
+        if (liElement) liElement.remove();
+        return;
+      }
+      
+      if (!confirm(`¿Eliminar patrulla "${nombrePatrulla}"?`)) return;
+      
+      const clientId = this.clientData.id || this.clientData.nombre;
+      const patente = `PATRULLA_${nombrePatrulla.replace(/\W+/g, '').toUpperCase()}`;
+      
+      console.log(`🗑️ Eliminando patrulla: ${patente} de clientes/${clientId}/patrullas`);
+      
+      // Eliminar de Firestore (estructura anidada)
+      firebase.firestore().collection(`clientes/${clientId}/patrullas`).doc(patente).delete().then(() => {
+        alert('✅ Patrulla eliminada');
+        if (liElement) liElement.remove();
+      }).catch(e => {
+        alert('❌ Error: ' + e.message);
+      });
+    }
+
+    // ========== EDITAR OPERARIO ==========
+    editarOperario(operario, liElement) {
+      const nombre = prompt(`Editar nombre de operario (actual: ${operario.nombre}):`, operario.nombre);
+      if (!nombre || nombre === operario.nombre) return;
+      
+      const clientId = this.clientData.id;
+      const ref = firebase.firestore().collection(`clientes/${clientId}/operarios`);
+      
+      // Buscar y actualizar
+      ref.where('usuario', '==', operario.usuario).get().then(snap => {
+        if (snap.empty) return alert('Operario no encontrado');
+        snap.docs[0].ref.update({ nombre }).then(() => {
+          alert('✅ Operario actualizado');
+          liElement.querySelector('input').value = nombre;
+        });
+      }).catch(e => {
+        alert('❌ Error: ' + e.message);
+      });
+    }
+
+    // ========== ELIMINAR OPERARIO ==========
+    eliminarOperario(nombreOperario, liElement) {
+      if (!confirm(`¿Eliminar operario "${nombreOperario}"?`)) return;
+      
+      const clientId = this.clientData.id;
+      const ref = firebase.firestore().collection(`clientes/${clientId}/operarios`);
+      
+      // Buscar y eliminar
+      ref.where('nombre', '==', nombreOperario).get().then(snap => {
+        if (snap.empty) return alert('Operario no encontrado');
+        snap.docs[0].ref.delete().then(() => {
+          alert('✅ Operario eliminado');
+          liElement.remove();
+        });
+      }).catch(e => {
+        alert('❌ Error: ' + e.message);
+      });
+    }
 
   async showPage(page) {
     try {
@@ -750,16 +789,34 @@ class ClientDashboard {
         aviso.innerHTML = 'No se encontraron patrullas guardadas.';
         lista.appendChild(aviso);
       } else {
-        patrullas.forEach(p => {
-          this.agregarPatrullaInput(p.nombre);
-          const li = lista.lastElementChild;
-          li.querySelector('input').value = p.nombre;
-          li.querySelector('input').disabled = true;
-          li.querySelector('.generar-btn').disabled = true;
-          li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${p.usuario} <b>Pass:</b> ${p.password}`;
+        patrullas.forEach((p, idx) => {
+          // Validar nuevamente que tenga datos válidos
+          if (!p.nombre || !p.usuario || !p.password) {
+            console.warn(`⚠️ Patrulla ${idx} tiene datos undefined, omitiendo`);
+            return;
+          }
+          
+          const li = document.createElement('li');
+          li.className = 'list-group-item d-flex align-items-center gap-2 justify-content-between';
+          li.innerHTML = `
+            <div class="d-flex align-items-center gap-2" style="flex: 1;">
+              <input type="text" class="form-control form-control-sm patrulla-input" value="${p.nombre}" style="max-width:180px;" disabled>
+              <button class="btn btn-sm btn-primary generar-btn" disabled>Generar</button>
+              <span class="credenciales"><b>Usuario:</b> ${p.usuario} <b>Pass:</b> ${p.password}</span>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-warning edit-btn" title="Editar">✏️</button>
+              <button class="btn btn-sm btn-danger delete-btn" title="Eliminar">🗑️</button>
+            </div>
+          `;
+          
+          li.querySelector('.edit-btn').onclick = () => this.editarPatrulla(p, li);
+          li.querySelector('.delete-btn').onclick = () => this.eliminarPatrulla(p.nombre, li);
+          lista.appendChild(li);
         });
       }
     });
+
     this.cargarOperariosFirestore().then(operarios => {
       const lista = document.getElementById('listaOperarios');
       if (lista) lista.innerHTML = '';
@@ -770,12 +827,23 @@ class ClientDashboard {
         lista.appendChild(aviso);
       } else {
         operarios.forEach(o => {
-          this.agregarOperarioInput(o.nombre);
-          const li = lista.lastElementChild;
-          li.querySelector('input').value = o.nombre;
-          li.querySelector('input').disabled = true;
-          li.querySelector('.generar-btn').disabled = true;
-          li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${o.usuario} <b>Pass:</b> ${o.password}`;
+          const li = document.createElement('li');
+          li.className = 'list-group-item d-flex align-items-center gap-2 justify-content-between';
+          li.innerHTML = `
+            <div class="d-flex align-items-center gap-2" style="flex: 1;">
+              <input type="text" class="form-control form-control-sm operario-input" value="${o.nombre}" style="max-width:180px;" disabled>
+              <button class="btn btn-sm btn-primary generar-btn" disabled>Generar</button>
+              <span class="credenciales"><b>Usuario:</b> ${o.usuario} <b>Pass:</b> ${o.password}</span>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-warning edit-btn" title="Editar">✏️</button>
+              <button class="btn btn-sm btn-danger delete-btn" title="Eliminar">🗑️</button>
+            </div>
+          `;
+          
+          li.querySelector('.edit-btn').onclick = () => this.editarOperario(o, li);
+          li.querySelector('.delete-btn').onclick = () => this.eliminarOperario(o.nombre, li);
+          lista.appendChild(li);
         });
       }
     });

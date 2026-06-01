@@ -32,11 +32,18 @@ class AdminApiClient {
     try {
       const url = `${this.baseUrl}${endpoint}`;
       
+      // Convertir a form-urlencoded para evitar preflight CORS
+      const params = new URLSearchParams();
+      Object.keys(data).forEach(key => {
+        if (key !== 'method' && key !== 'body') {
+          params.append(key, data[key] || '');
+        }
+      });
+
       const options = {
         method: data.method || 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
         timeout: this.timeout
       };
@@ -44,7 +51,7 @@ class AdminApiClient {
       if (data.method === 'GET') {
         delete options.body;
       } else {
-        options.body = JSON.stringify(data.body || data);
+        options.body = params.toString();
       }
 
       console.log(`📡 API Call: ${options.method} ${endpoint}`, data);
@@ -52,8 +59,8 @@ class AdminApiClient {
       const response = await fetch(url, options);
       
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || `HTTP ${response.status}`);
+        const error = await response.text();
+        throw new Error(error || `HTTP ${response.status}`);
       }
 
       const result = await response.json();
