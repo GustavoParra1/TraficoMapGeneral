@@ -444,13 +444,33 @@ function init() {
     });
 
     document.getElementById('btn-camera').addEventListener('click', () => {
-      console.log('📸 Abriendo cámara...');
-      document.getElementById('file-camera').click();
+      try {
+        console.log('📸 Botón cámara clickeado');
+        const fileInput = document.getElementById('file-camera');
+        if (!fileInput) {
+          console.error('❌ No se encontró file-camera');
+          return;
+        }
+        console.log('📸 Abriendo cámara...');
+        fileInput.click();
+      } catch (e) {
+        console.error('❌ Error en btn-camera:', e);
+      }
     });
 
     document.getElementById('btn-gallery').addEventListener('click', () => {
-      console.log('🖼️ Abriendo galería...');
-      document.getElementById('file-gallery').click();
+      try {
+        console.log('🖼️ Botón galería clickeado');
+        const fileInput = document.getElementById('file-gallery');
+        if (!fileInput) {
+          console.error('❌ No se encontró file-gallery');
+          return;
+        }
+        console.log('🖼️ Abriendo galería...');
+        fileInput.click();
+      } catch (e) {
+        console.error('❌ Error en btn-gallery:', e);
+      }
     });
 
     const handleFileSelect = (e) => {

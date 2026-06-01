@@ -1053,8 +1053,22 @@
           fromText = '🎛️ Yo';
         }
 
+        let contentHTML = '';
+        
+        if (msg.hasImage && msg.image) {
+          contentHTML += `<img src="${msg.image}" alt="Foto" class="message-image" style="max-width: 100%; width: 200px; border-radius: 8px; margin-bottom: 6px;">`;
+        }
+        
+        if (msg.text) {
+          contentHTML += `<div class="message-content">${msg.text}</div>`;
+        }
+        
+        if (!contentHTML) {
+          contentHTML = '<div class="message-content">[Foto]</div>';
+        }
+
         div.innerHTML = `
-          <div class="message-content">${msg.text}</div>
+          ${contentHTML}
           <div class="message-meta">${fromText} · ${timeStr}</div>
         `;
 
