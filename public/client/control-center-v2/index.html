@@ -654,13 +654,12 @@
   // ESCUCHAR PATRULLAS EN TIEMPO REAL
   // ========================================
   function listenToPatrullas() {
-    // Asegurar que no haya guiones en el nombre de la colección
-    const municipioSinGuiones = municipio.replace(/-/g, '');
-    const coleccion = `patrullas_${municipioSinGuiones}`;
+    // Usar estructura anidada: clientes/{municipio}/patrullas/
+    const ruta = `clientes/${municipio}/patrullas`;
     
-    console.log(`📡 Escuchando patrullas en: ${coleccion}`);
+    console.log(`📡 Escuchando patrullas en: ${ruta}`);
 
-    db.collection(coleccion).onSnapshot((snapshot) => {
+    db.collection(ruta).onSnapshot((snapshot) => {
       console.log(`📊 Snapshot recibido: ${snapshot.size} patrullas`);
       patrullas.clear();
 
