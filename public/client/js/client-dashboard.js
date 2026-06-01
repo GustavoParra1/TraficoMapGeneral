@@ -22,12 +22,43 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   checkAdminFacturacion();
+
+  // --- Botón para mostrar claims del usuario autenticado ---
+  const btnClaims = document.createElement('button');
+  btnClaims.textContent = 'Ver mis claims';
+  btnClaims.className = 'btn btn-info btn-sm';
+  btnClaims.style.position = 'fixed';
+  btnClaims.style.bottom = '10px';
+  btnClaims.style.right = '10px';
+  btnClaims.style.zIndex = 9999;
+  btnClaims.onclick = function() {
+    if (!firebase.auth().currentUser) {
+      alert('No hay usuario autenticado.');
+      return;
+    }
+    firebase.auth().currentUser.getIdTokenResult().then(function(result) {
+      alert('Tus claims:\n' + JSON.stringify(result.claims, null, 2));
+      console.log('Tus claims:', result.claims);
+    }).catch(function(e) {
+      alert('Error obteniendo claims: ' + e.message);
+    });
+  };
+  document.body.appendChild(btnClaims);
 });
 // js/client-dashboard.js
 // Dashboard y páginas del panel del cliente
 
 class ClientDashboard {
   constructor() {
+    this.currentPage = 'dashboard';
+    this.clientData = null;
+    this.map = null;
+    this.dataStats = {
+      camaras: 0,
+      siniestros: 0,
+      alertas: 0
+    };
+
     // Mostrar recordatorio al cargar el dashboard (unificado)
     setTimeout(() => {
       const panel = document.getElementById('panelCargaDatos') || document.body;
@@ -36,6 +67,33 @@ class ClientDashboard {
       panel.prepend(aviso);
     }, 500);
   }
+
+    async ensureFirebaseSession() {
+      let currentUser = firebase.auth().currentUser;
+      if (currentUser) {
+        return currentUser;
+      }
+
+      const email = localStorage.getItem('email_acceso')
+        || (this.clientData && this.clientData.email_admin)
+        || (this.clientData && this.clientData.email);
+      const password = this.clientData && (this.clientData.contraseña || this.clientData.password);
+
+      if (!email || !password) {
+        throw new Error('No hay sesión Firebase activa para crear usuarios.');
+      }
+
+      const loginFn = firebase.app().functions('us-central1').httpsCallable('loginClientePanel');
+      await loginFn({ email, password });
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+
+      currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        throw new Error('No hay sesión Firebase activa para crear usuarios.');
+      }
+
+      return currentUser;
+    }
     // --- Métodos para carga uno a uno ---
 
     async agregarPatrullaInput(valor = "") {
@@ -103,13 +161,36 @@ class ClientDashboard {
         const city = (this.clientData.municipio || this.clientData.nombre || '').toLowerCase();
         const rol = 'patrulla';
         const displayName = nombre;
-        await firebase.app().functions('us-central1').httpsCallable('crearUsuarioPanel')({
-          email: usuario,
-          password,
-          displayName,
-          city,
-          rol
+        const currentUser = await this.ensureFirebaseSession();
+        const idToken = await currentUser.getIdToken(true);
+        const response = await fetch('/api/crearUsuarioPanelHttp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`
+          },
+          body: JSON.stringify({
+            idToken,
+            adminEmail: localStorage.getItem('email_acceso') || (this.clientData && this.clientData.email_admin) || '',
+            adminPassword: localStorage.getItem('admin_password') || (this.clientData && (this.clientData.contraseña || this.clientData.password || this.clientData.password_plain)) || '',
+            email: usuario,
+            password,
+            displayName,
+            city,
+            rol
+          })
         });
+
+        if (!response.ok) {
+          let errorText = `HTTP ${response.status}`;
+          try {
+            const errorData = await response.json();
+            errorText = errorData.error || errorText;
+          } catch (_) {}
+          throw new Error(errorText);
+        }
+
+        await response.json();
         console.log(`✅ Usuario patrulla creado en Auth y claims asignados: ${usuario}`);
       } catch (e) {
         if (e.message && e.message.includes('email-already-exists')) {
@@ -384,6 +465,7 @@ class ClientDashboard {
   async loadStats() {
     try {
       const clientId = this.clientData.id;
+      this.dataStats = this.dataStats || { camaras: 0, siniestros: 0, alertas: 0 };
       
       // Contar cámaras (públicas + privadas)
       const camerasRef = firebase.firestore().collection(`clientes/${clientId}/cameras`);
@@ -1162,9 +1244,91 @@ class ClientDashboard {
     this.loadBillingData();
   }
 
-  // async loadBillingData() {
-  //   // (Función eliminada por error de sintaxis)
-  // }
+  async loadBillingData() {
+    try {
+      const billingRef = firebase.firestore().collection('billing');
+      const snap = await billingRef.where('cliente_id', '==', this.clientData.id).get();
+      const tbody = document.getElementById('billingTable');
+
+      if (!tbody) return;
+
+      if (snap.empty) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Sin facturas</td></tr>';
+        return;
+      }
+
+      let html = '';
+      snap.forEach(doc => {
+        const data = doc.data();
+        const paid = data.pagado || data.pagada || false;
+        const badge = paid ? 'bg-success' : 'bg-warning';
+        const status = paid ? 'Pagado' : 'Pendiente';
+        const periodo = data.periodo || data.descripcion || data.created_at || 'Sin período';
+
+        html += `
+          <tr>
+            <td>${periodo}</td>
+            <td>${formatCurrency(data.monto || 0)}</td>
+            <td><span class="badge ${badge}">${status}</span></td>
+            <td>
+              <button class="btn btn-sm btn-info" onclick="alert('Descarga en desarrollo')">
+                <i class="bi bi-download"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+    } catch (error) {
+      console.error('❌ Error cargando facturas:', error);
+      const tbody = document.getElementById('billingTable');
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-danger text-center py-4">Error cargando facturas</td></tr>';
+      }
+    }
+  }
+
+  showAPI() {
+    const content = document.getElementById('clientContent');
+    const apiKey = this.clientData.api_key || 'sk_' + generateId();
+
+    content.innerHTML = `
+      <div>
+        <h2 class="mb-4">API Key</h2>
+
+        <div class="alert alert-warning mb-4">
+          <i class="bi bi-shield-exclamation"></i>
+          Mantén tu API Key segura. No la compartas públicamente.
+        </div>
+
+        <div class="card" style="border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+          <div class="card-body">
+            <label class="form-label">Tu API Key:</label>
+            <div class="input-group mb-3">
+              <input type="password" class="form-control" id="apiKeyInput" value="${apiKey}" readonly>
+              <button class="btn btn-outline-secondary" type="button" onclick="
+                const input = document.getElementById('apiKeyInput');
+                input.type = input.type === 'password' ? 'text' : 'password';
+              ">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-outline-primary" type="button" onclick="
+                navigator.clipboard.writeText('${apiKey}');
+                alert('¡Copiado!');
+              ">
+                <i class="bi bi-clipboard"></i> Copiar
+              </button>
+            </div>
+
+            <p class="text-muted mb-0">
+              Usa esta clave para autenticar tus integraciones.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
   /**
    * Abre el mapa en una ventana nueva con filtro de ciudad
    */

@@ -4,7 +4,8 @@ const admin = require('firebase-admin');
 // Cloud Function HTTPS para crear usuario patrulla/operario
 exports.crearUsuarioPanel = functions.https.onCall(async (data, context) => {
   // Solo permitir admins autenticados
-  if (!context.auth || !context.auth.token.admin) {
+  const isAdmin = context.auth && context.auth.token && (context.auth.token.admin === true || context.auth.token.role === 'admin');
+  if (!isAdmin) {
     throw new functions.https.HttpsError('permission-denied', 'Solo administradores pueden crear usuarios.');
   }
 

@@ -28,6 +28,71 @@ const { crearUsuarioPanel } = require('./crearUsuarioPanel');
 exports.crearUsuarioPanel = crearUsuarioPanel;
 
 // ============================================================================
+// FUNCIÓN 0: LOGIN DEL PANEL DEL CLIENTE
+// ============================================================================
+/**
+ * Valida credenciales del panel del cliente contra Firestore y garantiza
+ * que exista un usuario Firebase Auth con password sincronizada.
+ */
+exports.loginClientePanel = functions.https.onCall(async (data, context) => {
+  const { email, password } = data || {};
+
+  if (!email || !password) {
+    throw new functions.https.HttpsError('invalid-argument', 'Faltan credenciales');
+  }
+
+  const clientesSnapshot = await db.collection('clientes')
+    .where('email_admin', '==', email)
+    .limit(1)
+    .get();
+
+  if (clientesSnapshot.empty) {
+    throw new functions.https.HttpsError('not-found', 'Usuario no encontrado');
+  }
+
+  const clienteDoc = clientesSnapshot.docs[0];
+  const clienteData = clienteDoc.data();
+  const clienteId = clienteDoc.id;
+  const passwordStored = clienteData.contraseña || clienteData.password;
+
+  if (passwordStored !== password) {
+    throw new functions.https.HttpsError('permission-denied', 'Contraseña incorrecta');
+  }
+
+  let userRecord;
+  try {
+    userRecord = await auth.getUserByEmail(email);
+    // Sincronizar password del panel con Auth para permitir signInWithEmailAndPassword.
+    await auth.updateUser(userRecord.uid, {
+      password,
+      displayName: clienteData.nombre ? `Admin - ${clienteData.nombre}` : userRecord.displayName
+    });
+  } catch (error) {
+    if (error.code === 'auth/user-not-found') {
+      userRecord = await auth.createUser({
+        email,
+        password,
+        displayName: clienteData.nombre ? `Admin - ${clienteData.nombre}` : 'Admin Cliente',
+        disabled: false
+      });
+    } else {
+      throw error;
+    }
+  }
+
+  await auth.setCustomUserClaims(userRecord.uid, {
+    role: 'admin',
+    cliente_id: clienteId
+  });
+
+  return {
+    success: true,
+    clienteId,
+    clienteData
+  };
+});
+
+// ============================================================================
 // FUNCIÓN 1: CREAR CLIENTE
 // ============================================================================
 /**
@@ -575,6 +640,80 @@ app.post('/renovarSubscripcion', async (req, res) => {
   } catch (error) {
     console.error('❌ Error renovando:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// FUNCIÓN 6B: CREAR USUARIO PANEL VIA HTTP (CORS)
+// ============================================================================
+app.post('/crearUsuarioPanelHttp', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || '';
+    const tokenFromHeader = authHeader.startsWith('Bearer ') ? authHeader.substring('Bearer '.length) : '';
+    const tokenFromBody = req.body && typeof req.body.idToken === 'string' ? req.body.idToken : '';
+    const idToken = tokenFromHeader || tokenFromBody;
+
+    let isAdmin = false;
+    if (idToken) {
+      const decoded = await auth.verifyIdToken(idToken);
+      isAdmin = !!(decoded && (decoded.admin === true || decoded.role === 'admin'));
+    } else {
+      // Fallback: validar admin por credenciales del cliente en Firestore.
+      const adminEmail = req.body && req.body.adminEmail;
+      const adminPassword = req.body && req.body.adminPassword;
+      if (adminEmail && adminPassword) {
+        const clientesSnapshot = await db.collection('clientes')
+          .where('email_admin', '==', adminEmail)
+          .limit(1)
+          .get();
+        if (!clientesSnapshot.empty) {
+          const clienteData = clientesSnapshot.docs[0].data();
+          const possiblePasswords = [
+            clienteData.contraseña,
+            clienteData.password,
+            clienteData.password_plain,
+            clienteData.credenciales_actualizadas && clienteData.credenciales_actualizadas.password,
+            clienteData.credenciales_actualizadas && clienteData.credenciales_actualizadas.password_plain
+          ].filter(Boolean);
+          isAdmin = possiblePasswords.includes(adminPassword);
+        }
+      }
+    }
+
+    if (!isAdmin) {
+      return res.status(401).json({ error: 'No autenticado' });
+    }
+
+    const { email, password, displayName, city, rol } = req.body || {};
+    if (!email || !password || !city || !rol) {
+      return res.status(400).json({ error: 'Faltan datos obligatorios.' });
+    }
+
+    const userRecord = await auth.createUser({
+      email,
+      password,
+      displayName,
+      emailVerified: false,
+      disabled: false
+    });
+
+    await auth.setCustomUserClaims(userRecord.uid, { city, rol });
+
+    await db.collection('usuarios').doc(userRecord.uid).set({
+      email,
+      displayName,
+      city,
+      rol,
+      creado: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    return res.json({ uid: userRecord.uid, email });
+  } catch (error) {
+    if (error && error.code === 'auth/email-already-exists') {
+      return res.status(409).json({ error: 'email-already-exists' });
+    }
+    console.error('❌ Error crearUsuarioPanelHttp:', error);
+    return res.status(500).json({ error: error.message || 'internal-error' });
   }
 });
 
