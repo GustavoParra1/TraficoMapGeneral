@@ -6,6 +6,54 @@ let db = null;
 let auth = null;
 let fotoSeleccionada = null; // Para almacenar foto en base64
 
+// ========================================
+// COMPRESIÓN DE IMÁGENES
+// ========================================
+function compressImage(base64String, callback, maxWidth = 800, maxHeight = 600, quality = 0.6) {
+  console.log(`🔄 Comprimiendo: ${base64String.length} bytes`);
+  const img = new Image();
+  
+  img.onload = () => {
+    console.log(`📐 Dimensiones originales: ${img.width}x${img.height}`);
+    const canvas = document.createElement('canvas');
+    let width = img.width;
+    let height = img.height;
+    
+    // Calcular nuevas dimensiones manteniendo aspect ratio
+    if (width > height) {
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+    } else {
+      if (height > maxHeight) {
+        width = Math.round((width * maxHeight) / height);
+        height = maxHeight;
+      }
+    }
+    
+    console.log(`📐 Nuevas dimensiones: ${width}x${height}`);
+    canvas.width = width;
+    canvas.height = height;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, width, height);
+    
+    // Convertir a JPEG con compresión
+    const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+    console.log(`📉 Comprimido: ${base64String.length} → ${compressedBase64.length} bytes (reducción: ${Math.round((1 - compressedBase64.length / base64String.length) * 100)}%)`);
+    callback(compressedBase64);
+  };
+  
+  img.onerror = () => {
+    console.error('❌ No se pudo cargar imagen para comprimir');
+    console.warn('⚠️ Usando original sin comprimir');
+    callback(base64String);
+  };
+  
+  img.src = base64String;
+}
+
 async function initializeFirebase() {
   try {
     const response = await fetch('../config.json');
@@ -262,7 +310,14 @@ async function enviarMensaje() {
   const btn = document.getElementById('btn-send');
   const texto = input.value.trim();
 
-  if (!texto && !fotoSeleccionada) return;
+  console.log('🚀 enviarMensaje llamado');
+  console.log('  - Texto:', texto ? `"${texto}"` : 'VACÍO');
+  console.log('  - Foto:', fotoSeleccionada ? `${fotoSeleccionada.length} bytes` : 'NO HAY');
+
+  if (!texto && !fotoSeleccionada) {
+    console.warn('⚠️ No hay texto ni foto para enviar');
+    return;
+  }
 
   try {
     btn.classList.add('sending');
@@ -277,23 +332,34 @@ async function enviarMensaje() {
 
     if (texto) {
       mensajeData.text = texto;
+      console.log('✍️ Agregado texto');
     }
 
     if (fotoSeleccionada) {
+      if (fotoSeleccionada.length > 5000000) {
+        throw new Error(`Foto muy grande: ${fotoSeleccionada.length} bytes (máx 5MB)`);
+      }
+      console.log(`📸 Agregada foto: ${fotoSeleccionada.length} bytes`);
       mensajeData.image = fotoSeleccionada;
       mensajeData.hasImage = true;
     }
 
-    await db.collection(coleccion).add(mensajeData);
+    console.log('💾 Guardando en Firestore:', coleccion);
+    const docRef = await db.collection(coleccion).add(mensajeData);
+    console.log('✅ Mensaje guardado con ID:', docRef.id);
     
     input.value = '';
     fotoSeleccionada = null;
     
     setTimeout(() => btn.classList.remove('sending'), 600);
-    renderMessages();
+    await renderMessages();
+    console.log('✅ Chat actualizado');
   } catch (error) {
-    console.error('❌ Error:', error);
+    console.error('❌ Error CRÍTICO al enviar:', error);
+    console.error('   Código:', error.code);
+    console.error('   Mensaje:',error.message);
     btn.classList.remove('sending');
+    alert('❌ Error: ' + error.message);
   }
 }
 
@@ -482,21 +548,49 @@ function init() {
         return;
       }
 
-      console.log('✅ Procesando archivo:', file.name, file.type, file.size);
+      console.log(`📄 Archivo: ${file.name} | Tipo: ${file.type} | Tamaño: ${file.size} bytes`);
+      
+      if (!file.type.startsWith('image/')) {
+        alert('⚠️ Solo se aceptan imágenes');
+        return;
+      }
+
+      if (file.size > 10000000) {
+        alert('⚠️ La imagen es demasiado grande (máx 10MB)');
+        return;
+      }
       
       const reader = new FileReader();
       
       reader.onload = (event) => {
-        fotoSeleccionada = event.target.result;
-        console.log('✅ Foto cargada en memoria');
-        alert('📸 Foto lista para enviar. Pulsa ✈️ para enviar.');
-        // Reset para permitir seleccionar la misma foto de nuevo
-        e.target.value = '';
+        try {
+          const base64 = event.target.result;
+          console.log(`📊 Base64 generado: ${base64.length} bytes`);
+          
+          // Comprimir imagen
+          compressImage(base64, (compressedBase64) => {
+            try {
+              fotoSeleccionada = compressedBase64;
+              console.log(`✅ Foto comprimida: ${compressedBase64.length} bytes`);
+              alert('📸 Foto lista. Escribe y haz clic en ✈️');
+              e.target.value = '';
+            } catch (err) {
+              console.error('❌ Error en compresor:', err);
+            }
+          });
+        } catch (err) {
+          console.error('❌ Error al procesar base64:', err);
+          alert('Error al procesar imagen');
+        }
       };
       
       reader.onerror = () => {
         console.error('❌ Error al leer archivo');
-        alert('Error al procesar la foto');
+        alert('Error al leer la imagen');
+      };
+      
+      reader.readAsDataURL(file);
+    };
       };
       
       reader.readAsDataURL(file);
