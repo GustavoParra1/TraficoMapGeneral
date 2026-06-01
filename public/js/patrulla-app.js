@@ -4,6 +4,7 @@
 let firebaseConfig = null;
 let db = null;
 let auth = null;
+let fotoSeleccionada = null; // Para almacenar foto en base64
 
 async function initializeFirebase() {
   try {
@@ -229,8 +230,18 @@ async function renderMessages() {
       let fromText = msg.from === 'CENTRO_CONTROL' ? '🎛️ Centro' : msg.from;
       if (isBroadcast) fromText = '📢 BROADCAST';
 
+      let contentHTML = '';
+      
+      if (msg.hasImage && msg.image) {
+        contentHTML += `<img src="${msg.image}" alt="Foto" class="message-image">`;
+      }
+      
+      if (msg.text) {
+        contentHTML += `<div class="message-content">${msg.text}</div>`;
+      }
+
       div.innerHTML = `
-        <div class="message-content">${msg.text}</div>
+        ${contentHTML}
         <div class="message-meta">${fromText} · ${timeStr}</div>
       `;
 
@@ -251,19 +262,34 @@ async function enviarMensaje() {
   const btn = document.getElementById('btn-send');
   const texto = input.value.trim();
 
-  if (!texto) return;
+  if (!texto && !fotoSeleccionada) return;
 
   try {
     btn.classList.add('sending');
     const coleccion = `chat_${municipio}`;
-    await db.collection(coleccion).add({
+    
+    const mensajeData = {
       from: patrullaId,
       to: 'CENTRO_CONTROL',
-      text: texto,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       read: false
-    });
+    };
+
+    if (texto) {
+      mensajeData.text = texto;
+    }
+
+    if (fotoSeleccionada) {
+      mensajeData.image = fotoSeleccionada;
+      mensajeData.hasImage = true;
+    }
+
+    await db.collection(coleccion).add(mensajeData);
+    
     input.value = '';
+    fotoSeleccionada = null;
+    document.getElementById('file-input').value = '';
+    
     setTimeout(() => btn.classList.remove('sending'), 600);
     renderMessages();
   } catch (error) {
@@ -416,6 +442,22 @@ function init() {
     document.getElementById('btn-send').addEventListener('click', enviarMensaje);
     document.getElementById('message-input').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') enviarMensaje();
+    });
+
+    document.getElementById('btn-photo').addEventListener('click', () => {
+      document.getElementById('file-input').click();
+    });
+
+    document.getElementById('file-input').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          fotoSeleccionada = event.target.result;
+          console.log('📸 Foto seleccionada:', fotoSeleccionada.substring(0, 50) + '...');
+        };
+        reader.readAsDataURL(file);
+      }
     });
 
     document.getElementById('btn-emergencia').addEventListener('click', toggleEmergencia);
