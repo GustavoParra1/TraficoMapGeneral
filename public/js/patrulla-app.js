@@ -288,7 +288,6 @@ async function enviarMensaje() {
     
     input.value = '';
     fotoSeleccionada = null;
-    document.getElementById('file-input').value = '';
     
     setTimeout(() => btn.classList.remove('sending'), 600);
     renderMessages();
