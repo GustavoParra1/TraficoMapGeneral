@@ -171,6 +171,7 @@ class ClientDashboard {
           },
           body: JSON.stringify({
             idToken,
+            clientId: (this.clientData && this.clientData.id) || '',
             adminEmail: localStorage.getItem('email_acceso') || (this.clientData && this.clientData.email_admin) || '',
             adminPassword: localStorage.getItem('admin_password') || (this.clientData && (this.clientData.contraseña || this.clientData.password || this.clientData.password_plain)) || '',
             email: usuario,

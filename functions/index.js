@@ -657,6 +657,25 @@ app.post('/crearUsuarioPanelHttp', async (req, res) => {
     if (idToken) {
       const decoded = await auth.verifyIdToken(idToken);
       isAdmin = !!(decoded && (decoded.admin === true || decoded.role === 'admin'));
+
+      // Fallback con token válido: autorizar si el email autenticado es email_admin de algún cliente.
+      if (!isAdmin && decoded && decoded.email) {
+        const decodedEmail = String(decoded.email).toLowerCase();
+        const adminByEmailSnap = await db.collection('clientes')
+          .where('email_admin', '==', decoded.email)
+          .limit(1)
+          .get();
+        if (!adminByEmailSnap.empty) {
+          isAdmin = true;
+        } else {
+          // Segundo intento en minúsculas para compatibilidad con datos legacy.
+          const adminByLowerEmailSnap = await db.collection('clientes')
+            .where('email_admin', '==', decodedEmail)
+            .limit(1)
+            .get();
+          isAdmin = !adminByLowerEmailSnap.empty;
+        }
+      }
     } else {
       // Fallback: validar admin por credenciales del cliente en Firestore.
       const adminEmail = req.body && req.body.adminEmail;
@@ -676,6 +695,23 @@ app.post('/crearUsuarioPanelHttp', async (req, res) => {
             clienteData.credenciales_actualizadas && clienteData.credenciales_actualizadas.password_plain
           ].filter(Boolean);
           isAdmin = possiblePasswords.includes(adminPassword);
+        }
+      }
+    }
+
+    if (!isAdmin) {
+      // Fallback final: validar por clientId + adminEmail (flujo panel cliente).
+      const clientId = req.body && req.body.clientId;
+      const adminEmail = req.body && req.body.adminEmail;
+      if (clientId && adminEmail) {
+        const clientDoc = await db.collection('clientes').doc(String(clientId)).get();
+        if (clientDoc.exists) {
+          const clientData = clientDoc.data() || {};
+          const expectedEmail = String(clientData.email_admin || '').toLowerCase();
+          const givenEmail = String(adminEmail || '').toLowerCase();
+          if (expectedEmail && expectedEmail === givenEmail) {
+            isAdmin = true;
+          }
         }
       }
     }
