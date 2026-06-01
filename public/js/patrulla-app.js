@@ -444,30 +444,47 @@ function init() {
       if (e.key === 'Enter') enviarMensaje();
     });
 
-    document.getElementById('btn-photo').addEventListener('click', () => {
-      console.log('🎥 Abriendo selector de fotos...');
-      const fileInput = document.getElementById('file-input');
-      fileInput.click();
+    document.getElementById('btn-camera').addEventListener('click', () => {
+      console.log('📸 Abriendo cámara...');
+      document.getElementById('file-camera').click();
     });
 
-    document.getElementById('file-input').addEventListener('change', (e) => {
-      console.log('📁 Evento change disparado');
+    document.getElementById('btn-gallery').addEventListener('click', () => {
+      console.log('🖼️ Abriendo galería...');
+      document.getElementById('file-gallery').click();
+    });
+
+    const handleFileSelect = (e) => {
+      console.log('📁 Archivo seleccionado');
       const file = e.target.files[0];
-      console.log('📄 Archivo:', file);
       
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          fotoSeleccionada = event.target.result;
-          console.log('✅ Foto cargada en memoria:', fotoSeleccionada.substring(0, 50) + '...');
-          alert('📸 Foto lista para enviar. Pulsa ✈️ para enviar.');
-        };
-        reader.onerror = () => {
-          console.error('❌ Error al leer archivo');
-        };
-        reader.readAsDataURL(file);
+      if (!file) {
+        console.warn('⚠️ No se seleccionó archivo');
+        return;
       }
-    }, false);
+
+      console.log('✅ Procesando archivo:', file.name, file.type, file.size);
+      
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        fotoSeleccionada = event.target.result;
+        console.log('✅ Foto cargada en memoria');
+        alert('📸 Foto lista para enviar. Pulsa ✈️ para enviar.');
+        // Reset para permitir seleccionar la misma foto de nuevo
+        e.target.value = '';
+      };
+      
+      reader.onerror = () => {
+        console.error('❌ Error al leer archivo');
+        alert('Error al procesar la foto');
+      };
+      
+      reader.readAsDataURL(file);
+    };
+
+    document.getElementById('file-camera').addEventListener('change', handleFileSelect, false);
+    document.getElementById('file-gallery').addEventListener('change', handleFileSelect, false);
 
     document.getElementById('btn-emergencia').addEventListener('click', toggleEmergencia);
     document.getElementById('btn-salir-emergencia').addEventListener('click', () => {
