@@ -400,11 +400,38 @@
       opacity: 0.8;
     }
 
+    .message-image {
+      max-width: 100%;
+      width: 200px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
     .empty-messages {
       color: #64748b;
       text-align: center;
       padding: 20px;
       font-size: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .message {
+        max-width: 95%;
+      }
+      .message-image {
+        width: 160px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .message {
+        max-width: 100%;
+        padding: 6px 10px;
+      }
+      .message-image {
+        width: 140px;
+      }
     }
 
     /* PATROL MARKERS */
@@ -1056,7 +1083,7 @@
         let contentHTML = '';
         
         if (msg.hasImage && msg.image) {
-          contentHTML += `<img src="${msg.image}" alt="Foto" class="message-image" style="max-width: 100%; width: 200px; border-radius: 8px; margin-bottom: 6px;">`;
+          contentHTML += `<img src="${msg.image}" alt="Foto" class="message-image">`;
         }
         
         if (msg.text) {
