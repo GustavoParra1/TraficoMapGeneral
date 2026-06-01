@@ -445,20 +445,29 @@ function init() {
     });
 
     document.getElementById('btn-photo').addEventListener('click', () => {
-      document.getElementById('file-input').click();
+      console.log('🎥 Abriendo selector de fotos...');
+      const fileInput = document.getElementById('file-input');
+      fileInput.click();
     });
 
     document.getElementById('file-input').addEventListener('change', (e) => {
+      console.log('📁 Evento change disparado');
       const file = e.target.files[0];
+      console.log('📄 Archivo:', file);
+      
       if (file) {
         const reader = new FileReader();
         reader.onload = (event) => {
           fotoSeleccionada = event.target.result;
-          console.log('📸 Foto seleccionada:', fotoSeleccionada.substring(0, 50) + '...');
+          console.log('✅ Foto cargada en memoria:', fotoSeleccionada.substring(0, 50) + '...');
+          alert('📸 Foto lista para enviar. Pulsa ✈️ para enviar.');
+        };
+        reader.onerror = () => {
+          console.error('❌ Error al leer archivo');
         };
         reader.readAsDataURL(file);
       }
-    });
+    }, false);
 
     document.getElementById('btn-emergencia').addEventListener('click', toggleEmergencia);
     document.getElementById('btn-salir-emergencia').addEventListener('click', () => {
