@@ -4,6 +4,7 @@
 let firebaseConfig = null;
 let db = null;
 let auth = null;
+let storage = null;
 let fotoSeleccionada = null; // Para almacenar foto en base64
 
 // ========================================
@@ -66,6 +67,7 @@ async function initializeFirebase() {
 
     db = firebase.firestore();
     auth = firebase.auth();
+    storage = firebase.storage();
 
     console.log('✅ Firebase initialized');
 
@@ -280,8 +282,8 @@ async function renderMessages() {
 
       let contentHTML = '';
       
-      if (msg.hasImage && msg.image) {
-        contentHTML += `<img src="${msg.image}" alt="Foto" class="message-image">`;
+      if (msg.hasImage && msg.imageUrl) {
+        contentHTML += `<img src="${msg.imageUrl}" alt="Foto" class="message-image">`;
       }
       
       if (msg.text) {
@@ -335,16 +337,38 @@ async function enviarMensaje() {
       console.log('✍️ Agregado texto');
     }
 
+    let imageUrl = null;
     if (fotoSeleccionada) {
-      if (fotoSeleccionada.length > 5000000) {
-        throw new Error(`Foto muy grande: ${fotoSeleccionada.length} bytes (máx 5MB)`);
+      console.log(`📸 Subiendo foto a Storage: ${fotoSeleccionada.length} bytes`);
+      
+      // Convertir base64 a blob
+      const arr = fotoSeleccionada.split(',');
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
       }
-      console.log(`📸 Agregada foto: ${fotoSeleccionada.length} bytes`);
-      mensajeData.image = fotoSeleccionada;
+      const blob = new Blob([u8arr], { type: mime });
+      
+      // Crear nombre único
+      const timestamp = Date.now();
+      const filename = `chat_${municipio}/${patrullaId}_${timestamp}.jpg`;
+      
+      console.log(`📤 Subiendo a Storage: ${filename}`);
+      const uploadTask = await storage.ref(filename).put(blob);
+      
+      // Obtener URL de descarga
+      imageUrl = await uploadTask.ref.getDownloadURL();
+      console.log(`✅ Imagen subida. URL:`, imageUrl.substring(0, 80) + '...');
+      
+      mensajeData.imageUrl = imageUrl;
       mensajeData.hasImage = true;
+      mensajeData.imagePath = filename;
     }
 
-    console.log('💾 Guardando en Firestore:', coleccion);
+    console.log('💾 Guardando mensaje en Firestore:', coleccion);
     const docRef = await db.collection(coleccion).add(mensajeData);
     console.log('✅ Mensaje guardado con ID:', docRef.id);
     
@@ -357,7 +381,7 @@ async function enviarMensaje() {
   } catch (error) {
     console.error('❌ Error CRÍTICO al enviar:', error);
     console.error('   Código:', error.code);
-    console.error('   Mensaje:',error.message);
+    console.error('   Mensaje:', error.message);
     btn.classList.remove('sending');
     alert('❌ Error: ' + error.message);
   }
@@ -613,24 +637,37 @@ function init() {
     });
 
     document.getElementById('btn-clear-messages').addEventListener('click', async () => {
-      if (confirm('¿Limpiar chat?')) {
+      if (confirm('¿Limpiar chat? Se eliminarán todas las fotos y mensajes.')) {
         try {
           const coleccion = `chat_${municipio}`;
           const snapshot = await db.collection(coleccion).get();
           const batch = db.batch();
           let deleted = 0;
+          let deletedImages = 0;
 
-          snapshot.forEach((doc) => {
+          // Primero, eliminar imágenes de Storage
+          for (const doc of snapshot.docs) {
             const data = doc.data();
             if (data.to === patrullaId || data.from === patrullaId || data.type === 'broadcast') {
+              // Si tiene imagen en Storage, eliminarla
+              if (data.imagePath) {
+                try {
+                  await storage.ref(data.imagePath).delete();
+                  console.log(`🗑️ Imagen eliminada: ${data.imagePath}`);
+                  deletedImages++;
+                } catch (err) {
+                  console.warn(`⚠️ No se pudo eliminar imagen: ${data.imagePath}`, err);
+                }
+              }
+              // Marcar documento para eliminar
               batch.delete(doc.ref);
               deleted++;
             }
-          });
+          }
 
           if (deleted > 0) {
             await batch.commit();
-            console.log(`✅ ${deleted} mensajes eliminados`);
+            console.log(`✅ ${deleted} mensajes eliminados, ${deletedImages} fotos eliminadas del storage`);
             renderMessages();
           }
         } catch (error) {

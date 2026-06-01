@@ -1082,8 +1082,8 @@
 
         let contentHTML = '';
         
-        if (msg.hasImage && msg.image) {
-          contentHTML += `<img src="${msg.image}" alt="Foto" class="message-image">`;
+        if (msg.hasImage && msg.imageUrl) {
+          contentHTML += `<img src="${msg.imageUrl}" alt="Foto" class="message-image">`;
         }
         
         if (msg.text) {
