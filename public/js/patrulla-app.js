@@ -248,11 +248,13 @@ async function renderMessages() {
 // ========================================
 async function enviarMensaje() {
   const input = document.getElementById('message-input');
+  const btn = document.getElementById('btn-send');
   const texto = input.value.trim();
 
   if (!texto) return;
 
   try {
+    btn.classList.add('sending');
     const coleccion = `chat_${municipio}`;
     await db.collection(coleccion).add({
       from: patrullaId,
@@ -262,9 +264,11 @@ async function enviarMensaje() {
       read: false
     });
     input.value = '';
+    setTimeout(() => btn.classList.remove('sending'), 600);
     renderMessages();
   } catch (error) {
     console.error('❌ Error:', error);
+    btn.classList.remove('sending');
   }
 }
 
