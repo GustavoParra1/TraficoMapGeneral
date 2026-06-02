@@ -8,10 +8,11 @@
  */
 
 class PatullaLayer {
-  constructor(map, municipio, firestore) {
+  constructor(map, municipio, firestore, clienteId = 'template') {
     this.map = map;
     this.municipio = municipio;
     this.db = firestore;
+    this.clienteId = clienteId;
     this.patrullas = new Map(); // { patente: { marker, popup, data } }
     this.unsubscribe = null;
     this.visible = true;
@@ -88,9 +89,8 @@ class PatullaLayer {
   }
 
   startTracking() {
-    // Remover guiones del municipio para construir el nombre correcto de la colección
-    const municipioSinGuiones = this.municipio.replace(/-/g, '');
-    const coleccion = `patrullas_${municipioSinGuiones}`;
+    // Leer patrullas de la colección de cliente: clientes/{clienteId}/patrullas/
+    const coleccion = `clientes/${this.clienteId}/patrullas`;
     console.log(`🔍 PatullaLayer startTracking() iniciado para colección: ${coleccion}`);
     
     this.unsubscribe = this.db.collection(coleccion)
@@ -151,7 +151,7 @@ class PatullaLayer {
           }
         }
       }, (error) => {
-        console.error('❌ Error en tracking de patrullas:', error);
+        console.error(`❌ Error en listener de ${coleccion}:`, error);
       });
   }
 

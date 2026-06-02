@@ -93,7 +93,9 @@ async function initializeFirebase() {
 
       if (userCity) {
         municipio = userCity;
-        console.log(`📍 Ciudad: ${municipio}`);
+        // Derive clienteId from municipio name
+        clienteId = MUNICIPIO_TO_ID[municipio] || municipio.toLowerCase().replace(/\s+/g, '');
+        console.log(`📍 Ciudad: ${municipio}, clienteId: ${clienteId}`);
       } else {
         alert('No se encontró la ciudad asignada.');
         window.location.href = '/login.html';
@@ -127,6 +129,7 @@ initializeFirebase();
 let map = null;
 let patrullaId = null;
 let municipio = null;
+let clienteId = null; // Formatted city ID without spaces
 let myMarker = null;
 let emergencia = false;
 let ubicacionInterval = null;
@@ -138,6 +141,20 @@ const CITY_COORDS = {
   'cordoba': [-31.4201, -64.1888],
   'constitucion': [-35.2822, -57.4447],
   'mendoza': [-32.8892, -68.8455],
+};
+
+// Mapeo de municipios a clienteId
+const MUNICIPIO_TO_ID = {
+  'La Plata': 'laplata',
+  'la plata': 'laplata',
+  'Mar del Plata': 'mardelplata',
+  'mar del plata': 'mardelplata',
+  'Córdoba': 'cordoba',
+  'cordoba': 'cordoba',
+  'Constitución': 'constitucion',
+  'constitucion': 'constitucion',
+  'Mendoza': 'mendoza',
+  'mendoza': 'mendoza',
 };
 
 // ========================================
@@ -166,6 +183,8 @@ function startTracking() {
     return;
   }
 
+  console.log(`🚀 startTracking() iniciado - clienteId=${clienteId}, patrullaId=${patrullaId}`);
+
   ubicacionInterval = navigator.geolocation.watchPosition(
     (position) => {
       const { latitude, longitude, speed = 0 } = position.coords;
@@ -174,26 +193,35 @@ function startTracking() {
       document.getElementById('lng').textContent = longitude.toFixed(4);
       document.getElementById('speed').textContent = Math.round(speed * 3.6);
 
-      const sanitizedPatrullaId = patrullaId.toUpperCase().replace(/[^A-Z0-9_]/g, '');
-      const patrullaDocId = `PATRULLA_${sanitizedPatrullaId}`;
+      // Extract number from patrullaId: "patrulla_070" → "070" → "PATRULLA_070"
+      const numMatch = patrullaId.match(/(\d+)$/);
+      const patrolNum = numMatch ? numMatch[1].padStart(3, '0') : patrullaId.replace(/[^0-9]/g, '').padStart(3, '0');
+      const patrullaDocId = `PATRULLA_${patrolNum}`;
       
-      // Intentar guardar en estructura anidada primero
-      db.collection(`clientes/${municipio}/patrullas`).doc(patrullaDocId).update({
+      // Update GPS location in correct client-specific collection
+      // IMPORTANTE: Incluir emergencia para que Centro de Control lo vea correctamente
+      const updateData = {
         lat: latitude,
         lng: longitude,
         online: true,
+        emergencia: emergencia,
         speed: speed,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      }).catch(() => {
-        // Si no existe en anidada, intentar colección global
-        db.collection(`patrullas_${municipio}`).doc(patrullaDocId).update({
-          lat: latitude,
-          lng: longitude,
-          online: true,
-          speed: speed,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(e => console.warn('⚠️ Error:', e));
-      });
+      };
+
+      if (!clienteId) {
+        console.error(`❌ ERROR CRÍTICO: clienteId no está definido! municipio=${municipio}, patrullaId=${patrullaId}`);
+        return;
+      }
+
+      // Use clienteId to ensure correct path: clientes/{clienteId}/patrullas/
+      db.collection(`clientes`).doc(clienteId).collection(`patrullas`).doc(patrullaDocId).set(updateData, { merge: true })
+        .then(() => {
+          console.log(`✅ Posición actualizada: ${patrullaDocId} en clientes/${clienteId}/patrullas (emergencia=${emergencia})`);
+        })
+        .catch(e => {
+          console.error(`❌ Error actualizando posición: ${e.message}. clienteId=${clienteId}, patrullaDocId=${patrullaDocId}`);
+        });
 
       if (myMarker) {
         myMarker.setLatLng([latitude, longitude]);
@@ -215,14 +243,17 @@ function startTracking() {
 // ESCUCHAR MENSAJES
 // ========================================
 function listenToMessages() {
-  const coleccion = `chat_${municipio}`;
+  // Normalizar municipio: "La Plata" → "laplata"
+  const municipioNorm = municipio.toLowerCase().replace(/\s+/g, '');
+  const coleccion = `chat_${municipioNorm}`;
+  console.log(`💬 Escuchando mensajes en: ${coleccion}`);
 
   db.collection(coleccion)
     .orderBy('timestamp', 'desc')
     .onSnapshot(() => {
       renderMessages();
     }, (error) => {
-      console.warn('⚠️ Error:', error);
+      console.warn('⚠️ Error escuchando mensajes:', error);
     });
 }
 
@@ -231,7 +262,9 @@ function listenToMessages() {
 // ========================================
 async function renderMessages() {
   const container = document.getElementById('messages-container');
-  const coleccion = `chat_${municipio}`;
+  // Normalizar municipio: "La Plata" → "laplata"
+  const municipioNorm = municipio.toLowerCase().replace(/\s+/g, '');
+  const coleccion = `chat_${municipioNorm}`;
   
   try {
     const snapshot = await db.collection(coleccion)
@@ -240,6 +273,8 @@ async function renderMessages() {
 
     let messages = [];
     const patrullaIdNorm = (patrullaId || '').toUpperCase();
+
+    console.log(`📨 renderMessages: patrullaId=${patrullaId}, patrullaIdNorm=${patrullaIdNorm}, total docs=${snapshot.size}`);
 
     snapshot.forEach((doc) => {
       const data = doc.data();
@@ -251,11 +286,14 @@ async function renderMessages() {
       const isBroadcast = data.type === 'broadcast';
 
       if (isFromPatrulla || isCentroToPatrulla || isBroadcast) {
+        console.log(`✅ Incluido: from=${data.from}, to=${data.to}, tipo=${data.type}`);
         messages.push({
           id: doc.id,
           ...data,
           timestamp: data.timestamp?.toDate(),
         });
+      } else {
+        console.log(`❌ Filtrado: from=${data.from}(${fromNorm}), to=${data.to}(${toNorm}), patrulla=${patrullaIdNorm}`);
       }
     });
 
@@ -323,7 +361,9 @@ async function enviarMensaje() {
 
   try {
     btn.classList.add('sending');
-    const coleccion = `chat_${municipio}`;
+    // Normalizar municipio: "La Plata" → "laplata"
+    const municipioNorm = municipio.toLowerCase().replace(/\s+/g, '');
+    const coleccion = `chat_${municipioNorm}`;
     
     const mensajeData = {
       from: patrullaId,
@@ -393,11 +433,14 @@ async function enviarMensaje() {
 async function toggleEmergencia() {
   try {
     emergencia = !emergencia;
-    const sanitizedPatrullaId = patrullaId.toUpperCase().replace(/[^A-Z0-9_]/g, '');
-    const patrullaDocId = `PATRULLA_${sanitizedPatrullaId}`;
+    // Extract number from patrullaId: "patrulla_070" → "070" → "PATRULLA_070"
+    const numMatch = patrullaId.match(/(\d+)$/);
+    const patrolNum = numMatch ? numMatch[1].padStart(3, '0') : patrullaId.replace(/[^0-9]/g, '').padStart(3, '0');
+    const patrullaDocId = `PATRULLA_${patrolNum}`;
     
-    // Intentar actualizar en estructura anidada
-    const ref = db.collection(`clientes/${municipio}/patrullas`).doc(patrullaDocId);
+    // Intentar actualizar en estructura anidada - USAR clienteId, NO municipio
+    console.log(`🔍 toggleEmergencia: usando clienteId=${clienteId}, patrullaDocId=${patrullaDocId}`);
+    const ref = db.collection(`clientes`).doc(clienteId).collection(`patrullas`).doc(patrullaDocId);
     const docSnap = await ref.get();
     
     if (!docSnap.exists) {
@@ -422,10 +465,13 @@ async function toggleEmergencia() {
 // ========================================
 async function updateStatus() {
   try {
-    const sanitizedPatrullaId = patrullaId.toUpperCase().replace(/[^A-Z0-9_]/g, '');
-    const patrullaDocId = `PATRULLA_${sanitizedPatrullaId}`;
+    // Extract number from patrullaId: "patrulla_070" → "070" → "PATRULLA_070"
+    const numMatch = patrullaId.match(/(\d+)$/);
+    const patrolNum = numMatch ? numMatch[1].padStart(3, '0') : patrullaId.replace(/[^0-9]/g, '').padStart(3, '0');
+    const patrullaDocId = `PATRULLA_${patrolNum}`;
     
-    const ref = db.collection(`clientes/${municipio}/patrullas`).doc(patrullaDocId);
+    // USAR clienteId, NO municipio
+    const ref = db.collection(`clientes`).doc(clienteId).collection(`patrullas`).doc(patrullaDocId);
     const doc = await ref.get();
 
     if (doc.exists) {
@@ -462,7 +508,8 @@ async function showSelectPatrullaModal() {
   select.innerHTML = '<option value="">-- Cargando --</option>';
 
   try {
-    const snapshot = await db.collection(`clientes/${municipio}/patrullas`).get();
+    // USAR clienteId, NO municipio
+    const snapshot = await db.collection(`clientes`).doc(clienteId).collection(`patrullas`).get();
 
     select.innerHTML = '<option value="">-- Selecciona patrulla --</option>';
 
@@ -643,7 +690,9 @@ function init() {
     document.getElementById('btn-clear-messages').addEventListener('click', async () => {
       if (confirm('¿Limpiar chat? Se eliminarán todas las fotos y mensajes.')) {
         try {
-          const coleccion = `chat_${municipio}`;
+          // Normalizar municipio: "La Plata" → "laplata"
+          const municipioNorm = municipio.toLowerCase().replace(/\s+/g, '');
+          const coleccion = `chat_${municipioNorm}`;
           const snapshot = await db.collection(coleccion).get();
           const batch = db.batch();
           let deleted = 0;

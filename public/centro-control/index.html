@@ -15,7 +15,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <!-- Patrulla Chat Module -->
-  <script src="../js/patrulla-chat.js?v=20260420001"></script>
+  <script src="../js/patrulla-chat.js?v=20260602002"></script>
 
   <style>
     * { box-sizing: border-box; }
@@ -333,6 +333,7 @@
     // ============================
     let userId = null;
     let municipio = null;
+    let clienteId = null;
     let map = null;
     let patrullas = new Map();
     let unsubscribe = null;
@@ -370,11 +371,16 @@
 
         const userData = userDoc.data();
         municipio = userData.municipio;
+        
+        // Obtener clienteId del usuario o generarlo desde el municipio
+        clienteId = userData.clienteId || municipio.toLowerCase().replace(/\s+/g, '');
+        
+        console.log(`📍 Centro de Control para municipio: ${municipio}, clienteId: ${clienteId}`);
 
         // Inicializar sistema de chat
         if (typeof PatrullaChat !== 'undefined') {
-          window.patullaChat = new PatrullaChat(db, municipio);
-          console.log(`💬 PatrullaChat inicializado para ${municipio}`);
+          window.patullaChat = new PatrullaChat(db, municipio, clienteId);
+          console.log(`💬 PatrullaChat inicializado para ${municipio} (${clienteId})`);
         }
 
         // Validar que sea centro-control
@@ -413,9 +419,10 @@
     // TRACKING
     // ============================
     function iniciarTracking() {
-      const coleccion = `patrullas_${municipio}`;
+      const coleccion = `clientes/${clienteId}/patrullas`;
+      console.log(`🔍 Iniciando tracking desde colección: ${coleccion}`);
       
-      unsubscribe = db.collection(coleccion)
+      unsubscribe = db.collection(`clientes`).doc(clienteId).collection(`patrullas`)
         .onSnapshot((snapshot) => {
           const patentesEnBD = new Set();
 
@@ -437,7 +444,10 @@
             }
           }
 
+          console.log(`📡 Snapshot recibido: ${snapshot.size} documentos en ${coleccion}`);
           actualizarUI();
+        }, (error) => {
+          console.error(`❌ Error en tracking: ${error.message}`);
         });
     }
 

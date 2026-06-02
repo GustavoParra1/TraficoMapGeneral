@@ -3,20 +3,23 @@
  * Sistema de mensajería en tiempo real entre patrullas y centro-control
  * 
  * Uso desde app.js o centro-control:
- * const chat = new PatrullaChat(db, municipio);
+ * const chat = new PatrullaChat(db, municipio, clienteId);
  * chat.sendMessage(fromPatrolla, toPatrolla, messageText);
  * chat.subscribeToMessages(patrollaId, callback);
  */
 
 class PatrullaChat {
-  constructor(firestore, municipio) {
+  constructor(firestore, municipio, clienteId = null) {
     this.db = firestore;
     this.municipio = municipio;
+    this.clienteId = clienteId || municipio.toLowerCase().replace(/\s+/g, '');
+    // Usar colección con formato: chat_{municipio} para mantener compatibilidad
+    // Pero internamente sabemos que pertenece a clienteId
     this.chatCollection = `chat_${municipio}`;
     this.subscriptions = new Map(); // { patentId: unsubscribe }
     this.messages = new Map(); // { patentId: [messages] }
     
-    console.log(`💬 PatrullaChat inicializado para ${municipio}`);
+    console.log(`💬 PatrullaChat inicializado para ${municipio} (${this.clienteId})`);
   }
 
   /**

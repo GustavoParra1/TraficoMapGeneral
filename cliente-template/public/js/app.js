@@ -60,8 +60,9 @@ function iniciarMapa() {
       // Inicializar módulo de patrullas
       try {
         if (typeof PatullaLayer !== 'undefined' && db) {
-          patullaLayer = new PatullaLayer(map, currentCity, db);
-          console.log('✅ Módulo de patrullas inicializado');
+          const clienteId = window.CONFIG?.id || window.CONFIG?.cliente_id || 'template';
+          patullaLayer = new PatullaLayer(map, currentCity, db, clienteId);
+          console.log('✅ Módulo de patrullas inicializado para cliente:', clienteId);
         } else {
           console.warn('⚠️ PatullaLayer no disponible o db no inicializado');
         }
@@ -1667,6 +1668,25 @@ firebase.auth().onAuthStateChanged((user) => {
       }
 
       // ==========================================
+      // FUNCIONES DE UTILIDAD PARA PATRULLAS
+      // ==========================================
+      function actualizarEstadisticasPatrullas() {
+        const patrullasStats = document.getElementById('patrullas-stats');
+        if (!patrullasStats || !patullaLayer) return;
+
+        const total = patullaLayer.count();
+        const online = patullaLayer.countOnline();
+        const emergencia = patullaLayer.countEmergencia();
+
+        document.getElementById('patrullas-total-count').textContent = total;
+        document.getElementById('patrullas-online-count').textContent = online;
+        document.getElementById('patrullas-emergencia-count').textContent = emergencia;
+
+        patrullasStats.style.display = total > 0 ? 'block' : 'none';
+        console.log(`📊 Estadísticas patrullas: Total=${total}, Online=${online}, Emergencia=${emergencia}`);
+      }
+
+      // ==========================================
       // CONFIGURAR LISTENERS CON EVENT DELEGATION
       // ==========================================
       const filterMap = {
@@ -1682,6 +1702,23 @@ firebase.auth().onAuthStateChanged((user) => {
 
       // Usar delegación de eventos en el document para que funcione con elementos creados dinámicamente
       document.addEventListener('change', (e) => {
+        // ============ CHECKBOX DE PATRULLAS ============
+        if (e.target.id === 'patrullas-checkbox') {
+          console.log('🚓 Patrullas checkbox cambió:', e.target.checked);
+          if (patullaLayer) {
+            if (e.target.checked) {
+              patullaLayer.show();
+              console.log('✅ Patrullas mostradas');
+            } else {
+              patullaLayer.hide();
+              console.log('❌ Patrullas ocultadas');
+            }
+            // Actualizar estadísticas
+            actualizarEstadisticasPatrullas();
+          } else {
+            console.warn('⚠️ patullaLayer no inicializado');
+          }
+        }
         const allFilterIds = Object.keys(filterMap);
         if (allFilterIds.includes(e.target.id)) {
           const filterId = e.target.id;

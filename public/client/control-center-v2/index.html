@@ -552,10 +552,11 @@
           // Modo solo lectura para La Plata si no hay login
           municipio = 'laplata';
           console.warn('⚠️ No authenticated user. Modo solo lectura para La Plata.');
+          console.log('💬 Permitiendo envío de mensajes en modo lectura');
           setupControlCenter();
-          // Opcional: deshabilitar controles de chat y emergencia
-          document.querySelectorAll('.control-panel button, .patrulla-actions button').forEach(btn => btn.disabled = true);
-          document.getElementById('message-input').disabled = true;
+          // Permitir envío de mensajes incluso sin autenticación
+          // document.querySelectorAll('.control-panel button, .patrulla-actions button').forEach(btn => btn.disabled = true);
+          // document.getElementById('message-input').disabled = true;
         } else {
           console.log('✅ Authenticated user:', user.email);
           // Habilitar controles de chat y emergencia
@@ -667,7 +668,7 @@
     
     console.log(`📡 Escuchando patrullas en: ${ruta}`);
 
-    db.collection(ruta).onSnapshot((snapshot) => {
+    db.collection('clientes').doc(municipio).collection('patrullas').onSnapshot((snapshot) => {
       console.log(`📊 Snapshot recibido: ${snapshot.size} patrullas`);
       patrullas.clear();
 
@@ -675,6 +676,7 @@
       const patrullasUnificadas = new Map();
       snapshot.forEach((doc) => {
         const data = doc.data();
+        console.log(`🔎 Leyendo ${doc.id}: lat=${data.lat} (tipo: ${typeof data.lat}), lng=${data.lng} (tipo: ${typeof data.lng})`);
         // Normalizar: quitar prefijos y ceros a la izquierda, todo mayúsculas
         let num = doc.id.replace(/^(patrulla|PATRULLA)[_\-]?/i, '').replace(/^0+/, '').toUpperCase();
         if (!num) num = doc.id.toUpperCase();
@@ -926,6 +928,8 @@
     const patrollaId = document.getElementById('patrulla-select').value;
     const mensaje = document.getElementById('message-input').value.trim();
 
+    console.log(`📤 Intentando enviar: patrollaId=${patrollaId}, mensaje="${mensaje}"`);
+
     if (!patrollaId) {
       alert('Selecciona una patrulla');
       return;
@@ -940,10 +944,14 @@
       // Asegurar que selectedPatrolId está actualizado
       selectedPatrolId = patrollaId;
 
-      const coleccion = `chat_${municipio}`;
+      // Normalizar municipio
+      const municipioNorm = municipio.toLowerCase().replace(/\s+/g, '');
+      const coleccion = `chat_${municipioNorm}`;
+
+      console.log(`💾 Guardando en colección: ${coleccion}`);
 
       // Usar estructura plana igual a patrulla app
-      await db.collection(coleccion).add({
+      const docRef = await db.collection(coleccion).add({
         from: 'CENTRO_CONTROL',
         to: patrollaId,
         text: mensaje,
@@ -951,11 +959,12 @@
         read: false
       });
 
-      console.log(`✅ Mensaje enviado a ${patrollaId}`);
+      console.log(`✅ Mensaje enviado a ${patrollaId} con ID: ${docRef.id}`);
       document.getElementById('message-input').value = '';
+      renderMessages();  // Actualizar mensajes inmediatamente
     } catch (error) {
-      console.error('❌ Error:', error);
-      alert('Error enviando mensaje');
+      console.error('❌ Error enviando mensaje:', error);
+      alert('Error enviando mensaje: ' + error.message);
     }
   }
 
@@ -968,10 +977,14 @@
     }
 
     try {
-      const coleccion = `chat_${municipio}`;
+      // Normalizar municipio
+      const municipioNorm = municipio.toLowerCase().replace(/\s+/g, '');
+      const coleccion = `chat_${municipioNorm}`;
+
+      console.log(`📢 Enviando broadcast a: ${coleccion}`);
 
       // Usar estructura plana igual a patrulla app
-      await db.collection(coleccion).add({
+      const docRef = await db.collection(coleccion).add({
         from: 'CENTRO_CONTROL',
         to: 'all',
         text: mensaje,
@@ -980,12 +993,13 @@
         read: false
       });
 
-      console.log(`📢 Broadcast enviado`);
+      console.log(`✅ Broadcast enviado con ID: ${docRef.id}`);
       document.getElementById('message-input').value = '';
+      renderMessages();  // Actualizar mensajes
       alert('✅ Mensaje enviado a TODAS las patrullas');
     } catch (error) {
-      console.error('❌ Error:', error);
-      alert('Error enviando broadcast');
+      console.error('❌ Error enviando broadcast:', error);
+      alert('Error enviando broadcast: ' + error.message);
     }
   }
 

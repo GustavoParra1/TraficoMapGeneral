@@ -172,14 +172,22 @@ exports.crearPatrulaAdmin = functions.https.onCall(async (data, context) => {
     }
 
     // 3️⃣ Guardar en Firestore (estructura anidada: clientes/{clienteId}/patrullas/)
-    const patenteLimpia = (displayName || email).replace(/\W+/g, '').toUpperCase().substring(0, 20);
-    const patrnte = `PATRULLA_${patenteLimpia}`;
+    // Extraer número de patrulla limpiamente (preservar formato de numeración)
+    let numPatrulla = (displayName || email).replace(/\D/g, ''); // Extraer solo dígitos
+    if (!numPatrulla) {
+      numPatrulla = Math.random().toString(36).substring(7).toUpperCase().substring(0, 3);
+    }
+    
+    // Crear nombre formato PATRULLA_XXX con número limpio
+    const patenteLimpia = `PATRULLA_${numPatrulla.padStart(3, '0')}`; // Asegurar 3 dígitos: 70 → 070
+    const patrnte = patenteLimpia;
 
     const dataPatrulla = {
       uid: userPatrulla.uid,
       email: email,
       displayName: displayName || email,
       nombre: displayName || email,  // ✅ Para compatibilidad con cliente
+      numero: numPatrulla,  // ✅ Número sin formato
       usuario: email,  // ✅ Para compatibilidad con cliente
       password: password,  // ✅ Para compatibilidad con cliente
       online: false,
@@ -193,6 +201,7 @@ exports.crearPatrulaAdmin = functions.https.onCall(async (data, context) => {
       created_at: admin.firestore.FieldValue.serverTimestamp()
     };
 
+    // Guardar en colección de cliente (ÚNICA UBICACIÓN)
     try {
       await db.collection(`clientes/${clienteId}/patrullas`).doc(patrnte).set(dataPatrulla, { merge: true });
       console.log(`✅ Patrulla guardada en clientes/${clienteId}/patrullas:`, patrnte);
