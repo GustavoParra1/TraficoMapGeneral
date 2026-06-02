@@ -104,7 +104,8 @@ async function initializeFirebase() {
 
       const patrullaMatch = userEmail.match(/^patrulla_([a-zA-Z0-9]+)@seguridad\.com$/);
       if (patrullaMatch) {
-        patrullaId = `patrulla_${patrullaMatch[1]}`;
+        const numPadrino = patrullaMatch[1].padStart(3, '0');
+        patrullaId = `PATRULLA_${numPadrino}`;
         localStorage.setItem('patrullaId', patrullaId);
         setTimeout(() => {
           document.getElementById('patrulla-id').textContent = `📱 ${patrullaId}`;
@@ -246,14 +247,20 @@ function listenToMessages() {
   // Normalizar municipio: "La Plata" → "laplata"
   const municipioNorm = municipio.toLowerCase().replace(/\s+/g, '');
   const coleccion = `chat_${municipioNorm}`;
-  console.log(`💬 Escuchando mensajes en: ${coleccion}`);
+  console.log(`💬 listenToMessages() INICIADO`);
+  console.log(`   municipio: ${municipio}`);
+  console.log(`   coleccion: ${coleccion}`);
+  console.log(`   patrullaId: ${patrullaId}`);
 
   db.collection(coleccion)
     .orderBy('timestamp', 'desc')
-    .onSnapshot(() => {
+    .onSnapshot((snapshot) => {
+      console.log(`📡 onSnapshot DISPARADO: ${snapshot.size} documentos en ${coleccion}`);
       renderMessages();
     }, (error) => {
-      console.warn('⚠️ Error escuchando mensajes:', error);
+      console.error('❌ Error CRÍTICO en listenToMessages:', error);
+      console.error('   code:', error.code);
+      console.error('   message:', error.message);
     });
 }
 
@@ -298,9 +305,12 @@ async function renderMessages() {
     });
 
     if (messages.length === 0) {
+      console.log(`⚠️ No hay mensajes que mostrar (total snapshot: ${snapshot.size})`);
       container.innerHTML = '<div class="empty-messages">Sin mensajes</div>';
       return;
     }
+
+    console.log(`✅ Mostrando ${messages.length} mensajes en la UI`);
 
     container.innerHTML = '';
 
@@ -570,7 +580,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 function init() {
   if (isInitialized) return;
 
+  console.log(`🔍 init() VERIFICANDO estado inicial:`);
+  console.log(`   - municipio: ${municipio}`);
+  console.log(`   - patrullaId: ${patrullaId}`);
+  console.log(`   - db: ${db ? 'OK' : 'NO'}`);
+  console.log(`   - auth: ${auth ? 'OK' : 'NO'}`);
+
+  if (!municipio || !patrullaId) {
+    console.warn(`⏳ init() POSTPONIENDO: esperando municipio y patrullaId...`);
+    setTimeout(() => init(), 500);  // Retry en 500ms
+    return;
+  }
+
   try {
+    console.log(`✅ init(): Inicializando app`);
     initMap();
     listenToMessages();
     updateStatus();
