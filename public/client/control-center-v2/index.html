@@ -566,8 +566,8 @@
           const idTokenResult = await user.getIdTokenResult();
           const userCity = idTokenResult.claims.city;
           if (userCity) {
-            municipio = userCity;
-            console.log(`📍 Ciudad del usuario (custom claim): ${municipio}`);
+            municipio = normalizeCityId(userCity);
+            console.log(`📍 Ciudad del usuario (custom claim): ${userCity} → ${municipio}`);
           } else {
             // Fallback a localStorage si viene del mapa global
             console.log('🔍 Buscando en localStorage...');
@@ -575,7 +575,7 @@
             console.log('📦 localStorage.getItem("selectedCity"):', storedCity);
             console.log('📦 Tipo:', typeof storedCity);
             if (storedCity) {
-              municipio = storedCity.replace(/-/g, '');
+              municipio = normalizeCityId(storedCity);
               console.log(`📍 Ciudad del localStorage: ${storedCity} → ${municipio}`);
             } else {
               municipio = 'mardelplata';
@@ -603,6 +603,14 @@
   let municipio = null;  // Se establece después de autenticación
   let selectedPatrolId = null;  // Patrulla seleccionada para chat
   let selectedPatrulla = null;
+
+  function normalizeCityId(cityValue) {
+    return String(cityValue || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '');
+  }
 
   // Coordenadas y bounding box de cada ciudad
   const CITY_COORDS = {
@@ -738,7 +746,7 @@
       .forEach((p) => {
         const estado = p.emergencia ? 'emergencia' : (p.online ? 'online' : 'offline');
         const estadoTexto = p.emergencia ? '🚨 EMERGENCIA' : (p.online ? '✅ En línea' : '❌ Offline');
-        let numPatrulla = p.id.replace(/(patrulla|PATRULLA)[_\-]*/gi, '');
+        let numPatrulla = p.id.replace(/^PATRULLA[_-]?/i, '').replace(/^0+/, '').toUpperCase();
         if (!numPatrulla.trim()) numPatrulla = p.id;
 
         // Validar si está dentro del bounding box de la ciudad
@@ -778,7 +786,7 @@
     // Mostrar solo una opción por número de patrulla unificado
     const numerosUnicos = new Set();
     Array.from(patrullas.values()).forEach((p) => {
-      let num = p.id.replace(/^(patrulla|PATRULLA)[_\-]?/i, '').replace(/^0+/, '').toUpperCase();
+      let num = p.id.replace(/^PATRULLA[_-]?/i, '').replace(/^0+/, '').toUpperCase();
       if (!num) num = p.id.toUpperCase();
       if (!numerosUnicos.has(num)) {
         if (!select.querySelector(`option[data-num="${num}"]`)) {
@@ -816,21 +824,14 @@
 
     patrullas.forEach((p) => {
       console.log('[DEBUG] Patrulla para mapa:', p.id, p);
-      if (!p.lat || !p.lng) {
+      if (typeof p.lat !== 'number' || typeof p.lng !== 'number') {
         console.warn(`⚠️ ${p.id} sin coordenadas`, p);
         return;
       }
 
-      // Validar si está dentro del bounding box de la ciudad
-      const bounds = CITY_BOUNDS[municipio] || [-90, 90, -180, 180];
-      let lat = p.lat;
-      let lng = p.lng;
-      if (lat < bounds[0] || lat > bounds[1] || lng < bounds[2] || lng > bounds[3]) {
-        console.warn(`[ADVERTENCIA] Patrulla ${p.id} fuera del área de la ciudad (${lat},${lng})`);
-        return;
-      }
-
-      const numPatrulla = p.id.replace(/^(patrulla|PATRULLA)[_-]/, '');
+      const lat = p.lat;
+      const lng = p.lng;
+      const numPatrulla = p.id.replace(/^PATRULLA[_-]?/i, '').replace(/^0+/, '').toUpperCase();
       console.log(`[DEBUG] Dibujando patrulla ${p.id} en lat=${lat}, lng=${lng}`);
 
       let bgColor = '#3b82f6';
@@ -877,7 +878,7 @@
       })
         .bindPopup(`
           <div style="font-size:13px; font-family: Arial;">
-            <b style="font-size:14px; color:#667eea;">📍 ${p.id}</b><br>
+            <b style="font-size:14px; color:#667eea;">📍 ${numPatrulla}</b><br>
             <div style="margin: 6px 0; padding: 6px 0; border-top: 1px solid #e0e0e0;">
               Estado: ${p.emergencia ? '<span style=\"color:#ef4444;\">🚨 EMERGENCIA</span>' : (p.online ? '<span style=\"color:#10b981;\">✅ En línea</span>' : '<span style=\"color:#64748b;\">❌ Offline</span>')}<br>
               Coordenadas: ${lat?.toFixed(5)}, ${lng?.toFixed(5)}<br>
@@ -904,7 +905,7 @@
 
   function zoomAlPatrulla(patrollaId) {
     const p = patrullas.get(patrollaId);
-    if (p && p.lat && p.lng) {
+    if (p && typeof p.lat === 'number' && typeof p.lng === 'number') {
       map.setView([p.lat, p.lng], 16);
     }
   }

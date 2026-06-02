@@ -1,48 +1,34 @@
-﻿const admin = require("firebase-admin");
-const serviceAccount = require("./service-account.json");
+﻿import admin from "firebase-admin";
+import { readFileSync } from "fs";
+const serviceAccount = JSON.parse(readFileSync("./serviceAccountKey.json", "utf8"));
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-}
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 const db = admin.firestore();
+const auth = admin.auth();
 
-async function checkPatrullas() {
-  const cities = ["mardelplata", "cordoba"];
-  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+async function run() {
+  console.log("--- Patrullas in clientes/laplata/patrullas ---");
+  const patrullasSnapshot = await db.collection("clientes/laplata/patrullas").get();
+  patrullasSnapshot.forEach(doc => {
+    const data = doc.data();
+    console.log("ID: " + doc.id + ", DisplayName: " + (data.displayName || data.nombre || "N/A"));
+  });
 
-  for (const city of cities) {
-    console.log(`--- Checking patrullas_${city} ---`);
-    const snapshot = await db.collection(`patrullas_${city}`)
-      .where("online", "==", true)
-      .limit(3)
-      .get();
-
-    if (snapshot.empty) {
-      console.log(`No active patrols (online=true) found in patrullas_${city}.`);
-      continue;
+  console.log("\n--- Auth User Search ---");
+  const emailToFind = "patrulla_070@seguridad.com";
+  try {
+    const userRecord = await auth.getUserByEmail(emailToFind);
+    console.log("Found User: " + userRecord.uid + ", Email: " + userRecord.email);
+  } catch (error) {
+    if (error.code === "auth/user-not-found") {
+      console.log("User with email " + emailToFind + " not found in Auth.");
+    } else {
+      console.error("Error fetching user:", error);
     }
-
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const lastUpdate = data.timestamp ? data.timestamp.toDate() : "N/A";
-      const isRecent = lastUpdate !== "N/A" && lastUpdate > fiveMinutesAgo;
-      
-      console.log(`Document ID: ${doc.id}`);
-      console.log(`  Lat: ${data.lat}, Lng: ${data.lng}, Speed: ${data.speed}, Online: ${data.online}`);
-      console.log(`  Last Update: ${lastUpdate} ${isRecent ? "(RECENT)" : "(OLD)"}`);
-      
-      if (!data.lat || !data.lng || data.speed === undefined || data.online !== true) {
-         console.warn("  WARNING: Document missing required fields or online is not true.");
-      }
-    });
   }
-  process.exit(0);
 }
 
-checkPatrullas().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+run().then(() => process.exit()).catch(err => { console.error(err); process.exit(1); });

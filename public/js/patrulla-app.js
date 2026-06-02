@@ -632,6 +632,14 @@ function init() {
       btn.style.display = 'none';
     });
 
+    // AUTO-INICIAR TRACKING
+    console.log('🚀 Auto-iniciando GPS tracking...');
+    const btn = document.getElementById('btn-start-tracking');
+    btn.disabled = true;
+    btn.textContent = '⏳ Conectando...';
+    startTracking();
+    btn.style.display = 'none';
+
     document.getElementById('btn-clear-messages').addEventListener('click', async () => {
       if (confirm('¿Limpiar chat? Se eliminarán todas las fotos y mensajes.')) {
         try {

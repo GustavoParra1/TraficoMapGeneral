@@ -161,6 +161,9 @@ class ClientDashboard {
         const ciudadId = (this.clientData.municipio || this.clientData.nombre || 'laplata').toLowerCase();
         const clienteId = this.clientData.id || this.clientData.nombre;
         
+        // Normalizar nombre a solo número (remover PATRULLA, prefijos, pero MANTENER números)
+        const nombreNormalizado = nombre.replace(/^(patrulla|PATRULLA)[_-]?/i, '').toUpperCase().trim();
+        
         console.log(`🚀 Llamando Cloud Function crearPatrulaAdmin para: ${usuario}`);
         
         // Obtener Cloud Functions desde cliente Firebase general
@@ -169,7 +172,7 @@ class ClientDashboard {
         const resultado = await crearPatrulaFunc({
           email: usuario,
           password: password,
-          displayName: nombre,
+          displayName: nombreNormalizado,
           ciudadId: ciudadId,
           clienteId: clienteId
         });
