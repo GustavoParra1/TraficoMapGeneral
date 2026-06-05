@@ -190,43 +190,38 @@ class ClientDashboard {
     }
 
     async guardarOperarioFirestore({ nombre, usuario, password }) {
-      const clientId = this.clientData && this.clientData.id;
-      console.log('[guardarOperarioFirestore] clientData:', this.clientData);
-      if (!clientId) {
-        console.error('❌ [guardarOperarioFirestore] clientId indefinido:', this.clientData);
-        alert('Error: No se pudo identificar el cliente. Vuelve a iniciar sesión.');
+      // Crear usuario operario vía Cloud Function callable (crea cuenta en Firebase Auth)
+      try {
+        const ciudadId = (this.clientData.municipio || this.clientData.nombre || 'laplata').toLowerCase();
+        const clienteId = this.clientData.id || this.clientData.nombre;
+
+        if (!clienteId) {
+          console.error('❌ [guardarOperarioFirestore] clienteId indefinido:', this.clientData);
+          alert('Error: No se pudo identificar el cliente. Vuelve a iniciar sesión.');
+          return;
+        }
+
+        console.log(`🚀 Llamando Cloud Function crearOperarioAdmin para: ${usuario}`);
+
+        const crearOperarioFunc = firebase.functions().httpsCallable('crearOperarioAdmin');
+
+        const resultado = await crearOperarioFunc({
+          email: usuario,
+          password: password,
+          displayName: nombre,
+          ciudadId: ciudadId,
+          clienteId: clienteId
+        });
+
+        console.log(`✅ Operario creado exitosamente:`, resultado.data);
+      } catch (e) {
+        console.error('❌ Error creando usuario operario:', e);
+        alert('Error creando operario: ' + (e.message || e));
         return;
       }
-      const ref = firebase.firestore().collection(`clientes/${clientId}/operarios`);
-      try {
-        const result = await ref.add({ nombre, usuario, password, created_at: new Date() });
-        console.log(`✅ Operario guardado: ${nombre} (${usuario})`, result);
-        // Recargar lista tras guardar
-        this.cargarOperariosFirestore().then(operarios => {
-          const lista = document.getElementById('listaOperarios');
-          if (lista) lista.innerHTML = '';
-          if (!operarios || operarios.length === 0) {
-            const aviso = document.createElement('div');
-            aviso.className = 'alert alert-warning';
-            aviso.innerHTML = 'No se encontraron operarios guardados.';
-            lista.appendChild(aviso);
-          } else {
-            operarios.forEach(o => {
-              this.agregarOperarioInput(o ? o.nombre : "");
-              if (o) {
-                const li = lista.lastElementChild;
-                li.querySelector('input').value = o.nombre;
-                li.querySelector('input').disabled = true;
-                li.querySelector('.generar-btn').disabled = true;
-                li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${o.usuario} <b>Pass:</b> ${o.password}`;
-              }
-            });
-          }
-        });
-      } catch (e) {
-        console.error('❌ Error guardando operario:', e);
-        alert('Error guardando operario: ' + e.message);
-      }
+
+      // Operario ya fue guardado en Firestore por la Cloud Function
+      console.log(`✅ Operario guardado en Firestore por Cloud Function: ${nombre}`);
     }
 
     async cargarPatrullasFirestore() {
@@ -252,35 +247,6 @@ class ClientDashboard {
       const ref = firebase.firestore().collection(`clientes/${clientId}/operarios`);
       const snap = await ref.get();
       return snap.docs.map(doc => doc.data());
-    }
-
-    agregarOperarioInput(valor = "") {
-      const lista = document.getElementById('listaOperarios');
-      if (!lista) return;
-      const li = document.createElement('li');
-      li.className = 'list-group-item d-flex align-items-center gap-2';
-      li.innerHTML = `
-        <input type="text" class="form-control form-control-sm operario-input" placeholder="Nombre operario" value="${valor}" style="max-width:180px;">
-        <button class="btn btn-sm btn-primary generar-btn">Generar</button>
-        <span class="credenciales ms-2"></span>
-      `;
-      li.querySelector('.generar-btn').onclick = async () => {
-        const nombre = li.querySelector('input').value.trim();
-        if (!nombre) return;
-        const usuario = `operario_${nombre.replace(/\W+/g,'').toLowerCase()}`;
-        const password = Math.random().toString(36).slice(-8);
-        li.querySelector('.credenciales').innerHTML = `<b>Usuario:</b> ${usuario} <b>Pass:</b> ${password}`;
-        li.querySelector('input').disabled = true;
-        li.querySelector('.generar-btn').disabled = true;
-        // Guardar en Firestore
-        await this.guardarOperarioFirestore({ nombre, usuario, password });
-        // Agrega un nuevo input automáticamente si es el último
-        if (li.parentElement.lastElementChild === li) this.agregarOperarioInput();
-      };
-      lista.appendChild(li);
-      setTimeout(() => {
-        li.querySelector('input').focus();
-      }, 100);
     }
 
     // ========== EDITAR PATRULLA ==========
