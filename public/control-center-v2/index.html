@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎛️ Control de Patrullas - TraficoMap</title>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+    }
+
+    .dashboard {
+      display: flex;
+      height: 100vh;
+      gap: 0;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 300px;
+      background: #1e293b;
+      border-right: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      color: #e2e8f0;
+    }
+
+    .sidebar-header {
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-bottom: 1px solid #334155;
+      flex: 0 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sidebar-header h2 {
+      margin: 0;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .sidebar-header .btn-logout {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .sidebar-header .btn-logout:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 12px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .stat-box .value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #60a5fa;
+      margin: 4px 0;
+    }
+
+    .stat-box.emergencia .value {
+      color: #ef4444;
+    }
+
+    .stat-box.online .value {
+      color: #10b981;
+    }
+
+    /* PATRULLAS LIST */
+    .patrullas-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .patrulla-card {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .patrulla-card:hover {
+      background: #1e293b;
+      border-color: #475569;
+      transform: translateX(4px);
+    }
+
+    .patrulla-card.online {
+      border-left: 4px solid #10b981;
+    }
+
+    .patrulla-card.emergencia {
+      border-left: 4px solid #ef4444;
+      background: rgba(239, 68, 68, 0.05);
+    }
+
+    .patrulla-card.offline {
+      border-left: 4px solid #64748b;
+      opacity: 0.6;
+    }
+
+    .patrulla-name {
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .patrulla-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .patrulla-status-dot.online {
+      background: #10b981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+    }
+
+    .patrulla-status-dot.offline {
+      background: #64748b;
+    }
+
+    .patrulla-status-dot.emergencia {
+      background: #ef4444;
+      animation: pulse 0.6s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .patrulla-info {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+
+    .patrulla-actions {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .patrulla-actions button {
+      flex: 1;
+      padding: 6px 8px;
+      font-size: 11px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #334155;
+      color: #e2e8f0;
+      transition: all 0.2s;
+    }
+
+    .patrulla-actions button:hover {
+      background: #475569;
+    }
+
+    .patrulla-actions button.emergencia {
+      background: #ef4444;
+      color: white;
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    #map {
+      flex: 1;
+      background: #0f172a;
+    }
+
+    /* CONTROL PANEL */
+    .control-panel {
+      background: #1e293b;
+      border-top: 1px solid #334155;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .control-input {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .control-input label {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .control-input input,
+    .control-input select {
+      padding: 8px;
+      border: 1px solid #334155;
+      border-radius: 4px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: 12px;
+    }
+
+    .control-buttons {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #94a3b8;
+    }
+
+    /* CHAT MESSAGES */
+    .chat-panel {
+      background: #1e293b;
+      border-top: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      height: 200px;
+      flex: 0 0 200px;
+    }
+
+    .chat-header {
+      padding: 10px 12px;
+      border-bottom: 1px solid #334155;
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: bold;
+    }
+
+    #messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .message {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      max-width: 90%;
+      word-wrap: break-word;
+    }
+
+    .message.incoming {
+      background: #334155;
+      color: #e2e8f0;
+      align-self: flex-start;
+      border-left: 3px solid #667eea;
+    }
+
+    .message.outgoing {
+      background: #10b981;
+      color: white;
+      align-self: flex-start;
+      border-left: 3px solid #059669;
+    }
+
+    .message.broadcast {
+      background: #f59e0b;
+      color: white;
+      align-self: center;
+      text-align: center;
+      max-width: 95%;
+    }
+
+    .message-content {
+      margin-bottom: 2px;
+    }
+
+    .message-meta {
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    .empty-messages {
+      color: #64748b;
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+    }
+
+    /* PATROL MARKERS */
+    .emoji-marker,
+    .patrol-marker-icon,
+    .my-patrol-marker {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .emoji-marker img,
+    .patrol-marker-icon img,
+    .my-patrol-marker img {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="dashboard">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>🎛️ Control Centro</h2>
+      <button class="btn-logout" onclick="logout()" title="Cerrar sesión">Salir</button>
+    </div>
+
+    <div class="sidebar-content">
+      <!-- Estadísticas -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div>Total</div>
+          <div class="value" id="stat-total">0</div>
+        </div>
+        <div class="stat-box online">
+          <div>Online</div>
+          <div class="value" id="stat-online">0</div>
+        </div>
+        <div class="stat-box emergencia">
+          <div>Emergencia</div>
+          <div class="value" id="stat-emergencia">0</div>
+        </div>
+        <div class="stat-box">
+          <div>Offline</div>
+          <div class="value" id="stat-offline">0</div>
+        </div>
+      </div>
+
+      <!-- Patrullas -->
+      <div id="patrullas-list" class="patrullas-list">
+        <div class="loading">Cargando patrullas...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div id="map"></div>
+
+    <!-- CHAT MESSAGES -->
+    <div class="chat-panel">
+      <div class="chat-header">💬 Mensajes en Tiempo Real</div>
+      <div id="messages-container">
+        <div class="empty-messages">Sin mensajes</div>
+      </div>
+    </div>
+
+    <!-- CONTROL PANEL -->
+    <div class="control-panel">
+      <div class="control-input">
+        <label>Enviar a</label>
+        <select id="patrulla-select">
+          <option value="">-- Selecciona patrulla --</option>
+        </select>
+      </div>
+
+      <div class="control-input">
+        <label>Mensaje</label>
+        <input type="text" id="message-input" placeholder="Escribe tu mensaje...">
+      </div>
+
+      <div class="control-buttons">
+        <button class="btn-primary" id="btn-send">Enviar</button>
+        <button class="btn-success" id="btn-broadcast">📢 Broadcast</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ========================================
+  // FIREBASE CONFIG - Cargar desde config.json
+  // ========================================
+  let firebaseConfig = null;
+  let db = null;
+  let auth = null;
+
+  async function initializeFirebase() {
+    try {
+      // Cargar configuración desde config.json
+      const response = await fetch('../config.json');
+      const config = await response.json();
+      firebaseConfig = config.firebase;
+
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+
+      db = firebase.firestore();
+      auth = firebase.auth();
+
+      console.log('✅ Firebase initialized for control center');
+
+      // Verificar autenticación
+      auth.onAuthStateChanged(async (user) => {
+        if (!user) {
+          console.warn('⚠️ No authenticated user. Redirecting to login...');
+          window.location.href = '/login.html';
+        } else {
+          console.log('✅ Authenticated user:', user.email);
+          
+          // Obtener el custom claim 'city' del usuario
+          const idTokenResult = await user.getIdTokenResult();
+          const userCity = idTokenResult.claims.city;
+          
+          if (userCity) {
+            municipio = userCity;
+            console.log(`📍 Ciudad del usuario (custom claim): ${municipio}`);
+          } else {
+            // Fallback a localStorage si viene del mapa global
+            console.log('🔍 Buscando en localStorage...');
+            const storedCity = localStorage.getItem('selectedCity');
+            console.log('📦 localStorage.getItem("selectedCity"):', storedCity);
+            console.log('📦 Tipo:', typeof storedCity);
+            if (storedCity) {
+              // Las colecciones en Firestore están sin guiones
+              municipio = storedCity.replace(/-/g, '');
+              console.log(`📍 Ciudad del localStorage: ${storedCity} → ${municipio}`);
+            } else {
+              // Por defecto mardelplata
+              municipio = 'mardelplata';
+              console.warn('⚠️ No se encontró city en custom claims ni localStorage, usando mardelplata');
+            }
+          }
+          
+          // Iniciar la aplicación
+          setupControlCenter();
+        }
+      });
+    } catch (error) {
+      console.error('❌ Firebase initialization error:', error);
+      alert('Error al inicializar Firebase. Por favor recarga la página.');
+    }
+  }
+
+  // Inicializar Firebase al cargar
+  initializeFirebase();
+
+  // ========================================
+  // VARIABLES GLOBALES
+  // ========================================
+  let map = null;
+  let patrullas = new Map();
+  let markers = []; // Para guardar referencias de marcadores
+  let municipio = null;  // Se establece después de autenticación
+  let selectedPatrolId = null;  // Patrulla seleccionada para chat
+  let selectedPatrulla = null;
+
+  // Coordenadas de cada ciudad
+  const CITY_COORDS = {
+    'mardelplata': [-38.0, -57.55],
+    'cordoba': [-31.4201, -64.1888],
+    'laplata': [-34.9213, -57.9460],
+    'sanmartindelmmar': [-38.05, -57.6],
+    'mendoza': [-32.8895, -68.8458]
+  };
+
+  // ========================================
+  // SETUP CONTROL CENTER
+  // ========================================
+  function setupControlCenter() {
+    initMap();
+    listenToPatrullas();
+    listenToMessages();
+    setupUIControls();
+  }
+
+  // ========================================
+  // INICIALIZAR MAPA
+  // ========================================
+  function initMap() {
+    // Obtener coordenadas basadas en la ciudad
+    const coords = CITY_COORDS[municipio] || [-38.0, -57.55];
+    console.log(`🗺️ Inicializando mapa para ${municipio} con coordenadas: ${coords}`);
+    
+    map = L.map('map').setView(coords, 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 19
+    }).addTo(map);
+
+    console.log('✅ Mapa inicializado');
+  }
+
+  // ========================================
+  // ESCUCHAR PATRULLAS EN TIEMPO REAL
+  // ========================================
+  function listenToPatrullas() {
+    // Asegurar que no haya guiones en el nombre de la colección
+    const municipioSinGuiones = municipio.replace(/-/g, '');
+    const coleccion = `patrullas_${municipioSinGuiones}`;
+    
+    console.log(`📡 Escuchando patrullas en: ${coleccion}`);
+
+    db.collection(coleccion).onSnapshot((snapshot) => {
+      console.log(`📊 Snapshot recibido: ${snapshot.size} patrullas`);
+      patrullas.clear();
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        console.log(`✅ ${doc.id}: lat=${data.lat}, lng=${data.lng}, online=${data.online}`);
+        
+        patrullas.set(doc.id, {
+          id: doc.id,
+          ...data
+        });
+      });
+
+      console.log(`🔄 Actualizando UI con ${patrullas.size} patrullas`);
+      actualizarUI();
+    }, (error) => {
+      console.error('❌ Error escuchando patrullas:', error);
+    });
+  }
+
+  // ========================================
+  // ACTUALIZAR UI
+  // ========================================
+  function actualizarUI() {
+    actualizarEstadisticas();
+    actualizarListaPatrullas();
+    actualizarSelectPatrullas();
+    actualizarMapa();
+  }
+
+  function actualizarEstadisticas() {
+    let total = 0;
+    let online = 0;
+    let emergencia = 0;
+    let offline = 0;
+
+    patrullas.forEach((p) => {
+      total++;
+      if (p.emergencia) {
+        emergencia++;
+      } else if (p.online) {
+        online++;
+      } else {
+        offline++;
+      }
+    });
+
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-online').textContent = online;
+    document.getElementById('stat-emergencia').textContent = emergencia;
+    document.getElementById('stat-offline').textContent = offline;
+  }
+
+  function actualizarListaPatrullas() {
+    const lista = document.getElementById('patrullas-list');
+    
+    if (patrullas.size === 0) {
+      lista.innerHTML = '<div class="loading">Sin patrullas</div>';
+      return;
+    }
+
+    lista.innerHTML = '';
+
+    Array.from(patrullas.values())
+      .sort((a, b) => (b.online ? 1 : -1))
+      .forEach((p) => {
+        const estado = p.emergencia ? 'emergencia' : (p.online ? 'online' : 'offline');
+        const estadoTexto = p.emergencia ? '🚨 EMERGENCIA' : (p.online ? '✅ En línea' : '❌ Offline');
+        // Extraer número de patrulla (patrulla-01 → 01, PATRULLA_01 → 01)
+        const numPatrulla = p.id.replace(/^(patrulla|PATRULLA)[_-]/, '');
+
+        const card = document.createElement('div');
+        card.className = `patrulla-card ${estado}`;
+        card.innerHTML = `
+          <div class="patrulla-name">
+            <div class="patrulla-status-dot ${estado}"></div>
+            <span>${numPatrulla}</span>
+          </div>
+          <div class="patrulla-info">${estadoTexto}</div>
+          <div class="patrulla-info">📍 ${p.lat?.toFixed(4)}, ${p.lng?.toFixed(4)}</div>
+          <div class="patrulla-info">⚡ ${(p.speed * 3.6)?.toFixed(0)} km/h</div>
+          <div class="patrulla-actions">
+            <button onclick="enviarAlPatrulla('${p.id}')">Enviar</button>
+            <button onclick="zoomAlPatrulla('${p.id}')">📍 Zoom</button>
+            ${!p.online ? '' : `<button class="emergencia" onclick="toggleEmergencia('${p.id}')">🚨</button>`}
+          </div>
+        `;
+        lista.appendChild(card);
+      });
+  }
+
+  function actualizarSelectPatrullas() {
+    const select = document.getElementById('patrulla-select');
+    const opcionesActuales = new Set();
+
+    Array.from(patrullas.keys()).forEach((id) => {
+      if (!select.querySelector(`option[value="${id}"]`)) {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = id;
+        select.appendChild(option);
+      }
+      opcionesActuales.add(id);
+    });
+
+    // Remover opciones que ya no existen
+    Array.from(select.options).forEach((option) => {
+      if (option.value && !opcionesActuales.has(option.value)) {
+        option.remove();
+      }
+    });
+  }
+
+  function actualizarMapa() {
+    // Limpiar marcadores anteriores
+    markers.forEach((marker) => {
+      if (map.hasLayer(marker)) {
+        map.removeLayer(marker);
+      }
+    });
+    markers = [];
+
+    console.log(`📍 Actualizando mapa con ${patrullas.size} patrullas`);
+
+    patrullas.forEach((p) => {
+      if (!p.lat || !p.lng) {
+        console.warn(`⚠️ ${p.id} sin coordenadas`);
+        return;
+      }
+
+      // Extraer número de patrulla (patrulla-01 → 01, PATRULLA_01 → 01)
+      const numPatrulla = p.id.replace(/^(patrulla|PATRULLA)[_-]/, '');
+
+      // Determinar color según estado
+      let bgColor = '#3b82f6'; // azul - en línea
+      let borderColor = '#1e40af';
+      let textColor = 'white';
+      
+      if (p.emergencia) {
+        bgColor = '#ef4444'; // rojo - emergencia
+        borderColor = '#dc2626';
+      } else if (!p.online) {
+        bgColor = '#64748b'; // gris - offline
+        borderColor = '#475569';
+      }
+
+      // Crear ícono personalizado con número de patrulla
+      const icon = L.divIcon({
+        html: `
+          <div style="
+            width: 45px;
+            height: 45px;
+            background: ${bgColor};
+            border: 3px solid ${borderColor};
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: ${textColor};
+            font-weight: bold;
+            font-size: 18px;
+            font-family: Arial, sans-serif;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            transform: scale(1);
+          ">
+            ${numPatrulla}
+          </div>
+        `,
+        iconSize: [45, 45],
+        iconAnchor: [22, 22],
+        popupAnchor: [0, -22],
+        className: 'patrol-marker-icon'
+      });
+
+      // Crear marker y agregarlo al mapa
+      const marker = L.marker([p.lat, p.lng], {
+        icon: icon,
+        title: p.id
+      })
+        .bindPopup(`
+          <div style="font-size:13px; font-family: Arial;">
+            <b style="font-size:14px; color:#667eea;">📍 ${p.id}</b><br>
+            <div style="margin: 6px 0; padding: 6px 0; border-top: 1px solid #e0e0e0;">
+              Estado: ${p.emergencia ? '<span style="color:#ef4444;">🚨 EMERGENCIA</span>' : (p.online ? '<span style="color:#10b981;">✅ En línea</span>' : '<span style="color:#64748b;">❌ Offline</span>')}<br>
+              Coordenadas: ${p.lat?.toFixed(5)}, ${p.lng?.toFixed(5)}<br>
+              Velocidad: ${(p.speed * 3.6).toFixed(0)} km/h<br>
+            </div>
+            <button style="width:100%; margin-top:8px; padding:8px; background:#667eea; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;" onclick="zoomAlPatrulla('${p.id}')">📍 Zoom a Patrulla</button>
+          </div>
+        `)
+        .addTo(map);
+
+      markers.push(marker);
+    });
+
+    console.log(`✅ Mapa actualizado con ${markers.length} marcadores`);
+  }
+
+  // ========================================
+  // ACCIONES
+  // ========================================
+  function enviarAlPatrulla(patrollaId) {
+    document.getElementById('patrulla-select').value = patrollaId;
+    document.getElementById('message-input').focus();
+  }
+
+  function zoomAlPatrulla(patrollaId) {
+    const p = patrullas.get(patrollaId);
+    if (p && p.lat && p.lng) {
+      map.setView([p.lat, p.lng], 16);
+    }
+  }
+
+  async function toggleEmergencia(patrollaId) {
+    const p = patrullas.get(patrollaId);
+    if (!p) return;
+
+    const municipioSinGuiones = municipio.replace(/-/g, '');
+    const coleccion = `patrullas_${municipioSinGuiones}`;
+    await db.collection(coleccion).doc(patrollaId).update({
+      emergencia: !p.emergencia,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+
+  async function enviarMensaje() {
+    const patrollaId = document.getElementById('patrulla-select').value;
+    const mensaje = document.getElementById('message-input').value.trim();
+
+    if (!patrollaId) {
+      alert('Selecciona una patrulla');
+      return;
+    }
+
+    if (!mensaje) {
+      alert('Escribe un mensaje');
+      return;
+    }
+
+    try {
+      // Asegurar que selectedPatrolId está actualizado
+      selectedPatrolId = patrollaId;
+
+      const coleccion = `chat_${municipio}`;
+
+      // Usar estructura plana igual a patrulla app
+      await db.collection(coleccion).add({
+        from: 'CENTRO_CONTROL',
+        to: patrollaId,
+        text: mensaje,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        read: false
+      });
+
+      console.log(`✅ Mensaje enviado a ${patrollaId}`);
+      document.getElementById('message-input').value = '';
+    } catch (error) {
+      console.error('❌ Error:', error);
+      alert('Error enviando mensaje');
+    }
+  }
+
+  async function enviarBroadcast() {
+    const mensaje = document.getElementById('message-input').value.trim();
+
+    if (!mensaje) {
+      alert('Escribe un mensaje');
+      return;
+    }
+
+    try {
+      const coleccion = `chat_${municipio}`;
+
+      // Usar estructura plana igual a patrulla app
+      await db.collection(coleccion).add({
+        from: 'CENTRO_CONTROL',
+        to: 'all',
+        text: mensaje,
+        type: 'broadcast',
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        read: false
+      });
+
+      console.log(`📢 Broadcast enviado`);
+      document.getElementById('message-input').value = '';
+      alert('✅ Mensaje enviado a TODAS las patrullas');
+    } catch (error) {
+      console.error('❌ Error:', error);
+      alert('Error enviando broadcast');
+    }
+  }
+
+  // ========================================
+  // ESCUCHAR MENSAJES EN TIEMPO REAL
+  // ========================================
+  function listenToMessages() {
+    const coleccion = `chat_${municipio}`;
+
+    // Escuchar TODOS los mensajes
+    db.collection(coleccion)
+      .orderBy('timestamp', 'desc')
+      .onSnapshot((snapshot) => {
+        renderMessages();
+      }, (error) => {
+        console.warn('⚠️ Error escuchando mensajes:', error);
+      });
+
+    console.log('✅ Escuchando mensajes en tiempo real');
+  }
+
+  // ========================================
+  // RENDERIZAR MENSAJES
+  // ========================================
+  async function renderMessages() {
+    const container = document.getElementById('messages-container');
+    const coleccion = `chat_${municipio}`;
+
+    try {
+      // Obtener TODOS los mensajes sin filtros
+      const snapshot = await db.collection(coleccion)
+        .orderBy('timestamp', 'asc')
+        .limit(50)
+        .get();
+
+      let allMessages = [];
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const msg = {
+          id: doc.id,
+          ...data,
+          timestamp: data.timestamp?.toDate(),
+        };
+
+        // Filtrar mensajes según si hay patrulla seleccionada
+        let mostrarMensaje = false;
+        const isBroadcast = data.type === 'broadcast';
+
+        if (!selectedPatrolId) {
+          // Sin patrulla seleccionada: mostrar solo broadcasts
+          mostrarMensaje = isBroadcast;
+        } else {
+          // Con patrulla seleccionada: mostrar conversación 1-a-1 Y broadcasts
+          const esDeEstaPatrulla = data.from === selectedPatrolId || data.to === selectedPatrolId;
+          mostrarMensaje = esDeEstaPatrulla || isBroadcast;
+        }
+
+        if (mostrarMensaje) {
+          allMessages.push(msg);
+        }
+      });
+
+      // Ordenar por timestamp
+      allMessages.sort((a, b) => a.timestamp - b.timestamp);
+
+      if (allMessages.length === 0) {
+        if (!selectedPatrolId) {
+          container.innerHTML = '<div class="empty-messages">Selecciona una patrulla para ver la conversación</div>';
+        } else {
+          container.innerHTML = '<div class="empty-messages">Sin mensajes</div>';
+        }
+        return;
+      }
+
+      container.innerHTML = '';
+
+      allMessages.forEach((msg) => {
+        const isBroadcast = msg.type === 'broadcast';
+        const isFromCentro = msg.from === 'CENTRO_CONTROL';
+
+        const div = document.createElement('div');
+        div.className = `message ${isBroadcast ? 'broadcast' : (isFromCentro ? 'outgoing' : 'incoming')}`;
+
+        const timeStr = msg.timestamp
+          ? msg.timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+          : '--:--';
+
+        let fromText = msg.from;
+        if (isBroadcast) {
+          fromText = '📢 BROADCAST';
+        } else if (isFromCentro) {
+          fromText = '🎛️ Yo';
+        }
+
+        div.innerHTML = `
+          <div class="message-content">${msg.text}</div>
+          <div class="message-meta">${fromText} · ${timeStr}</div>
+        `;
+
+        container.appendChild(div);
+      });
+
+      // Auto-scroll a último
+      container.scrollTop = container.scrollHeight;
+    } catch (error) {
+      console.error('Error renderizando mensajes:', error);
+    }
+  }
+
+  // ========================================
+  // SETUP UI CONTROLS
+  // ========================================
+  function setupUIControls() {
+    // Event listeners para botones
+    const sendBtn = document.getElementById('btn-send');
+    const broadcastBtn = document.getElementById('btn-broadcast');
+    const messageInput = document.getElementById('message-input');
+    const patrollaSelect = document.getElementById('patrulla-select');
+
+    if (sendBtn) sendBtn.addEventListener('click', enviarMensaje);
+    if (broadcastBtn) broadcastBtn.addEventListener('click', enviarBroadcast);
+
+    if (messageInput) {
+      messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          enviarMensaje();
+        }
+      });
+    }
+
+    // Listener para cambio de patrulla
+    if (patrollaSelect) {
+      patrollaSelect.addEventListener('change', (e) => {
+        selectedPatrolId = e.target.value || null;
+        console.log(`📱 Patrulla seleccionada: ${selectedPatrolId || 'Ninguna'}`);
+        renderMessages();  // Actualizar mensajes cuando cambia la patrulla
+      });
+    }
+
+    console.log('✅ UI Controls setup complete');
+  }
+
+  // ========================================
+  // LOGOUT
+  // ========================================
+  function logout() {
+    if (confirm('¿Cerrar sesión en esta ventana?')) {
+      console.log('🚪 Cerrando ventana de control-center');
+      // Solo cerrar esta ventana sin afectar otras ventanas
+      window.close();
+      // Si no se puede cerrar (popup bloqueado), redirigir al login
+      setTimeout(() => {
+        window.location.href = '/login.html';
+      }, 500);
+    }
+  }
+
+  // ========================================
+  // INIT
+  // ========================================
+  document.addEventListener('DOMContentLoaded', () => {
+    // setupControlCenter() se ejecuta después de que Firebase se autentifique
+    console.log('✅ Centro de Control DOM loaded');
+  });
+</script>
+
+</body>
+</html>
