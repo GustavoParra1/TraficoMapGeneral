@@ -132,11 +132,15 @@ const AuthManager = (() => {
      * Obtener rol del usuario actual
      */
     async getUserRole(email) {
-      if (!currentUser) return null;
+      // En login.html el listener está desactivado, por lo que la variable
+      // currentUser puede estar vacía. Usar auth.currentUser como respaldo
+      // para poder leer los custom claims tras iniciar sesión.
+      const user = currentUser || (auth && auth.currentUser);
+      if (!user) return null;
       
       // Primero intentar obtener el rol desde custom claims de Firebase
       try {
-        const idTokenResult = await currentUser.getIdTokenResult(true); // Force refresh para obtener claims más recientes
+        const idTokenResult = await user.getIdTokenResult(true); // Force refresh para obtener claims más recientes
         console.log('🔍 Custom claims encontrados:', idTokenResult.claims);
         
         // Soportar ambos: "role" (legacy) y "rol" (multitenant)
@@ -155,7 +159,7 @@ const AuthManager = (() => {
       
       // Fallback: usar email patterns
       for (const [role, matcher] of Object.entries(ROLE_PATTERNS)) {
-        if (matcher(email || currentUser.email)) {
+        if (matcher(email || user.email)) {
           return role;
         }
       }

@@ -458,10 +458,32 @@ console.log('🔐 Verificación de autenticación - Modo cliente:', isClientMode
 
 // Require authentication to access main map (excepto en modo cliente)
 if (!isClientMode) {
-  auth.onAuthStateChanged((user) => {
+  auth.onAuthStateChanged(async (user) => {
     if (!user) {
       console.warn('⚠️ No authenticated user. Redirecting to login...');
       window.location.href = '/login.html';
+      return;
+    }
+
+    // Verificar ROL: el mapa global es solo para admin/super_admin.
+    // Los demás roles (operario, patrulla, operador) se redirigen a su panel.
+    try {
+      const idTokenResult = await user.getIdTokenResult();
+      const role = idTokenResult.claims.role || idTokenResult.claims.rol || null;
+      console.log('🔐 Rol detectado en mapa global:', role);
+
+      const roleRedirects = {
+        'operario': '/client/control-center-v2/index.html',
+        'patrulla': '/patrulla-app/index.html',
+        'operador': '/control-center-v2/index.html'
+      };
+
+      if (roleRedirects[role]) {
+        console.warn(`⛔ Rol "${role}" sin acceso al mapa global. Redirigiendo a ${roleRedirects[role]}`);
+        window.location.href = roleRedirects[role];
+      }
+    } catch (error) {
+      console.warn('⚠️ No se pudo verificar el rol:', error.message);
     }
   });
 } else {
