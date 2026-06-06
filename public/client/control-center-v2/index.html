@@ -551,6 +551,7 @@
         if (!user) {
           // Modo solo lectura para La Plata si no hay login
           municipio = 'laplata';
+          clienteId = 'laplata';
           console.warn('⚠️ No authenticated user. Modo solo lectura para La Plata.');
           console.log('💬 Permitiendo envío de mensajes en modo lectura');
           setupControlCenter();
@@ -563,9 +564,10 @@
           document.querySelectorAll('.control-panel button, .patrulla-actions button').forEach(btn => btn.disabled = false);
           const messageInput = document.getElementById('message-input');
           if (messageInput) messageInput.disabled = false;
-          // Obtener el custom claim 'city' del usuario
+          // Obtener los custom claims 'city' y 'cliente_id' del usuario
           const idTokenResult = await user.getIdTokenResult();
           const userCity = idTokenResult.claims.city;
+          const userClienteId = idTokenResult.claims.cliente_id;
           if (userCity) {
             municipio = normalizeCityId(userCity);
             console.log(`📍 Ciudad del usuario (custom claim): ${userCity} → ${municipio}`);
@@ -583,6 +585,10 @@
               console.warn('⚠️ No se encontró city en custom claims ni localStorage, usando mardelplata');
             }
           }
+          // El ID del documento del cliente puede diferir de la ciudad (ej: cordoba-1780623502).
+          // Usar cliente_id real para la ruta de patrullas; fallback a municipio (caso La Plata).
+          clienteId = userClienteId || municipio;
+          console.log(`🏢 Cliente ID para ruta de patrullas: ${clienteId}`);
           setupControlCenter();
         }
       });
@@ -601,7 +607,8 @@
   let map = null;
   let patrullas = new Map();
   let markers = []; // Para guardar referencias de marcadores
-  let municipio = null;  // Se establece después de autenticación
+  let municipio = null;  // Ciudad (para chat, coords y bounds). Se establece después de autenticación
+  let clienteId = null;  // ID real del documento cliente (para la ruta clientes/{clienteId}/patrullas)
   let selectedPatrolId = null;  // Patrulla seleccionada para chat
   let selectedPatrulla = null;
 
@@ -663,12 +670,13 @@
   // ESCUCHAR PATRULLAS EN TIEMPO REAL
   // ========================================
   function listenToPatrullas() {
-    // Usar estructura anidada: clientes/{municipio}/patrullas/
-    const ruta = `clientes/${municipio}/patrullas`;
+    // Usar estructura anidada: clientes/{clienteId}/patrullas/
+    // clienteId es el ID real del documento (puede diferir de la ciudad).
+    const ruta = `clientes/${clienteId}/patrullas`;
     
     console.log(`📡 Escuchando patrullas en: ${ruta}`);
 
-    db.collection('clientes').doc(municipio).collection('patrullas').onSnapshot((snapshot) => {
+    db.collection('clientes').doc(clienteId).collection('patrullas').onSnapshot((snapshot) => {
       console.log(`📊 Snapshot recibido: ${snapshot.size} patrullas`);
       patrullas.clear();
 

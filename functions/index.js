@@ -230,6 +230,110 @@ exports.crearPatrulaAdmin = functions.https.onCall(async (data, context) => {
 });
 
 // ============================================================================
+// CREAR OPERARIO (callable - sin CORS) — espejo de crearPatrulaAdmin
+// ============================================================================
+/**
+ * Crear usuario operario vía Cloud Function callable (sin problemas CORS).
+ * Crea la cuenta en Firebase Auth, asigna claims (role: operario) y guarda
+ * en la estructura anidada clientes/{clienteId}/operarios.
+ * Se llama desde el panel cliente con:
+ *   firebase.functions().httpsCallable('crearOperarioAdmin')
+ */
+exports.crearOperarioAdmin = functions.https.onCall(async (data, context) => {
+  try {
+    const {
+      email,
+      password,
+      displayName = '',
+      ciudadId = '',
+      clienteId = ''
+    } = data || {};
+
+    // Validación
+    if (!email || !password) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email y password son requeridos');
+    }
+    if (!clienteId) {
+      throw new functions.https.HttpsError('invalid-argument', 'clienteId es requerido');
+    }
+
+    console.log(`🚀 [crearOperarioAdmin] Creando usuario operario: ${email} para cliente: ${clienteId}`);
+
+    // 1️⃣ Crear usuario en Firebase Auth
+    let userOperario;
+    try {
+      userOperario = await auth.createUser({
+        email: email,
+        password: password,
+        displayName: displayName || email,
+        disabled: false
+      });
+
+      console.log(`✅ Usuario operario creado en Auth: ${email} (uid: ${userOperario.uid})`);
+    } catch (authError) {
+      if (authError.code === 'auth/email-already-exists') {
+        console.log(`⚠️ Email ya existe, obteniendo usuario existente...`);
+        userOperario = await auth.getUserByEmail(email);
+      } else {
+        throw authError;
+      }
+    }
+
+    // 2️⃣ Asignar custom claims (rol: operario, ciudad)
+    try {
+      await auth.setCustomUserClaims(userOperario.uid, {
+        role: 'operario',
+        rol: 'operario',
+        city: ciudadId || 'laplata',
+        cliente_id: clienteId
+      });
+      console.log(`✅ Custom claims asignados a operario: ${email}`);
+    } catch (claimsError) {
+      console.warn(`⚠️ Error asignando claims: ${claimsError.message}`);
+      // No fallar por esto, continuar
+    }
+
+    // 3️⃣ Guardar en Firestore (estructura anidada: clientes/{clienteId}/operarios/)
+    const dataOperario = {
+      uid: userOperario.uid,
+      email: email,
+      displayName: displayName || email,
+      nombre: displayName || email,  // ✅ Para compatibilidad con cliente
+      usuario: email,  // ✅ Para compatibilidad con cliente
+      password: password,  // ✅ Para compatibilidad con cliente
+      online: false,
+      estado: 'activo',
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      created_at: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+      await db.collection(`clientes/${clienteId}/operarios`).doc(userOperario.uid).set(dataOperario, { merge: true });
+      console.log(`✅ Operario guardado en clientes/${clienteId}/operarios:`, userOperario.uid);
+    } catch (firestoreError) {
+      console.warn(`⚠️ Error guardando en Firestore: ${firestoreError.message}`);
+      // No fallar por esto, el usuario está creado en Auth
+    }
+
+    // RESPUESTA
+    return {
+      success: true,
+      operario: {
+        uid: userOperario.uid,
+        email: email,
+        displayName: displayName || email,
+        coleccion: `clientes/${clienteId}/operarios`
+      },
+      mensaje: `Operario "${displayName || email}" creado exitosamente`
+    };
+
+  } catch (error) {
+    console.error('❌ Error en crearOperarioAdmin:', error);
+    throw error;
+  }
+});
+
+// ============================================================================
 // FUNCIÓN 1: CREAR CLIENTE (callable - sin CORS)
 // ============================================================================
 /**
@@ -1224,28 +1328,14 @@ function logOperacion(tipo, datos) {
 // ============================================================================
 exports.setCustomClaimsOnCreate = functions.auth.user().onCreate(async (user) => {
   const email = user.email || '';
-  let claims = {};
 
-  // Ejemplo: Si es patrulla de La Plata
-  if (email.endsWith('@seguridad.com')) {
-    // Extraer número de patrulla si aplica
-    const patrullaMatch = email.match(/patrulla_(\d+)/);
-    claims = {
-      role: 'patrulla',
-      rol: 'patrulla',
-      city: 'laplata',
-      cliente_id: 'laplata',
-      ...(patrullaMatch ? { patrulla: patrullaMatch[1] } : {})
-    };
-  }
-  // Puedes agregar más lógica para operarios, admins, etc.
-
-  if (Object.keys(claims).length > 0) {
-    await admin.auth().setCustomUserClaims(user.uid, claims);
-    console.log(`✅ Claims asignados automáticamente a ${email}`);
-  } else {
-    console.log(`ℹ️ Usuario creado sin claims automáticos: ${email}`);
-  }
+  // IMPORTANTE: Las cuentas de patrulla y operario se crean vía las Cloud
+  // Functions callable (crearPatrulaAdmin / crearOperarioAdmin), las cuales ya
+  // asignan los claims correctos (role, city, cliente_id) con la ciudad REAL
+  // del cliente. Este trigger NO debe pisar esos claims, porque antes forzaba
+  // role: 'patrulla' y city: 'laplata' a TODO email @seguridad.com, rompiendo
+  // el rol de los operarios y la ciudad de patrullas/operarios de otras ciudades.
+  console.log(`ℹ️ Usuario creado (${email}). Claims gestionados por las Cloud Functions callable.`);
 });
 
 
