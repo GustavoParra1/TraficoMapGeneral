@@ -1328,28 +1328,14 @@ function logOperacion(tipo, datos) {
 // ============================================================================
 exports.setCustomClaimsOnCreate = functions.auth.user().onCreate(async (user) => {
   const email = user.email || '';
-  let claims = {};
 
-  // Ejemplo: Si es patrulla de La Plata
-  if (email.endsWith('@seguridad.com')) {
-    // Extraer número de patrulla si aplica
-    const patrullaMatch = email.match(/patrulla_(\d+)/);
-    claims = {
-      role: 'patrulla',
-      rol: 'patrulla',
-      city: 'laplata',
-      cliente_id: 'laplata',
-      ...(patrullaMatch ? { patrulla: patrullaMatch[1] } : {})
-    };
-  }
-  // Puedes agregar más lógica para operarios, admins, etc.
-
-  if (Object.keys(claims).length > 0) {
-    await admin.auth().setCustomUserClaims(user.uid, claims);
-    console.log(`✅ Claims asignados automáticamente a ${email}`);
-  } else {
-    console.log(`ℹ️ Usuario creado sin claims automáticos: ${email}`);
-  }
+  // IMPORTANTE: Las cuentas de patrulla y operario se crean vía las Cloud
+  // Functions callable (crearPatrulaAdmin / crearOperarioAdmin), las cuales ya
+  // asignan los claims correctos (role, city, cliente_id) con la ciudad REAL
+  // del cliente. Este trigger NO debe pisar esos claims, porque antes forzaba
+  // role: 'patrulla' y city: 'laplata' a TODO email @seguridad.com, rompiendo
+  // el rol de los operarios y la ciudad de patrullas/operarios de otras ciudades.
+  console.log(`ℹ️ Usuario creado (${email}). Claims gestionados por las Cloud Functions callable.`);
 });
 
 

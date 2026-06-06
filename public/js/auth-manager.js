@@ -249,6 +249,7 @@ const AuthManager = (() => {
       const redirectMap = {
         'patrulla': '/patrulla-app/index.html',
         'operador': '/control-center-v2/index.html',
+        'operario': '/client/control-center-v2/index.html',
         'super_admin': '/index.html',
         'admin': '/admin',
         'cliente': '/client/'
