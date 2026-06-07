@@ -224,6 +224,56 @@ class ClientDashboard {
       console.log(`✅ Operario guardado en Firestore por Cloud Function: ${nombre}`);
     }
 
+    async guardarVecinoFirestore({ nombre, usuario, password, direccion, telefono }) {
+      // Crear usuario vecino vía Cloud Function callable (crea cuenta en Firebase Auth)
+      try {
+        const ciudadId = (this.clientData.municipio || this.clientData.nombre || 'laplata').toLowerCase();
+        const clienteId = this.clientData.id || this.clientData.nombre;
+        if (!clienteId) {
+          console.error('❌ [guardarVecinoFirestore] clienteId indefinido:', this.clientData);
+          alert('Error: No se pudo identificar el cliente. Vuelve a iniciar sesión.');
+          return;
+        }
+        console.log(`🚀 Llamando Cloud Function crearVecinoAdmin para: ${usuario}`);
+        const crearVecinoFunc = firebase.functions().httpsCallable('crearVecinoAdmin');
+        const resultado = await crearVecinoFunc({
+          email: usuario,
+          password: password,
+          displayName: nombre,
+          direccion: direccion || '',
+          telefono: telefono || '',
+          ciudadId: ciudadId,
+          clienteId: clienteId
+        });
+        console.log(`✅ Vecino creado exitosamente:`, resultado.data);
+      } catch (e) {
+        console.error('❌ Error creando usuario vecino:', e);
+        alert('Error creando vecino: ' + (e.message || e));
+        return;
+      }
+    }
+    async cargarVecinosFirestore() {
+      const clientId = this.clientData.id;
+      const ref = firebase.firestore().collection(`clientes/${clientId}/vecinos`);
+      const snap = await ref.get();
+      return snap.docs.map(doc => doc.data());
+    }
+    eliminarVecino(nombreVecino, liElement) {
+      if (!confirm(`¿Eliminar vecino "${nombreVecino}"?`)) return;
+      const clientId = this.clientData.id;
+      const ref = firebase.firestore().collection(`clientes/${clientId}/vecinos`);
+      ref.where('nombre', '==', nombreVecino).get().then(snap => {
+        if (snap.empty) return alert('Vecino no encontrado');
+        snap.docs[0].ref.delete().then(() => {
+          alert('✅ Vecino eliminado');
+          liElement.remove();
+        });
+      }).catch(e => {
+        alert('❌ Error: ' + e.message);
+      });
+    }
+
+
     async cargarPatrullasFirestore() {
       // Leer de la estructura anidada: clientes/{clienteId}/patrullas/
       const clientId = this.clientData.id || this.clientData.nombre;
@@ -357,6 +407,9 @@ class ClientDashboard {
           break;
         case 'cargar':
           this.showCargar();
+          break;
+       case 'vecinos':
+          this.showVecinos();
           break;
         case 'mapa':
           this.showMapa();
@@ -824,6 +877,93 @@ class ClientDashboard {
     // Adjuntar eventos
     this.attachUploadEvents();
     this.attachHelpEvents();
+  }
+
+   showVecinos() {
+    const content = document.getElementById('clientContent');
+    content.innerHTML = `
+      <div>
+        <h2 class="mb-4"><i class="bi bi-people"></i> Vecinos</h2>
+        <div class="alert alert-info mb-4">
+          <i class="bi bi-info-circle"></i> Crea cuentas de vecinos para que puedan enviar denuncias desde su celular.
+        </div>
+        <div class="card mb-3">
+          <div class="card-header bg-primary text-white">Alta de Vecino</div>
+          <div class="card-body">
+            <div class="row g-2 mb-3">
+              <div class="col-md-3">
+                <input type="text" id="vecinoNombre" class="form-control form-control-sm" placeholder="Nombre y apellido">
+              </div>
+              <div class="col-md-3">
+                <input type="text" id="vecinoDireccion" class="form-control form-control-sm" placeholder="Dirección">
+              </div>
+              <div class="col-md-3">
+                <input type="text" id="vecinoTelefono" class="form-control form-control-sm" placeholder="Teléfono">
+              </div>
+              <div class="col-md-3">
+                <button id="crearVecinoBtn" class="btn btn-success btn-sm w-100"><b>+</b> Crear Vecino</button>
+              </div>
+            </div>
+            <span id="vecinoCredenciales" class="d-block"></span>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-header bg-info text-white">Vecinos registrados</div>
+          <div class="card-body">
+            <ul id="listaVecinos" class="list-group"></ul>
+          </div>
+        </div>
+      </div>
+    `;
+    // Cargar lista de vecinos existentes
+    this.cargarVecinosFirestore().then(vecinos => {
+      const lista = document.getElementById('listaVecinos');
+      if (lista) lista.innerHTML = '';
+      if (!vecinos || vecinos.length === 0) {
+        const aviso = document.createElement('div');
+        aviso.className = 'alert alert-warning';
+        aviso.innerHTML = 'No se encontraron vecinos guardados.';
+        lista.appendChild(aviso);
+      } else {
+        vecinos.forEach(v => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item d-flex align-items-center justify-content-between';
+          li.innerHTML = `
+            <div style="flex:1;">
+              <b>${v.nombre}</b> — ${v.direccion || 's/dirección'} — ${v.telefono || 's/tel'}<br>
+              <small><b>Usuario:</b> ${v.usuario} <b>Pass:</b> ${v.password}</small>
+            </div>
+            <button class="btn btn-sm btn-danger delete-btn" title="Eliminar">🗑️</button>
+          `;
+          li.querySelector('.delete-btn').onclick = () => this.eliminarVecino(v.nombre, li);
+          lista.appendChild(li);
+        });
+      }
+    });
+    // Botón crear vecino
+    const btnCrear = document.getElementById('crearVecinoBtn');
+    if (btnCrear) {
+      btnCrear.onclick = async () => {
+        const nombre = document.getElementById('vecinoNombre').value.trim();
+        const direccion = document.getElementById('vecinoDireccion').value.trim();
+        const telefono = document.getElementById('vecinoTelefono').value.trim();
+        if (!nombre) {
+          alert('Ingresá al menos el nombre del vecino');
+          return;
+        }
+        const usuario = `vecino_${nombre.replace(/\W+/g, '').toLowerCase()}@seguridad.com`;
+        const password = Math.random().toString(36).slice(-8);
+        btnCrear.disabled = true;
+        btnCrear.textContent = 'Creando...';
+        await this.guardarVecinoFirestore({ nombre, usuario, password, direccion, telefono });
+        document.getElementById('vecinoCredenciales').innerHTML =
+          `<div class="alert alert-success mt-2"><b>Vecino creado.</b> Usuario: <code>${usuario}</code> · Pass: <code>${password}</code></div>`;
+        btnCrear.disabled = false;
+        btnCrear.textContent = '+ Crear Vecino';
+        // Recargar lista
+        this.showVecinos();
+      };
+    }
   }
 
   attachUploadEvents() {

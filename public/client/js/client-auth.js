@@ -226,6 +226,11 @@ class ClientAuth {
                   <i class="bi bi-cloud-upload"></i> Cargar Datos
                 </a>
               </li>
+               <li class="nav-item">
+                <a class="nav-link" href="#" data-page="vecinos">
+                  <i class="bi bi-people"></i> Vecinos
+                </a>
+              </li>
               <li class="nav-item">
                 <a class="nav-link" href="#" data-page="mapa">
                   <i class="bi bi-map"></i> Mapa
