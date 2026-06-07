@@ -950,19 +950,22 @@
           timestamp: data.timestamp?.toDate(),
         };
 
-        // Filtrar mensajes según si hay patrulla seleccionada
+      // Filtrar mensajes según si hay patrulla seleccionada
         let mostrarMensaje = false;
         const isBroadcast = data.type === 'broadcast';
-
+        // Normalizar IDs para comparar de forma tolerante (PATRULLA_35 ≈ PATRULLA_035)
+        const soloNum = (v) => (v || '').replace(/^(patrulla|PATRULLA)[_-]?/i, '').replace(/^0+/, '').toUpperCase();
+        const selNorm = soloNum(selectedPatrolId);
+        const fromNorm = soloNum(data.from);
+        const toNorm = soloNum(data.to);
         if (!selectedPatrolId) {
           // Sin patrulla seleccionada: mostrar solo broadcasts
           mostrarMensaje = isBroadcast;
         } else {
           // Con patrulla seleccionada: mostrar conversación 1-a-1 Y broadcasts
-          const esDeEstaPatrulla = data.from === selectedPatrolId || data.to === selectedPatrolId;
+          const esDeEstaPatrulla = fromNorm === selNorm || toNorm === selNorm;
           mostrarMensaje = esDeEstaPatrulla || isBroadcast;
         }
-
         if (mostrarMensaje) {
           allMessages.push(msg);
         }
