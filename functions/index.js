@@ -334,6 +334,102 @@ exports.crearOperarioAdmin = functions.https.onCall(async (data, context) => {
 });
 
 // ============================================================================
+// CREAR VECINO (callable) — espejo de crearOperarioAdmin
+// ============================================================================
+/**
+ * Crear usuario vecino vía Cloud Function callable.
+ * Crea la cuenta en Firebase Auth, asigna claims (role: vecino) y guarda
+ * en la estructura anidada clientes/{clienteId}/vecinos.
+ * Campos extra del vecino: nombre, direccion, telefono.
+ */
+exports.crearVecinoAdmin = functions.https.onCall(async (data, context) => {
+  try {
+    const {
+      email,
+      password,
+      displayName = '',
+      direccion = '',
+      telefono = '',
+      ciudadId = '',
+      clienteId = ''
+    } = data || {};
+    // Validación
+    if (!email || !password) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email y password son requeridos');
+    }
+    if (!clienteId) {
+      throw new functions.https.HttpsError('invalid-argument', 'clienteId es requerido');
+    }
+    console.log(`🚀 [crearVecinoAdmin] Creando usuario vecino: ${email} para cliente: ${clienteId}`);
+    // 1️⃣ Crear usuario en Firebase Auth
+    let userVecino;
+    try {
+      userVecino = await auth.createUser({
+        email: email,
+        password: password,
+        displayName: displayName || email,
+        disabled: false
+      });
+      console.log(`✅ Usuario vecino creado en Auth: ${email} (uid: ${userVecino.uid})`);
+    } catch (authError) {
+      if (authError.code === 'auth/email-already-exists') {
+        console.log(`⚠️ Email ya existe, obteniendo usuario existente...`);
+        userVecino = await auth.getUserByEmail(email);
+      } else {
+        throw authError;
+      }
+    }
+    // 2️⃣ Asignar custom claims (rol: vecino, ciudad)
+    try {
+      await auth.setCustomUserClaims(userVecino.uid, {
+        role: 'vecino',
+        rol: 'vecino',
+        city: ciudadId || 'laplata',
+        cliente_id: clienteId
+      });
+      console.log(`✅ Custom claims asignados a vecino: ${email}`);
+    } catch (claimsError) {
+      console.warn(`⚠️ Error asignando claims: ${claimsError.message}`);
+    }
+    // 3️⃣ Guardar en Firestore (estructura anidada: clientes/{clienteId}/vecinos/)
+    const dataVecino = {
+      uid: userVecino.uid,
+      email: email,
+      displayName: displayName || email,
+      nombre: displayName || email,
+      direccion: direccion,
+      telefono: telefono,
+      usuario: email,
+      password: password,
+      online: false,
+      estado: 'activo',
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      created_at: admin.firestore.FieldValue.serverTimestamp()
+    };
+    try {
+      await db.collection(`clientes/${clienteId}/vecinos`).doc(userVecino.uid).set(dataVecino, { merge: true });
+      console.log(`✅ Vecino guardado en clientes/${clienteId}/vecinos:`, userVecino.uid);
+    } catch (firestoreError) {
+      console.warn(`⚠️ Error guardando en Firestore: ${firestoreError.message}`);
+    }
+    // RESPUESTA
+    return {
+      success: true,
+      vecino: {
+        uid: userVecino.uid,
+        email: email,
+        displayName: displayName || email,
+        coleccion: `clientes/${clienteId}/vecinos`
+      },
+      mensaje: `Vecino "${displayName || email}" creado exitosamente`
+    };
+  } catch (error) {
+    console.error('❌ Error en crearVecinoAdmin:', error);
+    throw error;
+  }
+});
+
+// ============================================================================
 // FUNCIÓN 1: CREAR CLIENTE (callable - sin CORS)
 // ============================================================================
 /**
