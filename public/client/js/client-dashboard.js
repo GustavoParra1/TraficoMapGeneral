@@ -246,6 +246,19 @@ class ClientDashboard {
           clienteId: clienteId
         });
         console.log(`✅ Vecino creado exitosamente:`, resultado.data);
+        // Inicializar campos de suscripción (arranca BLOQUEADO hasta primer pago)
+        try {
+          const uid = resultado.data && resultado.data.vecino && resultado.data.vecino.uid;
+          if (uid) {
+            await firebase.firestore().collection(`clientes/${clienteId}/vecinos`).doc(uid).set({
+              habilitado: false,
+              habilitado_hasta: '',
+              monto: 15000
+            }, { merge: true });
+          }
+        } catch (subErr) {
+          console.warn('⚠️ No se pudieron inicializar campos de suscripción:', subErr);
+        }
       } catch (e) {
         console.error('❌ Error creando usuario vecino:', e);
         alert('Error creando vecino: ' + (e.message || e));
@@ -271,6 +284,119 @@ class ClientDashboard {
       }).catch(e => {
         alert('❌ Error: ' + e.message);
       });
+    }
+
+     // Devuelve true si el vecino está habilitado para el mes actual
+    vecinoHabilitado(v) {
+      if (!v.habilitado) return false;
+      const mesActual = new Date().toISOString().slice(0, 7); // "2026-06"
+      return v.habilitado_hasta === mesActual;
+    }
+    // Abre el modal de registro de pago
+    abrirModalPago(vecino) {
+      const mesActual = new Date().toISOString().slice(0, 7);
+      const montoDefault = vecino.monto || 15000;
+      // Crear modal dinámico
+      const modalHtml = `
+        <div class="modal fade" id="modalPago" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header" style="background:#667eea;color:white;">
+                <h5 class="modal-title">Registrar Pago — ${vecino.nombre}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label class="form-label">Mes</label>
+                  <input type="month" id="pagoMes" class="form-control" value="${mesActual}">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Monto ($)</label>
+                  <input type="number" id="pagoMonto" class="form-control" value="${montoDefault}">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Método de pago</label>
+                  <select id="pagoMetodo" class="form-select">
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Transferencia">Transferencia</option>
+                    <option value="Mercado Pago">Mercado Pago</option>
+                  </select>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="confirmarPagoBtn">Registrar y Habilitar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      // Insertar modal en el DOM (remover anterior si existe)
+      const prev = document.getElementById('modalPago');
+      if (prev) prev.remove();
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      const modalEl = document.getElementById('modalPago');
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+      document.getElementById('confirmarPagoBtn').onclick = async () => {
+        const mes = document.getElementById('pagoMes').value;
+        const monto = parseFloat(document.getElementById('pagoMonto').value) || 0;
+        const metodo = document.getElementById('pagoMetodo').value;
+        await this.registrarPago(vecino, mes, monto, metodo);
+        modal.hide();
+        this.showVecinos();
+      };
+    }
+    async registrarPago(vecino, mes, monto, metodo) {
+      try {
+        const clientId = this.clientData.id;
+        const vecinoRef = firebase.firestore().collection(`clientes/${clientId}/vecinos`).doc(vecino.uid);
+        // Guardar el pago en subcolección
+        await vecinoRef.collection('pagos').add({
+          mes: mes,
+          monto: monto,
+          metodo: metodo,
+          fecha: new Date(),
+          registrado_por: sessionStorage.getItem('email_acceso') || 'admin'
+        });
+        // Habilitar al vecino para ese mes y guardar el monto
+        await vecinoRef.set({
+          habilitado: true,
+          habilitado_hasta: mes,
+          monto: monto
+        }, { merge: true });
+        alert(`✅ Pago registrado. ${vecino.nombre} habilitado para ${mes}.`);
+      } catch (e) {
+        console.error('❌ Error registrando pago:', e);
+        alert('Error registrando pago: ' + e.message);
+      }
+    }
+
+     async verHistorialPagos(vecino) {
+      try {
+        const clientId = this.clientData.id;
+        const snap = await firebase.firestore()
+          .collection(`clientes/${clientId}/vecinos/${vecino.uid}/pagos`)
+          .get();
+        const pagos = snap.docs.map(d => d.data())
+          .sort((a, b) => {
+            const fa = a.fecha?.toMillis ? a.fecha.toMillis() : new Date(a.fecha).getTime();
+            const fb = b.fecha?.toMillis ? b.fecha.toMillis() : new Date(b.fecha).getTime();
+            return fb - fa;
+          });
+        let texto = `Historial de pagos — ${vecino.nombre}\n\n`;
+        if (pagos.length === 0) {
+          texto += 'Sin pagos registrados.';
+        } else {
+          pagos.forEach(p => {
+            const f = p.fecha?.toDate ? p.fecha.toDate().toLocaleDateString('es-AR') : new Date(p.fecha).toLocaleDateString('es-AR');
+            texto += `• ${p.mes} · $${p.monto} · ${p.metodo} · ${f}\n`;
+          });
+        }
+        alert(texto);
+      } catch (e) {
+        alert('Error cargando historial: ' + e.message);
+      }
     }
 
 
@@ -929,15 +1055,26 @@ class ClientDashboard {
         lista.appendChild(aviso);
       } else {
         vecinos.forEach(v => {
+          const habilitado = this.vecinoHabilitado(v);
+          const estadoBadge = habilitado
+            ? '<span class="badge bg-success">✅ Habilitado</span>'
+            : '<span class="badge bg-danger">⛔ Vencido</span>';
+          const hasta = v.habilitado_hasta ? ` (hasta ${v.habilitado_hasta})` : '';
           const li = document.createElement('li');
           li.className = 'list-group-item d-flex align-items-center justify-content-between';
           li.innerHTML = `
             <div style="flex:1;">
-              <b>${v.nombre}</b> — ${v.direccion || 's/dirección'} — ${v.telefono || 's/tel'}<br>
-              <small><b>Usuario:</b> ${v.usuario} <b>Pass:</b> ${v.password}</small>
+              <b>${v.nombre}</b> ${estadoBadge}${hasta} — ${v.direccion || 's/dirección'} — ${v.telefono || 's/tel'}<br>
+              <small><b>Usuario:</b> ${v.usuario} <b>Pass:</b> ${v.password} · <b>Monto:</b> $${v.monto || 15000}</small>
             </div>
-            <button class="btn btn-sm btn-danger delete-btn" title="Eliminar">🗑️</button>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-success pago-btn" title="Registrar pago">💲 Pago</button>
+              <button class="btn btn-sm btn-info historial-btn" title="Ver pagos">📋</button>
+              <button class="btn btn-sm btn-danger delete-btn" title="Eliminar">🗑️</button>
+            </div>
           `;
+          li.querySelector('.pago-btn').onclick = () => this.abrirModalPago(v);
+          li.querySelector('.historial-btn').onclick = () => this.verHistorialPagos(v);
           li.querySelector('.delete-btn').onclick = () => this.eliminarVecino(v.nombre, li);
           lista.appendChild(li);
         });
