@@ -406,6 +406,14 @@
       padding: 20px;
       font-size: 12px;
     }
+     .message-image {
+      max-width: 100%;
+      width: 200px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      display: block;
+      cursor: pointer;
+    }
 
     /* PATROL MARKERS */
     .emoji-marker,
@@ -1003,8 +1011,18 @@
           fromText = '🎛️ Yo';
         }
 
+        let contentHTML = '';
+        if (msg.hasImage && msg.imageUrl) {
+          contentHTML += `<img src="${msg.imageUrl}" alt="Foto" class="message-image" onclick="window.open('${msg.imageUrl}','_blank')">`;
+        }
+        if (msg.text) {
+          contentHTML += `<div class="message-content">${msg.text}</div>`;
+        }
+        if (!contentHTML) {
+          contentHTML = '<div class="message-content">[Foto]</div>';
+        }
         div.innerHTML = `
-          <div class="message-content">${msg.text}</div>
+          ${contentHTML}
           <div class="message-meta">${fromText} · ${timeStr}</div>
         `;
 
