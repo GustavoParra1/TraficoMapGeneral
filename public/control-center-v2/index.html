@@ -937,17 +937,17 @@
   // ========================================
   // RENDERIZAR MENSAJES
   // ========================================
-  async function renderMessages() {
+ async function renderMessages() {
     const container = document.getElementById('messages-container');
     const coleccion = `chat_${municipio}`;
-
+    console.log(`🔵 renderMessages INICIO: coleccion=${coleccion}, selectedPatrolId=${selectedPatrolId}`);
     try {
       // Obtener TODOS los mensajes sin filtros
       const snapshot = await db.collection(coleccion)
         .orderBy('timestamp', 'desc')
         .limit(50)
         .get();
-
+      console.log(`🔵 renderMessages: ${snapshot.size} documentos leídos de ${coleccion}`);
       let allMessages = [];
 
       snapshot.forEach((doc) => {
@@ -974,10 +974,12 @@
           const esDeEstaPatrulla = fromNorm === selNorm || toNorm === selNorm;
           mostrarMensaje = esDeEstaPatrulla || isBroadcast;
         }
+       console.log(`   doc: from=${data.from}, to=${data.to}, selNorm=${selNorm}, fromNorm=${fromNorm}, toNorm=${toNorm}, mostrar=${mostrarMensaje}`);
         if (mostrarMensaje) {
           allMessages.push(msg);
         }
       });
+      console.log(`🔵 renderMessages: ${allMessages.length} mensajes pasaron el filtro`);
 
       // Ordenar por timestamp
       allMessages.sort((a, b) => a.timestamp - b.timestamp);
