@@ -102,9 +102,13 @@ async function initializeFirebase() {
         return;
       }
 
-      const patrullaMatch = userEmail.match(/^patrulla_([a-zA-Z0-9]+)@seguridad\.com$/);
+       const patrullaMatch = userEmail.match(/^patrulla_([a-zA-Z0-9]+)@seguridad\.com$/);
       if (patrullaMatch) {
-        const numPadrino = patrullaMatch[1].padStart(3, '0');
+        // Extraer SOLO los dígitos del identificador (mdp001 → 001) para que el
+        // patrullaId coincida con el doc de Firestore (PATRULLA_001) y el chat
+        // funcione bidireccional con el control center.
+        const soloDigitos = patrullaMatch[1].replace(/\D/g, '') || patrullaMatch[1];
+        const numPadrino = soloDigitos.padStart(3, '0');
         patrullaId = `PATRULLA_${numPadrino}`;
         localStorage.setItem('patrullaId', patrullaId);
         setTimeout(() => {
