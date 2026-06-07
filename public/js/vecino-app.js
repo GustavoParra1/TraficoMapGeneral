@@ -40,13 +40,25 @@ async function initFirebase() {
       municipio = userCity;
       if (!clienteId) clienteId = MUNICIPIO_TO_ID[municipio] || municipio.toLowerCase().replace(/\s+/g, '');
       console.log(`📍 Ciudad: ${municipio}, clienteId: ${clienteId}`);
-      // Obtener nombre del vecino desde Firestore
+    // Obtener datos del vecino desde Firestore (nombre + estado de suscripción)
+      let datosVecino = null;
       try {
         const snap = await db.collection(`clientes/${clienteId}/vecinos`).where('email', '==', vecinoEmail).limit(1).get();
-        if (!snap.empty) vecinoNombre = snap.docs[0].data().nombre || vecinoEmail;
-        else vecinoNombre = vecinoEmail;
+        if (!snap.empty) {
+          datosVecino = snap.docs[0].data();
+          vecinoNombre = datosVecino.nombre || vecinoEmail;
+        } else {
+          vecinoNombre = vecinoEmail;
+        }
       } catch (e) { vecinoNombre = vecinoEmail; }
       document.querySelector('.app-header h1').textContent = `📢 ${vecinoNombre}`;
+      // Verificar suscripción: habilitado === true Y habilitado_hasta === mes actual
+      const mesActual = new Date().toISOString().slice(0, 7); // "2026-06"
+      const habilitado = datosVecino && datosVecino.habilitado === true && datosVecino.habilitado_hasta === mesActual;
+      if (!habilitado) {
+        bloquearApp();
+        return;
+      }
       cargarMisDenuncias();
     });
   } catch (e) {
@@ -181,6 +193,25 @@ async function enviarChat(denunciaId) {
   });
   input.value = '';
 }
+
+function bloquearApp() {
+  const cont = document.querySelector('.container');
+  if (cont) {
+    cont.innerHTML = `
+      <div class="card" style="text-align:center; border-top:4px solid #ef4444;">
+        <h2 style="color:#ef4444;">⛔ Suscripción vencida</h2>
+        <p style="margin:12px 0; color:#475569;">
+          Tu suscripción al servicio de denuncias no está activa para este mes.
+        </p>
+        <p style="color:#64748b; font-size:14px;">
+          Por favor contactá al municipio para regularizar el pago y volver a usar la app.
+        </p>
+      </div>
+    `;
+  }
+  console.warn('⛔ Vecino no habilitado — app bloqueada');
+} 
+
 function logout() {
   if (confirm('¿Cerrar sesión?')) { auth.signOut().then(() => window.location.href = '/login.html'); }
 }
