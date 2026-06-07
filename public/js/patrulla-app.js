@@ -245,7 +245,7 @@ function startTracking() {
 // ========================================
 function listenToMessages() {
   // Normalizar municipio: "La Plata" → "laplata"
-  const municipioNorm = municipio.toLowerCase().replace(/\s+/g, '');
+  const municipioNorm = municipio.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
   const coleccion = `chat_${municipioNorm}`;
   console.log(`💬 listenToMessages() INICIADO`);
   console.log(`   municipio: ${municipio}`);
@@ -270,7 +270,7 @@ function listenToMessages() {
 async function renderMessages() {
   const container = document.getElementById('messages-container');
   // Normalizar municipio: "La Plata" → "laplata"
-  const municipioNorm = municipio.toLowerCase().replace(/\s+/g, '');
+  const municipioNorm = municipio.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
   const coleccion = `chat_${municipioNorm}`;
   
   try {
@@ -353,6 +353,48 @@ async function renderMessages() {
 }
 
 // ========================================
+// PREVIEW DE FOTO EN INPUT AREA
+// ========================================
+function mostrarPreviewFoto(base64) {
+  // Eliminar preview anterior si existe
+  limpiarPreviewFoto();
+
+  const inputArea = document.querySelector('.message-input-area');
+  const preview = document.createElement('div');
+  preview.id = 'foto-preview';
+  preview.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #e0f2fe;
+    border-top: 1px solid #bae6fd;
+    animation: slideIn 0.2s ease-out;
+  `;
+  preview.innerHTML = `
+    <img src="${base64}" style="height:48px;width:48px;object-fit:cover;border-radius:6px;border:2px solid #0ea5e9;">
+    <span style="font-size:13px;color:#0369a1;flex:1;">📎 Foto adjunta — presioná ✈️ para enviar</span>
+    <button onclick="cancelarFoto()" style="
+      background:none;border:none;cursor:pointer;
+      font-size:18px;color:#ef4444;padding:2px 6px;
+    " title="Cancelar foto">✕</button>
+  `;
+  // Insertar ANTES del input area
+  inputArea.parentNode.insertBefore(preview, inputArea);
+}
+
+function limpiarPreviewFoto() {
+  const prev = document.getElementById('foto-preview');
+  if (prev) prev.remove();
+}
+
+function cancelarFoto() {
+  fotoSeleccionada = null;
+  limpiarPreviewFoto();
+  console.log('🚫 Foto cancelada');
+}
+
+// ========================================
 // ENVIAR MENSAJE
 // ========================================
 async function enviarMensaje() {
@@ -372,7 +414,7 @@ async function enviarMensaje() {
   try {
     btn.classList.add('sending');
     // Normalizar municipio: "La Plata" → "laplata"
-    const municipioNorm = municipio.toLowerCase().replace(/\s+/g, '');
+    const municipioNorm = municipio.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
     const coleccion = `chat_${municipioNorm}`;
     
     const mensajeData = {
@@ -402,9 +444,9 @@ async function enviarMensaje() {
       }
       const blob = new Blob([u8arr], { type: mime });
       
-      // Crear nombre único
+      // Crear nombre único (municipioNorm sin espacios para que Storage no falle)
       const timestamp = Date.now();
-      const filename = `chat_${municipio}/${patrullaId}_${timestamp}.jpg`;
+      const filename = `chat_${municipioNorm}/${patrullaId}_${timestamp}.jpg`;
       
       console.log(`📤 Subiendo a Storage: ${filename}`);
       const uploadTask = await storage.ref(filename).put(blob);
@@ -424,6 +466,7 @@ async function enviarMensaje() {
     
     input.value = '';
     fotoSeleccionada = null;
+    limpiarPreviewFoto();
     
     setTimeout(() => btn.classList.remove('sending'), 600);
     await renderMessages();
@@ -666,8 +709,9 @@ function init() {
             try {
               fotoSeleccionada = compressedBase64;
               console.log(`✅ Foto comprimida: ${compressedBase64.length} bytes`);
-              alert('📸 Foto lista. Escribe y haz clic en ✈️');
               e.target.value = '';
+              // Mostrar preview en lugar de alert
+              mostrarPreviewFoto(compressedBase64);
             } catch (err) {
               console.error('❌ Error en compresor:', err);
             }
@@ -714,7 +758,7 @@ function init() {
       if (confirm('¿Limpiar chat? Se eliminarán todas las fotos y mensajes.')) {
         try {
           // Normalizar municipio: "La Plata" → "laplata"
-          const municipioNorm = municipio.toLowerCase().replace(/\s+/g, '');
+          const municipioNorm = municipio.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
           const coleccion = `chat_${municipioNorm}`;
           const snapshot = await db.collection(coleccion).get();
           const batch = db.batch();

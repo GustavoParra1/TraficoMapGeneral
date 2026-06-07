@@ -615,16 +615,13 @@
   // ESCUCHAR PATRULLAS EN TIEMPO REAL
   // ========================================
   function listenToPatrullas() {
-    // Asegurar que no haya guiones en el nombre de la colección
-    const municipioSinGuiones = municipio.replace(/-/g, '');
-    const coleccion = `patrullas_${municipioSinGuiones}`;
-    
-    console.log(`📡 Escuchando patrullas en: ${coleccion}`);
-
-    db.collection(coleccion).onSnapshot((snapshot) => {
+    // Estructura anidada: clientes/{clienteId}/patrullas/ (mismo modelo que el panel cliente)
+    const clienteId = municipio.replace(/-/g, '');
+    const ruta = `clientes/${clienteId}/patrullas`;
+    console.log(`📡 Escuchando patrullas en: ${ruta}`);
+    db.collection('clientes').doc(clienteId).collection('patrullas').onSnapshot((snapshot) => {
       console.log(`📊 Snapshot recibido: ${snapshot.size} patrullas`);
       patrullas.clear();
-
       snapshot.forEach((doc) => {
         const data = doc.data();
         console.log(`✅ ${doc.id}: lat=${data.lat}, lng=${data.lng}, online=${data.online}`);
@@ -634,7 +631,6 @@
           ...data
         });
       });
-
       console.log(`🔄 Actualizando UI con ${patrullas.size} patrullas`);
       actualizarUI();
     }, (error) => {
@@ -835,13 +831,11 @@
     }
   }
 
-  async function toggleEmergencia(patrollaId) {
+   async function toggleEmergencia(patrollaId) {
     const p = patrullas.get(patrollaId);
     if (!p) return;
-
-    const municipioSinGuiones = municipio.replace(/-/g, '');
-    const coleccion = `patrullas_${municipioSinGuiones}`;
-    await db.collection(coleccion).doc(patrollaId).update({
+    const clienteId = municipio.replace(/-/g, '');
+    await db.collection('clientes').doc(clienteId).collection('patrullas').doc(patrollaId).update({
       emergencia: !p.emergencia,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
