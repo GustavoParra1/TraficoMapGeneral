@@ -936,7 +936,7 @@
     try {
       // Obtener TODOS los mensajes sin filtros
       const snapshot = await db.collection(coleccion)
-        .orderBy('timestamp', 'asc')
+        .orderBy('timestamp', 'desc')
         .limit(50)
         .get();
 
