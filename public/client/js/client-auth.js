@@ -232,6 +232,11 @@ class ClientAuth {
                 </a>
               </li>
               <li class="nav-item">
+                <a class="nav-link" href="#" data-page="denuncias">
+                  <i class="bi bi-megaphone"></i> Denuncias
+                </a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" href="#" data-page="mapa">
                   <i class="bi bi-map"></i> Mapa
                 </a>

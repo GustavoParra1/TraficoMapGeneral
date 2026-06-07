@@ -411,6 +411,9 @@ class ClientDashboard {
        case 'vecinos':
           this.showVecinos();
           break;
+        case 'denuncias':
+          this.abrirDenuncias();
+          break;
         case 'mapa':
           this.showMapa();
           break;
@@ -1519,8 +1522,12 @@ class ClientDashboard {
     const mapUrl = `/client/map.html?city=${encodeURIComponent(this.clientData.nombre)}&client=${encodeURIComponent(clientId)}`;
     window.open(mapUrl, 'proyectoMapa', 'width=1200,height=800,menubar=yes,toolbar=yes,status=yes');
   }
+  abrirDenuncias() {
+    const clienteId = this.clientData.id || this.clientData.nombre;
+    const url = `/denuncias/?cliente=${encodeURIComponent(clienteId)}`;
+    window.open(url, 'denunciasPanel', 'width=1100,height=800,menubar=yes,toolbar=yes');
+  }
 }
-
 // Instancia global
 const clientDashboard = new ClientDashboard();
 console.log("✅ ClientDashboard loaded");
