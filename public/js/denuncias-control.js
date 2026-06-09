@@ -106,6 +106,16 @@ function renderDenuncias() {
     cont.appendChild(div);
     escucharChat(d.id);
   });
+  // Si venimos con #denuncia-XXX desde el mapa, saltar y resaltar
+  if (location.hash.startsWith('#denuncia-')) {
+    const id = location.hash.replace('#denuncia-', '');
+    const target = document.getElementById('chat-' + id)?.closest('.denuncia');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.style.outline = '3px solid #dc2626';
+      setTimeout(() => { target.style.outline = ''; }, 4000);
+    }
+  }
 }
 // ========================================
 // CHAT POR DENUNCIA

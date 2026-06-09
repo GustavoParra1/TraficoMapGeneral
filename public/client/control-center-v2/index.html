@@ -607,6 +607,7 @@
   let map = null;
   let patrullas = new Map();
   let markers = []; // Para guardar referencias de marcadores
+  let emergencyMarkers = []; // Marcadores de emergencias de vecinos
   let municipio = null;  // Ciudad (para chat, coords y bounds). Se establece después de autenticación
   let clienteId = null;  // ID real del documento cliente (para la ruta clientes/{clienteId}/patrullas)
   let selectedPatrolId = null;  // Patrulla seleccionada para chat
@@ -644,6 +645,7 @@
   function setupControlCenter() {
     initMap();
     listenToPatrullas();
+    listenToEmergencias();
     listenToMessages();
     setupUIControls();
   }
@@ -707,6 +709,106 @@
       console.error('❌ Error escuchando patrullas:', error);
     });
   }
+
+  // ========================================
+  // ESCUCHAR EMERGENCIAS DE VECINOS (botón de pánico)
+  // ========================================
+  let emergenciasVistas = new Set();
+  function listenToEmergencias() {
+    const ruta = `clientes/${clienteId}/denuncias`;
+    console.log(`🚨 Escuchando emergencias de vecinos en: ${ruta}`);
+ 
+    db.collection('clientes').doc(clienteId).collection('denuncias')
+      .where('emergencia', '==', true)
+      .onSnapshot((snapshot) => {
+        // Limpiar marcadores anteriores
+        emergencyMarkers.forEach((m) => { if (map.hasLayer(m)) map.removeLayer(m); });
+        emergencyMarkers = [];
+ 
+        snapshot.forEach((doc) => {
+          const d = doc.data();
+          // Solo emergencias SIN atender (leida === false)
+          if (d.leida !== false) return;
+          if (typeof d.lat !== 'number' || typeof d.lng !== 'number') {
+            console.warn(`⚠️ Emergencia ${doc.id} sin coordenadas, no se puede mapear`);
+            return;
+          }
+ 
+          // Alerta sonora la primera vez que aparece
+          if (!emergenciasVistas.has(doc.id)) {
+            emergenciasVistas.add(doc.id);
+            sonarAlertaEmergencia();
+          }
+ 
+          const fecha = d.timestamp?.toDate ? d.timestamp.toDate().toLocaleString('es-AR') : '--';
+ 
+          const icon = L.divIcon({
+            html: `
+              <div style="
+                width: 44px; height: 44px;
+                background: #dc2626;
+                border: 3px solid #fff;
+                border-radius: 50%;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 22px;
+                box-shadow: 0 0 0 4px rgba(220,38,38,0.4);
+                animation: pulse 0.8s infinite;
+              ">🚨</div>
+            `,
+            iconSize: [44, 44],
+            iconAnchor: [22, 22],
+            popupAnchor: [0, -22],
+            className: 'patrol-marker-icon'
+          });
+ 
+          const marker = L.marker([d.lat, d.lng], { icon: icon, title: 'EMERGENCIA' })
+            .bindPopup(`
+              <div style="font-size:13px; font-family: Arial;">
+                <b style="font-size:14px; color:#dc2626;">🚨 EMERGENCIA</b><br>
+                <div style="margin: 6px 0; padding: 6px 0; border-top: 1px solid #e0e0e0;">
+                  Vecino: <b>${d.vecino || 'Anónimo'}</b><br>
+                  ${d.vecinoEmail || ''}<br>
+                  ${fecha}<br>
+                  📍 ${d.lat.toFixed(5)}, ${d.lng.toFixed(5)}
+                </div>
+                <button style="width:100%; margin-top:8px; padding:8px; background:#dc2626; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;"
+                  onclick="abrirDenuncia('${doc.id}')">💬 Abrir y chatear</button>
+              </div>
+            `)
+            .addTo(map);
+ 
+          emergencyMarkers.push(marker);
+        });
+ 
+        console.log(`🚨 ${emergencyMarkers.length} emergencia(s) activa(s) en el mapa`);
+      }, (error) => {
+        console.error('❌ Error escuchando emergencias:', error);
+      });
+  }
+ 
+  // Abrir el panel de denuncias posicionado en esta denuncia (otra pestaña)
+  function abrirDenuncia(denunciaId) {
+    const url = `/denuncias/?cliente=${clienteId}#denuncia-${denunciaId}`;
+    window.open(url, '_blank');
+  }
+ 
+  // Alerta sonora para emergencias nuevas
+  function sonarAlertaEmergencia() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'square';
+      osc.frequency.value = 880;
+      gain.gain.value = 0.2;
+      osc.start();
+      setTimeout(() => { osc.frequency.value = 440; }, 250);
+      setTimeout(() => { osc.stop(); ctx.close(); }, 600);
+    } catch (e) { console.warn('No se pudo reproducir alerta'); }
+  }
+ 
+  // ========================================
 
   // ========================================
   // ACTUALIZAR UI
