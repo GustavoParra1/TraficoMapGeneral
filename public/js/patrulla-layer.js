@@ -88,14 +88,16 @@ class PatullaLayer {
   }
 
   startTracking() {
-    // Remover guiones del municipio para construir el nombre correcto de la colección
-    const municipioSinGuiones = this.municipio.replace(/-/g, '');
-    const coleccion = `patrullas_${municipioSinGuiones}`;
-    console.log(`🔍 PatullaLayer startTracking() iniciado para colección: ${coleccion}`);
+    // Las patrullas se guardan en la estructura anidada clientes/{clienteId}/patrullas
+    // (misma que usa el control-center y la patrulla-app). El clienteId es el id del
+    // selector sin guiones (ej: "mar-del-plata" → "mardelplata", "la-plata" → "laplata").
+    const clienteId = this.municipio.replace(/-/g, '');
+    const ruta = `clientes/${clienteId}/patrullas`;
+    console.log(`🔍 PatullaLayer startTracking() iniciado para: ${ruta}`);
     
-    this.unsubscribe = this.db.collection(coleccion)
+    this.unsubscribe = this.db.collection('clientes').doc(clienteId).collection('patrullas')
       .onSnapshot((snapshot) => {
-        console.log(`📡 Snapshot recibido: ${snapshot.size} documentos en colección ${coleccion}`);
+        console.log(`📡 Snapshot recibido: ${snapshot.size} documentos en ${ruta}`);
         const patentesEnBD = new Set();
         
         let iteracionCount = 0;
