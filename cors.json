@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["https://trafico-map-general-v2.web.app", "https://trafico-map-general-v2.firebaseapp.com", "http://localhost:5000"],
+    "method": ["GET", "POST", "PUT", "DELETE", "HEAD"],
+    "responseHeader": ["Content-Type", "Authorization", "Content-Length", "User-Agent", "x-goog-resumable"],
+    "maxAgeSeconds": 3600
+  }
+]

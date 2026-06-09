@@ -81,6 +81,7 @@ function renderDenuncias() {
       <div class="denuncia-head">
         <span class="cat">${d.categoria || 'sin categoría'}</span>
         <span class="fecha">${fecha}</span>
+        <button class="btn-borrar" onclick="borrarDenuncia('${d.id}')">🗑️ Borrar</button>
       </div>
       <div class="vecino-info">👤 <b>${d.vecino || 'Anónimo'}</b> · ${d.vecinoEmail || ''}</div>
       ${d.hasImage && d.imageUrl ? `<img src="${d.imageUrl}" class="foto" onclick="window.open('${d.imageUrl}','_blank')">` : ''}
@@ -132,5 +133,63 @@ function logout() {
     auth.signOut().finally(() => window.location.href = '/login.html');
   } else {
     window.close();
+  }
+}
+// ========================================
+// BORRAR DENUNCIA INDIVIDUAL (incluye subcolección mensajes)
+// ========================================
+async function borrarDenuncia(denunciaId) {
+  if (!confirm('¿Borrar esta denuncia de forma permanente? Esta acción no se puede deshacer.')) return;
+  try {
+    // 1) Borrar subcolección de mensajes
+    const msgsRef = db.collection(`clientes/${clienteId}/denuncias/${denunciaId}/mensajes`);
+    const msgsSnap = await msgsRef.get();
+    const batch = db.batch();
+    msgsSnap.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    // 2) Borrar el documento de la denuncia
+    await db.collection(`clientes/${clienteId}/denuncias`).doc(denunciaId).delete();
+    console.log(`🗑️ Denuncia ${denunciaId} borrada`);
+  } catch (e) {
+    console.error('❌ Error borrando denuncia:', e);
+    alert('Error borrando denuncia: ' + (e.message || e));
+  }
+}
+// ========================================
+// BORRAR DENUNCIAS POR RANGO DE FECHAS
+// ========================================
+async function borrarPorRango() {
+  const desdeVal = document.getElementById('fecha-desde').value;
+  const hastaVal = document.getElementById('fecha-hasta').value;
+  if (!desdeVal || !hastaVal) {
+    alert('Selecciona ambas fechas (desde y hasta).');
+    return;
+  }
+  const desde = new Date(desdeVal + 'T00:00:00');
+  const hasta = new Date(hastaVal + 'T23:59:59');
+  // Filtrar de las denuncias ya cargadas en memoria
+  const objetivo = todasLasDenuncias.filter(d => {
+    const t = d.timestamp?.toDate ? d.timestamp.toDate() : null;
+    return t && t >= desde && t <= hasta;
+  });
+  if (objetivo.length === 0) {
+    alert('No hay denuncias en ese rango de fechas.');
+    return;
+  }
+  if (!confirm(`¿Borrar ${objetivo.length} denuncia(s) entre ${desdeVal} y ${hastaVal}? Esta acción no se puede deshacer.`)) return;
+  try {
+    for (const d of objetivo) {
+      // Borrar mensajes de cada denuncia
+      const msgsSnap = await db.collection(`clientes/${clienteId}/denuncias/${d.id}/mensajes`).get();
+      const batch = db.batch();
+      msgsSnap.forEach(doc => batch.delete(doc.ref));
+      batch.delete(db.collection(`clientes/${clienteId}/denuncias`).doc(d.id));
+      await batch.commit();
+    }
+    console.log(`🗑️ ${objetivo.length} denuncias borradas`);
+    alert(`✅ ${objetivo.length} denuncia(s) borrada(s).`);
+  } catch (e) {
+    console.error('❌ Error en borrado por rango:', e);
+    alert('Error borrando: ' + (e.message || e));
   }
 }
