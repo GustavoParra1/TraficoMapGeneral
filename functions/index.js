@@ -151,8 +151,11 @@ exports.crearPatrulaAdmin = functions.https.onCall(async (data, context) => {
       console.log(`✅ Usuario patrulla creado en Auth: ${email} (uid: ${userPatrulla.uid})`);
     } catch (authError) {
       if (authError.code === 'auth/email-already-exists') {
-        console.log(`⚠️ Email ya existe, obteniendo usuario existente...`);
+        console.log(`⚠️ Email ya existe, obteniendo usuario existente y sincronizando password...`);
         userPatrulla = await auth.getUserByEmail(email);
+        // Sincronizar la password con la que se guardará en Firestore para
+        // permitir el login con las credenciales mostradas en el panel.
+        await auth.updateUser(userPatrulla.uid, { password });
       } else {
         throw authError;
       }
@@ -272,8 +275,11 @@ exports.crearOperarioAdmin = functions.https.onCall(async (data, context) => {
       console.log(`✅ Usuario operario creado en Auth: ${email} (uid: ${userOperario.uid})`);
     } catch (authError) {
       if (authError.code === 'auth/email-already-exists') {
-        console.log(`⚠️ Email ya existe, obteniendo usuario existente...`);
+        console.log(`⚠️ Email ya existe, obteniendo usuario existente y sincronizando password...`);
         userOperario = await auth.getUserByEmail(email);
+        // Sincronizar la password con la que se guardará en Firestore para
+        // permitir el login con las credenciales mostradas en el panel.
+        await auth.updateUser(userOperario.uid, { password });
       } else {
         throw authError;
       }
