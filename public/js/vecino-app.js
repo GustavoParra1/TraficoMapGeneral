@@ -215,3 +215,42 @@ function bloquearApp() {
 function logout() {
   if (confirm('¿Cerrar sesión?')) { auth.signOut().then(() => window.location.href = '/login.html'); }
 }
+// ========================================
+// BOTÓN DE PÁNICO / EMERGENCIA
+// ========================================
+async function enviarPanico() {
+  if (!confirm('🚨 ¿Enviar alerta de EMERGENCIA al centro de control? Úsalo solo en caso de urgencia real.')) return;
+  const btn = document.getElementById('btn-panico');
+  btn.disabled = true;
+  btn.textContent = 'Enviando alerta...';
+  try {
+    const denuncia = {
+      categoria: 'panico',
+      texto: '🚨 ALERTA DE EMERGENCIA — solicita asistencia inmediata',
+      vecino: vecinoNombre,
+      vecinoEmail: vecinoEmail,
+      estado: 'nueva',
+      prioridad: 'urgente',
+      emergencia: true,
+      leida: false,
+      hasImage: false,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    // GPS (importante en emergencia)
+    try {
+      const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 8000, enableHighAccuracy: true }));
+      denuncia.lat = pos.coords.latitude;
+      denuncia.lng = pos.coords.longitude;
+    } catch (e) { console.warn('Sin GPS en emergencia'); }
+    await db.collection(`clientes/${clienteId}/denuncias`).add(denuncia);
+    console.log('🚨 Alerta de emergencia enviada');
+    alert('🚨 Alerta enviada. El centro de control fue notificado.');
+    cargarMisDenuncias();
+  } catch (e) {
+    console.error('❌ Error enviando alerta:', e);
+    alert('Error enviando alerta: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🚨 EMERGENCIA';
+  }
+}

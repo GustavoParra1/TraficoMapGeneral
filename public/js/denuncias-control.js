@@ -55,6 +55,9 @@ function escucharDenuncias() {
         .sort((a, b) => (b.timestamp?.toMillis?.() || 0) - (a.timestamp?.toMillis?.() || 0));
       console.log(`📊 ${todasLasDenuncias.length} denuncias`);
       renderDenuncias();
+      console.log(`📊 ${todasLasDenuncias.length} denuncias`);
+      renderDenuncias();
+      chequearPanicos();
     }, (err) => {
       console.error('Error denuncias:', err);
       document.getElementById('lista').innerHTML = '<div class="empty">Error cargando denuncias.</div>';
@@ -67,7 +70,10 @@ function renderDenuncias() {
   const cont = document.getElementById('lista');
   const filtro = document.getElementById('filtro-categoria').value;
   const lista = filtro ? todasLasDenuncias.filter(d => d.categoria === filtro) : todasLasDenuncias;
-  document.getElementById('contador').textContent = `${lista.length} denuncia(s)`;
+  // Contar SIN LEER (Opción A: solo las que tienen leida === false explícito)
+  const sinLeer = todasLasDenuncias.filter(d => d.leida === false).length;
+  const cont2 = document.getElementById('contador');
+  cont2.textContent = `${lista.length} denuncia(s)` + (sinLeer > 0 ? ` · 🔴 ${sinLeer} sin leer` : '');
   if (lista.length === 0) {
     cont.innerHTML = '<div class="empty">Sin denuncias</div>';
     return;
@@ -75,11 +81,14 @@ function renderDenuncias() {
   cont.innerHTML = '';
   lista.forEach(d => {
     const fecha = d.timestamp?.toDate ? d.timestamp.toDate().toLocaleString('es-AR') : '--';
+    const esPanico = d.emergencia === true || d.categoria === 'panico';
+    const sinLeer = d.leida === false;
     const div = document.createElement('div');
-    div.className = 'denuncia';
+    div.className = 'denuncia' + (esPanico ? ' panico' : '') + (sinLeer ? ' sin-leer' : '');
     div.innerHTML = `
       <div class="denuncia-head">
-        <span class="cat">${d.categoria || 'sin categoría'}</span>
+        <span class="cat">${esPanico ? '🚨 EMERGENCIA' : (d.categoria || 'sin categoría')}</span>
+        ${sinLeer ? '<span class="badge-nuevo">NUEVA</span>' : ''}
         <span class="fecha">${fecha}</span>
         <button class="btn-borrar" onclick="borrarDenuncia('${d.id}')">🗑️ Borrar</button>
       </div>
@@ -87,6 +96,7 @@ function renderDenuncias() {
       ${d.hasImage && d.imageUrl ? `<img src="${d.imageUrl}" class="foto" onclick="window.open('${d.imageUrl}','_blank')">` : ''}
       <div class="texto">${d.texto || ''}</div>
       ${d.lat && d.lng ? `<div class="vecino-info">📍 ${d.lat.toFixed(5)}, ${d.lng.toFixed(5)}</div>` : ''}
+      ${sinLeer ? `<button class="btn-leida" onclick="marcarLeida('${d.id}')">✓ Marcar como leída</button>` : ''}
       <div class="chat-box" id="chat-${d.id}"></div>
       <div class="chat-input-row">
         <input type="text" id="input-${d.id}" placeholder="Responder al vecino...">
@@ -192,4 +202,44 @@ async function borrarPorRango() {
     console.error('❌ Error en borrado por rango:', e);
     alert('Error borrando: ' + (e.message || e));
   }
+}
+// ========================================
+// MARCAR DENUNCIA COMO LEÍDA
+// ========================================
+async function marcarLeida(denunciaId) {
+  try {
+    await db.collection(`clientes/${clienteId}/denuncias`).doc(denunciaId).update({ leida: true });
+    console.log(`✓ Denuncia ${denunciaId} marcada como leída`);
+  } catch (e) {
+    console.error('❌ Error marcando leída:', e);
+  }
+}
+// ========================================
+// ALERTA SONORA PARA EMERGENCIAS NUEVAS
+// ========================================
+let panicosVistos = new Set();
+function chequearPanicos() {
+  const panicosSinLeer = todasLasDenuncias.filter(d =>
+    (d.emergencia === true || d.categoria === 'panico') && d.leida === false
+  );
+  panicosSinLeer.forEach(p => {
+    if (!panicosVistos.has(p.id)) {
+      panicosVistos.add(p.id);
+      sonarAlerta();
+    }
+  });
+}
+function sonarAlerta() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'square';
+    osc.frequency.value = 880;
+    gain.gain.value = 0.2;
+    osc.start();
+    setTimeout(() => { osc.frequency.value = 440; }, 250);
+    setTimeout(() => { osc.stop(); ctx.close(); }, 600);
+  } catch (e) { console.warn('No se pudo reproducir alerta sonora'); }
 }

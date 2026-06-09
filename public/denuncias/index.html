@@ -42,8 +42,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   font-size: 12px;
 }
 .btn-borrar:hover { background: #c62828; }
+.denuncia.panico { border-left-color: #dc2626; background: #fef2f2; animation: pulso-rojo 1.5s infinite; }
+@keyframes pulso-rojo {
+  0%, 100% { box-shadow: 0 2px 8px rgba(220,38,38,0.2); }
+  50% { box-shadow: 0 2px 20px rgba(220,38,38,0.6); }
+}
+.denuncia.sin-leer { border-left-width: 6px; }
+.badge-nuevo { background: #dc2626; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
+.btn-leida { background: #10b981; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; margin: 8px 0; }
+.btn-leida:hover { background: #059669; }
 @media print {
-  .header .actions, .toolbar, .chat-box, .chat-input-row { display: none !important; }
+  .header .actions, .toolbar, .chat-box, .chat-input-row, .btn-borrar, .btn-leida { display: none !important; }
   .denuncia { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
   body { background: white; }
 }

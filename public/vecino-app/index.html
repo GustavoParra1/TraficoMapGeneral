@@ -31,6 +31,26 @@ textarea { min-height: 90px; resize: vertical; }
 .chat-input-row input { flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; margin: 0; }
 .chat-input-row button { padding: 8px 14px; border: none; border-radius: 8px; background: #0ea5e9; color: white; cursor: pointer; }
 .empty { color: #94a3b8; text-align: center; padding: 20px; font-size: 14px; }
+.btn-panico {
+  width: 100%;
+  padding: 18px;
+  border: none;
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  background: #dc2626;
+  cursor: pointer;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 14px rgba(220,38,38,0.4);
+  animation: pulso 1.6s infinite;
+}
+.btn-panico:active { transform: scale(0.97); }
+@keyframes pulso {
+  0%   { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
+  70%  { box-shadow: 0 0 0 14px rgba(220,38,38,0); }
+  100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -43,6 +63,10 @@ textarea { min-height: 90px; resize: vertical; }
   <button class="btn-logout" onclick="logout()">Salir</button>
 </div>
 <div class="container">
+<div class="container">
+  <button class="btn-panico" id="btn-panico" onclick="enviarPanico()">🚨 EMERGENCIA</button>
+  <div class="card">
+    <h2>Nueva Denuncia</h2>
   <div class="card">
     <h2>Nueva Denuncia</h2>
     <label>Categoría</label>
