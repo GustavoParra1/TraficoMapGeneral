@@ -480,6 +480,8 @@
           <div class="value" id="stat-offline">0</div>
         </div>
       </div>
+      <!-- Aviso emergencias sin ubicación -->
+      <div id="emergencias-sin-gps" style="display:none; background:#dc2626; color:#fff; border-radius:6px; padding:10px; margin-bottom:12px; font-size:12px; cursor:pointer;"></div>
 
       <!-- Unidades -->
       <div id="patrullas-list" class="patrullas-list">
@@ -724,6 +726,8 @@
         // Limpiar marcadores anteriores
         emergencyMarkers.forEach((m) => { if (map.hasLayer(m)) map.removeLayer(m); });
         emergencyMarkers = [];
+
+         let sinGps = 0;
  
         snapshot.forEach((doc) => {
           const d = doc.data();
@@ -731,6 +735,12 @@
           if (d.leida !== false) return;
           if (typeof d.lat !== 'number' || typeof d.lng !== 'number') {
             console.warn(`⚠️ Emergencia ${doc.id} sin coordenadas, no se puede mapear`);
+            sinGps++;
+            // Alerta sonora también para emergencias sin GPS
+            if (!emergenciasVistas.has(doc.id)) {
+              emergenciasVistas.add(doc.id);
+              sonarAlertaEmergencia();
+            }
             return;
           }
  
@@ -781,6 +791,18 @@
         });
  
         console.log(`🚨 ${emergencyMarkers.length} emergencia(s) activa(s) en el mapa`);
+
+        // Aviso de emergencias sin ubicación GPS
+        const aviso = document.getElementById('emergencias-sin-gps');
+        if (aviso) {
+          if (sinGps > 0) {
+            aviso.style.display = 'block';
+            aviso.innerHTML = `🚨 <b>${sinGps} emergencia(s) SIN ubicación</b><br>No se pueden mapear. Clic para ver en el panel de denuncias.`;
+            aviso.onclick = () => window.open(`/denuncias/?cliente=${clienteId}`, '_blank');
+          } else {
+            aviso.style.display = 'none';
+          }
+        }
       }, (error) => {
         console.error('❌ Error escuchando emergencias:', error);
       });
