@@ -495,8 +495,9 @@
       <div id="patrullas-list" class="patrullas-list">
         <div class="loading">Cargando unidades...</div>
       </div>
+      <!-- Emergencias de vecinos (botón de pánico) -->
+      <div id="emergencias-vecinos" style="margin-top:16px;"></div>
     </div>
-  </div>
 
   <!-- MAIN CONTENT -->
   <div class="main-content">
@@ -736,6 +737,7 @@
         emergencyMarkers = [];
 
          let sinGps = 0;
+         let emergenciasActivas = [];  // ← AGREGAR para la lista del panel
  
         snapshot.forEach((doc) => {
           const d = doc.data();
@@ -796,9 +798,41 @@
             .addTo(map);
  
           emergencyMarkers.push(marker);
+          // ← AGREGAR: guardar para la lista lateral
+          emergenciasActivas.push({ id: doc.id, vecino: d.vecino || 'Anónimo', fecha, lat: d.lat, lng: d.lng });
         });
  
         console.log(`🚨 ${emergencyMarkers.length} emergencia(s) activa(s) en el mapa`);
+
+        // Renderizar lista de emergencias de vecinos en el panel izquierdo
+        const contEmerg = document.getElementById('emergencias-vecinos');
+        if (contEmerg) {
+          if (emergenciasActivas.length === 0) {
+            contEmerg.innerHTML = '';
+          } else {
+            contEmerg.innerHTML = `<div style="font-size:12px;color:#ef4444;font-weight:bold;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">🚨 Emergencias Vecinos (${emergenciasActivas.length})</div>`;
+            emergenciasActivas.forEach((e) => {
+              const card = document.createElement('div');
+              card.className = 'patrulla-card emergencia';
+              card.style.cursor = 'pointer';
+              card.innerHTML = `
+                <div class="patrulla-name">
+                  <div class="patrulla-status-dot emergencia"></div>
+                  <span>🚨 ${e.vecino}</span>
+                </div>
+                <div class="patrulla-info">${e.fecha}</div>
+                <div class="patrulla-info">📍 ${e.lat.toFixed(4)}, ${e.lng.toFixed(4)}</div>
+                <div class="patrulla-actions">
+                  <button onclick="zoomAEmergencia(${e.lat}, ${e.lng})">📍 Zoom</button>
+                  <button class="emergencia" onclick="abrirDenuncia('${e.id}')">💬 Abrir</button>
+                </div>
+              `;
+              contEmerg.appendChild(card);
+            });
+          }
+        }
+
+
 
         // Aviso de emergencias sin ubicación GPS
         const aviso = document.getElementById('emergencias-sin-gps');
@@ -815,6 +849,8 @@
         console.error('❌ Error escuchando emergencias:', error);
       });
   }
+
+
  
   // Abrir el panel de denuncias posicionado en esta denuncia (otra pestaña)
   function abrirDenuncia(denunciaId) {
@@ -1044,18 +1080,20 @@
     document.getElementById('patrulla-select').value = patrollaId;
     document.getElementById('message-input').focus();
   }
-
   function zoomAlPatrulla(patrollaId) {
     const p = patrullas.get(patrollaId);
     if (p && typeof p.lat === 'number' && typeof p.lng === 'number') {
       map.setView([p.lat, p.lng], 16);
     }
   }
-
+  function zoomAEmergencia(lat, lng) {
+    if (map && typeof lat === 'number' && typeof lng === 'number') {
+      map.setView([lat, lng], 16);
+    }
+  }
   async function toggleEmergencia(patrollaId) {
     const p = patrullas.get(patrollaId);
     if (!p) return;
-
     const municipioSinGuiones = municipio.replace(/-/g, '');
     const coleccion = `patrullas_${municipioSinGuiones}`;
     await db.collection(coleccion).doc(patrollaId).update({
@@ -1063,33 +1101,25 @@
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
   }
-
   async function enviarMensaje() {
     const patrollaId = document.getElementById('patrulla-select').value;
     const mensaje = document.getElementById('message-input').value.trim();
-
     console.log(`📤 Intentando enviar: patrollaId=${patrollaId}, mensaje="${mensaje}"`);
-
     if (!patrollaId) {
       alert('Selecciona una patrulla');
       return;
     }
-
     if (!mensaje) {
       alert('Escribe un mensaje');
       return;
     }
-
     try {
       // Asegurar que selectedPatrolId está actualizado
       selectedPatrolId = patrollaId;
-
       // Normalizar municipio
       const municipioNorm = municipio.toLowerCase().replace(/\s+/g, '');
       const coleccion = `chat_${municipioNorm}`;
-
       console.log(`💾 Guardando en colección: ${coleccion}`);
-
       // Usar estructura plana igual a patrulla app
       const docRef = await db.collection(coleccion).add({
         from: 'CENTRO_CONTROL',
@@ -1098,7 +1128,6 @@
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         read: false
       });
-
       console.log(`✅ Mensaje enviado a ${patrollaId} con ID: ${docRef.id}`);
       document.getElementById('message-input').value = '';
       renderMessages();  // Actualizar mensajes inmediatamente
