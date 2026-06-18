@@ -153,6 +153,8 @@ function cargarMisDenuncias() {
         div.className = 'card denuncia-item';
         div.innerHTML = `
           <span class="denuncia-cat">${d.categoria || ''}</span>
+          <button onclick="eliminarDenuncia('${d.id}')" title="Eliminar denuncia"
+            style="float:right;background:none;border:none;cursor:pointer;font-size:18px;color:#ef4444;">🗑️</button>
           <div class="denuncia-fecha">${fecha}</div>
           ${d.hasImage && d.imageUrl ? `<img src="${d.imageUrl}" style="max-width:100%;border-radius:8px;margin:8px 0;">` : ''}
           <div>${d.texto || ''}</div>
@@ -194,6 +196,44 @@ async function enviarChat(denunciaId) {
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   });
   input.value = '';
+}
+
+// ========================================
+// ELIMINAR DENUNCIA (una sola) — espejo del "limpiar chat" de la patrulla
+// ========================================
+async function eliminarDenuncia(denunciaId) {
+  if (!confirm('¿Eliminar esta denuncia? Se borrará la foto y los mensajes asociados.')) return;
+  try {
+    const ref = db.collection(`clientes/${clienteId}/denuncias`).doc(denunciaId);
+    const snap = await ref.get();
+    const data = snap.exists ? snap.data() : null;
+    // 1) Borrar la foto de Storage si existe
+    if (data && data.imagePath) {
+      try {
+        await storage.ref(data.imagePath).delete();
+        console.log(`🗑️ Imagen eliminada: ${data.imagePath}`);
+      } catch (err) {
+        console.warn(`⚠️ No se pudo eliminar imagen: ${data.imagePath}`, err);
+      }
+    }
+    // 2) Borrar los mensajes del sub-chat de la denuncia
+    try {
+      const mensajes = await db.collection(`clientes/${clienteId}/denuncias/${denunciaId}/mensajes`).get();
+      const batch = db.batch();
+      mensajes.forEach((m) => batch.delete(m.ref));
+      if (!mensajes.empty) await batch.commit();
+      console.log(`🗑️ ${mensajes.size} mensaje(s) eliminado(s)`);
+    } catch (err) {
+      console.warn('⚠️ No se pudieron eliminar los mensajes:', err);
+    }
+    // 3) Borrar la denuncia
+    await ref.delete();
+    console.log(`✅ Denuncia ${denunciaId} eliminada`);
+    // La lista se actualiza sola por el onSnapshot de cargarMisDenuncias()
+  } catch (e) {
+    console.error('❌ Error eliminando denuncia:', e);
+    alert('Error eliminando denuncia: ' + e.message);
+  }
 }
 
 function bloquearApp() {
