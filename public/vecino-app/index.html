@@ -88,7 +88,9 @@ textarea { min-height: 90px; resize: vertical; }
     <label>Descripción</label>
     <textarea id="texto" placeholder="Describí la situación..."></textarea>
     <div id="foto-preview"></div>
-    <button class="btn btn-secondary" onclick="document.getElementById('file-foto').click()">📷 Adjuntar foto</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('file-camara').click()">📷 Tomar foto</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('file-foto').click()">🖼️ Adjuntar de galería</button>
+    <input type="file" id="file-camara" accept="image/*" capture="environment" style="display:none;">
     <input type="file" id="file-foto" accept="image/*" style="display:none;">
     <button class="btn btn-primary" id="btn-enviar">Enviar Denuncia</button>
   </div>

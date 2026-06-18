@@ -69,7 +69,7 @@ initFirebase();
 // ========================================
 // FOTO
 // ========================================
-document.getElementById('file-foto').addEventListener('change', (e) => {
+function procesarFoto(e) {
   const file = e.target.files[0];
   if (!file || !file.type.startsWith('image/')) return;
   const reader = new FileReader();
@@ -78,7 +78,9 @@ document.getElementById('file-foto').addEventListener('change', (e) => {
     document.getElementById('foto-preview').innerHTML = `<img src="${fotoSeleccionada}">`;
   };
   reader.readAsDataURL(file);
-});
+}
+document.getElementById('file-foto').addEventListener('change', procesarFoto);
+document.getElementById('file-camara').addEventListener('change', procesarFoto);
 // ========================================
 // ENVIAR DENUNCIA
 // ========================================
