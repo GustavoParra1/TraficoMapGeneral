@@ -5,6 +5,47 @@ let db = null, auth = null, storage = null;
 let municipio = null, clienteId = null;
 let vecinoNombre = '', vecinoEmail = '';
 let fotoSeleccionada = null;
+
+// Web Speech API - Speech Recognition
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isListening = false;
+if (SpeechRecognition) {
+  recognition = new SpeechRecognition();
+  recognition.lang = 'es-AR';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.addEventListener('start', () => {
+    isListening = true;
+    document.getElementById('btn-voice').classList.add('listening');
+    document.getElementById('voice-status').textContent = '🎤 Escuchando...';
+  });
+  recognition.addEventListener('end', () => {
+    isListening = false;
+    document.getElementById('btn-voice').classList.remove('listening');
+    document.getElementById('voice-status').textContent = '';
+  });
+  recognition.addEventListener('result', (e) => {
+    let texto = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const transcript = e.results[i][0].transcript;
+      texto += transcript;
+    }
+    const textarea = document.getElementById('texto');
+    if (e.results[e.results.length - 1].isFinal) {
+      textarea.value = (textarea.value + ' ' + texto).trim();
+      document.getElementById('voice-status').textContent = `✅ "${texto}"`;
+    } else {
+      document.getElementById('voice-status').textContent = `🎤 "${texto}"`;
+    }
+  });
+  recognition.addEventListener('error', (e) => {
+    document.getElementById('voice-status').textContent = `❌ Error: ${e.error}`;
+    isListening = false;
+    document.getElementById('btn-voice').classList.remove('listening');
+  });
+}
+
 const MUNICIPIO_TO_ID = {
   'La Plata': 'laplata', 'la plata': 'laplata',
   'Mar del Plata': 'mardelplata', 'mar del plata': 'mardelplata',
@@ -81,6 +122,27 @@ function procesarFoto(e) {
 }
 document.getElementById('file-foto').addEventListener('change', procesarFoto);
 document.getElementById('file-camara').addEventListener('change', procesarFoto);
+// ========================================
+// VOZ A TEXTO
+// ========================================
+if (recognition) {
+  document.getElementById('btn-voice').addEventListener('click', () => {
+    if (!SpeechRecognition) {
+      alert('Tu navegador no soporta reconocimiento de voz. Usa Chrome, Edge o Safari recientes.');
+      return;
+    }
+    if (isListening) {
+      recognition.stop();
+    } else {
+      document.getElementById('texto').focus();
+      recognition.start();
+    }
+  });
+} else {
+  document.getElementById('btn-voice').style.opacity = '0.5';
+  document.getElementById('btn-voice').disabled = true;
+  document.getElementById('btn-voice').title = 'Tu navegador no soporta reconocimiento de voz';
+}
 // ========================================
 // ENVIAR DENUNCIA
 // ========================================
