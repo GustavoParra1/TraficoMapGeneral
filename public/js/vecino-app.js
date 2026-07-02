@@ -6,41 +6,142 @@ let municipio = null, clienteId = null;
 let vecinoNombre = '', vecinoEmail = '';
 let fotoSeleccionada = null;
 
+// ========================================
+// SISTEMA DE DEBUG/LOGGING
+// ========================================
+let debugLogs = [];
+const maxLogs = 50;
+
+function addLog(msg, type = 'info') {
+  const timestamp = new Date().toLocaleTimeString('es-AR');
+  const logEntry = `[${timestamp}] ${msg}`;
+  debugLogs.unshift(logEntry);
+  if (debugLogs.length > maxLogs) debugLogs.pop();
+  
+  const panel = document.getElementById('debug-panel');
+  if (panel) {
+    const logDiv = document.createElement('div');
+    logDiv.className = `debug-log ${type}`;
+    logDiv.textContent = logEntry;
+    panel.insertBefore(logDiv, panel.firstChild);
+    // Limitar DOM
+    while (panel.children.length > maxLogs) {
+      panel.removeChild(panel.lastChild);
+    }
+  }
+}
+
+// Capturar console logs
+const originalLog = console.log;
+const originalError = console.error;
+const originalWarn = console.warn;
+
+console.log = function(...args) {
+  originalLog.apply(console, args);
+  addLog(args.join(' '), 'info');
+};
+console.error = function(...args) {
+  originalError.apply(console, args);
+  addLog('❌ ' + args.join(' '), 'error');
+};
+console.warn = function(...args) {
+  originalWarn.apply(console, args);
+  addLog('⚠️ ' + args.join(' '), 'warning');
+};
+
 // Web Speech API - Speech Recognition
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 let isListening = false;
+
+// Detectar idioma del navegador
+function getLanguage() {
+  const nav = (navigator.language || navigator.userLanguage || 'es-AR').toLowerCase();
+  if (nav.includes('es')) return 'es-AR'; // Español Argentina
+  return 'en-US'; // fallback inglés
+}
+
+// Debug: mostrar info del navegador
+function debugInfo() {
+  const userAgent = navigator.userAgent;
+  console.log('🔍 DEBUG INFO:', {
+    browser: userAgent,
+    language: getLanguage(),
+    isAndroid: /Android/i.test(userAgent),
+    isChrome: /Chrome/i.test(userAgent),
+    hasWebkitSpeech: !!window.webkitSpeechRecognition,
+    hasSpeechRecognition: !!window.SpeechRecognition,
+    hasMediaDevices: !!navigator.mediaDevices
+  });
+}
+debugInfo();
+
 if (SpeechRecognition) {
   recognition = new SpeechRecognition();
-  recognition.lang = 'es-AR';
+  recognition.lang = 'es'; // Idioma simplificado para Android
   recognition.continuous = false;
-  recognition.interimResults = true;
+  recognition.interimResults = false; // Desactivado para Android
+  recognition.maxAlternatives = 1;
+  
   recognition.addEventListener('start', () => {
     isListening = true;
-    document.getElementById('btn-voice').classList.add('listening');
-    document.getElementById('voice-status').textContent = '🎤 Escuchando...';
+    const btn = document.getElementById('btn-voice');
+    btn.classList.add('listening');
+    btn.textContent = '🎤 Grabando...';
+    document.getElementById('voice-status').textContent = '🎤 Escuchando tu voz...';
+    console.log('✅ Speech recognition iniciado', { lang: recognition.lang });
   });
+  
   recognition.addEventListener('end', () => {
     isListening = false;
-    document.getElementById('btn-voice').classList.remove('listening');
-    document.getElementById('voice-status').textContent = '';
+    const btn = document.getElementById('btn-voice');
+    btn.classList.remove('listening');
+    btn.textContent = '🎤 Voz';
+    console.log('🛑 Speech recognition terminado');
   });
+  
   recognition.addEventListener('result', (e) => {
+    console.log(`📝 RESULT EVENT: resultIndex=${e.resultIndex}, results.length=${e.results.length}`);
+    addLog(`📝 RESULT EVENT recibido!`, 'success');
+    
     let texto = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const transcript = e.results[i][0].transcript;
-      texto += transcript;
+      const confidence = e.results[i][0].confidence;
+      console.log(`📝 [${i}] isFinal=${e.results[i].isFinal} conf=${(confidence*100).toFixed(0)}%: "${transcript}"`);
+      addLog(`📝 [${i}] "${transcript}" (${(confidence*100).toFixed(0)}%)`, 'info');
+      texto += transcript + ' ';
     }
+    
+    texto = texto.trim();
+    if (!texto) {
+      console.warn('⚠️ Texto vacío');
+      addLog('⚠️ Texto vacío en resultado', 'warning');
+      return;
+    }
+    
     const textarea = document.getElementById('texto');
-    if (e.results[e.results.length - 1].isFinal) {
-      textarea.value = (textarea.value + ' ' + texto).trim();
-      document.getElementById('voice-status').textContent = `✅ "${texto}"`;
-    } else {
-      document.getElementById('voice-status').textContent = `🎤 "${texto}"`;
-    }
+    textarea.value = (textarea.value + ' ' + texto).trim();
+    document.getElementById('voice-status').textContent = `✅ Agregado: "${texto}"`;
+    addLog(`✅ AGREGADO AL TEXTAREA: "${texto}"`, 'success');
+    console.log('✅ Textarea ahora:', textarea.value);
   });
+  
   recognition.addEventListener('error', (e) => {
-    document.getElementById('voice-status').textContent = `❌ Error: ${e.error}`;
+    const errorMap = {
+      'no-speech': '❌ No escuché tu voz. Intenta de nuevo.',
+      'audio-capture': '❌ No se pudo acceder al micrófono.',
+      'network': '❌ Error de conexión. Intenta de nuevo.',
+      'permission-denied': '❌ Permiso denegado. Permite acceso a micrófono.',
+      'not-allowed': '❌ El micrófono no está permitido en esta app.',
+      'service-not-allowed': '❌ El servicio no está disponible.',
+      'bad-grammar': '❌ Error de gramática en el reconocimiento.',
+      'aborted': 'Reconocimiento abortado por el usuario.'
+    };
+    const msg = errorMap[e.error] || `❌ Error de voz: ${e.error}`;
+    document.getElementById('voice-status').textContent = msg;
+    console.error('❌ Speech error:', e.error);
+    addLog(`❌ Speech error ${e.error}: ${msg}`, 'error');
     isListening = false;
     document.getElementById('btn-voice').classList.remove('listening');
   });
@@ -127,21 +228,40 @@ document.getElementById('file-camara').addEventListener('change', procesarFoto);
 // ========================================
 if (recognition) {
   document.getElementById('btn-voice').addEventListener('click', () => {
+    console.log('🎤 Click en btn-voice, isListening:', isListening);
+    
     if (!SpeechRecognition) {
+      addLog('❌ SpeechRecognition no disponible', 'error');
       alert('Tu navegador no soporta reconocimiento de voz. Usa Chrome, Edge o Safari recientes.');
       return;
     }
+    
     if (isListening) {
+      console.log('⏹️ Deteniendo grabación');
       recognition.stop();
-    } else {
+      return;
+    }
+    
+    // SIN pedir getUserMedia - dejar que recognition.start() maneje todo
+    try {
+      console.log('🎙️ Iniciando Speech Recognition (sin getUserMedia)...');
       document.getElementById('texto').focus();
+      document.getElementById('voice-status').textContent = '⏳ Iniciando micrófono...';
       recognition.start();
+      
+    } catch (err) {
+      console.error('❌ Error al iniciar recognition:', err.name, err.message);
+      addLog(`❌ Error: ${err.name} - ${err.message}`, 'error');
+      document.getElementById('voice-status').textContent = `❌ Error: ${err.message}`;
     }
   });
 } else {
+  console.warn('⚠️ Web Speech API no disponible');
+  addLog('⚠️ Web Speech API no disponible en este navegador', 'warning');
   document.getElementById('btn-voice').style.opacity = '0.5';
   document.getElementById('btn-voice').disabled = true;
   document.getElementById('btn-voice').title = 'Tu navegador no soporta reconocimiento de voz';
+  document.getElementById('voice-status').textContent = '⚠️ Navegador no soportado';
 }
 // ========================================
 // ENVIAR DENUNCIA

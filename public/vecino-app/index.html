@@ -46,6 +46,14 @@ textarea { min-height: 90px; resize: vertical; }
 .btn-voice.listening { animation: pulse-voice 1.2s infinite; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
 @keyframes pulse-voice { 0%, 100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.6); } 50% { box-shadow: 0 0 0 8px rgba(236, 72, 153, 0); } }
 .voice-status { font-size: 12px; color: #64748b; margin-top: 6px; min-height: 18px; }
+.debug-panel { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: #e2e8f0; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 11px; border-top: 2px solid #475569; z-index: 9999; display: none; }
+.debug-panel.show { display: block; }
+.debug-log { padding: 4px 8px; border-bottom: 1px solid #334155; }
+.debug-log.error { color: #ef4444; }
+.debug-log.success { color: #22c55e; }
+.debug-log.warning { color: #eab308; }
+.debug-log.info { color: #0ea5e9; }
+.btn-debug { position: fixed; bottom: 10px; right: 10px; background: #334155; color: white; border: 1px solid #475569; padding: 6px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; z-index: 10000; }
 .btn-panico {
   width: 100%;
   padding: 18px;
@@ -111,7 +119,9 @@ textarea { min-height: 90px; resize: vertical; }
     <div id="lista-denuncias"><div class="empty">Cargando...</div></div>
   </div>
 </div>
-<script src="../js/vecino-app.js?v=3"></script>
+<div class="debug-panel" id="debug-panel"></div>
+<button class="btn-debug" onclick="document.getElementById('debug-panel').classList.toggle('show')">🔧 Debug</button>
+<script src="../js/vecino-app.js?v=2"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW no registrado:', e));

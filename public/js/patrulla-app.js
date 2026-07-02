@@ -8,6 +8,59 @@ let storage = null;
 let fotoSeleccionada = null; // Para almacenar foto en base64
 
 // ========================================
+// WEB SPEECH API - VOZ EN CHAT
+// ========================================
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognitionChat = null;
+let isListeningChat = false;
+
+if (SpeechRecognition) {
+  recognitionChat = new SpeechRecognition();
+  recognitionChat.lang = 'es'; // Simplificado para Android
+  recognitionChat.continuous = false;
+  recognitionChat.interimResults = false;
+  recognitionChat.maxAlternatives = 1;
+  
+  recognitionChat.addEventListener('start', () => {
+    isListeningChat = true;
+    const btn = document.getElementById('btn-voice-chat');
+    btn.classList.add('listening');
+    btn.textContent = '🎤';
+    console.log('✅ Voice chat START');
+  });
+  
+  recognitionChat.addEventListener('end', () => {
+    isListeningChat = false;
+    const btn = document.getElementById('btn-voice-chat');
+    btn.classList.remove('listening');
+    btn.textContent = '🎤';
+    console.log('🛑 Voice chat END');
+  });
+  
+  recognitionChat.addEventListener('result', (e) => {
+    console.log(`📝 Voice result: ${e.results.length} results`);
+    let texto = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const transcript = e.results[i][0].transcript;
+      texto += transcript + ' ';
+    }
+    texto = texto.trim();
+    if (texto) {
+      const input = document.getElementById('message-input');
+      input.value = (input.value + ' ' + texto).trim();
+      input.focus();
+      console.log(`✅ Added to input: "${texto}"`);
+    }
+  });
+  
+  recognitionChat.addEventListener('error', (e) => {
+    console.error('❌ Voice error:', e.error);
+    isListeningChat = false;
+    document.getElementById('btn-voice-chat').classList.remove('listening');
+  });
+}
+
+// ========================================
 // COMPRESIÓN DE IMÁGENES
 // ========================================
 function compressImage(base64String, callback, maxWidth = 800, maxHeight = 600, quality = 0.6) {
@@ -649,6 +702,22 @@ function init() {
     document.getElementById('message-input').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') enviarMensaje();
     });
+
+    // Botón de voz en chat
+    if (recognitionChat) {
+      document.getElementById('btn-voice-chat').addEventListener('click', () => {
+        if (isListeningChat) {
+          recognitionChat.stop();
+        } else {
+          document.getElementById('message-input').focus();
+          recognitionChat.start();
+        }
+      });
+    } else {
+      document.getElementById('btn-voice-chat').style.opacity = '0.5';
+      document.getElementById('btn-voice-chat').disabled = true;
+      document.getElementById('btn-voice-chat').title = 'Navegador no soporta reconocimiento de voz';
+    }
 
     document.getElementById('btn-camera').addEventListener('click', () => {
       try {
