@@ -682,12 +682,14 @@
   // ESCUCHAR PATRULLAS EN TIEMPO REAL
   // ========================================
   function listenToPatrullas() {
-    // Usar estructura anidada: clientes/{clienteId}/patrullas/
-    // clienteId es el ID real del documento (puede diferir de la ciudad).
-    const ruta = `clientes/${clienteId}/patrullas`;
+    // Intentar estructura anidada primero, fallback a colección global
+    const rutaAnidada = `clientes/${clienteId}/patrullas`;
+    const rutaGlobal = `patrullas_${municipio}`;
     
-    console.log(`📡 Escuchando patrullas en: ${ruta}`);
+    console.log(`📡 Intentando cargar patrullas en: ${rutaAnidada}`);
+    console.log(`📡 Fallback a: ${rutaGlobal}`);
 
+    // Intentar primero la ruta anidada
     db.collection('clientes').doc(clienteId).collection('patrullas').onSnapshot((snapshot) => {
       console.log(`📊 Snapshot recibido: ${snapshot.size} patrullas`);
       patrullas.clear();
@@ -716,7 +718,23 @@
       console.log(`🔄 Actualizando UI con ${patrullas.size} patrullas (unificadas)`);
       actualizarUI();
     }, (error) => {
-      console.error('❌ Error escuchando patrullas:', error);
+      console.error('❌ Error escuchando patrullas en ruta anidada:', error);
+      console.log(`🔄 Intentando fallback a colección global: patrullas_${municipio}`);
+      
+      // Fallback a colección global
+      db.collection(`patrullas_${municipio}`).onSnapshot((snapshot) => {
+        console.log(`📊 Snapshot recibido (fallback): ${snapshot.size} patrullas`);
+        patrullas.clear();
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          patrullas.set(doc.id, { ...data, id: doc.id });
+        });
+        console.log(`✅ Patrullas cargadas desde fallback: ${patrullas.size} unidades`);
+        actualizarUI();
+      }, (fallbackError) => {
+        console.error('❌ Error en ambas rutas:', fallbackError);
+        document.getElementById('patrullas-list').innerHTML = '<div class="loading" style="color:red;">Error cargando patrullas</div>';
+      });
     });
   }
 
