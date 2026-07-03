@@ -23,10 +23,6 @@ class Dashboard {
     this.render();
     console.log("✅ Init completado");
     
-    // Inicializar panel de preguntas
-    console.log("📋 Inicializando panel de preguntas con", this.clientesData.length, "clientes");
-    this.initQuestionsPanel();
-    
     // IMPORTANTE: Escuchar cambios de hash
     console.log("🔗 Agregando listener para hashchange...");
     window.addEventListener('hashchange', () => {

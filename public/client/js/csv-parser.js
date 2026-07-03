@@ -115,9 +115,15 @@ class CSVParser {
             } else if (feature.geometry.type === 'Polygon') {
               // Usar el primer punto del polígono
               [lng, lat] = feature.geometry.coordinates[0][0];
+            } else if (feature.geometry.type === 'MultiPolygon') {
+              // Usar el primer punto del primer polígono
+              [lng, lat] = feature.geometry.coordinates[0][0][0];
             } else if (feature.geometry.type === 'LineString') {
               // Usar el primer punto de la línea
               [lng, lat] = feature.geometry.coordinates[0];
+            } else if (feature.geometry.type === 'MultiLineString') {
+              // Usar el primer punto de la primera línea
+              [lng, lat] = feature.geometry.coordinates[0][0];
             } else if (feature.geometry.type === 'MultiPoint') {
               // Usar el primer punto
               [lng, lat] = feature.geometry.coordinates[0];
@@ -154,8 +160,12 @@ class CSVParser {
             isPoint = true;
           } else if (geojson.geometry.type === 'Polygon') {
             [lng, lat] = geojson.geometry.coordinates[0][0];
+          } else if (geojson.geometry.type === 'MultiPolygon') {
+            [lng, lat] = geojson.geometry.coordinates[0][0][0];
           } else if (geojson.geometry.type === 'LineString') {
             [lng, lat] = geojson.geometry.coordinates[0];
+          } else if (geojson.geometry.type === 'MultiLineString') {
+            [lng, lat] = geojson.geometry.coordinates[0][0];
           }
           
           if (lat !== undefined && lng !== undefined) {

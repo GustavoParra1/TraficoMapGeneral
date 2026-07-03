@@ -3178,6 +3178,25 @@ auth.onAuthStateChanged((user) => {
         try {
           const clientDb = window.clientDb || firebase.firestore();
           const clientId = window.restoredClienteId || 'laplata';
+          
+          // ========== NUEVO: Cargar barrios de la colección de Firestore ==========
+          console.log('📍 Cargando barrios desde colección Firestore...');
+          const barriosRef = clientDb.collection('clientes').doc(clientId).collection('barrios');
+          barriosRef.get().then(barriosSnap => {
+            barriosSnap.forEach(doc => {
+              const data = doc.data();
+              const nombre = data.nombre || data.propiedades?.nombre || data.properties?.nombre;
+              if (nombre) {
+                barrios.add(nombre);
+                console.log(`  ✓ Barrio Firestore: "${nombre}"`);
+              }
+            });
+            console.log(`📍 Total de barrios desde Firestore: ${barriosSnap.size}`);
+          }).catch(e => {
+            console.warn('⚠️ Error cargando barrios de Firestore:', e);
+          });
+          // ==========================================================================
+          
           const siniestrosRef = clientDb.collection('clientes').doc(clientId).collection('siniestros');
           
           siniestrosRef.get().then(async siniestrosSnap => {
@@ -3255,16 +3274,47 @@ auth.onAuthStateChanged((user) => {
           const barrio = e.target.value;
           console.log('🏘️ Barrio global seleccionado:', barrio);
           
-          // Aplicar filtro SOLO a las capas que ya están visibles
+          // Obtener checkboxes
           const sinCheckbox = document.getElementById('siniestros-checkbox');
           const camCheckbox = document.getElementById('cameras-checkbox');
           const privCamCheckbox = document.getElementById('private-cameras-checkbox');
           const semaforosCheckbox = document.getElementById('semaforos-checkbox');
+          const toggleBarrios = document.getElementById('toggle-barrios');
           
-          if (sinCheckbox && sinCheckbox.checked) {
-            SiniestrosLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
-            console.log(`  ✓ Filtro de siniestros actualizado: ${barrio}`);
+          // Si se selecciona un barrio específico (no "all"), auto-activar siniestros y barrios
+          if (barrio !== 'all') {
+            // Auto-activar checkbox de siniestros
+            if (sinCheckbox && !sinCheckbox.checked) {
+              console.log('✅ Auto-activando siniestros para filtrar por barrio...');
+              sinCheckbox.checked = true;
+              if (SiniestrosLayer) {
+                SiniestrosLayer.toggle(true);
+              }
+            }
+            
+            // Auto-activar checkbox de barrios para mostrar el polígono resaltado
+            if (toggleBarrios && !toggleBarrios.checked) {
+              console.log('✅ Auto-activando barrios para mostrar resaltado...');
+              toggleBarrios.checked = true;
+              if (GeoLayers) {
+                GeoLayers.toggleLayer('Zonas / Barrios');
+              }
+            }
+            
+            // Aplicar filtro a siniestros (ahora siempre chequeado)
+            if (sinCheckbox && SiniestrosLayer) {
+              SiniestrosLayer.setFilter('globalBarrio', barrio);
+              console.log(`  ✓ Filtro de siniestros actualizado: ${barrio}`);
+            }
+          } else {
+            // Si es "all", remover el filtro
+            if (sinCheckbox && SiniestrosLayer) {
+              SiniestrosLayer.setFilter('globalBarrio', 'all');
+              console.log(`  ✓ Filtro de siniestros removido`);
+            }
           }
+          
+          // Aplicar filtro a otras capas si están visibles
           if (camCheckbox && camCheckbox.checked) {
             CamerasLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
             console.log(`  ✓ Filtro de cámaras actualizado: ${barrio}`);
