@@ -35,34 +35,35 @@ const FormatHelp = (() => {
       title: '🚗 SINIESTROS',
       description: 'Puntos de accidentes/eventos viales',
       format: 'CSV o GeoJSON (Point)',
-      csvColumns: ['lat (OBLIGATORIO)', 'lng (OBLIGATORIO)', 'causa', 'participantes', 'fecha', 'descripcion'],
-      csvExample: `lat,lng,causa,participantes,fecha,descripcion
--38.0055,-57.5521,D,A/M,2024-01-15,Choque doble
--38.0060,-57.5525,A,M/P,2024-01-16,Caída de moto`,
+      csvColumns: ['lat (OBLIGATORIO)', 'lng (OBLIGATORIO)', 'barrio (RECOMENDADO)', 'causa', 'participantes', 'fecha', 'descripcion'],
+      csvExample: `lat,lng,barrio,causa,participantes,fecha,descripcion
+-38.0055,-57.5521,Centro,D,A/M,2024-01-15,Choque doble
+-38.0060,-57.5525,Villa Elisa,A,M/P,2024-01-16,Caída de moto`,
       csvInfo: `
         <p style="background: #ffe0e0; padding: 10px; border-radius: 4px; margin: 10px 0;">
-          <strong>⚠️ IMPORTANTE:</strong> Las columnas <code>lat</code> y <code>lng</code> son <strong>OBLIGATORIAS</strong>.
-          No se soporta lookup por cámara. Todos los siniestros deben tener coordenadas exactas.
+          <strong>⚠️ IMPORTANTE:</strong> Las columnas <code>lat</code> y <code>lng</code> son <strong>OBLIGATORIAS</strong>.<br>
+          No se soporta lookup por cámara. Todos los siniestros deben tener coordenadas exactas.<br>
+          <strong>La columna <code>barrio</code> es RECOMENDADA</strong>: Permite asociar cada siniestro a un barrio específico para el filtrado en la UI.
         </p>
         <p><strong>🔴 Códigos de Causas (obligatorio si tienes el dato):</strong></p>
         <ul style="font-size: 12px; column-count: 2;">
           <li><code>D</code> - Distracción</li>
           <li><code>A</code> - Alcohol</li>
-          <li><code>AV</code> - Avería</li>
+          <li><code>AV</code> - Atropello Voluntario</li>
           <li><code>EV</code> - Exceso de velocidad</li>
-          <li><code>FV</code> - Falta de visibilidad</li>
+          <li><code>FV</code> - Falla en la Vía</li>
           <li><code>G</code> - Giro prohibido</li>
           <li><code>MI</code> - Maniobra indebida</li>
           <li><code>MR</code> - Maniobra riesgosa</li>
-          <li><code>NR</code> - No respetar norma</li>
+          <li><code>NR</code> - No Respetar Prioridad de Paso</li>
           <li><code>NSD</code> - No se determinó</li>
           <li><code>P</code> - Peatón</li>
           <li><code>PC</code> - Parada confusa</li>
-          <li><code>PI</code> - Piso inseguro</li>
+          <li><code>PI</code> - Peatón Imprudente</li>
           <li><code>VS</code> - Vía segura</li>
-          <li><code>DF</code> - Defecto fatal</li>
+          <li><code>DF</code> - Distancia de Frenado</li>
           <li><code>DESCOMPENSAN</code> - Descompensación</li>
-          <li><code>IC</code> - Inexperiencia/Conducción</li>
+          <li><code>IC</code> - Invasión de Carril</li>
           <li><code>PERSECUCIÓN</code> - Persecución</li>
           <li><code>?</code> - Desconocido</li>
         </ul>

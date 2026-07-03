@@ -6,6 +6,11 @@ import json
 import sys
 import os
 
+# Fix encoding for Windows console output
+if sys.stdout.encoding != 'utf-8':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
 # Rutas de archivos
 csv_file = 'public/data/SINIESTROS.csv'
 cameras_file = 'public/data/cameras.csv'  # Si existe
@@ -68,7 +73,7 @@ if not cameras_dict:
     print("⚠️ No se pudieron cargar coordenadas de cámaras. Los siniestros tendrán coordenadas [0, 0]")
 
 # --- 2. LEER SINIESTROS Y ASIGNAR COORDENADAS ---
-encodings = ['latin-1', 'iso-8859-1', 'cp1252', 'utf-8']
+encodings = ['utf-8', 'latin-1', 'iso-8859-1', 'cp1252']
 
 df = None
 used_encoding = None

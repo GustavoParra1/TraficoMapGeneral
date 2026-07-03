@@ -68,6 +68,15 @@ class ClientDashboard {
     }, 500);
   }
 
+  async init() {
+    console.log("📊 Inicializando ClientDashboard...");
+    // Mostrar dashboard por defecto (initQuestionsPanel se llamará desde showDashboard)
+    this.showPage('dashboard');
+  }
+
+  // Panel de preguntas se inicializa en map.html, no en dashboard
+  // Este método se eliminó para que solo el mapa muestre preguntas frecuentes
+
     async ensureFirebaseSession() {
       let currentUser = firebase.auth().currentUser;
       if (currentUser) {
@@ -648,7 +657,6 @@ class ClientDashboard {
         </div>
       </div>
     `;
-
     // Cargar estadísticas
     this.loadStats();
   }
@@ -1664,7 +1672,223 @@ class ClientDashboard {
     const url = `/denuncias/?cliente=${encodeURIComponent(clienteId)}`;
     window.open(url, 'denunciasPanel', 'width=1100,height=800,menubar=yes,toolbar=yes');
   }
+
+  async getAnswerWithRealData(question) {
+    const q = question.toLowerCase();
+    
+    try {
+      // Obtener referencia a Firestore del cliente
+      const clientDb = this.clientDb || firebase.firestore();
+      const clientId = this.clientData?.id || 'laplata';
+      
+      console.log(`🔍 Procesando pregunta: "${question}" para cliente: ${clientId}`);
+      
+      // Contar siniestros
+      const siniestrosRef = clientDb.collection('clientes').doc(clientId).collection('siniestros');
+      const siniestrosSnap = await siniestrosRef.get();
+      const totalSiniestros = siniestrosSnap.size;
+      
+      // Contar cámaras públicas
+      const camerasRef = clientDb.collection('clientes').doc(clientId).collection('cameras');
+      const camerasSnap = await camerasRef.get();
+      const totalCameraasPublicas = camerasSnap.size;
+      
+      // Contar cámaras privadas
+      const camerasPrivRef = clientDb.collection('clientes').doc(clientId).collection('cameras_privadas');
+      const camerasPrivSnap = await camerasPrivRef.get();
+      const totalCameraasPrivadas = camerasPrivSnap.size;
+      
+      const totalCameras = totalCameraasPublicas + totalCameraasPrivadas;
+      
+      console.log(`📊 Datos cargados: ${totalSiniestros} siniestros, ${totalCameraasPublicas}+${totalCameraasPrivadas} cámaras`);
+      
+      let respuesta = {
+        titulo: '📊 Resumen',
+        contenido: 'No encontré respuesta específica'
+      };
+      
+      // Procesar diferentes tipos de preguntas
+      if (q.includes('resumen') || q.includes('eventos registrados')) {
+        respuesta = {
+          titulo: `📊 Resumen de Eventos - ${this.clientData?.nombre || 'Tu Municipio'}`,
+          contenido: `
+            <div style="line-height: 1.8;">
+              <p><strong style="color: #dc2626;">🚨 Siniestros Registrados:</strong> <strong>${totalSiniestros}</strong></p>
+              <p><strong style="color: #059669;">📹 Cámaras Públicas:</strong> <strong>${totalCameraasPublicas}</strong></p>
+              <p><strong style="color: #d97706;">🔒 Cámaras Privadas:</strong> <strong>${totalCameraasPrivadas}</strong></p>
+              <p><strong style="color: #2563eb;">📊 Total de Cámaras:</strong> <strong>${totalCameras}</strong></p>
+              <hr style="margin: 12px 0; border: none; border-top: 1px solid #e5e7eb;">
+              <p style="font-size: 12px; color: #6b7280; margin-top: 8px;">
+                Datos actualizados desde Firebase. Última actualización: Ahora
+              </p>
+            </div>
+          `
+        };
+      } else if (q.includes('zona') || q.includes('distribución') || q.includes('geográfica')) {
+        // Agrupar por zona
+        const zonas = {};
+        siniestrosSnap.forEach(doc => {
+          const barrio = doc.data().barrio || 'Sin clasificar';
+          zonas[barrio] = (zonas[barrio] || 0) + 1;
+        });
+        
+        const topZonas = Object.entries(zonas)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5);
+        
+        const zonasHTML = topZonas.map(([zona, count]) => 
+          `<div style="display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #e5e7eb;">
+            <span>${zona}</span>
+            <strong style="color: #dc2626;">${count}</strong>
+          </div>`
+        ).join('');
+        
+        respuesta = {
+          titulo: '🗺️ Distribución por Zona Geográfica',
+          contenido: `
+            <div>
+              <p style="margin-bottom: 12px; font-size: 13px; color: #475569;">Top 5 zonas con más siniestros:</p>
+              ${zonasHTML}
+            </div>
+          `
+        };
+      } else if (q.includes('cobertura') || q.includes('cámaras')) {
+        const cobertura = totalSiniestros > 0 ? Math.round((totalCameras / totalSiniestros) * 100) : 0;
+        respuesta = {
+          titulo: '📹 Cobertura de Cámaras',
+          contenido: `
+            <div style="line-height: 1.8;">
+              <p><strong>Ratio Cobertura:</strong></p>
+              <div style="background: #f0f9ff; padding: 12px; border-radius: 6px; margin: 12px 0; text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: #0284c7;">${cobertura}%</div>
+                <small style="color: #0c4a6e;">${totalCameras} cámaras / ${totalSiniestros} siniestros</small>
+              </div>
+              <p style="font-size: 12px; color: #475569; margin-top: 12px;">
+                <strong>${totalCameraasPublicas}</strong> cámaras públicas activas<br>
+                <strong>${totalCameraasPrivadas}</strong> cámaras privadas disponibles
+              </p>
+            </div>
+          `
+        };
+      } else if (q.includes('tendencia') || q.includes('últimos') || q.includes('reciente')) {
+        respuesta = {
+          titulo: '📈 Últimos Registros',
+          contenido: `
+            <div>
+              <p style="margin-bottom: 12px; font-size: 13px; color: #475569;">
+                Se han registrado <strong style="color: #dc2626;">${totalSiniestros}</strong> siniestros<br>
+                Cobertura con <strong style="color: #059669;">${totalCameras}</strong> cámaras
+              </p>
+              <div style="background: #fef2f2; padding: 12px; border-radius: 6px; border-left: 3px solid #dc2626;">
+                <small style="color: #7f1d1d;">
+                  Los datos se actualizan cada vez que carga un nuevo evento o cámara desde la solapa "Cargar Datos"
+                </small>
+              </div>
+            </div>
+          `
+        };
+      }
+      
+      console.log('✅ Respuesta generada:', respuesta);
+      return respuesta;
+      
+    } catch (error) {
+      console.error('❌ Error cargando datos:', error);
+      return {
+        titulo: '⚠️ Error',
+        contenido: `<p style="color: #dc2626;">No pude cargar los datos. ${error.message}</p>`
+      };
+    }
+  }
+  
+  showAnswerModal(respuesta) {
+    // Crear modal
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      z-index: 2000;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: popIn 0.3s ease-out;
+    `;
+    
+    modal.innerHTML = `
+      <div style="padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #1f2937;">${respuesta.titulo}</h3>
+          <button onclick="this.closest('[data-modal]').remove()" style="
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #9ca3af;
+          ">×</button>
+        </div>
+        
+        <div style="color: #475569; font-size: 13px; line-height: 1.6;">
+          ${respuesta.contenido}
+        </div>
+        
+        <div style="margin-top: 20px; text-align: right;">
+          <button onclick="this.closest('[data-modal]').remove()" style="
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+          ">Cerrar</button>
+        </div>
+      </div>
+    `;
+    
+    modal.setAttribute('data-modal', 'true');
+    
+    // Agregar animación CSS si no existe
+    if (!document.getElementById('modal-animation-style')) {
+      const style = document.createElement('style');
+      style.id = 'modal-animation-style';
+      style.textContent = `
+        @keyframes popIn {
+          from { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+          to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    // Agregar overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1999;
+    `;
+    overlay.onclick = () => {
+      overlay.remove();
+      modal.remove();
+    };
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(modal);
+  }
 }
+
 // Instancia global
 const clientDashboard = new ClientDashboard();
+
 console.log("✅ ClientDashboard loaded");

@@ -21,46 +21,46 @@ const SiniestrosLayer = (() => {
 
   // Colores por causa (normalizada) - Mejorados para mejor visibilidad
   const causeColors = {
-    'Distracción': '#FF1744',              // Rojo vivo
-    'Exceso de Velocidad': '#FF6F00',      // Naranja oscuro
-    'Alcohol': '#D32F2F',                  // Rojo oscuro
-    'Avería': '#FFA500',                   // Naranja
-    'Falta de Visibilidad': '#FF00FF',     // Magenta
-    'Giro Prohibido': '#9C27B0',           // Púrpura
-    'Maniobra Indebida': '#FF4500',        // Naranja rojo
-    'Maniobra Riesgosa': '#C2185B',        // Rosa oscura
-    'No Respetar Norma': '#00C853',        // Verde brillante
-    'No Se Puede Determinar': '#616161',   // Gris
-    'Peatón': '#0D47A1',                   // Azul oscuro
-    'Pierde Control': '#B71C1C',           // Rojo muy oscuro
-    'Piso Inseguro': '#E91E63',            // Rosa fuerte
-    'Violación de Semáforo': '#FF8F00',   // Naranja oscuro
-    'Defecto Fatal': '#4A148C',            // Púrpura oscuro
-    'Descompensación': '#7B1FA2',          // Púrpura oscuro
-    'Inexperiencia/Conducción': '#FF8A65', // Naranja claro
-    'Persecución': '#C2185B',              // Rosa oscuro
-    'No Especificado': '#FF4444',          // Rojo brillante
-    'Punto': '#00B8D4'                     // Cian vibrante (fallback temporal)
+    'Distracción': '#FF1744',                    // Rojo vivo
+    'Exceso de Velocidad': '#FF6F00',            // Naranja oscuro
+    'Alcohol': '#D32F2F',                        // Rojo oscuro
+    'Atropello Voluntario': '#FFA500',           // Naranja
+    'Falla en la Vía': '#FF00FF',                // Magenta
+    'Giro Prohibido': '#9C27B0',                 // Púrpura
+    'Maniobra Indebida': '#FF4500',              // Naranja rojo
+    'Maniobra Riesgosa': '#C2185B',              // Rosa oscura
+    'No Respetar Prioridad de Paso': '#00C853', // Verde brillante
+    'No Se Puede Determinar': '#616161',         // Gris
+    'Peatón': '#0D47A1',                         // Azul oscuro
+    'Pierde Control': '#B71C1C',                 // Rojo muy oscuro
+    'Peatón Imprudente': '#E91E63',              // Rosa fuerte
+    'Violación de Semáforo': '#FF8F00',          // Naranja oscuro
+    'Distancia de Frenado': '#4A148C',           // Púrpura oscuro
+    'Descompensación': '#7B1FA2',                // Púrpura oscuro
+    'Invasión de Carril': '#FF8A65',             // Naranja claro
+    'Persecución': '#C2185B',                    // Rosa oscuro
+    'No Especificado': '#FF4444',                // Rojo brillante
+    'Punto': '#00B8D4'                           // Cian vibrante (fallback temporal)
   };
 
   const causeMap = {
     'D': { name: 'Distracción', code: 'D' },
     'A': { name: 'Alcohol', code: 'A' },
-    'AV': { name: 'Avería', code: 'AV' },
+    'AV': { name: 'Atropello Voluntario', code: 'AV' },
     'EV': { name: 'Exceso de Velocidad', code: 'EV' },
-    'FV': { name: 'Falta de Visibilidad', code: 'FV' },
+    'FV': { name: 'Falla en la Vía', code: 'FV' },
     'G': { name: 'Giro Prohibido', code: 'G' },
     'MI': { name: 'Maniobra Indebida', code: 'MI' },
     'MR': { name: 'Maniobra Riesgosa', code: 'MR' },
-    'NR': { name: 'No Respetar Norma', code: 'NR' },
+    'NR': { name: 'No Respetar Prioridad de Paso', code: 'NR' },
     'NSD': { name: 'No Se Puede Determinar', code: 'NSD' },
     'P': { name: 'Peatón', code: 'P' },
     'PC': { name: 'Pierde Control', code: 'PC' },
-    'PI': { name: 'Piso Inseguro', code: 'PI' },
+    'PI': { name: 'Peatón Imprudente', code: 'PI' },
     'VS': { name: 'Violación de Semáforo', code: 'VS' },
-    'DF': { name: 'Defecto Fatal', code: 'DF' },
+    'DF': { name: 'Distancia de Frenado', code: 'DF' },
     'DESCOMPENSAN': { name: 'Descompensación', code: 'DESCOMPENSAN' },
-    'IC': { name: 'Inexperiencia/Conducción', code: 'IC' },
+    'IC': { name: 'Invasión de Carril', code: 'IC' },
     'PERSECUCIÓN': { name: 'Persecución', code: 'PERSECUCIÓN' },
     '?': { name: 'No Especificado', code: '?' }
   };
@@ -150,6 +150,9 @@ const SiniestrosLayer = (() => {
     
     // Obtener calle/dirección
     normalized.calle = getProp(props, ['direccion', 'Calle', 'calle', 'DIRECCIÓN SINIESTRO', 'DIRECCION SINIESTRO']);
+    
+    // Obtener barrio (NUEVO: leer field barrio si existe en el CSV)
+    normalized.barrio = getProp(props, ['barrio', 'Barrio', 'BARRIOS', 'barrios', 'zona', 'Zona']);
     
     return normalized;
   }
@@ -373,6 +376,11 @@ const SiniestrosLayer = (() => {
 
     if (polygon.type === 'Polygon') {
       const coords = polygon.coordinates[0];
+      if (!coords || coords.length < 3) {
+        console.warn(`   ⚠️ Polygon tiene ${coords?.length || 0} coordenadas (mínimo 3 requeridas)`);
+        return false;
+      }
+      
       for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
         const xi = coords[i][0], yi = coords[i][1];
         const xj = coords[j][0], yj = coords[j][1];
@@ -410,6 +418,9 @@ const SiniestrosLayer = (() => {
           break;
         }
       }
+    } else {
+      console.warn(`   ⚠️ Tipo de geometry desconocido: "${polygon.type}"`);
+      return false;
     }
     
     return inside;
@@ -420,18 +431,31 @@ const SiniestrosLayer = (() => {
    */
   function getBarrioForPoint(point) {
     if (!barriosGeoJson) {
-      console.warn('⚠️ barriosGeoJson no está disponible en SiniestrosLayer');
+      console.warn('⚠️ barriosGeoJson NO ESTÁ DISPONIBLE en SiniestrosLayer');
       return null;
     }
     
     const totalBarrios = barriosGeoJson.features?.length || 0;
-    let testCounter = 0;
+    
+    if (totalBarrios === 0) {
+      console.warn('⚠️ barriosGeoJson tiene 0 features');
+      return null;
+    }
+    
+    // Debug CADA VEZ para ver estructura
+    console.log(`🔍 getBarrioForPoint llamado:`, {
+      point,
+      totalBarrios,
+      primerBarrio: barriosGeoJson.features[0]?.properties,
+      primerGeometry: barriosGeoJson.features[0]?.geometry?.type
+    });
     
     for (let i = 0; i < totalBarrios; i++) {
       const feature = barriosGeoJson.features[i];
       
       // Verificar estructura del geometry antes de pasar a pointInPolygon
       if (!feature.geometry || !feature.geometry.coordinates) {
+        console.warn(`  ⚠️ Feature [${i}] sin geometry válida`);
         continue;
       }
       
@@ -439,10 +463,16 @@ const SiniestrosLayer = (() => {
       
       if (match) {
         const barrio = feature.properties?.nombre || feature.properties?.soc_fomen;
+        console.log(`  ✅ COINCIDENCIA EN BARRIO [${i}]: "${barrio}"`);
+        if (!barrio) {
+          console.warn('⚠️ Feature coincide pero sin nombre:', feature.properties);
+          return 'Sin nombre';
+        }
         return barrio;
       }
     }
     
+    console.warn(`  ❌ Punto [${point[0]}, ${point[1]}] NO ESTÁ EN NINGÚN BARRIO`);
     return null;
   }
 
@@ -537,35 +567,58 @@ const SiniestrosLayer = (() => {
 
       // Filtro por barrio global (prioritario)
       if (filters.globalBarrio !== 'all') {
-        const coords = feature.geometry?.coordinates;
-        if (coords && coords.length === 2) {
-          // DEBUG: Solo para los primeros 2 siniestros, log muy detallado
-          if (debugCount < 2) {
-            console.log(`\n🔍🔍🔍 SINIESTRO [${debugCount}] coords: [${coords[0]}, ${coords[1]}]`);
-            console.log(`   Filtro activo: "${filters.globalBarrio}"`);
-            console.log(`   Buscando en ${barriosGeoJson?.features?.length || 0} barrios...`);
-          }
-          
-          const sinBarrio = getBarrioForPoint(coords);
-          
-          if (debugCount < 2) {
-            console.log(`   RESULTADO FINAL: sinBarrio = "${sinBarrio}"`);
-            console.log(`   ¿Coincide con filtro? ${sinBarrio === filters.globalBarrio}`);
-            console.log(`🔍🔍🔍\n`);
+        // PRIMERO: Chequear si el siniestro tiene un field 'barrio' definido
+        const barrioDelSiniestro = normalized.barrio;
+        
+        if (barrioDelSiniestro) {
+          // USAR EL BARRIO DEL SINIESTRO DIRECTAMENTE
+          if (debugCount < 3) {
+            console.log(`🎯 SINIESTRO [${debugCount}] tiene barrio en CSV: "${barrioDelSiniestro}" vs filtro "${filters.globalBarrio}"`);
           }
           debugCount++;
           
-          // Si el punto no está en ningún barrio, excluirlo
-          if (sinBarrio === null) {
+          // Comparar EXACTAMENTE (case-sensitive)
+          if (barrioDelSiniestro !== filters.globalBarrio) {
             return false;
           }
-          
-          // Si el barrio no coincide, excluirlo
-          if (sinBarrio !== filters.globalBarrio) {
-            return false;
-          }
+          // ✅ Coincide, continuar con próximos filtros
         } else {
-          return false;
+          // FALLBACK: Si no tiene barrio en CSV, usar point-in-polygon
+          const coords = feature.geometry?.coordinates;
+          if (coords && coords.length === 2) {
+            // DEBUG: Solo para los primeros 3 siniestros, log muy detallado
+            if (debugCount < 3) {
+              console.log(`\n🔍 SINIESTRO [${debugCount}] SIN barrio en CSV, usando point-in-polygon`);
+              console.log(`   coords: [${coords[0]}, ${coords[1]}]`);
+              console.log(`   Filtro buscado: "${filters.globalBarrio}"`);
+              console.log(`   barriosGeoJson disponible: ${!!barriosGeoJson}`);
+              console.log(`   barriosGeoJson features: ${barriosGeoJson?.features?.length || 0}`);
+            }
+            
+            const sinBarrio = getBarrioForPoint(coords);
+            
+            if (debugCount < 3) {
+              console.log(`   Resultado de getBarrioForPoint: "${sinBarrio}"`);
+              console.log(`   ¿Coincide? ${sinBarrio === filters.globalBarrio}`);
+              if (sinBarrio === null) {
+                console.warn(`   ⚠️ PUNTO ESTÁ FUERA DE TODOS LOS BARRIOS`);
+              }
+              console.log(`🔍\n`);
+            }
+            debugCount++;
+            
+            // Si el punto no está en ningún barrio, excluirlo
+            if (sinBarrio === null) {
+              return false;
+            }
+            
+            // Si el barrio no coincide, excluirlo
+            if (sinBarrio !== filters.globalBarrio) {
+              return false;
+            }
+          } else {
+            return false;
+          }
         }
       }
 
@@ -897,6 +950,17 @@ const SiniestrosLayer = (() => {
 
   // Establecer barrios GeoJSON para filtrado geopolítico
   function setBarriosGeoJson(barrios) {
+    console.log(`📍 setBarriosGeoJson() llamado:`, {
+      barrios_type: typeof barrios,
+      barrios_is_null: barrios === null,
+      barrios_is_undefined: barrios === undefined,
+      features_count: barrios?.features?.length || 0,
+      first_feature: barrios?.features?.[0] ? {
+        nombre: barrios.features[0].properties?.nombre,
+        soc_fomen: barrios.features[0].properties?.soc_fomen,
+        geometry_type: barrios.features[0].geometry?.type
+      } : null
+    });
     barriosGeoJson = barrios;
   }
 
@@ -999,6 +1063,8 @@ const SiniestrosLayer = (() => {
     setBarriosGeoJson,
     setupFilterListeners,
     getFiltered: () => filteredSiniestros,
-    getAll: () => sinistrosData
+    getAll: () => sinistrosData,
+    getBarrioForPoint,  // 🔧 Exponer para que app.js pueda usarlo
+    pointInPolygon      // 🔧 Exponer también pointInPolygon
   };
 })();

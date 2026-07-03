@@ -13,6 +13,133 @@ class ClientDashboard {
     };
   }
 
+  async init() {
+    console.log("📊 Inicializando ClientDashboard...");
+    // Mostrar dashboard por defecto (initQuestionsPanel se llamará desde showDashboard)
+    this.showPage('dashboard');
+  }
+
+  initQuestionsPanel() {
+    // Obtener municipio del cliente para mostrar preguntas específicas
+    const municipio = this.clientData && (this.clientData.municipio || this.clientData.nombre);
+    
+    // Definir preguntas por municipio
+    const questionsByMunicipio = {
+      'laplata': {
+        '🎯 Análisis de Siniestros': [
+          { emoji: '📍', text: 'Siniestros por barrio en últimos 30 días' },
+          { emoji: '🚗', text: 'Top 5 calles más peligrosas' },
+          { emoji: '📈', text: 'Tendencia de accidentes por mes' },
+          { emoji: '🚨', text: 'Incidentes en horario pico' }
+        ],
+        '📷 Cobertura de Cámaras': [
+          { emoji: '🗺️', text: 'Mapa de cámaras activas' },
+          { emoji: '⚠️', text: 'Zonas sin cobertura' },
+          { emoji: '🔧', text: 'Cámaras con problemas' },
+          { emoji: '📊', text: 'Estadísticas de eventos capturados' }
+        ],
+        '💡 Sugerencias': [
+          { emoji: '🎯', text: 'Optimizar ubicación de cámaras' },
+          { emoji: '🔍', text: 'Mejorar cobertura en puntos críticos' },
+          { emoji: '📱', text: 'Alertas en tiempo real activadas' }
+        ]
+      },
+      'cordoba': {
+        '🎯 Análisis de Siniestros Córdoba': [
+          { emoji: '📍', text: 'Siniestros por zona en últimos 30 días' },
+          { emoji: '🚗', text: 'Top 5 avenidas más peligrosas' },
+          { emoji: '📈', text: 'Tendencia de accidentes por mes' },
+          { emoji: '🚨', text: 'Eventos en horarios de mayor tráfico' }
+        ],
+        '📷 Infraestructura de Cámaras': [
+          { emoji: '🗺️', text: 'Mapa de cámaras por zona' },
+          { emoji: '⚠️', text: 'Identificar puntos ciegos' },
+          { emoji: '🔧', text: 'Mantenimiento de cámaras' },
+          { emoji: '📊', text: 'Detecciones y alertas generadas' }
+        ],
+        '💡 Recomendaciones': [
+          { emoji: '🎯', text: 'Estrategia de cobertura óptima' },
+          { emoji: '🔍', text: 'Expansión en zonas críticas' },
+          { emoji: '📱', text: 'Integración de alertas automáticas' }
+        ]
+      }
+    };
+
+    // Obtener preguntas para este municipio, o usar preguntas genéricas
+    const questionsData = questionsByMunicipio[municipio?.toLowerCase()] || {
+      '🎯 Análisis de Datos': [
+        { emoji: '📊', text: 'Resumen de eventos registrados' },
+        { emoji: '📍', text: 'Distribución por zona geográfica' },
+        { emoji: '📈', text: 'Tendencias temporales' }
+      ],
+      '📷 Cámaras': [
+        { emoji: '🗺️', text: 'Ubicación de cámaras' },
+        { emoji: '🔧', text: 'Estado de dispositivos' },
+        { emoji: '📊', text: 'Cobertura y detecciones' }
+      ]
+    };
+
+    // Inicializar el questions panel con las preguntas específicas
+    if (typeof initQuestionsPanel === 'function') {
+      setTimeout(() => {
+        initQuestionsPanel(questionsData);
+        
+        // Personalizar el manejador de preguntas para mostrar feedback
+        if (questionsPanel) {
+          questionsPanel.handleQuestion = (question) => {
+            console.log('📞 Cliente pregunta:', question);
+            
+            // Cerrar el panel de preguntas
+            questionsPanel.close();
+            
+            // Mostrar notificación de consulta procesada
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+              position: fixed;
+              bottom: 20px;
+              right: 20px;
+              background: linear-gradient(135deg, #10b981, #059669);
+              color: white;
+              padding: 16px 20px;
+              border-radius: 8px;
+              box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+              z-index: 2000;
+              font-size: 13px;
+              max-width: 320px;
+              word-wrap: break-word;
+              animation: slideInUp 0.3s ease-out;
+            `;
+            toast.innerHTML = `
+              <strong style="display: block; margin-bottom: 6px;">✅ Consulta Enviada</strong>
+              <em style="display: block; font-size: 12px; opacity: 0.9;">${question}</em>
+              <small style="display: block; margin-top: 8px; opacity: 0.8;">Te responderemos en breve</small>
+            `;
+            document.body.appendChild(toast);
+            
+            // Agregar animación CSS si no existe
+            if (!document.getElementById('toast-animation-style')) {
+              const style = document.createElement('style');
+              style.id = 'toast-animation-style';
+              style.textContent = `
+                @keyframes slideInUp {
+                  from { transform: translateY(100px); opacity: 0; }
+                  to { transform: translateY(0); opacity: 1; }
+                }
+              `;
+              document.head.appendChild(style);
+            }
+            
+            // Remover el toast después de 5 segundos
+            setTimeout(() => {
+              toast.style.animation = 'slideInUp 0.3s ease-out reverse';
+              setTimeout(() => toast.remove(), 300);
+            }, 5000);
+          };
+        }
+      }, 100);
+    }
+  }
+
   async showPage(page) {
     try {
       console.log("📄 Mostrando página:", page);
@@ -150,6 +277,9 @@ class ClientDashboard {
 
     // Cargar estadísticas
     this.loadStats();
+    
+    // Inicializar panel de preguntas después de renderizar el dashboard
+    this.initQuestionsPanel();
   }
 
   async loadStats() {

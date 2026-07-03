@@ -411,18 +411,24 @@
               const csv = e.target.result;
               const lines = csv.split('\n');
               const headers = lines[0].split(',').map(h => h.trim());
+              const headersNormalized = headers.map(h => h.toLowerCase().replace(/[^\w]/g, ''));
 
-              // Detectar tipo de colección
+              // Detectar tipo de colección (usar headers NORMALIZADOS)
               let tipo = null;
-              if (headers.some(h => h.toLowerCase().includes('camara'))) tipo = 'camaras';
-              else if (headers.some(h => h.toLowerCase().includes('siniestro'))) tipo = 'siniestros';
-              else if (headers.some(h => h.toLowerCase().includes('operador'))) tipo = 'operadores';
-              else if (headers.some(h => h.toLowerCase().includes('patrulla'))) tipo = 'patrullas';
+              if (headersNormalized.some(h => h.includes('camara'))) tipo = 'camaras';
+              else if (headersNormalized.some(h => h.includes('operador'))) tipo = 'operadores';
+              else if (headersNormalized.some(h => h.includes('patrulla'))) tipo = 'patrullas';
+              else if (headersNormalized.some(h => h.includes('siniestro'))) tipo = 'siniestros';
+              // FALLBACK: Si tiene 'lat' y 'lng', es probablemente siniestros
+              else if (headersNormalized.some(h => h === 'lat') && headersNormalized.some(h => h === 'lng')) tipo = 'siniestros';
 
               if (!tipo) {
-                alert('No se pudo detectar el tipo de datos. Verifica los encabezados.');
+                alert('No se pudo detectar el tipo de datos. Verifica los encabezados.' + '\n\nHeaders encontrados: ' + headers.join(', '));
+                console.error('Headers encontrados:', headers, 'Normalizados:', headersNormalized);
                 return;
               }
+              
+              console.log('📋 Tipo detectado:', tipo, 'Headers:', headers, 'Normalizados:', headersNormalized);
 
               // Mostrar progreso
               document.getElementById('progressContainer').style.display = 'block';
@@ -435,11 +441,25 @@
               for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
 
-                const values = lines[i].split(',').map(v => v.trim());
+                const values = lines[i].split(',').map(v => v.trim().replace(/^["']|["']$/g, ''));
                 const obj = {};
                 headers.forEach((h, idx) => {
-                  obj[h.toLowerCase().replace(/[^\w]/g, '')] = values[idx] || '';
+                  const normalizedHeader = h.toLowerCase().replace(/[^\w]/g, '');
+                  obj[normalizedHeader] = values[idx] || '';
                 });
+                
+                // Para siniestros: preservar explícitamente el field 'barrio' con cualquier variante de nombre
+                if (tipo === 'siniestros') {
+                  const barrio = obj.barrio || obj.barrio_zona || obj.zona || '';
+                  if (barrio) {
+                    obj.barrio = barrio; // Asegurar que el field barrio existe
+                  }
+                }
+
+                // DEBUG
+                if (i <= 2) {
+                  console.log(`📝 Fila ${i}:`, obj);
+                }
 
                 // Validación solo para siniestros
                 if (tipo === 'siniestros') {
@@ -448,6 +468,19 @@
                     errores.push(`Fila ${i+1}: Falta lat o lng.`);
                     continue;
                   }
+                  
+                  // Convertir lat/lng a números
+                  const lat = parseFloat(obj.lat);
+                  const lng = parseFloat(obj.lng);
+                  if (isNaN(lat) || isNaN(lng)) {
+                    errores.push(`Fila ${i+1}: lat (${obj.lat}) o lng (${obj.lng}) no son números válidos.`);
+                    continue;
+                  }
+                  
+                  // GUARDAR COMO NÚMEROS para que se puedan usar en filtrado
+                  obj.lat = lat;
+                  obj.lng = lng;
+                  
                   // causa (si existe) debe ser válida
                   if (obj.causa && !causasValidas.includes(obj.causa)) {
                     errores.push(`Fila ${i+1}: Causa inválida (${obj.causa}).`);
@@ -462,13 +495,19 @@
                       continue;
                     }
                   }
+                  
+                  if (i <= 2) {
+                    console.log(`✅ Fila ${i} VÁLIDA - será guardada:`, obj);
+                  }
                 }
 
                 // Guardar en Firestore
-                await db.collection('clientes').document(currentClienteId).collection(tipo).add({
+                const docRef = await db.collection('clientes').document(currentClienteId).collection(tipo).add({
                   ...obj,
                   timestamp: new Date()
                 });
+                
+                console.log(`💾 Guardado siniestro ${i}:`, { id: docRef.id, ...obj });
 
                 count++;
                 const progress = Math.round((count / total) * 100);

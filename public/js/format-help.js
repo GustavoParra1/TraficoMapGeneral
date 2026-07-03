@@ -35,16 +35,21 @@ const FormatHelp = (() => {
       title: '🚗 SINIESTROS',
       description: 'Puntos de accidentes/eventos viales',
       format: 'CSV o GeoJSON (Point)',
-      csvColumns: ['lat (OBLIGATORIO)', 'lng (OBLIGATORIO)', 'hora (RECOMENDADO)', 'causa', 'participantes', 'fecha', 'descripcion'],
-      csvExample: `lat,lng,hora,causa,participantes,fecha,descripcion
--38.0055,-57.5521,09:30,D,A/M,2024-01-15,Choque doble
--38.0060,-57.5525,14:15,A,M/P,2024-01-16,Caída de moto`,
+      csvColumns: ['lat (OBLIGATORIO)', 'lng (OBLIGATORIO)', 'barrio (RECOMENDADO)', 'hora (RECOMENDADO)', 'causa', 'participantes', 'fecha', 'descripcion'],
+      csvExample: `lat,lng,barrio,hora,causa,participantes,fecha,descripcion
+-38.0055,-57.5521,Centro,09:30,D,A/M,2024-01-15,Choque doble
+-38.0060,-57.5525,Villa Elisa,14:15,A,M/P,2024-01-16,Caída de moto`,
       csvInfo: `
         <p style="background: #ffe0e0; padding: 10px; border-radius: 4px; margin: 10px 0;">
           <strong>⚠️ IMPORTANTE:</strong> Las columnas <code>lat</code> y <code>lng</code> son <strong>OBLIGATORIAS</strong>.<br>
           No se soporta lookup por cámara. Todos los siniestros deben tener coordenadas exactas.<br>
+          <strong>La columna <code>barrio</code> es RECOMENDADA</strong>: Permite asociar cada siniestro a un barrio específico para el filtrado en la UI.<br>
           <strong>La validación es estricta:</strong> Si hay algún error en causas, participantes o formato de hora, <u>no se subirá ningún dato</u> y se mostrarán los errores detectados.<br>
           <strong>Funciona para cualquier ciudad:</strong> Solo cambia el archivo CSV y el cliente correspondiente.
+        </p>
+        <p style="background: #e3f2fd; padding: 10px; border-radius: 4px; margin: 10px 0;">
+          <strong>🏘️ Columna "barrio":</strong> Ingresa el nombre del barrio/zona donde ocurrió el siniestro (ej: Centro, Villa Elisa, Este, etc.).<br>
+          Este valor se usará para filtrar siniestros en el dropdown de barrios del mapa. Si dejas vacío, se generará automáticamente.
         </p>
         <p style="background: #fff3cd; padding: 10px; border-radius: 4px; margin: 10px 0;">
           <strong>🕐 Propiedad RECOMENDADA - hora:</strong> Formato <code>HH:MM</code> (ej: 09:30, 14:15, 23:59).<br>
@@ -54,21 +59,21 @@ const FormatHelp = (() => {
         <ul style="font-size: 12px; column-count: 2;">
           <li><code>D</code> - Distracción</li>
           <li><code>A</code> - Alcohol</li>
-          <li><code>AV</code> - Avería</li>
+          <li><code>AV</code> - Atropello Voluntario</li>
           <li><code>EV</code> - Exceso de velocidad</li>
-          <li><code>FV</code> - Falta de visibilidad</li>
+          <li><code>FV</code> - Falla en la Vía</li>
           <li><code>G</code> - Giro prohibido</li>
           <li><code>MI</code> - Maniobra indebida</li>
           <li><code>MR</code> - Maniobra riesgosa</li>
-          <li><code>NR</code> - No respetar norma</li>
+          <li><code>NR</code> - No Respetar Prioridad de Paso</li>
           <li><code>NSD</code> - No se determinó</li>
           <li><code>P</code> - Peatón</li>
           <li><code>PC</code> - Parada confusa</li>
-          <li><code>PI</code> - Piso inseguro</li>
+          <li><code>PI</code> - Peatón Imprudente</li>
           <li><code>VS</code> - Vía segura</li>
-          <li><code>DF</code> - Defecto fatal</li>
+          <li><code>DF</code> - Distancia de Frenado</li>
           <li><code>DESCOMPENSAN</code> - Descompensación</li>
-          <li><code>IC</code> - Inexperiencia/Conducción</li>
+          <li><code>IC</code> - Invasión de Carril</li>
           <li><code>PERSECUCIÓN</code> - Persecución</li>
           <li><code>?</code> - Desconocido</li>
         </ul>

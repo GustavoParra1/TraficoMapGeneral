@@ -21,46 +21,46 @@ const SiniestrosLayer = (() => {
 
   // Colores por causa (normalizada) - Mejorados para mejor visibilidad
   const causeColors = {
-    'Distracción': '#FF1744',              // Rojo vivo
-    'Exceso de Velocidad': '#FF6F00',      // Naranja oscuro
-    'Alcohol': '#D32F2F',                  // Rojo oscuro
-    'Avería': '#FFA500',                   // Naranja
-    'Falta de Visibilidad': '#FF00FF',     // Magenta
-    'Giro Prohibido': '#9C27B0',           // Púrpura
-    'Maniobra Indebida': '#FF4500',        // Naranja rojo
-    'Maniobra Riesgosa': '#C2185B',        // Rosa oscura
-    'No Respetar Norma': '#00C853',        // Verde brillante
-    'No Se Puede Determinar': '#616161',   // Gris
-    'Peatón': '#0D47A1',                   // Azul oscuro
-    'Pierde Control': '#B71C1C',           // Rojo muy oscuro
-    'Piso Inseguro': '#E91E63',            // Rosa fuerte
-    'Violación de Semáforo': '#FF8F00',   // Naranja oscuro
-    'Defecto Fatal': '#4A148C',            // Púrpura oscuro
-    'Descompensación': '#7B1FA2',          // Púrpura oscuro
-    'Inexperiencia/Conducción': '#FF8A65', // Naranja claro
-    'Persecución': '#C2185B',              // Rosa oscuro
-    'No Especificado': '#FF4444',          // Rojo brillante
-    'Punto': '#00B8D4'                     // Cian vibrante (fallback temporal)
+    'Distracción': '#FF1744',                    // Rojo vivo
+    'Exceso de Velocidad': '#FF6F00',            // Naranja oscuro
+    'Alcohol': '#D32F2F',                        // Rojo oscuro
+    'Atropello Voluntario': '#FFA500',           // Naranja
+    'Falla en la Vía': '#FF00FF',                // Magenta
+    'Giro Prohibido': '#9C27B0',                 // Púrpura
+    'Maniobra Indebida': '#FF4500',              // Naranja rojo
+    'Maniobra Riesgosa': '#C2185B',              // Rosa oscura
+    'No Respetar Prioridad de Paso': '#00C853', // Verde brillante
+    'No Se Puede Determinar': '#616161',         // Gris
+    'Peatón': '#0D47A1',                         // Azul oscuro
+    'Pierde Control': '#B71C1C',                 // Rojo muy oscuro
+    'Peatón Imprudente': '#E91E63',              // Rosa fuerte
+    'Violación de Semáforo': '#FF8F00',          // Naranja oscuro
+    'Distancia de Frenado': '#4A148C',           // Púrpura oscuro
+    'Descompensación': '#7B1FA2',                // Púrpura oscuro
+    'Invasión de Carril': '#FF8A65',             // Naranja claro
+    'Persecución': '#C2185B',                    // Rosa oscuro
+    'No Especificado': '#FF4444',                // Rojo brillante
+    'Punto': '#00B8D4'                           // Cian vibrante (fallback temporal)
   };
 
   const causeMap = {
     'D': { name: 'Distracción', code: 'D' },
     'A': { name: 'Alcohol', code: 'A' },
-    'AV': { name: 'Avería', code: 'AV' },
+    'AV': { name: 'Atropello Voluntario', code: 'AV' },
     'EV': { name: 'Exceso de Velocidad', code: 'EV' },
-    'FV': { name: 'Falta de Visibilidad', code: 'FV' },
+    'FV': { name: 'Falla en la Vía', code: 'FV' },
     'G': { name: 'Giro Prohibido', code: 'G' },
     'MI': { name: 'Maniobra Indebida', code: 'MI' },
     'MR': { name: 'Maniobra Riesgosa', code: 'MR' },
-    'NR': { name: 'No Respetar Norma', code: 'NR' },
+    'NR': { name: 'No Respetar Prioridad de Paso', code: 'NR' },
     'NSD': { name: 'No Se Puede Determinar', code: 'NSD' },
     'P': { name: 'Peatón', code: 'P' },
     'PC': { name: 'Pierde Control', code: 'PC' },
-    'PI': { name: 'Piso Inseguro', code: 'PI' },
+    'PI': { name: 'Peatón Imprudente', code: 'PI' },
     'VS': { name: 'Violación de Semáforo', code: 'VS' },
-    'DF': { name: 'Defecto Fatal', code: 'DF' },
+    'DF': { name: 'Distancia de Frenado', code: 'DF' },
     'DESCOMPENSAN': { name: 'Descompensación', code: 'DESCOMPENSAN' },
-    'IC': { name: 'Inexperiencia/Conducción', code: 'IC' },
+    'IC': { name: 'Invasión de Carril', code: 'IC' },
     'PERSECUCIÓN': { name: 'Persecución', code: 'PERSECUCIÓN' },
     '?': { name: 'No Especificado', code: '?' }
   };

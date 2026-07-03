@@ -61,6 +61,86 @@ if (SpeechRecognition) {
 }
 
 // ========================================
+// PREGUNTAS RÁPIDAS / AYUDA
+// ========================================
+const QUICK_QUESTIONS = [
+  { emoji: '📍', text: 'Solicitar refuerzo' },
+  { emoji: '🚨', text: 'Reporte de emergencia' },
+  { emoji: '✅', text: 'Incidente controlado' },
+  { emoji: '🚗', text: 'Control de velocidad' },
+  { emoji: '🛣️', text: 'Bloqueo de vía' },
+  { emoji: '👤', text: 'Persona sospechosa' },
+  { emoji: '💔', text: 'Accidente de tránsito' },
+  { emoji: '🚨', text: 'Delito en curso' },
+  { emoji: '📞', text: 'Contacto con Centro de Control' },
+  { emoji: '✋', text: 'En descanso, no disponible' },
+];
+
+function initializeQuestionsPanel() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = QUICK_QUESTIONS.map((q, idx) => `
+    <button class="question-button" data-question="${q.text}" style="
+      width: 100%;
+      padding: 14px 16px;
+      border: none;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #1e293b;
+      transition: all 0.2s;
+      background: white;
+    " onmouseover="this.style.background='#f1f5f9'; this.style.paddingLeft='20px';" onmouseout="this.style.background='white'; this.style.paddingLeft='16px';">
+      <span style="font-size: 20px;">${q.emoji}</span>
+      <span style="flex: 1;">${q.text}</span>
+      <span style="color: #94a3b8; font-size: 13px;">→</span>
+    </button>
+  `).join('');
+
+  // Agregar event listeners a cada pregunta
+  document.querySelectorAll('.question-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const question = btn.getAttribute('data-question');
+      sendQuickMessage(question);
+      // Cerrar modal
+      document.getElementById('modal-questions').style.display = 'none';
+    });
+  });
+}
+
+async function sendQuickMessage(question) {
+  try {
+    console.log(`📨 Enviando pregunta rápida: "${question}"`);
+    
+    // Normalizar municipio
+    const municipioNorm = municipio.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+    const coleccion = `chat_${municipioNorm}`;
+    
+    const mensajeData = {
+      from: patrullaId,
+      to: 'CENTRO_CONTROL',
+      text: question,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      read: false,
+      isQuickQuestion: true
+    };
+
+    const docRef = await db.collection(coleccion).add(mensajeData);
+    console.log(`✅ Pregunta rápida enviada: ${docRef.id}`);
+    
+    // Refrescar chat
+    await renderMessages();
+  } catch (error) {
+    console.error('❌ Error enviando pregunta rápida:', error);
+    alert('Error: ' + error.message);
+  }
+}
+
+// ========================================
 // COMPRESIÓN DE IMÁGENES
 // ========================================
 function compressImage(base64String, callback, maxWidth = 800, maxHeight = 600, quality = 0.6) {
@@ -719,6 +799,12 @@ function init() {
       document.getElementById('btn-voice-chat').title = 'Navegador no soporta reconocimiento de voz';
     }
 
+    // Botón de preguntas rápidas
+    document.getElementById('btn-help-questions').addEventListener('click', () => {
+      initializeQuestionsPanel();
+      document.getElementById('modal-questions').style.display = 'flex';
+    });
+
     document.getElementById('btn-camera').addEventListener('click', () => {
       try {
         console.log('📸 Botón cámara clickeado');
@@ -866,6 +952,13 @@ function init() {
         } catch (error) {
           console.error('Error:', error);
         }
+      }
+    });
+
+    // Cerrar modal de preguntas al hacer click fuera
+    document.getElementById('modal-questions').addEventListener('click', (e) => {
+      if (e.target.id === 'modal-questions') {
+        document.getElementById('modal-questions').style.display = 'none';
       }
     });
 

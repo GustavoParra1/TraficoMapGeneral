@@ -78,6 +78,16 @@ function iniciarMapa() {
       } catch (err) {
         console.error('❌ Error inicializando PatullaLayer:', err);
       }
+
+      // Inicializar ZonesHighlighter para modo cliente
+      try {
+        if (window.isClientMode && typeof ZonesHighlighter !== 'undefined') {
+          zonesHighlighter = new ZonesHighlighter(map);
+          console.log('✅ ZonesHighlighter inicializado');
+        }
+      } catch (err) {
+        console.error('❌ Error inicializando ZonesHighlighter:', err);
+      }
       
       console.log("✅ Mapa inicializado completamente");
     } catch (err) {
@@ -164,6 +174,30 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
               _docId: doc.id
             }
           });
+        } else if (data.geometryJSON) {
+          // 🔧 Soporte para geometryJSON (usado en barrios Firestore)
+          // Puede venir como STRING JSON o como objeto
+          let geometryObj = data.geometryJSON;
+          if (typeof geometryObj === 'string') {
+            try {
+              geometryObj = JSON.parse(geometryObj);
+            } catch (e) {
+              console.warn('❌ Error parseando geometryJSON:', e);
+              return;
+            }
+          }
+          
+          if (geometryObj && geometryObj.type && geometryObj.coordinates) {
+            features.push({
+              type: 'Feature',
+              geometry: geometryObj,
+              properties: {
+                ...data,
+                _id: doc.id,
+                _docId: doc.id
+              }
+            });
+          }
         } else if (data.lat !== undefined && data.lng !== undefined) {
           // Convertir documento con lat/lng a Feature tipo Point
           features.push({
@@ -209,11 +243,18 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
       if (siniestros.size > 0) {
         const sinGeoJson = firestoreColToGeoJSON(siniestros.docs);
         console.log(`  ✓ ${sinGeoJson.features.length} siniestros cargados`);
-        SiniestrosLayer.clearFilters();
-        SiniestrosLayer.loadFromGeoJson(sinGeoJson, true);
-        heatmapLayer.setData(sinGeoJson);
-        if (bariosGeoJson) {
-          heatmapLayer.setBarriosGeoJson(bariosGeoJson);
+        
+        // Solo intentar cargar si SiniestrosLayer está disponible
+        if (typeof SiniestrosLayer !== 'undefined') {
+          SiniestrosLayer.clearFilters();
+          SiniestrosLayer.loadFromGeoJson(sinGeoJson, true);
+          heatmapLayer.setData(sinGeoJson);
+          if (bariosGeoJson) {
+            heatmapLayer.setBarriosGeoJson(bariosGeoJson);
+          }
+          console.log(`  ✅ Siniestros cargados en SiniestrosLayer`);
+        } else {
+          console.log(`  ⚠️ SiniestrosLayer aún no disponible, se cargará después en cargarDatosGeograficos()`);
         }
       } else {
         console.log(`  ℹ️ No hay siniestros en la base de datos del cliente`);
@@ -564,9 +605,32 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
       SiniestrosLayer.setBarriosGeoJson(bariosGeoJson);
     }
     
+    // INTENTO 1: Cargar siniestros desde Firestore (datos cargados por usuario)
+    console.log(`  [3A/5] Intentando cargar siniestros desde Firestore...`);
+    let sinGeoJson = null;
+    try {
+      const sinFirestore = await clientDb.collection(`clientes/${clienteId}/siniestros`).get();
+      if (sinFirestore.size > 0) {
+        console.log(`      ✓ ${sinFirestore.size} siniestros encontrados en Firestore`);
+        sinGeoJson = firestoreColToGeoJSON(sinFirestore.docs);
+        console.log(`      ✓ Convertidos a GeoJSON: ${sinGeoJson.features.length} features`);
+      } else {
+        console.log(`      ℹ️ No hay siniestros en Firestore, intentando cargar desde archivo...`);
+      }
+    } catch (error) {
+      console.debug(`ℹ️ Error cargando siniestros de Firestore:`, error.message);
+    }
+    
+    // FALLBACK: Si no hay en Firestore, cargar desde archivo por defecto
+    if (!sinGeoJson || sinGeoJson.features.length === 0) {
+      console.log(`  [3B/5] Cargando siniestros desde archivo: ${cityConfig.files.siniestros}`);
+      sinGeoJson = await loadData(cityConfig.files.siniestros);
+    } else {
+      console.log(`  [3/5] Usará siniestros cargados de Firestore`);
+    }
+    
     // PASO 3: Cargar siniestros 
-    console.log(`  [3/5] Cargando siniestros desde: ${cityConfig.files.siniestros}`);
-    const sinGeoJson = await loadData(cityConfig.files.siniestros);
+    console.log(`  [3/5] Procesando siniestros (${sinGeoJson?.features?.length || 0} total)`);
     if (sinGeoJson) {
       SiniestrosLayer.clearFilters();
       // Actualizar también el heatmap con los nuevos datos
@@ -579,7 +643,12 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
         console.log(`      ℹ️ Cargando siniestros desde memoria (usuario)`);
         // Cargar siniestros desde GeoJSON en memoria (importados)
         SiniestrosLayer.loadFromGeoJson(sinGeoJson, true);
+      } else if (sinGeoJson && sinGeoJson.features && sinGeoJson.features.length > 0) {
+        console.log(`      ✅ Cargando siniestros desde Firestore (${sinGeoJson.features.length} features)`);
+        // Usar el GeoJSON que cargamos de Firestore
+        SiniestrosLayer.loadFromGeoJson(sinGeoJson, true);
       } else {
+        console.log(`      📁 Cargando siniestros desde archivo: ${cityConfig.files.siniestros}`);
         await SiniestrosLayer.load(cityConfig.files.siniestros);
       }
       console.log(`      ✓ Siniestros cargados`);
@@ -591,9 +660,32 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
       }
     }
     
+    // INTENTO 1: Cargar cámaras desde Firestore
+    console.log(`  [4A/5] Intentando cargar cámaras desde Firestore...`);
+    let camGeoJson = null;
+    try {
+      const camFirestore = await clientDb.collection(`clientes/${clienteId}/camaras`).get();
+      if (camFirestore.size > 0) {
+        console.log(`      ✓ ${camFirestore.size} cámaras encontradas en Firestore`);
+        camGeoJson = firestoreColToGeoJSON(camFirestore.docs);
+        console.log(`      ✓ Convertidas a GeoJSON: ${camGeoJson.features.length} features`);
+      } else {
+        console.log(`      ℹ️ No hay cámaras en Firestore, intentando cargar desde archivo...`);
+      }
+    } catch (error) {
+      console.debug(`ℹ️ Error cargando cámaras de Firestore:`, error.message);
+    }
+    
+    // FALLBACK: Si no hay en Firestore, cargar desde archivo por defecto
+    if (!camGeoJson || camGeoJson.features.length === 0) {
+      console.log(`  [4B/5] Cargando cámaras desde archivo: ${cityConfig.files.cameras}`);
+      camGeoJson = await loadData(cityConfig.files.cameras);
+    } else {
+      console.log(`  [4/5] Usará cámaras cargadas de Firestore`);
+    }
+    
     // PASO 4: Cargar cámaras públicas
-    console.log(`  [4/5] Cargando cámaras públicas desde: ${cityConfig.files.cameras}`);
-    const camGeoJson = await loadData(cityConfig.files.cameras);
+    console.log(`  [4/5] Procesando cámaras (${camGeoJson?.features?.length || 0} total)`);
     if (camGeoJson) {
       CamerasLayer.clearFilters();
       if (cityConfig.files.cameras.startsWith('data:')) {
@@ -1365,7 +1457,342 @@ auth.onAuthStateChanged((user) => {
           <small>info@municipio.gov.ar</small>
         </div>
       </div>
+
+      ${window.isClientMode ? `
+      <div class="sidebar-section" id="questions-section">
+        <!-- Panel de preguntas se renderizará aquí -->
+      </div>
+      ` : ''}
     `;
+    
+    // 🎯 INICIALIZAR PANEL DE PREGUNTAS INTEGRADO PARA MODO CLIENTE
+    if (window.isClientMode && typeof initQuestionsPanelIntegrated === 'function') {
+      setTimeout(() => {
+        try {
+          // Obtener municipio del cliente
+          const municipio = window.restoredClienteData?.nombre?.toLowerCase() || 'laplata';
+          
+          // Definir preguntas por municipio (solo para clientes)
+          const questionsByMunicipio = {
+            'laplata': {
+              '🎯 Análisis de Datos': [
+                { emoji: '🔥', text: '¿Zonas con mayor cantidad de Siniestros?' },
+                { emoji: '🚗', text: 'Top 5 calles más peligrosas' },
+                { emoji: '📈', text: 'Tendencia de accidentes por mes' }
+              ],
+              '📷 Cobertura de Cámaras': [
+                { emoji: '🗺️', text: 'Mapa de cámaras activas' },
+                { emoji: '⚠️', text: 'Zonas sin cobertura' },
+                { emoji: '🔧', text: 'Cámaras con problemas' },
+                { emoji: '📊', text: 'Estadísticas de eventos capturados' }
+              ],
+              '💡 Sugerencias': [
+                { emoji: '🎯', text: 'Optimizar ubicación de cámaras' },
+                { emoji: '🔍', text: 'Mejorar cobertura en puntos críticos' },
+                { emoji: '📱', text: 'Alertas en tiempo real activadas' }
+              ]
+            },
+            'cordoba': {
+              '🎯 Análisis de Datos': [
+                { emoji: '🔥', text: '¿Zonas con mayor cantidad de Siniestros?' },
+                { emoji: '🚗', text: 'Top 5 avenidas más peligrosas' },
+                { emoji: '📈', text: 'Tendencia de accidentes por mes' }
+              ],
+              '📷 Infraestructura de Cámaras': [
+                { emoji: '🗺️', text: 'Mapa de cámaras por zona' },
+                { emoji: '⚠️', text: 'Identificar puntos ciegos' },
+                { emoji: '🔧', text: 'Mantenimiento de cámaras' },
+                { emoji: '📊', text: 'Detecciones y alertas generadas' }
+              ],
+              '💡 Recomendaciones': [
+                { emoji: '🎯', text: 'Estrategia de cobertura óptima' },
+                { emoji: '🔍', text: 'Expansión en zonas críticas' },
+                { emoji: '📱', text: 'Integración de alertas automáticas' }
+              ]
+            }
+          };
+
+          const questionsData = questionsByMunicipio[municipio] || {
+            '🎯 Análisis de Datos': [
+              { emoji: '�', text: '¿Zonas con mayor cantidad de Siniestros?' },
+              { emoji: '🚗', text: 'Top 5 calles más peligrosas' },
+              { emoji: '📈', text: 'Tendencia de accidentes por mes' }
+            ]
+          };
+
+          // Función para manejar preguntas
+          const handleQuestionFn = async (question) => {
+            console.log('📞 Cliente pregunta desde mapa:', question);
+            
+            // SI ES LA PREGUNTA DE ZONAS CON MAS SINIESTROS
+            if (question.includes('Zonas con mayor cantidad de Siniestros')) {
+              try {
+                console.log('🔥 Cargando zonas con mayor cantidad de siniestros...');
+                
+                const clientDb = window.clientDb || firebase.firestore();
+                const clientId = window.restoredClienteId || 'laplata';
+                
+                // Obtener siniestros
+                const siniestrosRef = clientDb.collection('clientes').doc(clientId).collection('siniestros');
+                const siniestrosSnap = await siniestrosRef.get();
+                
+                // Función para determinar barrio usando point-in-polygon
+                const getBarrioForPoint = (lat, lng) => {
+                  // Usar la MISMA función que SiniestrosLayer usa en la inicialización
+                  if (typeof SiniestrosLayer !== 'undefined' && SiniestrosLayer.getBarrioForPoint) {
+                    return SiniestrosLayer.getBarrioForPoint([lng, lat]);
+                  }
+                  
+                  // Fallback si SiniestrosLayer no está disponible
+                  if (!window.bariosGeoJson) return 'Sin clasificar';
+                  
+                  // Buscar cuál barrio contiene este punto
+                  for (const feature of window.bariosGeoJson.features) {
+                    const barrio = feature.properties.nombre || feature.properties.BARRIO || 'Sin clasificar';
+                    
+                    // Point in polygon check (simple version)
+                    try {
+                      // Usar turf.js si está disponible, si no, aproximación simple
+                      if (window.turf && window.turf.booleanPointInPolygon) {
+                        const point = window.turf.point([lng, lat]);
+                        if (window.turf.booleanPointInPolygon(point, feature)) {
+                          return barrio;
+                        }
+                      }
+                    } catch (e) {
+                      console.warn('Error en point-in-polygon:', e);
+                    }
+                  }
+                  return 'Sin clasificar';
+                };
+                
+                // Agrupar por zona/barrio USANDO COORDENADAS
+                const zonas = {};
+                const detallesDebug = [];
+                siniestrosSnap.forEach(doc => {
+                  const data = doc.data();
+                  
+                  // Búsqueda flexible de barrio - intentar TODOS los campos que contengan 'barrio' o 'zona'
+                  let zona = null;
+                  for (const [key, value] of Object.entries(data)) {
+                    if ((key.toLowerCase().includes('barrio') || key.toLowerCase().includes('zona')) && value && typeof value === 'string') {
+                      zona = value;
+                      break;
+                    }
+                  }
+                  
+                  // Fallback: si no encontró, buscar variantes específicas
+                  if (!zona) {
+                    zona = data.barrio || data.Barrio || data.BARRIO || data.zona || data.Zona;
+                  }
+                  
+                  // Debug: guardar detalles solo de los primeros 3
+                  if (detallesDebug.length < 3) {
+                    detallesDebug.push({
+                      id: doc.id,
+                      todosLosCampos: Object.keys(data),
+                      barrioEncontrado: zona,
+                      lat: data.lat,
+                      lng: data.lng
+                    });
+                  }
+                  
+                  
+                  // Si no tiene barrio, determinar por coordenadas
+                  if (!zona && data.lat && data.lng) {
+                    zona = getBarrioForPoint(data.lat, data.lng);
+                  }
+                  
+                  zona = zona || 'Sin clasificar';
+                  zonas[zona] = (zonas[zona] || 0) + 1;
+                });
+                
+                console.log('📍 Debug de primeros 3 siniestros:', detallesDebug);
+                
+                console.log('📍 Zonas agrupadas:', zonas);
+                
+                // Obtener TOP zonas (mostrar todas si menos de 10, si no mostrar top 10)
+                const allZonas = Object.entries(zonas).sort((a, b) => b[1] - a[1]);
+                const topZonas = allZonas.slice(0, Math.max(10, allZonas.length));
+                
+                console.log('📊 Top zonas:', topZonas);
+                
+                // Crear contenido HTML para la ventana flotante
+                let contenidoHTML = `
+                  <div>
+                    <h4 style="margin: 0 0 16px 0; color: #667eea; font-size: 15px;">
+                      🔥 Zonas con Mayor Cantidad de Siniestros
+                    </h4>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                      <thead>
+                        <tr style="background: #f5f5f5; border-bottom: 2px solid #ddd;">
+                          <th style="padding: 10px; text-align: left; font-weight: 600; color: #333;">#</th>
+                          <th style="padding: 10px; text-align: left; font-weight: 600; color: #333;">Zona/Barrio</th>
+                          <th style="padding: 10px; text-align: center; font-weight: 600; color: #333;">Siniestros</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                `;
+                
+                topZonas.forEach(([zona, count], index) => {
+                  // Generar colores dinámicamente según la posición
+                  const paleta = ['#dc2626', '#ef4444', '#f87171', '#fca5a5', '#fecaca',
+                                  '#e0e7ff', '#c7d2fe', '#a5b4fc', '#818cf8', '#6366f1',
+                                  '#60a5fa', '#3b82f6', '#1d4ed8', '#1e40af', '#1e3a8a'];
+                  const colorIntensidad = paleta[index % paleta.length];
+                  
+                  contenidoHTML += `
+                    <tr style="border-bottom: 1px solid #e5e7eb; background: ${colorIntensidad}15;">
+                      <td style="padding: 10px; font-weight: 600; color: ${colorIntensidad};">${index + 1}</td>
+                      <td style="padding: 10px; color: #333;">${zona}</td>
+                      <td style="padding: 10px; text-align: center; font-weight: 600; color: ${colorIntensidad};">${count}</td>
+                    </tr>
+                  `;
+                });
+                
+                contenidoHTML += `
+                      </tbody>
+                    </table>
+                    <div style="margin-top: 16px; padding: 12px; background: #e0f2f7; border-left: 4px solid #0284c7; border-radius: 4px; font-size: 11px; color: #0c4a6e;">
+                      <strong>💡 Nota:</strong> Las zonas se han resaltado en el mapa con colores según densidad de siniestros.
+                    </div>
+                  </div>
+                `;
+                
+                // Mostrar ventana flotante
+                FloatingWindow.show(
+                  '📊 Análisis de Zonas - Siniestros',
+                  contenidoHTML,
+                  { 
+                    width: '500px', 
+                    maxHeight: '60vh',
+                    onClose: () => {
+                      // Limpiar la capa de siniestros resaltados al cerrar la ventana
+                      if (window.siniestrosHighlightGroup && map.hasLayer(window.siniestrosHighlightGroup)) {
+                        map.removeLayer(window.siniestrosHighlightGroup);
+                        console.log('🗑️ Capa de siniestros resaltados limpiada (ventana cerrada)');
+                      }
+                    }
+                  }
+                );
+                
+                // 🎨 Resaltar SINIESTROS en el mapa con colores de zona
+                if (map && siniestrosSnap) {
+                  try {
+                    console.log('🎨 Creando marcadores de siniestros resaltados...');
+                    
+                    // Paleta de colores para las 10 zonas
+                    const colores = [
+                      '#dc2626',  // 1 - Rojo oscuro
+                      '#ea580c',  // 2 - Naranja oscuro
+                      '#d97706',  // 3 - Ámbar
+                      '#ca8a04',  // 4 - Amarillo
+                      '#a16207',  // 5 - Naranja
+                      '#7c3aed',  // 6 - Púrpura
+                      '#2563eb',  // 7 - Azul
+                      '#0891b2',  // 8 - Cian
+                      '#059669',  // 9 - Verde
+                      '#4f46e5'   // 10 - Índigo
+                    ];
+
+                    // Crear mapeo: nombre zona -> índice en top 10
+                    const zonasMap = new Map();
+                    topZonas.forEach((zona, idx) => {
+                      zonasMap.set(zona[0].toLowerCase().trim(), idx);
+                    });
+
+                    // Crear un layer group para los siniestros resaltados
+                    const siniestrosHighlightGroup = L.layerGroup();
+                    
+                    let siniestrosResaltados = 0;
+
+                    // Iterar sobre cada siniestro
+                    siniestrosSnap.forEach(doc => {
+                      const data = doc.data();
+                      
+                      // Si tiene lat/lng y zona calculada
+                      if (data.lat && data.lng) {
+                        let zona = data.barrio || data.zona;
+                        if (!zona && data.lat && data.lng) {
+                          zona = getBarrioForPoint(data.lat, data.lng);
+                        }
+                        zona = zona || 'Sin clasificar';
+                        
+                        // Ver si esta zona está en el top 10
+                        const zonaLower = zona.toLowerCase().trim();
+                        const indiceEnTop10 = zonasMap.get(zonaLower);
+                        
+                        if (indiceEnTop10 !== undefined) {
+                          // Este siniestro está en una zona del top 10 - RESALTAR
+                          const color = colores[indiceEnTop10];
+                          const rank = indiceEnTop10 + 1;
+                          
+                          // Crear un marcador circular con color
+                          const marker = L.circleMarker([data.lat, data.lng], {
+                            radius: 8,
+                            fillColor: color,
+                            color: '#fff',
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                          });
+                          
+                          // Añadir popup
+                          marker.bindPopup(`
+                            <div style="font-size: 12px;">
+                              <strong style="color: ${color};">● Zona: ${zona}</strong><br/>
+                              <span style="font-size: 11px; color: #666;">Ranking: #${rank}</span><br/>
+                              <span style="font-size: 11px; color: #666;">Lat: ${data.lat.toFixed(4)}, Lng: ${data.lng.toFixed(4)}</span>
+                            </div>
+                          `);
+                          
+                          marker.addTo(siniestrosHighlightGroup);
+                          siniestrosResaltados++;
+                        }
+                      }
+                    });
+
+                    // Agregar el grupo al mapa
+                    siniestrosHighlightGroup.addTo(map);
+                    
+                    // Guardar referencia para poder limpiarla después
+                    window.siniestrosHighlightGroup = siniestrosHighlightGroup;
+
+                    console.log(`✅ ${siniestrosResaltados} siniestros resaltados en el mapa`);
+                  } catch (err) {
+                    console.error('❌ Error al crear marcadores de siniestros:', err);
+                    console.error('Stack:', err.stack);
+                  }
+                }
+                
+              } catch (error) {
+                console.error('❌ Error cargando zonas:', error);
+                FloatingWindow.show(
+                  '⚠️ Error',
+                  `<p style="color: #dc2626;">Error cargando datos: ${error.message}</p>`
+                );
+              }
+            }
+          };
+
+          // Inicializar el panel integrado
+          initQuestionsPanelIntegrated(questionsData, handleQuestionFn);
+
+          // Renderizar el panel en el sidebar
+          const questionsSection = document.getElementById('questions-section');
+          if (questionsSection && questionsPanelIntegrated) {
+            questionsSection.innerHTML = questionsPanelIntegrated.renderHTML();
+            
+            // Attach event listeners
+            questionsPanelIntegrated.attachEventListeners(handleQuestionFn);
+            
+            console.log('✅ Panel de preguntas integrado renderizado en sidebar');
+          }
+        } catch (error) {
+          console.error('❌ Error inicializando panel de preguntas:', error);
+        }
+      }, 500);
+    }
     
     // Adjuntar listener al checkbox de heatmap
     heatmapLayer.attachCheckboxListener();
@@ -1695,13 +2122,17 @@ auth.onAuthStateChanged((user) => {
           console.log(`  📋 Panel de filtros de siniestros: ${e.target.checked ? 'MOSTRADO' : 'OCULTADO'}`);
         }
         
-        SiniestrosLayer.toggle(e.target.checked);
-        // Aplicar filtro global si se activa
-        if (e.target.checked) {
-          applyGlobalBarrioFilter();
+        if (typeof SiniestrosLayer !== 'undefined') {
+          SiniestrosLayer.toggle(e.target.checked);
+          // Aplicar filtro global si se activa
+          if (e.target.checked) {
+            applyGlobalBarrioFilter();
+          } else {
+            // RESETEAR el filtro de barrio cuando se desactiva
+            SiniestrosLayer.setFilter('globalBarrio', 'all');
+          }
         } else {
-          // RESETEAR el filtro de barrio cuando se desactiva
-          SiniestrosLayer.setFilter('globalBarrio', 'all');
+          console.error('❌ SiniestrosLayer aún no está disponible');
         }
         
         // Desbloquear después de procesamiento
@@ -2725,25 +3156,95 @@ auth.onAuthStateChanged((user) => {
       // ==========================================
       const globalBarrioSelect = document.getElementById('global-barrio-filter');
       if (globalBarrioSelect && bariosGeoJson && bariosGeoJson.features) {
-        const barrios = new Set();
+        // 🔧 Llenar selector con los MISMOS barrios CALCULADOS que usa el filtro
+        // Usar exactamente la MISMA función que siniestros-layer.js usa
         
-        bariosGeoJson.features.forEach(feature => {
-          // Soportar ambas propiedades: soc_fomen (MDP) y nombre (Córdoba)
-          const barrioName = feature.properties?.nombre || feature.properties?.soc_fomen;
-          if (barrioName) {
-            barrios.add(barrioName);
+        const barrios = new Set();
+        let barriosDelGeoJSON = [];
+        
+        // PRIMERO: Obtener nombres de barrios directamente del GeoJSON
+        console.log('📍 GeoJSON features disponibles:', bariosGeoJson.features.length);
+        bariosGeoJson.features.forEach((feature, index) => {
+          const nombre = feature.properties?.nombre || feature.properties?.soc_fomen;
+          if (nombre) {
+            barriosDelGeoJSON.push(nombre);
+            console.log(`  [${index}] Barrio GeoJSON: "${nombre}"`);
+          } else {
+            console.warn(`  [${index}] ⚠️ Feature sin nombre:`, feature.properties);
           }
         });
         
-        // Agregar opciones de barrios
-        Array.from(barrios).sort().forEach(barrio => {
-          const option = document.createElement('option');
-          option.value = barrio;
-          option.textContent = barrio;
-          globalBarrioSelect.appendChild(option);
-        });
-        
-        console.log(`✓ ${barrios.size} barrios cargados en selector global`);
+        // Cargar siniestros y calcular barrios con la MISMA lógica
+        try {
+          const clientDb = window.clientDb || firebase.firestore();
+          const clientId = window.restoredClienteId || 'laplata';
+          const siniestrosRef = clientDb.collection('clientes').doc(clientId).collection('siniestros');
+          
+          siniestrosRef.get().then(async siniestrosSnap => {
+            const barriosCalculados = new Map(); // Para contar ocurrencias
+            let sinBarrioCount = 0;
+            const actualizacionesPromesas = []; // Para guardar las promesas de actualización
+            
+            siniestrosSnap.forEach(doc => {
+              const data = doc.data();
+              
+              // Usar EXACTAMENTE la misma lógica que en la ventana flotante
+              let zona = data.barrio || data.zona;
+              
+              // Si no tiene barrio, calcular con point-in-polygon
+              if (!zona && data.lat && data.lng) {
+                // Usar la MISMA función que SiniestrosLayer expone
+                if (typeof SiniestrosLayer !== 'undefined' && SiniestrosLayer.getBarrioForPoint) {
+                  zona = SiniestrosLayer.getBarrioForPoint([data.lng, data.lat]);
+                }
+              }
+              
+              if (!zona) {
+                zona = 'Sin clasificar';
+                sinBarrioCount++;
+              }
+              
+              barrios.add(zona);
+              barriosCalculados.set(zona, (barriosCalculados.get(zona) || 0) + 1);
+              
+              // 💾 Guardar el barrio calculado en Firestore si no existía
+              if (!data.barrio) {
+                actualizacionesPromesas.push(
+                  doc.ref.update({ barrio: zona }).catch(e => {
+                    console.warn(`⚠️ Error actualizando barrio para doc ${doc.id}:`, e);
+                  })
+                );
+              }
+            });
+            
+            // Esperar a que todas las actualizaciones se completen
+            if (actualizacionesPromesas.length > 0) {
+              console.log(`📝 Guardando ${actualizacionesPromesas.length} barrios en Firestore...`);
+              await Promise.all(actualizacionesPromesas);
+              console.log(`✅ Todos los barrios guardados en Firestore`);
+            }
+            
+            console.log(`✓ Barrios calculados: ${Array.from(barrios).sort().join(', ')}`);
+            console.log(`✓ Siniestros sin barrio: ${sinBarrioCount}`);
+            console.log(`✓ Distribución:`, Object.fromEntries(barriosCalculados));
+            
+            // Agregar opciones de barrios CALCULADOS
+            Array.from(barrios).sort().forEach(barrio => {
+              if (barrio) { // Verificar que no sea vacío
+                const option = document.createElement('option');
+                option.value = barrio;
+                option.textContent = barrio;
+                globalBarrioSelect.appendChild(option);
+              }
+            });
+            
+            console.log(`✓ ${barrios.size} barrios cargados en selector global`);
+          }).catch(e => {
+            console.warn('❌ Error al obtener barrios calculados:', e);
+          });
+        } catch (e) {
+          console.warn('❌ Error al configurar selector de barrios:', e);
+        }
       }
 
       // ==========================================
@@ -2780,6 +3281,13 @@ auth.onAuthStateChanged((user) => {
           // Aplicar filtro al heatmap (siempre, aunque no esté visible)
           heatmapLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
           console.log(`  ✓ Filtro de mapa de calor actualizado: ${barrio}`);
+          
+          // 🔧 CRUCIAL: Limpiar la capa de siniestros resaltados de la ventana flotante
+          // para que no interfiera con el filtrado global
+          if (window.siniestrosHighlightGroup && map.hasLayer(window.siniestrosHighlightGroup)) {
+            map.removeLayer(window.siniestrosHighlightGroup);
+            console.log('  ✓ Capa de siniestros resaltados limpiada (conflicto evitado)');
+          }
           
           // Solo resaltar visualmente - sin depender del checkbox
           if (barrio !== 'all') {
