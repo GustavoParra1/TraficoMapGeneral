@@ -168,23 +168,22 @@ class ClientMapManager {
     try {
       console.log('📍 Cargando datos del cliente:', this.clientId);
 
-
       // Solo patrullas vigentes (nueva colección)
       await this.loadPatrullas();
 
       // (Opcional: puedes agregar aquí loadOperarios si quieres mostrar operarios en el mapa)
 
-      // Si quieres mantener otras capas, descomenta las siguientes líneas:
-      // await this.loadCameras('cameras', 'cameras');
-      // await this.loadCameras('private_cameras', 'cameras_privadas');
-      // await this.loadSiniestros();
-      // await this.loadMarkers('semaforos', 'semaforos');
-      // await this.loadMarkers('colegios', 'colegios_escuelas');
-      // await this.loadMarkers('robo', 'robo');
-      // await this.loadGeoJSON('barrios', 'barrios');
-      // await this.loadGeoJSON('corredores', 'corredores_escolares');
-      // await this.loadMarkers('flujo', 'flujo');
-      // await this.loadColectivos();
+      // Cargar otras capas
+      await this.loadCameras('cameras', 'cameras');
+      await this.loadCameras('private_cameras', 'cameras_privadas');
+      await this.loadSiniestros();
+      await this.loadMarkers('semaforos', 'semaforos');
+      await this.loadMarkers('colegios', 'colegios_escuelas');
+      await this.loadMarkers('robo', 'robo');
+      await this.loadGeoJSON('barrios', 'barrios');
+      await this.loadGeoJSON('corredores', 'corredores_escolares');
+      await this.loadMarkers('flujo', 'flujo');
+      await this.loadColectivos();
 
       console.log('✅ Todos los datos cargados');
       console.log('📊 Bounds actual:', this.bounds);

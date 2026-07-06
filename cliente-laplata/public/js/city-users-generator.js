@@ -1,0 +1,410 @@
+/**
+ * MÓDULO DE GENERACIÓN DE USUARIOS Y CREDENCIALES PARA CIUDADES
+ * Genera automáticamente usuarios de patrullas y operadores al crear una ciudad
+ */
+
+const CityUsersGenerator = (() => {
+  
+  // Generar contraseña segura
+  const generateSecurePassword = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+  };
+
+  // Generar usuarios locales (sin crear en Firebase aún)
+  const generateUsersLocally = async (cityId, patrullasCount, operadoresCount) => {
+    const users = [];
+
+    // Generar patrullas
+    for (let i = 1; i <= patrullasCount; i++) {
+      const email = `patrulla-${cityId}-${String(i).padStart(2, '0')}@seguridad.com`;
+      const password = generateSecurePassword();
+      users.push({
+        rol: 'Patrulla',
+        email,
+        password,
+        municipio: cityId,
+        numero: String(i).padStart(2, '0')
+      });
+    }
+
+    // Generar operadores
+    for (let i = 1; i <= operadoresCount; i++) {
+      const email = `operador-${cityId}-${String(i).padStart(2, '0')}@seguridad.com`;
+      const password = generateSecurePassword();
+      users.push({
+        rol: 'Operador (Centro Control)',
+        email,
+        password,
+        municipio: cityId,
+        numero: String(i).padStart(2, '0')
+      });
+    }
+
+    return users;
+  };
+
+  // Crear usuarios en Firebase
+  const createUsersInFirebase = async (users) => {
+    const createdUsers = [];
+    const errors = [];
+    let createdCount = 0;
+    let reusingCount = 0;
+
+    for (const user of users) {
+      try {
+        console.log(`🔐 Creando usuario en Firebase: ${user.email}`);
+        
+        // Crear usuario en Firebase Auth
+        const userCredential = await auth.createUserWithEmailAndPassword(user.email, user.password);
+        console.log(`✅ Usuario creado en Auth: ${user.email} (UID: ${userCredential.user.uid})`);
+        
+        // Guardar datos adicionales en Firestore
+        await db.collection('users').doc(userCredential.user.uid).set({
+          email: user.email,
+          rol: user.rol === 'Patrulla' ? 'patrulla' : 'operador',
+          municipio: user.municipio,
+          numero: user.numero,
+          createdAt: new Date(),
+          active: true
+        });
+        
+        console.log(`✅ Datos guardados en Firestore para: ${user.email}`);
+        createdCount++;
+
+        createdUsers.push({
+          ...user,
+          uid: userCredential.user.uid,
+          status: 'Creado ✓',
+          createdAt: new Date()
+        });
+      } catch (error) {
+        // Manejar emails duplicados
+        if (error.code === 'auth/email-already-in-use') {
+          console.log(`♻️ Usuario ya existe, reutilizando: ${user.email}`);
+          reusingCount++;
+          
+          // Intentar obtener el UID del usuario existente desde Firestore
+          const existingUser = await db.collection('users')
+            .where('email', '==', user.email)
+            .limit(1)
+            .get();
+          
+          const uid = existingUser.docs.length > 0 ? existingUser.docs[0].id : 'unknown';
+          
+          createdUsers.push({
+            ...user,
+            uid: uid,
+            status: 'Reutilizado ♻️',
+            reusingExisting: true
+          });
+        } else {
+          console.error(`❌ Error creando ${user.email}:`, error.message);
+          
+          errors.push({
+            email: user.email,
+            error: error.message
+          });
+          
+          createdUsers.push({
+            ...user,
+            status: `Error: ${error.message}`,
+            error: true
+          });
+        }
+      }
+    }
+
+    console.log(`📊 Resumen: ${createdCount} creados, ${reusingCount} reutilizados, ${errors.length} errores`);
+    return { createdUsers, errors };
+  };
+
+  // Mostrar modal con credenciales
+  const showCredentialsModal = (users, cityName) => {
+    const successCount = users.filter(u => !u.error && !u.reusingExisting).length;
+    const reusingCount = users.filter(u => u.reusingExisting).length;
+    const errorCount = users.filter(u => u.error).length;
+    
+    const modalHtml = `
+      <div id="credentials-modal" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+      ">
+        <div style="
+          background: white;
+          border-radius: 8px;
+          max-width: 900px;
+          width: 95%;
+          max-height: 85vh;
+          overflow-y: auto;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+          padding: 30px;
+        ">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <h2 style="margin: 0 0 10px 0; color: #333;">📋 Credenciales - ${cityName}</h2>
+              <p style="margin: 0; color: #666; font-size: 13px;">
+                ${successCount > 0 ? `✅ ${successCount} creados` : ''} 
+                ${reusingCount > 0 ? `♻️ ${reusingCount} reutilizados` : ''} 
+                ${errorCount > 0 ? `❌ ${errorCount} errores` : ''}
+              </p>
+            </div>
+            <button onclick="document.getElementById('credentials-modal').remove()" style="
+              background: none;
+              border: none;
+              font-size: 28px;
+              cursor: pointer;
+              color: #999;
+            ">✕</button>
+          </div>
+
+          <table style="
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 13px;
+          ">
+            <thead>
+              <tr style="background: #0066ff; color: white;">
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Rol</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Email</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Contraseña</th>
+                <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 90px;">Estado</th>
+              </tr>
+            </thead>
+            <tbody id="credentials-table-body">
+              ${users.map((user, idx) => {
+                let statusColor = '#f9f9f9';
+                let statusBg = '#d4edda';
+                let statusText = '✅ OK';
+                
+                if (user.error) {
+                  statusColor = '#ffebee';
+                  statusBg = '#ffcdd2';
+                  statusText = '❌ Error';
+                } else if (user.reusingExisting) {
+                  statusColor = '#f3e5f5';
+                  statusBg = '#e1bee7';
+                  statusText = '♻️ Existe';
+                }
+                
+                return `
+                  <tr style="background: ${statusColor};">
+                    <td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">${user.rol}</td>
+                    <td style="padding: 12px; border: 1px solid #ddd; font-family: monospace; font-size: 12px;">${user.email}</td>
+                    <td style="padding: 12px; border: 1px solid #ddd; font-family: monospace; font-weight: bold; font-size: 12px;">${user.password || user.status}</td>
+                    <td style="padding: 12px; border: 1px solid #ddd; text-align: center; background: ${statusBg}; font-weight: bold; font-size: 12px;">${statusText}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+
+          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button id="copy-credentials-btn" style="
+              padding: 12px 20px;
+              background: #0066ff;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 14px;
+              font-weight: 600;
+            ">📋 Copiar Nuevos</button>
+
+            <button id="download-credentials-btn" style="
+              padding: 12px 20px;
+              background: #28a745;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 14px;
+              font-weight: 600;
+            ">📥 Descargar CSV</button>
+
+            <button id="close-credentials-btn" style="
+              padding: 12px 20px;
+              background: #999;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 14px;
+              font-weight: 600;
+              margin-left: auto;
+            ">Listo</button>
+          </div>
+
+          <div style="
+            background: #e3f2fd;
+            border-left: 4px solid #1976d2;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #0d47a1;
+          ">
+            ℹ️ <strong>Estados:</strong><br>
+            • ✅ OK = Usuario nuevo, listo para usar<br>
+            • ♻️ Existe = Usuario ya existía, se reutiliza (contraseña no cambia)<br>
+            • ❌ Error = Problema al verificar usuario
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Insertar modal
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    // Event listeners
+    document.getElementById('copy-credentials-btn').addEventListener('click', () => {
+      const newUsers = users.filter(u => !u.error && !u.reusingExisting);
+      if (newUsers.length === 0) {
+        alert('❌ No hay usuarios nuevos para copiar. Solo usuarios reutilizados.');
+        return;
+      }
+      const text = newUsers.map(u => `${u.rol}\t${u.email}\t${u.password}`).join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        alert(`✅ ${newUsers.length} credenciales copiadas al portapapeles`);
+      });
+    });
+
+    document.getElementById('download-credentials-btn').addEventListener('click', () => {
+      const newUsers = users.filter(u => !u.error && !u.reusingExisting);
+      if (newUsers.length === 0) {
+        alert('❌ No hay usuarios nuevos para descargar.');
+        return;
+      }
+      const csv = 'Rol,Email,Contraseña\n' + 
+                  newUsers.map(u => `"${u.rol}","${u.email}","${u.password}"`).join('\n');
+      
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `credenciales_${users[0]?.municipio || 'ciudad'}.csv`;
+      link.click();
+    });
+
+    document.getElementById('close-credentials-btn').addEventListener('click', () => {
+      document.getElementById('credentials-modal').remove();
+    });
+  };
+
+  // Mostrar formulario para cantidad de patrullas y operadores
+  const showCityUsersForm = (cityName, cityId) => {
+    return new Promise((resolve) => {
+      const formHtml = `
+        <div id="users-form-modal" style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 99999;
+        ">
+          <div style="
+            background: white;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            padding: 30px;
+          ">
+            <h2 style="margin: 0 0 10px 0; color: #333;">🚔 Configurar Patrullas y Operadores</h2>
+            <p style="color: #666; margin-bottom: 20px;">Para: <strong>${cityName}</strong></p>
+
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">
+                ¿Cuántas patrullas quieres crear?
+              </label>
+              <input type="number" id="patrullas-count" min="1" max="20" value="3" style="
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #999;
+                border-radius: 4px;
+                font-size: 14px;
+              ">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 600;">
+                ¿Cuántos operadores quieres crear?
+              </label>
+              <input type="number" id="operadores-count" min="1" max="10" value="2" style="
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #999;
+                border-radius: 4px;
+                font-size: 14px;
+              ">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <button id="generate-users-btn" style="
+                flex: 1;
+                padding: 12px;
+                background: #0066ff;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+              ">✅ Generar Usuarios</button>
+
+              <button id="skip-users-btn" style="
+                flex: 1;
+                padding: 12px;
+                background: #999;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+              ">Omitir</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML('beforeend', formHtml);
+
+      document.getElementById('generate-users-btn').addEventListener('click', async () => {
+        const patrullasCount = parseInt(document.getElementById('patrullas-count').value);
+        const operadoresCount = parseInt(document.getElementById('operadores-count').value);
+        
+        document.getElementById('users-form-modal').remove();
+        resolve({ patrullasCount, operadoresCount, generate: true });
+      });
+
+      document.getElementById('skip-users-btn').addEventListener('click', () => {
+        document.getElementById('users-form-modal').remove();
+        resolve({ patrullasCount: 0, operadoresCount: 0, generate: false });
+      });
+    });
+  };
+
+  return {
+    generateUsersLocally,
+    createUsersInFirebase,
+    showCredentialsModal,
+    showCityUsersForm
+  };
+})();

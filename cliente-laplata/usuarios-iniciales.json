@@ -1,0 +1,44 @@
+{
+    "admin":  {
+                  "email":  "admin@laplatamaps.test.ar",
+                  "password":  "PASTZubE7niU",
+                  "role":  "admin"
+              },
+    "operadores":  [
+                       {
+                           "email":  "operador1@laplatamaps.test.ar",
+                           "nombre":  "Operador 1",
+                           "password":  "AeEHDwti4pWP",
+                           "role":  "operador"
+                       },
+                       {
+                           "email":  "operador2@laplatamaps.test.ar",
+                           "nombre":  "Operador 2",
+                           "password":  "skrIElUAXOgV",
+                           "role":  "operador"
+                       }
+                   ],
+    "patrullas":  [
+                      {
+                          "email":  "patrulla1@laplatamaps.test.ar",
+                          "nombre":  "Patrulla 1",
+                          "password":  "vnAHgqp5Nk3P",
+                          "placa":  "TRAFICO-801",
+                          "role":  "patrulla"
+                      },
+                      {
+                          "email":  "patrulla2@laplatamaps.test.ar",
+                          "nombre":  "Patrulla 2",
+                          "password":  "kDBi09SoAM1u",
+                          "placa":  "TRAFICO-802",
+                          "role":  "patrulla"
+                      },
+                      {
+                          "email":  "patrulla3@laplatamaps.test.ar",
+                          "nombre":  "Patrulla 3",
+                          "password":  "9oeZus2SXD8W",
+                          "placa":  "TRAFICO-803",
+                          "role":  "patrulla"
+                      }
+                  ]
+}

@@ -540,6 +540,15 @@
   let db = null;
   let auth = null;
 
+  // Obtener parámetros de URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlCity = urlParams.get('city'); // Ej: Mendoza
+  const urlClient = urlParams.get('client'); // Ej: mendoza
+  
+  console.log('🔍 Parámetros de URL detectados:');
+  console.log(`  - city: ${urlCity}`);
+  console.log(`  - client: ${urlClient}`);
+
   async function initializeFirebase() {
     try {
       // Cargar configuración desde config.json
@@ -559,10 +568,17 @@
       // Verificar autenticación
       auth.onAuthStateChanged(async (user) => {
         if (!user) {
-          // Modo solo lectura para La Plata si no hay login
-          municipio = 'laplata';
-          clienteId = 'laplata';
-          console.warn('⚠️ No authenticated user. Modo solo lectura para La Plata.');
+          // Si hay parámetros de URL, usarlos
+          if (urlClient) {
+            municipio = normalizeCityId(urlCity || urlClient);
+            clienteId = urlClient;
+            console.log(`📍 Modo cliente URL detectado: ${urlClient} (ciudad: ${urlCity})`);
+          } else {
+            // Modo solo lectura para La Plata si no hay login ni parámetros
+            municipio = 'laplata';
+            clienteId = 'laplata';
+            console.warn('⚠️ No authenticated user. Modo solo lectura para La Plata.');
+          }
           console.log('💬 Permitiendo envío de mensajes en modo lectura');
           setupControlCenter();
           // Permitir envío de mensajes incluso sin autenticación
@@ -581,6 +597,10 @@
           if (userCity) {
             municipio = normalizeCityId(userCity);
             console.log(`📍 Ciudad del usuario (custom claim): ${userCity} → ${municipio}`);
+          } else if (urlClient) {
+            // Fallback a parámetros URL si no hay custom claims
+            municipio = normalizeCityId(urlCity || urlClient);
+            console.log(`📍 Ciudad del parámetro URL: ${urlClient} → ${municipio}`);
           } else {
             // Fallback a localStorage si viene del mapa global
             console.log('🔍 Buscando en localStorage...');
@@ -597,7 +617,7 @@
           }
           // El ID del documento del cliente puede diferir de la ciudad (ej: cordoba-1780623502).
           // Usar cliente_id real para la ruta de patrullas; fallback a municipio (caso La Plata).
-          clienteId = userClienteId || municipio;
+          clienteId = userClienteId || urlClient || municipio;
           console.log(`🏢 Cliente ID para ruta de patrullas: ${clienteId}`);
           setupControlCenter();
         }
@@ -653,11 +673,38 @@
   // SETUP CONTROL CENTER
   // ========================================
   function setupControlCenter() {
+    // Actualizar título y header con nombre de ciudad
+    updateHeaderWithCity();
     initMap();
     listenToPatrullas();
     listenToEmergencias();
     listenToMessages();
     setupUIControls();
+  }
+
+  // Actualizar el header con el nombre de la ciudad
+  function updateHeaderWithCity() {
+    if (!municipio) return;
+    
+    // Map de ciudades a nombres legibles
+    const cityNames = {
+      'mardelplata': 'Mar del Plata',
+      'cordoba': 'Córdoba',
+      'laplata': 'La Plata',
+      'sanmartindelmmar': 'San Martín del Mar',
+      'mendoza': 'Mendoza'
+    };
+    
+    const cityDisplayName = cityNames[municipio] || municipio.replace(/-/g, ' ');
+    const headerTitle = document.querySelector('.sidebar-header h2');
+    if (headerTitle) {
+      headerTitle.textContent = `🎛️ ${cityDisplayName}`;
+      console.log(`✅ Header actualizado a: ${cityDisplayName}`);
+    }
+    
+    // Actualizar título del navegador
+    document.title = `🎛️ Control Center - ${cityDisplayName} - TraficoMap`;
+    console.log(`✅ Título del navegador actualizado a: ${document.title}`);
   }
 
   // ========================================

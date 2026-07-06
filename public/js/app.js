@@ -2,6 +2,7 @@
 // INICIALIZAR MAPA
 // ============================
 let map;
+let globalBarrioSelect;
 let layers = {
   osm: null,
   satellite: null
@@ -104,6 +105,16 @@ function iniciarMapa() {
 let currentCity = (window.clientCityName || '').toLowerCase().replace(/\s+/g, '-') || 'mar-del-plata';
 console.log(`📍 [APP.JS INIT] currentCity establecido a: "${currentCity}" (desde window.clientCityName="${window.clientCityName}")`);
 
+// 🔒 SI es página admin: Forzar Mar del Plata y limpiar localStorage
+const isAdminPageInit = window.location.pathname === '/' || window.location.pathname === '/index.html';
+if (isAdminPageInit) {
+  console.log('🔒 ADMIN PAGE DETECTADA - Forzando Mar del Plata y limpiando localStorage');
+  currentCity = 'mar-del-plata';
+  localStorage.removeItem('selectedCity');
+  localStorage.setItem('adminMode', 'true');
+  console.log('✅ Admin mode activado - Solo Mar del Plata y Córdoba permitidas');
+}
+
 let citiesConfig = null;
 let patullaLayer = null; // Módulo de patrullas
 
@@ -135,11 +146,15 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
     clientDb = window.clientDb;
     if (clientDb) {
       console.log(`🔥 Usando window.clientDb que fue inicializado en map.html (después de ${attempts * 100}ms)`);
+    } else if (window.db && window.isClientMode) {
+      // FALLBACK: Si estamos en modo cliente pero no hay clientDb separado, usar el Firestore principal
+      console.log(`🔥 clientDb no disponible, usando window.db (Firestore principal) como fallback`);
+      clientDb = window.db;
     }
   }
   
   if (!clientDb) {
-    console.error(`❌ No hay Firestore del cliente disponible después de esperar 5 segundos`);
+    console.error(`❌ No hay Firestore disponible después de esperar 5 segundos`);
     return null;
   }
   
@@ -1124,12 +1139,20 @@ auth.onAuthStateChanged((user) => {
     // Usuario autenticado O cliente con sesión válida
     if (true) {  // ← GENERAR SIDEBAR SIEMPRE, para user auth O cliente
       // Mostrar panel de usuario autenticado
+    // Obtener nombre de ciudad para modo cliente
+    let cityDisplay = 'Modo Cliente';
+    if (!isUserAuthenticated && window.restoredClienteData) {
+      cityDisplay = window.restoredClienteData.nombre || 'Modo Cliente';
+    } else if (!isUserAuthenticated && window.clientCityName) {
+      cityDisplay = window.clientCityName;
+    }
+    
     sidebar.innerHTML = `
-      <div id="logo">🗺️ TraficoMap</div>
+      <div id="logo">🗺️ TraficoMap - ${cityDisplay}</div>
       <div class="sidebar-section">
         <div class="sidebar-title">Usuario</div>
         <div style="font-size: 12px; margin-bottom: 10px;">
-          ${isUserAuthenticated ? user.email : 'Modo Cliente'}
+          ${isUserAuthenticated ? user.email : cityDisplay}
         </div>
         ${isUserAuthenticated ? `<button id="logout-btn">Cerrar Sesión</button>` : ''}
       </div>
@@ -1798,46 +1821,80 @@ auth.onAuthStateChanged((user) => {
     heatmapLayer.attachCheckboxListener();
     
     // CARGAR CIUDADES DEL USUARIO AL INICIAR SIDEBAR
+    // 🔒 IMPORTANTE: En la página admin/demo, solo mostrar Mar del P y Córdoba
     console.log('🔄 Cargando ciudades almacenadas del usuario...');
     
     const citySelector = document.getElementById('city-selector');
+    const isAdminPage = window.location.pathname === '/' || window.location.pathname === '/index.html';
+    const adminMode = localStorage.getItem('adminMode') === 'true';
     
-    // VERIFICACIÓN: Asegurar que ciudades predefinidas existan
-    const predefinedCities = [
-      { id: 'cordoba', name: 'Córdoba' },
-      { id: 'mar-del-plata', name: 'Mar del Plata' }
-    ];
-    
-    if (citySelector) {
-      predefinedCities.forEach(city => {
-        const existingOption = Array.from(citySelector.options).find(o => o.value === city.id);
-        if (!existingOption) {
-          const option = document.createElement('option');
-          option.value = city.id;
-          option.textContent = city.name;
-          citySelector.insertBefore(option, citySelector.firstChild);
-          console.log(`🔧 Re-agregada ciudad predefinida: ${city.name}`);
-        }
+    if ((isAdminPage || adminMode) && citySelector) {
+      // 🔒 Si es página admin: LIMPIAR TODAS las opciones excepto Mar del Plata y Córdoba
+      console.log('🔒 LIMPIEZA AGRESIVA - Modo admin activado');
+      
+      // Crear nuevas opciones solo con las permitidas
+      const allowedCities = [
+        { value: 'mar-del-plata', text: 'Mar del Plata', selected: true },
+        { value: 'cordoba', text: 'Córdoba', selected: false }
+      ];
+      
+      // Limpiar selector completamente
+      citySelector.innerHTML = '';
+      
+      // Agregar solo las permitidas
+      allowedCities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city.value;
+        option.textContent = city.text;
+        option.selected = city.selected;
+        citySelector.appendChild(option);
+        console.log(`✅ Agregada opción permitida: ${city.text}`);
       });
-    }
-    
-    ImportCities.loadUserCities();
-    const userCities = ImportCities.getUserCities();
-    
-    if (citySelector && Object.keys(userCities).length > 0) {
-      console.log(`📍 Encontradas ${Object.keys(userCities).length} ciudades del usuario`);
-      Object.values(userCities).forEach(city => {
-        const existingOption = Array.from(citySelector.options).find(o => o.value === city.id);
-        if (!existingOption) {
-          const option = document.createElement('option');
-          option.value = city.id;
-          option.textContent = `⭐ ${city.name} (Usuario)`;
-          citySelector.appendChild(option);
-          console.log(`  ✓ Agregado: ${city.name}`);
-        }
-      });
-    } else if (citySelector) {
-      console.log('ℹ️ No hay ciudades del usuario almacenadas');
+      
+      // Forzar valor a Mar del Plata
+      citySelector.value = 'mar-del-plata';
+      currentCity = 'mar-del-plata';
+      console.log('✅ Selector limitado a: Mar del Plata y Córdoba');
+      console.log('✅ Forzado currentCity = mar-del-plata');
+    } else if (!isAdminPage && !adminMode) {
+      // NO es página admin: cargar ciudades del usuario normalmente
+      // VERIFICACIÓN: Asegurar que ciudades predefinidas existan
+      const predefinedCities = [
+        { id: 'cordoba', name: 'Córdoba' },
+        { id: 'mar-del-plata', name: 'Mar del Plata' }
+      ];
+      
+      if (citySelector) {
+        predefinedCities.forEach(city => {
+          const existingOption = Array.from(citySelector.options).find(o => o.value === city.id);
+          if (!existingOption) {
+            const option = document.createElement('option');
+            option.value = city.id;
+            option.textContent = city.name;
+            citySelector.insertBefore(option, citySelector.firstChild);
+            console.log(`🔧 Re-agregada ciudad predefinida: ${city.name}`);
+          }
+        });
+      }
+      
+      ImportCities.loadUserCities();
+      const userCities = ImportCities.getUserCities();
+      
+      if (citySelector && Object.keys(userCities).length > 0) {
+        console.log(`📍 Encontradas ${Object.keys(userCities).length} ciudades del usuario`);
+        Object.values(userCities).forEach(city => {
+          const existingOption = Array.from(citySelector.options).find(o => o.value === city.id);
+          if (!existingOption) {
+            const option = document.createElement('option');
+            option.value = city.id;
+            option.textContent = `⭐ ${city.name} (Usuario)`;
+            citySelector.appendChild(option);
+            console.log(`  ✓ Agregado: ${city.name}`);
+          }
+        });
+      } else if (citySelector) {
+        console.log('ℹ️ No hay ciudades del usuario almacenadas');
+      }
     }
     
     // Event listeners
@@ -1866,10 +1923,31 @@ auth.onAuthStateChanged((user) => {
         console.log(`\n========================================`);
         console.log(`🏙️ EVENTO CAMBIAR CIUDAD DISPARADO: ${newCity}`);
         console.log(`========================================`);
+        
+        // 🔒 EN MODO ADMIN: Validar que sea Mar del Plata o Córdoba
+        const adminMode = localStorage.getItem('adminMode') === 'true';
+        if (adminMode && newCity !== 'mar-del-plata' && newCity !== 'cordoba') {
+          console.warn(`🔒 INTENTO BLOQUEADO: Seleccionó ${newCity} en modo admin`);
+          citySelector.value = currentCity; // Revertir al anterior
+          alert('❌ Solo Mar del Plata y Córdoba están permitidas en esta vista');
+          return;
+        }
+        
         // Guardar inmediatamente en localStorage pa que el Control Center lo encuentre
         localStorage.setItem('selectedCity', newCity);
         
         currentCity = newCity;
+        
+        // LIMPIAR selector de barrios cuando cambia ciudad
+        globalBarrioSelect = document.getElementById('global-barrio-filter');
+        if (globalBarrioSelect) {
+          globalBarrioSelect.value = 'all';
+          // Limpiar todas las opciones excepto "Todos los Barrios"
+          while (globalBarrioSelect.options.length > 1) {
+            globalBarrioSelect.remove(1);
+          }
+          console.log('🧹 Selector de barrios limpiado');
+        }
         
         // VERIFICACIÓN 1: Verificar que map existe
         if (!map) {
@@ -1930,7 +2008,7 @@ auth.onAuthStateChanged((user) => {
         
         // 3. Resetear filtro global de barrio
         console.log('3️⃣ Reseteando filtros...');
-        const globalBarrioSelect = document.getElementById('global-barrio-filter');
+        globalBarrioSelect = document.getElementById('global-barrio-filter');
         if (globalBarrioSelect) {
           globalBarrioSelect.value = 'all';
           while (globalBarrioSelect.options.length > 1) {
@@ -2073,7 +2151,7 @@ auth.onAuthStateChanged((user) => {
     
     // Función para aplicar el filtro global a las capas visibles
     const applyGlobalBarrioFilter = () => {
-      const globalBarrioSelect = document.getElementById('global-barrio-filter');
+      globalBarrioSelect = document.getElementById('global-barrio-filter');
       if (!globalBarrioSelect) return;
       
       const barrio = globalBarrioSelect.value;
@@ -2621,7 +2699,21 @@ auth.onAuthStateChanged((user) => {
         localStorage.setItem('selectedCity', selectedCity);
         const verificar = localStorage.getItem('selectedCity');
         console.log('💾 Verificación localStorage.getItem():', verificar);
-        window.open('control-center-v2/', '_blank');
+        
+        // Pasar parámetros de ciudad y cliente al control center
+        let controlCenterUrl = 'control-center-v2/';
+        if (window.isClientMode && window.restoredClienteId && window.clientCityName) {
+          // Si es modo cliente, pasar los parámetros
+          const clientCity = window.clientCityName;
+          const clientId = window.restoredClienteId;
+          controlCenterUrl = `control-center-v2/?city=${encodeURIComponent(clientCity)}&client=${encodeURIComponent(clientId)}`;
+          console.log(`🎯 Abriendo Control Center en modo cliente: ${controlCenterUrl}`);
+        } else if (selectedCity && selectedCity !== 'mar-del-plata') {
+          // Para otros usuarios, usar la ciudad seleccionada
+          controlCenterUrl = `control-center-v2/?city=${encodeURIComponent(selectedCity)}&client=${encodeURIComponent(selectedCity.toLowerCase().replace(/\s+/g, '-'))}`;
+        }
+        
+        window.open(controlCenterUrl, '_blank');
       });
       console.log('✅ Event listener asignado a btnOpenControlCenter');
     } else {
@@ -3154,7 +3246,7 @@ auth.onAuthStateChanged((user) => {
       // ==========================================
       // Llenar Selector Global de Barrio
       // ==========================================
-      const globalBarrioSelect = document.getElementById('global-barrio-filter');
+      globalBarrioSelect = document.getElementById('global-barrio-filter');
       if (globalBarrioSelect && bariosGeoJson && bariosGeoJson.features) {
         // 🔧 Llenar selector con los MISMOS barrios CALCULADOS que usa el filtro
         // Usar exactamente la MISMA función que siniestros-layer.js usa
@@ -3398,7 +3490,7 @@ auth.onAuthStateChanged((user) => {
           if (zonesCheckbox) zonesCheckbox.checked = false;
           
           // Resetear filtro global de barrio
-          const globalBarrioSelect = document.getElementById('global-barrio-filter');
+          globalBarrioSelect = document.getElementById('global-barrio-filter');
           if (globalBarrioSelect) {
             globalBarrioSelect.value = 'all';
           }

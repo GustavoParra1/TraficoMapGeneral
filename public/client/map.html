@@ -486,10 +486,11 @@ if (isClientMode) {
   if (clientCityName) {
     console.log('📍 Ciudad del cliente (URL):', clientCityName);
     document.getElementById('pageTitle').textContent = `TraficoMap - ${clientCityName}`;
-  }
-  if (isClientSessionRestored) {
+    window.clientCityName = clientCityName;
+  } else if (isClientSessionRestored && window.restoredClienteData) {
     console.log('📍 Ciudad del cliente (sesión):', window.restoredClienteData.nombre);
     document.getElementById('pageTitle').textContent = `TraficoMap - ${window.restoredClienteData.nombre}`;
+    window.clientCityName = window.restoredClienteData.nombre;
   }
 }
 
@@ -608,6 +609,28 @@ async function initializeClientFirebase() {
 }
 
 initializeClientFirebase();
+</script>
+
+<!-- Actualizar logo del mapa con nombre de ciudad para modo cliente -->
+<script>
+// Esperar a que app.js haya actualizado el logo en el sidebar
+setTimeout(() => {
+  // Actualizar también el elemento #logo si existe en el HTML del mapa
+  const logoElement = document.getElementById('logo');
+  if (logoElement && window.clientCityName && window.isClientMode) {
+    logoElement.textContent = `🗺️ ${window.clientCityName}`;
+    console.log(`✅ Logo actualizado a: ${window.clientCityName}`);
+  }
+  
+  // Si los datos del cliente están disponibles, intentar usar eso
+  if (logoElement && window.restoredClienteData && window.isClientMode) {
+    const cityName = window.restoredClienteData.nombre || window.clientCityName;
+    if (cityName) {
+      logoElement.textContent = `🗺️ ${cityName}`;
+      console.log(`✅ Logo actualizado a: ${cityName}`);
+    }
+  }
+}, 500); // Esperar a que app.js haya cargado
 </script>
 
 <!-- Maps API (with Street View support) -->
