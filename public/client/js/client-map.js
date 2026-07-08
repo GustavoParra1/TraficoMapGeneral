@@ -1,4 +1,3 @@
-t map · JS
 // public/client/js/client-map.js
 // Manejo del mapa interactivo del cliente
 
@@ -119,6 +118,8 @@ class ClientMapManager {
     let cityCoords = [-34.9205, -57.9545]; // Default: La Plata
     if (clientData && clientData.coords && Array.isArray(clientData.coords) && clientData.coords.length === 2) {
       cityCoords = clientData.coords;
+    } else if (clientData && typeof clientData.lat === 'number' && typeof clientData.lng === 'number') {
+      cityCoords = [clientData.lat, clientData.lng];
     } else if (clientData && clientData.nombre && clientData.nombre.toLowerCase().includes('mar del plata')) {
       cityCoords = [-38.0, -57.55];
     }
@@ -532,4 +533,3 @@ class ClientMapManager {
 // Instancia global
 const clientMapManager = new ClientMapManager();
 console.log('✅ ClientMapManager loaded');
- 
