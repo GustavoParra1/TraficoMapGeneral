@@ -114,7 +114,7 @@ class ClientMapManager {
     console.log('🗺️ Inicializando mapa para cliente:', this.clientId);
     console.log('📋 Datos del cliente:', clientData);
 
-    // Centrar el mapa en la ciudad del cliente
+    // Centrar el mapa en la ciudad/barrio del cliente
     let cityCoords = [-34.9205, -57.9545]; // Default: La Plata
     if (clientData && clientData.coords && Array.isArray(clientData.coords) && clientData.coords.length === 2) {
       cityCoords = clientData.coords;
@@ -122,7 +122,17 @@ class ClientMapManager {
       cityCoords = [-38.0, -57.55];
     }
 
-    this.map = L.map(containerId).setView(cityCoords, 13);
+    // ✅ Zoom configurable por cliente (13 = ciudad, 15-16 = barrio). Default 13 para no romper clientes existentes.
+    const initialZoom = (clientData && typeof clientData.zoom === 'number') ? clientData.zoom : 13;
+
+    const mapOptions = {};
+    // ✅ Límite de paneo opcional: si el cliente define bounds, no deja alejarse del barrio/zona.
+    if (clientData && clientData.maxBounds && Array.isArray(clientData.maxBounds) && clientData.maxBounds.length === 2) {
+      mapOptions.maxBounds = clientData.maxBounds;
+      mapOptions.maxBoundsViscosity = 1.0; // 1.0 = paneo "rebota" duro en el límite
+    }
+
+    this.map = L.map(containerId, mapOptions).setView(cityCoords, initialZoom);
 
     // Agregar capa base (OSM)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
