@@ -1086,6 +1086,13 @@ class Dashboard {
                   </div>
                 </div>
 
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Zoom inicial (opcional)</label>
+                    <input type="number" class="form-control" id="zoomCliente" placeholder="13" min="1" max="22" step="1">
+                  </div>
+                </div>
+
                 <div class="alert alert-info">
                   <i class="bi bi-info-circle"></i> La contraseña será generada automáticamente y se mostrará después de crear el cliente.
                 </div>
@@ -1296,6 +1303,7 @@ class Dashboard {
         const dominio = document.getElementById('dominioCliente').value || '';
         const lat = parseFloat(document.getElementById('latCliente').value) || null;
         const lng = parseFloat(document.getElementById('lngCliente').value) || null;
+        const zoom = parseInt(document.getElementById('zoomCliente').value) || null;
 
         if (!nombre || !email || !plan) {
           adminAuth.showError('Completa todos los campos requeridos');
@@ -1303,7 +1311,7 @@ class Dashboard {
         }
 
         try {
-          console.log('📤 Creando cliente:', { nombre, email, plan, lat, lng });
+          console.log('📤 Creando cliente:', { nombre, email, plan, lat, lng, zoom });
           
           // Llamar a función para crear cliente (usar dashboard para acceder a crearClienteAPI)
           const resultadoCreacion = await dashboard.crearClienteAPI({ 
@@ -1312,7 +1320,8 @@ class Dashboard {
             plan, 
             dominio,
             lat,
-            lng
+            lng,
+            zoom
           });
 
           // ✅ NUEVA: No cerrar modal ni recargar - el modal de credenciales se abre automáticamente
@@ -1366,7 +1375,7 @@ class Dashboard {
     showLoading('Creando cliente...');
     
     try {
-      const { nombre, email, plan, dominio, lat, lng } = clientData;
+      const { nombre, email, plan, dominio, lat, lng, zoom } = clientData;
       
       console.log('📤 Llamando Cloud Function callable criarClienteAdmin:', { nombre, email, plan });
       
@@ -1387,6 +1396,22 @@ class Dashboard {
       // ✅ Extraer credenciales de la respuesta
       const credenciales = response.data.admin_user;
       const clienteId = response.data.cliente?.id;
+
+      // ✅ Guardar lat/lng/zoom en Firestore (la Cloud Function no los maneja)
+      if (clienteId && (lat !== null || lng !== null || zoom !== null)) {
+        try {
+          const updateData = {};
+          if (lat !== null) updateData.lat = lat;
+          if (lng !== null) updateData.lng = lng;
+          if (zoom !== null) updateData.zoom = zoom;
+
+          await db.collection('clientes').doc(clienteId).update(updateData);
+          console.log('✅ Lat/Lng/Zoom guardados en Firestore:', updateData);
+        } catch (updateError) {
+          console.error('⚠️ Error guardando lat/lng/zoom:', updateError);
+          // No interrumpe el flujo de creación del cliente
+        }
+      }
       
       // ✅ Intentar poblar modal de credenciales
       const emailEl = document.getElementById('credencialesEmail');
@@ -1713,3 +1738,4 @@ function togglePasswordVisibility(elementId) {
   }
 }
 
+ 
