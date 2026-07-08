@@ -1,3 +1,4 @@
+t map · JS
 // public/client/js/client-map.js
 // Manejo del mapa interactivo del cliente
 
@@ -531,3 +532,4 @@ class ClientMapManager {
 // Instancia global
 const clientMapManager = new ClientMapManager();
 console.log('✅ ClientMapManager loaded');
+ 
