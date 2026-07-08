@@ -1,3 +1,4 @@
+
 // ============================
 // INICIALIZAR MAPA
 // ============================
@@ -14,7 +15,18 @@ function iniciarMapa() {
       console.log('🗺️ Iniciando mapa...');
       // Usar configuración de citiesConfig para la ciudad activa
       let lat = -38.0, lng = -57.55, zoom = 12;
-      if (typeof citiesConfig !== 'undefined' && citiesConfig) {
+
+      // ✅ PRIORIDAD 1: datos propios del cliente en Firestore (lat/lng/zoom)
+      // Esto permite clientes a nivel barrio (o cualquier ubicación custom) sin
+      // tener que agregarlos a mano en /data/cities-config.json
+      const clienteDataCentro = window.restoredClienteData;
+      if (clienteDataCentro && typeof clienteDataCentro.lat === 'number' && typeof clienteDataCentro.lng === 'number') {
+        lat = clienteDataCentro.lat;
+        lng = clienteDataCentro.lng;
+        zoom = (typeof clienteDataCentro.zoom === 'number') ? clienteDataCentro.zoom : 13;
+        console.log(`📍 Centro tomado de datos del cliente (Firestore): ${clienteDataCentro.nombre}`);
+      } else if (typeof citiesConfig !== 'undefined' && citiesConfig) {
+        // PRIORIDAD 2: fallback al JSON estático de ciudades predefinidas
         const cityConfig = citiesConfig.find(c => c.id === currentCity);
         if (cityConfig && cityConfig.coordinates) {
           lat = cityConfig.coordinates.lat;
