@@ -1366,7 +1366,10 @@ class ClientDashboard {
     console.log(`💾 registros a guardar: ${data.length}`);
     
     try {
-      const ref = this.clientDb.collection(`clientes/${clientId}/${collectionName}`);
+      // ✅ FIX: usar this.clientDb si existe (cliente con Firebase propio),
+      // si no, caer en la instancia GENERAL (mismo patrón que ya usa loadClientData, línea ~1681)
+      const clientDb = this.clientDb || firebase.firestore();
+      const ref = clientDb.collection(`clientes/${clientId}/${collectionName}`);
       console.log(`💾 Referencia de Firestore creada`);
       
       // Guardar en BATCH (más rápido y seguro)
@@ -1376,7 +1379,7 @@ class ClientDashboard {
       
       for (let batchStart = 0; batchStart < data.length; batchStart += batchSize) {
         const batchEnd = Math.min(batchStart + batchSize, data.length);
-        const batch = this.clientDb.batch();
+        const batch = clientDb.batch();
         
         console.log(`💾 Batch ${Math.floor(batchStart / batchSize) + 1}: registros ${batchStart + 1}-${batchEnd}`);
         
@@ -1453,11 +1456,13 @@ class ClientDashboard {
       
       console.log(`🗑️ Eliminando todos los docs de: ${colPath}`);
       
-      const ref = this.clientDb.collection(colPath);
+      // ✅ FIX: mismo fallback que en saveDataToFirestore
+      const clientDb = this.clientDb || firebase.firestore();
+      const ref = clientDb.collection(colPath);
       const snap = await ref.get();
 
       let deleted = 0;
-      const batch = this.clientDb.batch();
+      const batch = clientDb.batch();
       
       snap.forEach(doc => {
         batch.delete(doc.ref);
