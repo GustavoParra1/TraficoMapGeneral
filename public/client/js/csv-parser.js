@@ -1,73 +1,83 @@
 // js/csv-parser.js
 // Parser de CSV y GeoJSON
-
+ 
 class CSVParser {
   parseCSV(csvText) {
     console.log("📖 Parseando CSV...");
     
     const lines = csvText.trim().split('\n');
     if (lines.length < 2) throw new Error('CSV vacío');
-
+ 
     // Extraer headers
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
     console.log("📋 Headers encontrados:", headers);
-
+ 
     // Mapear columnas esperadas
     const latIndex = this.findColumnIndex(headers, ['latitud', 'lat', 'latitude', 'y']);
     const lngIndex = this.findColumnIndex(headers, ['longitud', 'lng', 'longitude', 'x']);
     const tipoIndex = this.findColumnIndex(headers, ['tipo', 'type', 'categoria', 'category']);
     const descIndex = this.findColumnIndex(headers, ['descripcion', 'description', 'desc', 'nombre', 'name']);
     const fechaIndex = this.findColumnIndex(headers, ['fecha', 'date', 'timestamp']);
-
+ 
     if (latIndex === -1 || lngIndex === -1) {
       throw new Error('CSV debe contener columnas de latitud y longitud');
     }
-
+ 
     // Procesar datos
     const data = [];
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
-
+ 
       const values = this.parseCSVLine(line);
       
       try {
         const lat = parseFloat(values[latIndex]);
         const lng = parseFloat(values[lngIndex]);
-
+ 
         if (isNaN(lat) || isNaN(lng)) {
           console.warn(`⚠️ Fila ${i + 1}: coordenadas inválidas. Saltando.`);
           continue;
         }
-
+ 
+        // Armar objeto con TODAS las columnas del CSV (aplanado),
+        // más los campos calculados/normalizados
+        const rowObject = {};
+        headers.forEach((h, idx) => {
+          if (idx < values.length) {
+            rowObject[h] = values[idx];
+          }
+        });
+ 
         const item = {
+          ...rowObject,
           lat,
           lng,
           tipo: tipoIndex !== -1 ? values[tipoIndex] : 'Punto',
           descripcion: descIndex !== -1 ? values[descIndex] : '',
           fecha: fechaIndex !== -1 ? values[fechaIndex] : null
         };
-
+ 
         data.push(item);
       } catch (error) {
         console.warn(`⚠️ Error en fila ${i + 1}:`, error.message);
       }
     }
-
+ 
     console.log(`✅ Parseado: ${data.length} registros válidos`);
     return data;
   }
-
+ 
   parseCSVLine(line) {
     // Parser simple que respeta comillas
     const result = [];
     let current = '';
     let insideQuotes = false;
-
+ 
     for (let i = 0; i < line.length; i++) {
       const char = line[i];
       const nextChar = line[i + 1];
-
+ 
       if (char === '"') {
         if (insideQuotes && nextChar === '"') {
           current += '"';
@@ -82,11 +92,11 @@ class CSVParser {
         current += char;
       }
     }
-
+ 
     result.push(current.trim());
     return result;
   }
-
+ 
   findColumnIndex(headers, aliases) {
     for (const alias of aliases) {
       const index = headers.indexOf(alias);
@@ -94,14 +104,14 @@ class CSVParser {
     }
     return -1;
   }
-
+ 
   parseGeoJSON(geoJsonText) {
     console.log("🗺️ Parseando GeoJSON...");
     
     try {
       const geojson = JSON.parse(geoJsonText);
       const data = [];
-
+ 
       if (geojson.type === 'FeatureCollection') {
         geojson.features.forEach(feature => {
           if (feature.geometry) {
@@ -132,11 +142,15 @@ class CSVParser {
             // Si tenemos coordenadas válidas, agregar al array
             if (lat !== undefined && lng !== undefined) {
               const doc = {
+                // Aplanamos TODAS las propiedades originales del feature
+                // (camera_number, address, barrio, domes, fixed, lpr, type, etc.)
+                // para que queden disponibles al nivel superior del documento.
+                ...feature.properties,
                 lat,
                 lng,
                 tipo: feature.properties?.tipo || 'Punto',
                 descripcion: feature.properties?.descripcion || feature.properties?.name || feature.properties?.nombre || '',
-                nombre: feature.properties?.nombre || feature.properties?.name || 'Sin nombre',
+                nombre: feature.properties?.nombre || feature.properties?.name || feature.properties?.camera_number || 'Sin nombre',
                 fecha: feature.properties?.fecha || null,
                 properties: feature.properties || {}
               };
@@ -170,11 +184,13 @@ class CSVParser {
           
           if (lat !== undefined && lng !== undefined) {
             const doc = {
+              // Aplanamos TODAS las propiedades originales del feature
+              ...geojson.properties,
               lat,
               lng,
               tipo: geojson.properties?.tipo || 'Punto',
               descripcion: geojson.properties?.descripcion || geojson.properties?.name || geojson.properties?.nombre || '',
-              nombre: geojson.properties?.nombre || geojson.properties?.name || 'Sin nombre',
+              nombre: geojson.properties?.nombre || geojson.properties?.name || geojson.properties?.camera_number || 'Sin nombre',
               fecha: geojson.properties?.fecha || null,
               properties: geojson.properties || {}
             };
@@ -188,7 +204,7 @@ class CSVParser {
           }
         }
       }
-
+ 
       console.log(`✅ Parseado GeoJSON: ${data.length} puntos`);
       return data;
     } catch (error) {
@@ -196,7 +212,8 @@ class CSVParser {
     }
   }
 }
-
+ 
 // Instancia global
 const csvParser = new CSVParser();
 console.log("✅ CSVParser loaded");
+ 
