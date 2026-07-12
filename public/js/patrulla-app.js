@@ -216,19 +216,26 @@ async function initializeFirebase() {
       console.log('✅ Usuario autenticado:', user.email);
 
       let userCity = null;
+      let userClienteId = null;
       let userEmail = user.email || '';
       for (let i = 0; i < 5; i++) {
         const idTokenResult = await user.getIdTokenResult(true);
         userCity = idTokenResult.claims.city;
+        userClienteId = idTokenResult.claims.cliente_id;
         if (userCity) break;
         await new Promise(res => setTimeout(res, 700));
       }
 
       if (userCity) {
         municipio = userCity;
-        // Derive clienteId from municipio name
-        clienteId = MUNICIPIO_TO_ID[municipio] || municipio.toLowerCase().replace(/\s+/g, '');
-        console.log(`📍 Ciudad: ${municipio}, clienteId: ${clienteId}`);
+        // IMPORTANTE: usar SIEMPRE el custom claim 'cliente_id' cuando exista, ya que
+        // es el mismo ID real del documento cliente que usa el Centro de Control
+        // (ej: "constitucion-1783519219617"). El mapeo MUNICIPIO_TO_ID es solo un
+        // fallback para cuentas viejas sin ese claim, y NO incluye el sufijo único,
+        // por lo que si se usa, el celular termina escribiendo en una ruta distinta
+        // a la que lee el Centro de Control (patrulla queda "offline" y en 0,0).
+        clienteId = userClienteId || MUNICIPIO_TO_ID[municipio] || municipio.toLowerCase().replace(/\s+/g, '');
+        console.log(`📍 Ciudad: ${municipio}, clienteId: ${clienteId} (claims.cliente_id=${userClienteId || 'AUSENTE'})`);
       } else {
         alert('No se encontró la ciudad asignada.');
         window.location.href = '/login.html';
