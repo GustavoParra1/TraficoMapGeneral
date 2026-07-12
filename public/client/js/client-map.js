@@ -53,6 +53,7 @@ class ClientMapManager {
     this.layerControl = null;
     this.clientId = null;
     this.bounds = null; // Para auto-zoom
+    this.camerasData = []; // Datos crudos de cámaras públicas (lat/lng/nombre), usado para vincular cámaras con líneas de colectivo por proximidad
   }
 
   // Estilos visuales por tipo de dato
@@ -231,6 +232,12 @@ class ClientMapManager {
           marker.addTo(this.layers[layerKey]);
           count++;
           this.expandBounds([lat, lng]);
+
+          // Guardamos las cámaras PÚBLICAS (no las privadas) para poder calcular
+          // más adelante qué cámaras están cerca de cada línea de colectivo.
+          if (layerKey === 'cameras') {
+            this.camerasData.push({ lat, lng, nombre: nombre || descripcion || 'Cámara', marker });
+          }
         } else {
           console.log(`    ✗ Coords incompletas: lat=${lat}, lng=${lng}`);
         }
@@ -442,7 +449,14 @@ class ClientMapManager {
               dashArray: '5, 5'
             }
           );
-          lineLayer.bindTooltip(data.nombre || data.numero || 'Línea de colectivo');
+          const nombreLinea = data.nombre || data.numero || 'Línea de colectivo';
+          lineLayer.bindTooltip(nombreLinea);
+
+          // Al hacer click en la línea, calculamos y mostramos las cámaras
+          // públicas que están a menos de 150m de su recorrido (mismo criterio
+          // que usa el mapa general de admin en colectivos-layer.js).
+          lineLayer.on('click', () => this.mostrarCamarasDeLinea(lineLayer, nombreLinea));
+
           lineLayer.addTo(this.layers.colectivos);
           count++;
         } else if (geometry && geometry.type === 'Point') {
@@ -469,6 +483,58 @@ class ClientMapManager {
   }
 
   // Crear marker con icono
+  // Calcula qué cámaras públicas están a ≤150m del recorrido de una línea de
+  // colectivo, las resalta temporalmente en el mapa (círculo amarillo) y
+  // muestra un popup con el listado. Radio de cobertura igual al que usa
+  // el mapa general de admin (colectivos-layer.js) para mantener consistencia.
+  mostrarCamarasDeLinea(lineLayer, nombreLinea) {
+    const RADIO_COBERTURA_METROS = 150;
+    const puntosLinea = lineLayer.getLatLngs();
+
+    // Limpiar resaltados anteriores (si había otra línea seleccionada antes)
+    if (this._highlightsColectivo) {
+      this._highlightsColectivo.forEach(h => this.map.removeLayer(h));
+    }
+    this._highlightsColectivo = [];
+
+    const camarasEncontradas = this.camerasData.filter(cam => {
+      const camLatLng = L.latLng(cam.lat, cam.lng);
+      const distanciaMinima = Math.min(...puntosLinea.map(p => camLatLng.distanceTo(p)));
+      return distanciaMinima <= RADIO_COBERTURA_METROS;
+    });
+
+    // Resaltar cada cámara encontrada con un círculo amarillo
+    camarasEncontradas.forEach(cam => {
+      const circle = L.circleMarker([cam.lat, cam.lng], {
+        radius: 12,
+        color: '#FFD700',
+        weight: 3,
+        fillOpacity: 0.3
+      }).addTo(this.map);
+      this._highlightsColectivo.push(circle);
+    });
+
+    // Popup con el resumen, centrado en el punto medio de la línea
+    const puntoMedio = puntosLinea[Math.floor(puntosLinea.length / 2)];
+    const listado = camarasEncontradas.length > 0
+      ? camarasEncontradas.map(c => `• ${c.nombre}`).join('<br>')
+      : 'Sin cámaras públicas registradas cerca de este recorrido.';
+
+    L.popup()
+      .setLatLng(puntoMedio)
+      .setContent(`
+        <div style="font-family: Arial; font-size: 13px; max-width: 220px;">
+          <b>🚌 ${nombreLinea}</b><br>
+          <span style="color:#666;">${camarasEncontradas.length} cámara(s) sobre el recorrido</span>
+          <hr style="margin:6px 0;">
+          ${listado}
+        </div>
+      `)
+      .openOn(this.map);
+
+    console.log(`🚌📹 ${nombreLinea}: ${camarasEncontradas.length} cámaras encontradas a ≤${RADIO_COBERTURA_METROS}m del recorrido`);
+  }
+
   createMarker(latlng, options) {
     const marker = L.marker(latlng, {
       icon: L.icon({
