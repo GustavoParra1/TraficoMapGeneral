@@ -665,6 +665,89 @@ const ColectivosLayer = (() => {
     cameraMarkersGroup.clearLayers();
   };
 
+  /**
+   * Recibe documentos "sueltos" de Firestore (clientes/{id}/colectivos),
+   * los agrupa por número de línea, reconstruye una FeatureCollection
+   * por línea (recorrido + paradas/cámaras) y llama addLinea() por cada una.
+   *
+   * @param {Object} docsData - { firestoreDocId: firestoreDocData, ... }
+   *        (el objeto que arma app.js con colectivos.forEach)
+   */
+  const setManualData = (docsData) => {
+    const grupos = {}; // { numeroLinea: { recorrido: Feature|null, paradas: [Feature] } }
+    let huerfanos = 0;
+
+    Object.entries(docsData || {}).forEach(([docId, data]) => {
+      const numeroLinea = data.linea || data.properties?.linea || data.properties?.ref;
+
+      if (!numeroLinea) {
+        huerfanos++;
+        return; // No se puede agrupar sin número de línea
+      }
+
+      let geometry;
+      try {
+        geometry = JSON.parse(data.geometryJSON);
+      } catch (e) {
+        console.warn(`⚠️ setManualData: geometryJSON inválido en doc ${docId}`, e);
+        return;
+      }
+
+      const feature = {
+        type: 'Feature',
+        geometry,
+        properties: {
+          ...(data.properties || {}),
+          linea: numeroLinea,
+          ramal: data.ramal || data.properties?.ramal,
+          nombre: data.nombre,
+          nombre_parada: data.nombre !== 'Sin nombre' ? data.nombre : undefined,
+          nro_camara: data.nro_camara || data.properties?.nro_camara,
+          direccion: data.direccion,
+          orden: data.orden
+        }
+      };
+
+      if (!grupos[numeroLinea]) {
+        grupos[numeroLinea] = { recorrido: null, paradas: [] };
+      }
+
+      if (geometry.type === 'LineString' || data.tipo === 'recorrido') {
+        grupos[numeroLinea].recorrido = feature;
+      } else {
+        grupos[numeroLinea].paradas.push(feature);
+      }
+    });
+
+    if (huerfanos > 0) {
+      console.warn(`⚠️ setManualData: ${huerfanos} documento(s) sin campo "linea" - no se pudieron agrupar (revisar carga del archivo OSM)`);
+    }
+
+    let lineasCargadas = 0;
+    Object.entries(grupos).forEach(([numeroLinea, grupo]) => {
+      const features = grupo.recorrido
+        ? [grupo.recorrido, ...grupo.paradas]
+        : grupo.paradas;
+
+      if (features.length === 0) return;
+
+      if (!grupo.recorrido) {
+        console.warn(`⚠️ setManualData: línea ${numeroLinea} no tiene recorrido (LineString), solo ${grupo.paradas.length} punto(s)`);
+      }
+
+      const featureCollection = { type: 'FeatureCollection', features };
+      const ramal = grupo.recorrido?.properties?.ramal || grupo.paradas[0]?.properties?.ramal || '';
+
+      addLinea(numeroLinea, featureCollection, {
+        ramal,
+        cantidadCamaras: grupo.paradas.length
+      });
+      lineasCargadas++;
+    });
+
+    console.log(`✅ setManualData: ${lineasCargadas} línea(s) reconstruidas desde ${Object.keys(docsData || {}).length} documentos`);
+  };
+
   // ==================== API PÚBLICA ====================
 
   return {
@@ -684,6 +767,7 @@ const ColectivosLayer = (() => {
     },
     loadLineas,
     addLinea,
+    setManualData,
     toggleLinea,
     toggleAll: (estado) => {
       Object.keys(lineasData).forEach(num => toggleLinea(num, estado));
