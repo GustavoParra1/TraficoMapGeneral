@@ -716,7 +716,14 @@ const SiniestrosLayer = (() => {
     // Crear FeatureGroup con clustering
     sinistrosLayer = L.markerClusterGroup({
       maxClusterRadius: 40,
-      disableClusteringAtZoom: 16
+      // ✅ FIX: se quitó disableClusteringAtZoom.
+      // Muchos siniestros comparten EXACTAMENTE la misma coordenada (geolocalizados
+      // por cámara más cercana, no por ubicación real del hecho). Si el clustering
+      // se apaga a partir de cierto zoom, esos puntos superpuestos se dibujan uno
+      // encima del otro y parecen "un solo siniestro" aunque haya varios.
+      // Dejando el clustering siempre activo, Leaflet los sigue agrupando y al
+      // hacer clic los abre en abanico (spiderfy), mostrando cada uno por separado.
+      spiderfyOnMaxZoom: true
     });
 
     // Normalizar propiedades de siniestro
@@ -739,13 +746,18 @@ const SiniestrosLayer = (() => {
       };
       
       // Mapear causa (búsqueda flexible)
-      const causa = getProp(['causa', 'Causa', 'tipo', 'Tipo', 'accident_type', 'CÓDIGOS CAUSAS', 'CàDIGOS CAUSAS', 'C?DIGOS CAUSAS', 'CODIGOS CAUSAS']);
+      // IMPORTANTE: 'tipo'/'Tipo'/'accident_type' van AL FINAL porque csv-parser.js
+      // les pone 'Punto' como valor por defecto en TODOS los documentos. Si se
+      // buscaran primero, siempre ganarían por sobre la columna real de causa.
+      const causa = getProp(['causa', 'Causa', 'CÓDIGOS CAUSAS', 'CàDIGOS CAUSAS', 'C?DIGOS CAUSAS', 'CODIGOS CAUSAS', 'C\uFFFDDIGOS CAUSAS', 'tipo', 'Tipo', 'accident_type']);
       if (causa && !normalized.causa) {
         normalized.causa = causa;
       }
       
-      // Mapear descripción
-      const descripcion = getProp(['descripcion', 'Descripcion', 'description', 'nombre', 'obs']);
+      // Mapear descripción (excluimos 'nombre' porque csv-parser.js le pone el
+      // texto literal 'Sin nombre' cuando no hay nombre real, y eso terminaba
+      // mostrándose en el popup como si fuera una descripción genuina)
+      const descripcion = getProp(['descripcion', 'Descripcion', 'description', 'obs']);
       if (descripcion && !normalized.descripcion) {
         normalized.descripcion = descripcion;
       }
@@ -763,7 +775,7 @@ const SiniestrosLayer = (() => {
       }
       
       // Mapear dirección (con variantes de encoding)
-      const direccion = getProp(['direccion', 'Calle', 'calle', 'DIRECCIÓN SINIESTRO', 'DIRECCION SINIESTRO', 'DIRECCIàN SINIESTRO', 'DIRECCIøN SINIESTRO']);
+      const direccion = getProp(['direccion', 'Calle', 'calle', 'DIRECCIÓN SINIESTRO', 'DIRECCION SINIESTRO', 'DIRECCIàN SINIESTRO', 'DIRECCIøN SINIESTRO', 'DIRECCI\uFFFDN SINIESTRO']);
       if (direccion && !normalized.direccion) {
         normalized.direccion = direccion;
       }
@@ -775,7 +787,7 @@ const SiniestrosLayer = (() => {
       }
       
       // Mapear participantes
-      const participantes = getProp(['participantes_codigos', 'Participante', 'CÓDIGO PARTICIPANTES', 'C?DIGO PARTICIPANTES', 'participantes']);
+      const participantes = getProp(['participantes_codigos', 'Participante', 'CÓDIGO PARTICIPANTES', 'C?DIGO PARTICIPANTES', 'participantes', 'C\uFFFDDIGO PARTICIPANTES']);
       if (participantes && !normalized.participantes_codigos) {
         normalized.participantes_codigos = participantes;
       }
