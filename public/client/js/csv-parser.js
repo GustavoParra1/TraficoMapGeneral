@@ -16,7 +16,7 @@ class CSVParser {
     const latIndex = this.findColumnIndex(headers, ['latitud', 'lat', 'latitude', 'y']);
     const lngIndex = this.findColumnIndex(headers, ['longitud', 'lng', 'longitude', 'x']);
     const tipoIndex = this.findColumnIndex(headers, ['tipo', 'type', 'categoria', 'category']);
-    const descIndex = this.findColumnIndex(headers, ['descripcion', 'description', 'desc', 'nombre', 'name']);
+    const descIndex = this.findColumnIndex(headers, ['descripcion', 'description', 'desc', 'nombre', 'name', 'soc_fomen', 'barrio', 'nombre_bar']);
     const fechaIndex = this.findColumnIndex(headers, ['fecha', 'date', 'timestamp']);
 
     if (latIndex === -1 || lngIndex === -1) {
@@ -40,7 +40,17 @@ class CSVParser {
           continue;
         }
 
+        // Armar objeto con TODAS las columnas del CSV (aplanado),
+        // más los campos calculados/normalizados
+        const rowObject = {};
+        headers.forEach((h, idx) => {
+          if (idx < values.length) {
+            rowObject[h] = values[idx];
+          }
+        });
+
         const item = {
+          ...rowObject,
           lat,
           lng,
           tipo: tipoIndex !== -1 ? values[tipoIndex] : 'Punto',
@@ -132,11 +142,17 @@ class CSVParser {
             // Si tenemos coordenadas válidas, agregar al array
             if (lat !== undefined && lng !== undefined) {
               const doc = {
+                // Aplanamos TODAS las propiedades originales del feature
+                // (camera_number, address, barrio, domes, fixed, lpr, type, etc.)
+                // para que queden disponibles al nivel superior del documento.
+                ...feature.properties,
                 lat,
                 lng,
                 tipo: feature.properties?.tipo || 'Punto',
                 descripcion: feature.properties?.descripcion || feature.properties?.name || feature.properties?.nombre || '',
-                nombre: feature.properties?.nombre || feature.properties?.name || 'Sin nombre',
+                nombre: feature.properties?.nombre || feature.properties?.name || feature.properties?.camera_number
+                  || feature.properties?.soc_fomen || feature.properties?.barrio || feature.properties?.nombre_bar
+                  || feature.properties?.NOMBRE || feature.properties?.BARRIO || 'Sin nombre',
                 fecha: feature.properties?.fecha || null,
                 properties: feature.properties || {}
               };
@@ -170,11 +186,15 @@ class CSVParser {
           
           if (lat !== undefined && lng !== undefined) {
             const doc = {
+              // Aplanamos TODAS las propiedades originales del feature
+              ...geojson.properties,
               lat,
               lng,
               tipo: geojson.properties?.tipo || 'Punto',
               descripcion: geojson.properties?.descripcion || geojson.properties?.name || geojson.properties?.nombre || '',
-              nombre: geojson.properties?.nombre || geojson.properties?.name || 'Sin nombre',
+              nombre: geojson.properties?.nombre || geojson.properties?.name || geojson.properties?.camera_number
+                || geojson.properties?.soc_fomen || geojson.properties?.barrio || geojson.properties?.nombre_bar
+                || geojson.properties?.NOMBRE || geojson.properties?.BARRIO || 'Sin nombre',
               fecha: geojson.properties?.fecha || null,
               properties: geojson.properties || {}
             };
