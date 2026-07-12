@@ -1461,18 +1461,31 @@ class ClientDashboard {
       const ref = clientDb.collection(colPath);
       const snap = await ref.get();
 
+      // ✅ FIX: Firestore limita cada batch a 500 operaciones.
+      // Dividimos el borrado en tandas de 400 (margen de seguridad)
+      // para evitar el error "Transaction too big" con colecciones grandes.
+      const allDocs = snap.docs;
+      const BATCH_SIZE = 400;
       let deleted = 0;
-      const batch = clientDb.batch();
-      
-      snap.forEach(doc => {
-        batch.delete(doc.ref);
-        deleted++;
-      });
-      
-      if (deleted > 0) {
+
+      for (let i = 0; i < allDocs.length; i += BATCH_SIZE) {
+        const chunk = allDocs.slice(i, i + BATCH_SIZE);
+        const batch = clientDb.batch();
+        chunk.forEach(doc => {
+          batch.delete(doc.ref);
+        });
         await batch.commit();
+        deleted += chunk.length;
+        console.log(`🗑️ Batch de borrado: ${deleted}/${allDocs.length}`);
+
+        if (statusDiv) {
+          statusDiv.innerHTML = `<div class="alert alert-warning alert-dismissible fade show" role="alert" style="font-size: 16px; font-weight: bold;">⏳ Borrando ${collectionName}... (${deleted}/${allDocs.length})</div>`;
+        }
+      }
+
+      if (allDocs.length > 0) {
         console.log(`✅ ${deleted} documentos eliminados de ${collectionName}`);
-        
+
         if (statusDiv) {
           statusDiv.innerHTML = `
             <div class="alert alert-success alert-dismissible fade show" role="alert" style="font-size: 16px; font-weight: bold;">
