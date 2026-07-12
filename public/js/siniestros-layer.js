@@ -126,7 +126,10 @@ const SiniestrosLayer = (() => {
     const normalized = {};
     
     // Obtener causa (intentar variaciones de nombres, incluyendo encoding corrupto real: U+FFFD)
-    normalized.causa = getProp(props, ['causa', 'Causa', 'tipo', 'Tipo', 'CÓDIGOS CAUSAS', 'CàDIGOS CAUSAS', 'C?DIGOS CAUSAS', 'CODIGOS CAUSAS', 'C\uFFFDDIGOS CAUSAS']);
+    // IMPORTANTE: 'tipo'/'Tipo' van AL FINAL porque csv-parser.js les pone 'Punto' como
+    // valor por defecto en TODOS los documentos, y si se buscaran primero, siempre ganarían
+    // por sobre la columna real de causa.
+    normalized.causa = getProp(props, ['causa', 'Causa', 'CÓDIGOS CAUSAS', 'CàDIGOS CAUSAS', 'C?DIGOS CAUSAS', 'CODIGOS CAUSAS', 'C\uFFFDDIGOS CAUSAS', 'tipo', 'Tipo']);
     
     // Obtener fecha
     normalized.fecha = getProp(props, ['fecha', 'Fecha', 'FECHA', 'FECHA_SINIESTRO']);
