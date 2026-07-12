@@ -125,8 +125,8 @@ const SiniestrosLayer = (() => {
   function normalizeFilterProps(props) {
     const normalized = {};
     
-    // Obtener causa (intentar variaciones de nombres)
-    normalized.causa = getProp(props, ['causa', 'Causa', 'tipo', 'Tipo', 'CÓDIGOS CAUSAS', 'CàDIGOS CAUSAS', 'C?DIGOS CAUSAS', 'CODIGOS CAUSAS']);
+    // Obtener causa (intentar variaciones de nombres, incluyendo encoding corrupto real: U+FFFD)
+    normalized.causa = getProp(props, ['causa', 'Causa', 'tipo', 'Tipo', 'CÓDIGOS CAUSAS', 'CàDIGOS CAUSAS', 'C?DIGOS CAUSAS', 'CODIGOS CAUSAS', 'C\uFFFDDIGOS CAUSAS']);
     
     // Obtener fecha
     normalized.fecha = getProp(props, ['fecha', 'Fecha', 'FECHA', 'FECHA_SINIESTRO']);
@@ -145,11 +145,11 @@ const SiniestrosLayer = (() => {
       }
     }
     
-    // Obtener participantes
-    normalized.participantes = getProp(props, ['participantes_codigos', 'Participante', 'CÓDIGO PARTICIPANTES', 'C?DIGO PARTICIPANTES', 'participantes']);
+    // Obtener participantes (incluyendo encoding corrupto real: U+FFFD)
+    normalized.participantes = getProp(props, ['participantes_codigos', 'Participante', 'CÓDIGO PARTICIPANTES', 'C?DIGO PARTICIPANTES', 'participantes', 'C\uFFFDDIGO PARTICIPANTES']);
     
-    // Obtener calle/dirección
-    normalized.calle = getProp(props, ['direccion', 'Calle', 'calle', 'DIRECCIÓN SINIESTRO', 'DIRECCION SINIESTRO']);
+    // Obtener calle/dirección (incluyendo encoding corrupto real: U+FFFD)
+    normalized.calle = getProp(props, ['direccion', 'Calle', 'calle', 'DIRECCIÓN SINIESTRO', 'DIRECCION SINIESTRO', 'DIRECCI\uFFFDN SINIESTRO']);
     
     // Obtener barrio (NUEVO: leer field barrio si existe en el CSV)
     normalized.barrio = getProp(props, ['barrio', 'Barrio', 'BARRIOS', 'barrios', 'zona', 'Zona']);
