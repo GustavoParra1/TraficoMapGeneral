@@ -386,6 +386,22 @@ class ClientMapManager {
       let count = 0;
       snap.forEach(doc => {
         const data = doc.data();
+
+        // IMPORTANTE: los archivos subidos por el panel "Cargar Datos" pasan por
+        // csvParser.parseGeoJSON(), que NO guarda un campo `geometry` (objeto).
+        // En su lugar guarda `geometryJSON` (string, vía JSON.stringify), porque
+        // Firestore no admite arrays anidados dentro de arrays directamente.
+        // Por eso, además de soportar `data.geometry` (por si algún día se guarda
+        // así), reconstruimos la geometría real desde `geometryJSON` cuando existe.
+        let geometry = data.geometry || null;
+        if (!geometry && data.geometryJSON) {
+          try {
+            geometry = JSON.parse(data.geometryJSON);
+          } catch (e) {
+            console.warn(`⚠️ geometryJSON inválido en doc de colectivos ${doc.id}:`, e);
+          }
+        }
+
         if (data.features && Array.isArray(data.features)) {
           // Si es una FeatureCollection almacenada como documento
           data.features.forEach(feature => {
@@ -414,10 +430,11 @@ class ClientMapManager {
             }
           });
           count++;
-        } else if (data.geometry && data.geometry.type === 'LineString') {
-          // Si es un documento individual con LineString
+        } else if (geometry && geometry.type === 'LineString') {
+          // Documento individual con el recorrido de la línea (caso más común:
+          // un doc por feature, generado por el panel de carga)
           const lineLayer = L.polyline(
-            data.geometry.coordinates.map(coord => [coord[1], coord[0]]),
+            geometry.coordinates.map(coord => [coord[1], coord[0]]),
             {
               color: '#FF6B6B',
               weight: 3,
@@ -425,7 +442,21 @@ class ClientMapManager {
               dashArray: '5, 5'
             }
           );
+          lineLayer.bindTooltip(data.nombre || data.numero || 'Línea de colectivo');
           lineLayer.addTo(this.layers.colectivos);
+          count++;
+        } else if (geometry && geometry.type === 'Point') {
+          // Documento individual con una parada
+          const pointMarker = this.createMarker(
+            [geometry.coordinates[1], geometry.coordinates[0]],
+            {
+              title: data.nombre || 'Parada',
+              type: 'colectivos',
+              icon: 'https://cdn-icons-png.flaticon.com/512/3935/3935715.png',
+              iconSize: [20, 20]
+            }
+          );
+          pointMarker.addTo(this.layers.colectivos);
           count++;
         }
       });
