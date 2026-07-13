@@ -360,7 +360,11 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
     try {
       if (typeof AforosLayer !== 'undefined') {
         console.log(`📊 Cargando aforos del cliente...`);
-        const aforosSnap = await clientDb.collection(`clientes/${clienteId}/aforos`).get();
+        // NOTA: la colección real donde el uploader de CSV guarda estos
+        // registros se llama "flujo" (no "aforos"), aunque el resto del
+        // código y la UI usan el término "aforos". Se lee de "flujo" para
+        // matchear con lo que realmente escribe csv-parser.js.
+        const aforosSnap = await clientDb.collection(`clientes/${clienteId}/flujo`).get();
         if (aforosSnap.size > 0) {
           const aforosRows = aforosSnap.docs.map(d => d.data());
           const camerasSnap = await clientDb.collection(`clientes/${clienteId}/cameras`).get();
