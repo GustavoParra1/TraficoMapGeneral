@@ -22,6 +22,29 @@ const AforosLayer = (() => {
   };
 
   /**
+   * Parsea una fecha en formato argentino DD/MM/AAAA o DD/MM/AA (día primero,
+   * como vienen los CSV de aforos). Devuelve día/mes/año ya normalizados
+   * (año siempre de 4 dígitos) y el objeto Date correspondiente.
+   */
+  const parseFechaArgentina = (fechaStr) => {
+    if (!fechaStr) return { day: null, month: null, year: null, dateObj: null };
+
+    const partes = fechaStr.split('/');
+    if (partes.length !== 3) return { day: null, month: null, year: null, dateObj: null };
+
+    const [dStr, mStr, yStrRaw] = partes;
+    const day = parseInt(dStr, 10);
+    const month = parseInt(mStr, 10);
+    // Año de 2 dígitos ("22") -> asumimos 2000+ ("2022"). Si ya viene con
+    // 4 dígitos, se respeta tal cual.
+    const year = yStrRaw.length <= 2 ? 2000 + parseInt(yStrRaw, 10) : parseInt(yStrRaw, 10);
+
+    const dateObj = new Date(year, month - 1, day);
+
+    return { day, month, year, dateObj };
+  };
+
+  /**
    * Inicializa la capa de aforos
    */
   const init = (mapInstance) => {
@@ -58,6 +81,67 @@ const AforosLayer = (() => {
       console.error('❌ Error cargando coordenadas de cámaras:', error);
       return false;
     }
+  };
+
+  /**
+   * Carga datos de aforos y cámaras que ya vinieron de Firestore (cliente
+   * dinámico), en vez de hacer fetch a archivos estáticos como loadFromCSV.
+   * @param {Array} aforosRows - filas ya parseadas (docs de la colección
+   *        `clientes/{clienteId}/aforos`, guardadas por csv-parser.js).
+   * @param {Array} camerasRows - docs de la colección
+   *        `clientes/{clienteId}/cameras` (cámaras públicas del cliente).
+   */
+  const setManualData = (aforosRows, camerasRows) => {
+    aforosData = [];
+    camerasMap = {};
+    filteredData = [];
+    console.log('🔄 Datos de aforos reseteados (carga manual desde Firestore)');
+
+    // Paso 1: armar camerasMap a partir de las cámaras del cliente
+    (camerasRows || []).forEach(cam => {
+      const cameraId = cam.numero_camara || cam.camera_number || cam.numero || cam.nombre;
+      if (!cameraId || cam.lat == null || cam.lng == null) return;
+
+      camerasMap[cameraId] = {
+        lat: cam.lat,
+        lng: cam.lng,
+        address: cam.direccion || cam.descripcion || cam.address,
+        barrio: cam.barrio,
+        type: cam.tipo
+      };
+    });
+    console.log(`✅ ${Object.keys(camerasMap).length} cámaras cargadas (Firestore) para cruzar con aforos`);
+
+    // Paso 2: armar aforosData a partir de las filas de aforos
+    (aforosRows || []).forEach(row => {
+      const cameraId = row.numero_camara || row['n camara'] || row['nº camara'] || row.cameraId;
+      if (!cameraId) return;
+
+      const fechaStr = row.fecha || '';
+      const { month, year, dateObj } = parseFechaArgentina(fechaStr);
+
+      aforosData.push({
+        cameraId,
+        direccion: row.direccion,
+        fecha: fechaStr,
+        dia: row.dia,
+        hora: row.hora,
+        vehicleType: row.part || row.tipo,
+        total: parseInt(row.total) || 0,
+        year,
+        month,
+        dateObj
+      });
+    });
+
+    console.log(`✅ ${aforosData.length} registros de aforos cargados (Firestore)`);
+    const uniqueYears = [...new Set(aforosData.map(r => r.year))].sort();
+    console.log(`   Años disponibles: ${uniqueYears.join(', ')}`);
+
+    applyFilters({});
+    console.log(`📊 filteredData inicializado con ${filteredData.length} registros`);
+
+    return aforosData.length > 0;
   };
 
   /**
@@ -112,9 +196,9 @@ const AforosLayer = (() => {
           total: parseInt(parts[6]) || 0
         };
         
-        // Parsear fecha (MM/DD/YYYY)
-        const [month, day, year] = record.fecha.split('/');
-        record.dateObj = new Date(year, month - 1, day);
+        // Parsear fecha en formato argentino (DD/MM/AAAA o DD/MM/AA)
+        const { month, year, dateObj } = parseFechaArgentina(record.fecha);
+        record.dateObj = dateObj;
         record.year = year;
         record.month = month;
         
@@ -378,10 +462,12 @@ const AforosLayer = (() => {
    * Con design mejorado y jerarquía clara: Fecha > Hora > Tipo de Vehículo
    */
   const createPopupHTML = (data) => {
-    // Función para convertir fecha de MM/DD/YYYY a DD/MM/YYYY
+    // La fecha ya viene guardada en formato argentino (DD/MM/AAAA o DD/MM/AA);
+    // acá solo normalizamos el año a 4 dígitos para mostrarla prolija.
     const formatDate = (dateStr) => {
-      const [month, day, year] = dateStr.split('/');
-      return `${day}/${month}/${year}`;
+      const { day, month, year } = parseFechaArgentina(dateStr);
+      if (day == null) return dateStr;
+      return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
     };
 
     // Ordenar registros por fecha (más reciente primero) luego por hora
@@ -623,6 +709,7 @@ const AforosLayer = (() => {
   return {
     init,
     loadFromCSV,
+    setManualData,
     renderMarkers,
     applyFilters,
     getAggregatedData,

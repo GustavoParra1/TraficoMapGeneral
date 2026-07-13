@@ -15,12 +15,20 @@ class CSVParser {
     // Mapear columnas esperadas
     const latIndex = this.findColumnIndex(headers, ['latitud', 'lat', 'latitude', 'y']);
     const lngIndex = this.findColumnIndex(headers, ['longitud', 'lng', 'longitude', 'x']);
-    const tipoIndex = this.findColumnIndex(headers, ['tipo', 'type', 'categoria', 'category']);
+    const tipoIndex = this.findColumnIndex(headers, ['tipo', 'type', 'categoria', 'category', 'part']);
     const descIndex = this.findColumnIndex(headers, ['descripcion', 'description', 'desc', 'nombre', 'name', 'soc_fomen', 'barrio', 'nombre_bar']);
     const fechaIndex = this.findColumnIndex(headers, ['fecha', 'date', 'timestamp']);
+    // Algunos datasets (ej: aforos vehiculares) no traen coordenadas propias,
+    // sino que referencian una cámara ya existente por su número. En ese caso
+    // no exigimos lat/lng: la ubicación se resuelve más tarde, cruzando este
+    // número contra la base de cámaras ya cargada (ver aforos-layer.js).
+    const camaraIndex = this.findColumnIndex(headers, ['n camara', 'nº camara', 'numero_camara', 'numero camara', 'camara', 'id_camara', 'camera_number', 'cameraid']);
 
     if (latIndex === -1 || lngIndex === -1) {
-      throw new Error('CSV debe contener columnas de latitud y longitud');
+      if (camaraIndex === -1) {
+        throw new Error('CSV debe contener columnas de latitud y longitud (o, en su defecto, una columna de número de cámara)');
+      }
+      console.log('ℹ️ CSV sin latitud/longitud, pero con columna de número de cámara: se procesará por referencia a cámara');
     }
 
     // Procesar datos
@@ -32,11 +40,12 @@ class CSVParser {
       const values = this.parseCSVLine(line);
       
       try {
-        const lat = parseFloat(values[latIndex]);
-        const lng = parseFloat(values[lngIndex]);
+        let lat = latIndex !== -1 ? parseFloat(values[latIndex]) : NaN;
+        let lng = lngIndex !== -1 ? parseFloat(values[lngIndex]) : NaN;
+        const numeroCamara = camaraIndex !== -1 ? values[camaraIndex] : null;
 
-        if (isNaN(lat) || isNaN(lng)) {
-          console.warn(`⚠️ Fila ${i + 1}: coordenadas inválidas. Saltando.`);
+        if ((isNaN(lat) || isNaN(lng)) && !numeroCamara) {
+          console.warn(`⚠️ Fila ${i + 1}: sin coordenadas ni número de cámara. Saltando.`);
           continue;
         }
 
@@ -51,12 +60,21 @@ class CSVParser {
 
         const item = {
           ...rowObject,
-          lat,
-          lng,
           tipo: tipoIndex !== -1 ? values[tipoIndex] : 'Punto',
           descripcion: descIndex !== -1 ? values[descIndex] : '',
           fecha: fechaIndex !== -1 ? values[fechaIndex] : null
         };
+
+        // Solo agregamos lat/lng si son válidos; si el dato viene por
+        // referencia a cámara (sin coordenadas propias), guardamos
+        // numero_camara en su lugar y la posición se resuelve al graficar.
+        if (!isNaN(lat) && !isNaN(lng)) {
+          item.lat = lat;
+          item.lng = lng;
+        }
+        if (numeroCamara) {
+          item.numero_camara = numeroCamara;
+        }
 
         data.push(item);
       } catch (error) {

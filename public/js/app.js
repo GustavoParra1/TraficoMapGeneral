@@ -1,4 +1,3 @@
-
 // ============================
 // INICIALIZAR MAPA
 // ============================
@@ -352,6 +351,39 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
       }
     } catch (error) {
       console.debug(`ℹ️ Semáforos no disponibles:`, error.message);
+    }
+
+    // Aforos (flujo vehicular por cámara). A diferencia de las demás capas,
+    // los aforos no tienen coordenadas propias: cada registro referencia un
+    // número de cámara, y la ubicación se resuelve cruzando contra las
+    // cámaras públicas ya cargadas para este mismo cliente.
+    try {
+      if (typeof AforosLayer !== 'undefined') {
+        console.log(`📊 Cargando aforos del cliente...`);
+        const aforosSnap = await clientDb.collection(`clientes/${clienteId}/aforos`).get();
+        if (aforosSnap.size > 0) {
+          const aforosRows = aforosSnap.docs.map(d => d.data());
+          const camerasSnap = await clientDb.collection(`clientes/${clienteId}/cameras`).get();
+          const camerasRows = camerasSnap.docs.map(d => d.data());
+
+          const cargado = AforosLayer.setManualData(aforosRows, camerasRows);
+          console.log(`  ✓ ${aforosRows.length} registros de aforos cargados (cargado=${cargado})`);
+
+          if (cargado && typeof populateAforosFilters === 'function') {
+            populateAforosFilters();
+          }
+
+          const aforosCheckbox = document.getElementById('aforos-checkbox');
+          if (aforosCheckbox) {
+            aforosCheckbox.disabled = false;
+            aforosCheckbox.style.opacity = '1';
+          }
+        } else {
+          console.log(`  ℹ️ No hay aforos en la base de datos del cliente`);
+        }
+      }
+    } catch (error) {
+      console.debug(`ℹ️ Aforos no disponibles:`, error.message);
     }
     
     // Colegios
