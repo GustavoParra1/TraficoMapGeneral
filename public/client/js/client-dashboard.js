@@ -1588,6 +1588,14 @@ class ClientDashboard {
     this.loadBillingData();
   }
 
+  // Formatea un número como moneda en pesos argentinos (ej: 15000 -> "$15.000,00").
+  // Antes esta función se llamaba en loadBillingData() sin haber sido definida
+  // nunca, lo que rompía la carga completa de la solapa Facturación.
+  formatCurrency(monto) {
+    const numero = Number(monto) || 0;
+    return numero.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
+  }
+
   async loadBillingData() {
     try {
       const billingRef = firebase.firestore().collection('billing');
@@ -1612,7 +1620,7 @@ class ClientDashboard {
         html += `
           <tr>
             <td>${periodo}</td>
-            <td>${formatCurrency(data.monto || 0)}</td>
+            <td>${this.formatCurrency(data.monto || 0)}</td>
             <td><span class="badge ${badge}">${status}</span></td>
             <td>
               <button class="btn btn-sm btn-info" onclick="alert('Descarga en desarrollo')">
