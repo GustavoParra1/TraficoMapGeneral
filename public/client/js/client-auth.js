@@ -112,7 +112,27 @@ class ClientAuth {
       const clienteId = clienteDoc.id;
       
       console.log("🔍 Cliente encontrado:", clienteData.nombre);
-      
+
+      // ✅ PASO 1.5: Verificar que el cliente esté activo ANTES de validar
+      // contraseña. Sin este chequeo, un cliente recién suspendido igual
+      // podía loguearse desde cero (el listener en tiempo real solo protege
+      // sesiones que ya estaban abiertas, no un login nuevo).
+      if (clienteData.estado !== 'activo') {
+        let motivo = "";
+        switch (clienteData.estado) {
+          case 'suspendido':
+            motivo = "Su acceso ha sido suspendido por el administrador";
+            break;
+          case 'inactivo':
+            motivo = "Su cuenta no está activa";
+            break;
+          default:
+            motivo = `Estado: ${clienteData.estado}`;
+        }
+        console.warn(`⛔ Intento de login con cliente en estado "${clienteData.estado}". Bloqueado.`);
+        throw new Error(motivo);
+      }
+
       // ✅ PASO 2: Validar contraseña
       const passwordStored = clienteData.contraseña || clienteData.password;
       if (passwordStored !== password) {
