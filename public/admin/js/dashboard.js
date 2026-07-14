@@ -188,7 +188,7 @@ class Dashboard {
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#billing">
+                <a class="nav-link" href="billing/index.html">
                   <i class="bi bi-file-earmark-text"></i> Billing
                 </a>
               </li>
@@ -998,10 +998,12 @@ class Dashboard {
         break;
         
       case 'billing':
-        console.log("📄 Renderizando BILLING...");
-        mainContent.innerHTML = this.getBillingPageHTML();
-        this.attachBillingPageEvents();
-        console.log("✅ Billing renderizado");
+        // La sección de Billing vieja (con el bug del campo "periodo" y el
+        // botón "Generar Factura" sin conectar) fue reemplazada por la
+        // página completa en admin/billing/index.html (billing-manager.js).
+        // Si alguien llega acá por un link viejo guardado, lo redirigimos.
+        console.log("↪️ Redirigiendo a la nueva página de Billing...");
+        window.location.href = 'billing/index.html';
         break;
         
       case 'usuarios':
@@ -1543,74 +1545,9 @@ URL: https://trafico-map-general-v2.web.app/login.html`;
     }
   }
 
-  // ===== PÁGINA: BILLING =====
-  getBillingPageHTML() {
-    return `
-      <div class="container-fluid p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2>Facturación</h2>
-          <button class="btn btn-primary" id="btnGenerarFactura">
-            <i class="bi bi-file-pdf"></i> Generar Factura
-          </button>
-        </div>
-        
-        <div class="card">
-          <div class="card-header bg-light">
-            <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> Historial de Facturas</h5>
-          </div>
-          <div class="card-body">
-            <div id="billingTableContainer" class="table-responsive">
-              <p class="text-muted">Cargando facturas...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  attachBillingPageEvents() {
-    // Renderizar tabla
-    const container = document.getElementById('billingTableContainer');
-    if (this.billingData.length === 0) {
-      container.innerHTML = '<p class="text-muted">No hay facturas registradas</p>';
-    } else {
-      const rows = this.billingData.map((b, idx) => {
-        const estadoBadge = b.pagado ? 'bg-success' : 'bg-warning';
-        return `
-          <tr>
-            <td>#${idx + 1}</td>
-            <td>${b.periodo}</td>
-            <td>${formatCurrency(b.monto)}</td>
-            <td><span class="badge ${estadoBadge}">${b.pagado ? 'Pagado' : 'Pendiente'}</span></td>
-            <td>${formatDate(b.fecha_emision)}</td>
-            <td>
-              <button class="btn btn-sm btn-info" onclick="alert('Descarga en desarrollo')">
-                <i class="bi bi-download"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-
-      container.innerHTML = `
-        <table class="table table-hover">
-          <thead class="table-light">
-            <tr>
-              <th>ID</th>
-              <th>Período</th>
-              <th>Monto</th>
-              <th>Estado</th>
-              <th>Emitida</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows}
-          </tbody>
-        </table>
-      `;
-    }
-  }
+  // La sección de Billing (getBillingPageHTML / attachBillingPageEvents) fue
+  // retirada de acá: ahora vive en admin/billing/index.html + billing-manager.js,
+  // que ya resuelve el nombre del cliente y no tiene el bug del campo "periodo".
 
   // ===== PÁGINA: USUARIOS =====
   getUsuariosPageHTML() {
@@ -1737,5 +1674,3 @@ function togglePasswordVisibility(elementId) {
     btn.innerHTML = '<i class="bi bi-eye"></i>';
   }
 }
-
- 
