@@ -414,9 +414,13 @@
               return;
             }
 
-            // Verificar role
-            const claims = user.customClaims || {};
-            if (claims.role !== 'admin') {
+            // Verificar role. IMPORTANTE: user.customClaims no existe en el
+            // objeto de Firebase Auth — los custom claims solo se obtienen
+            // vía getIdTokenResult(). Antes esto siempre daba {} y bloqueaba
+            // a cualquier usuario, sin importar su rol real.
+            const idTokenResult = await user.getIdTokenResult();
+            const claims = idTokenResult.claims || {};
+            if (claims.role !== 'admin' && claims.role !== 'superadmin') {
               alert('No tienes permisos para acceder a esta página');
               await auth.signOut();
               window.location.href = '../index.html';
