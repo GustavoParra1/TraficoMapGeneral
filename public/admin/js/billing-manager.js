@@ -506,15 +506,43 @@ class BillingManager {
    * Handlers
    */
   handleVer(id) {
-    alert('Ver factura: ' + id);
+    const f = this.facturasData.find(x => x.id === id);
+    if (!f) return this.showError('Factura no encontrada');
+
+    alert(
+      `Factura: ${f.id}\n` +
+      `Cliente: ${f.cliente_nombre}\n` +
+      `Monto: ${formatCurrency(f.monto)}\n` +
+      `Estado: ${f.pagada ? 'Pagada' : 'Pendiente'}\n` +
+      `Vence: ${formatDate(f.vence_en)}\n` +
+      `Comprobante: ${f.numero_comprobante || '-'}`
+    );
   }
 
-  handleRegistrarPago(id) {
-    alert('Registrar pago: ' + id);
+  async handleRegistrarPago(id) {
+    const metodo = prompt('Método de pago (transferencia, efectivo, mercadopago, etc.):', 'transferencia');
+    if (metodo === null) return; // canceló
+
+    if (!confirm(`¿Confirmás registrar el pago de la factura ${id} vía ${metodo}?`)) return;
+
+    try {
+      await this.registrarPago(id, metodo, []);
+      this.renderFacturasTable();
+      this.renderDashboard();
+    } catch (error) {
+      this.showError('Error registrando el pago: ' + error.message);
+    }
   }
 
-  handleEnviar(id) {
-    alert('Enviar por email: ' + id);
+  async handleEnviar(id) {
+    const email = prompt('Email de destino:');
+    if (!email) return;
+
+    try {
+      await this.enviarPorEmail(id, email);
+    } catch (error) {
+      this.showError('Error enviando la factura: ' + error.message);
+    }
   }
 
   /**
