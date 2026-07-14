@@ -56,8 +56,8 @@ class BillingManager {
           }
 
           return {
-            id: doc.id,
             ...bill,
+            id: doc.id,
             cliente_nombre: cliente.nombre || 'Desconocido'
           };
         })
