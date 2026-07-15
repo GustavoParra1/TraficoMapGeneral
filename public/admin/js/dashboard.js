@@ -1071,9 +1071,6 @@ class Dashboard {
                   <label class="form-label">Plan *</label>
                   <select class="form-select" id="planCliente" required>
                     <option value="">-- Seleccionar plan --</option>
-                    <option value="basico">Básico ($1.000/mes)</option>
-                    <option value="profesional">Profesional ($5.000/mes)</option>
-                    <option value="enterprise">Enterprise (Personalizado)</option>
                   </select>
                 </div>
 
@@ -1196,9 +1193,6 @@ class Dashboard {
                   <label class="form-label">Plan *</label>
                   <select class="form-select" id="editPlanCliente" required>
                     <option value="">-- Seleccionar plan --</option>
-                    <option value="basico">Básico ($1.000/mes)</option>
-                    <option value="profesional">Profesional ($5.000/mes)</option>
-                    <option value="enterprise">Enterprise (Personalizado)</option>
                   </select>
                 </div>
                 <div class="mb-3">
@@ -1281,8 +1275,27 @@ class Dashboard {
     `;
   }
 
+  // Llena los selects de Plan (Crear/Editar Cliente) con el catálogo real
+  // de la colección 'subscripciones', en vez de opciones fijas hardcodeadas.
+  populatePlanSelects() {
+    const selectIds = ['planCliente', 'editPlanCliente'];
+    selectIds.forEach(id => {
+      const select = document.getElementById(id);
+      if (!select) return;
+      const currentValue = select.value;
+      const opciones = this.subscripcionesData.map(s => {
+        const nombre = capitalize(s.nombre_display || s.plan);
+        return `<option value="${s.plan}">${nombre} (${formatCurrency(s.precio_mensual)}/mes)</option>`;
+      }).join('');
+      select.innerHTML = '<option value="">-- Seleccionar plan --</option>' + opciones;
+      if (currentValue) select.value = currentValue;
+    });
+  }
+
   // Eventos de la página de clientes
   attachClientesPageEvents() {
+    this.populatePlanSelects();
+
     // Inicializar ClientesManager
     clientesManager.init();
     
