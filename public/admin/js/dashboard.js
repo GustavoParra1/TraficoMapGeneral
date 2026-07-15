@@ -1475,24 +1475,56 @@ URL: https://trafico-map-general-v2.web.app/login.html`;
     }
   }
 
-  // ===== PÁGINA: SUBSCRIPCIONES =====
+  
   getSubscripcionesPageHTML() {
     return `
       <div class="container-fluid p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h2>Gestión de Suscripciones</h2>
-          <button class="btn btn-primary" id="btnRenovarSuscripcion">
-            <i class="bi bi-arrow-clockwise"></i> Renovar Plan
+          <button class="btn btn-primary" id="btnCrearPlan">
+            <i class="bi bi-plus-circle"></i> Crear Plan
           </button>
         </div>
-        
+ 
         <div class="card">
           <div class="card-header bg-light">
-            <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Suscripciones Activas</h5>
+            <h5 class="mb-0"><i class="bi bi-card-list"></i> Catálogo de Planes</h5>
           </div>
           <div class="card-body">
             <div id="subscripcionesTableContainer" class="table-responsive">
-              <p class="text-muted">Cargando suscripciones...</p>
+              <p class="text-muted">Cargando planes...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- Modal Crear/Editar Plan -->
+      <div class="modal fade" id="planModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="planModalTitle">Crear Plan</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="planId" value="">
+              <div class="mb-3">
+                <label for="planNombre" class="form-label">Nombre del Plan *</label>
+                <input type="text" class="form-control" id="planNombre" placeholder="Ej: Básico, Profesional, Premium...">
+              </div>
+              <div class="mb-3">
+                <label for="planPrecio" class="form-label">Precio mensual *</label>
+                <input type="number" class="form-control" id="planPrecio" placeholder="Ej: 1000" min="0">
+              </div>
+              <div class="mb-3">
+                <label for="planFeatures" class="form-label">Funcionalidades incluidas</label>
+                <textarea class="form-control" id="planFeatures" rows="6" placeholder="Una funcionalidad por línea, ej:&#10;Mapa interactivo&#10;Hasta 5 cámaras&#10;Soporte por email"></textarea>
+                <small class="text-muted">Una funcionalidad por línea.</small>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" class="btn btn-primary" id="submitPlan">Guardar</button>
             </div>
           </div>
         </div>
@@ -1500,50 +1532,139 @@ URL: https://trafico-map-general-v2.web.app/login.html`;
     `;
   }
 
-  attachSubscripcionesPageEvents() {
-    // Renderizar tabla
-    const container = document.getElementById('subscripcionesTableContainer');
-    if (this.subscripcionesData.length === 0) {
-      container.innerHTML = '<p class="text-muted">No hay suscripciones activas</p>';
-    } else {
-      const rows = this.subscripcionesData.map((s, idx) => {
-        const diasRestantes = moment(s.fecha_expiracion).diff(moment(), 'days');
-        const estadoBadge = diasRestantes > 30 ? 'bg-success' : diasRestantes > 7 ? 'bg-warning' : 'bg-danger';
-        return `
-          <tr>
-            <td>#${idx + 1}</td>
-            <td>${capitalize(s.plan)}</td>
-            <td>${formatCurrency(s.precio_mensual)}</td>
-            <td>${formatDate(s.fecha_expiracion)}</td>
-            <td><span class="badge ${estadoBadge}">${diasRestantes} días</span></td>
-            <td>
-              <button class="btn btn-sm btn-primary" onclick="alert('Renovación en desarrollo')">
-                <i class="bi bi-pencil"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
 
-      container.innerHTML = `
-        <table class="table table-hover">
-          <thead class="table-light">
-            <tr>
-              <th>ID</th>
-              <th>Plan</th>
-              <th>Precio/mes</th>
-              <th>Fecha Expiración</th>
-              <th>Restante</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows}
-          </tbody>
-        </table>
+  attachSubscripcionesPageEvents() {
+    this.renderSubscripcionesTable();
+ 
+    // Botón "Crear Plan" -> abrir modal vacío
+    document.getElementById('btnCrearPlan').addEventListener('click', () => {
+      document.getElementById('planModalTitle').textContent = 'Crear Plan';
+      document.getElementById('planId').value = '';
+      document.getElementById('planNombre').value = '';
+      document.getElementById('planPrecio').value = '';
+      document.getElementById('planFeatures').value = '';
+      new bootstrap.Modal(document.getElementById('planModal')).show();
+    });
+ 
+    // Botón "Guardar" del modal (sirve para crear y editar)
+    document.getElementById('submitPlan').addEventListener('click', () => {
+      this.handleGuardarPlan();
+    });
+  }
+ 
+  renderSubscripcionesTable() {
+    const container = document.getElementById('subscripcionesTableContainer');
+    if (!container) return;
+ 
+    if (this.subscripcionesData.length === 0) {
+      container.innerHTML = '<p class="text-muted">No hay planes cargados</p>';
+      return;
+    }
+ 
+    const rows = this.subscripcionesData.map((s) => {
+      const features = Array.isArray(s.features) ? s.features : [];
+      const featuresHTML = features.length
+        ? `<ul class="mb-0 ps-3">${features.map(f => `<li>${f}</li>`).join('')}</ul>`
+        : '<span class="text-muted">Sin funcionalidades cargadas</span>';
+ 
+      return `
+        <tr>
+          <td class="fw-bold">${capitalize(s.plan)}</td>
+          <td>${formatCurrency(s.precio_mensual)}</td>
+          <td>${featuresHTML}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="dashboard.abrirEditarPlan('${s.id}')" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="dashboard.handleEliminarPlan('${s.id}')" title="Eliminar">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
       `;
+    }).join('');
+ 
+    container.innerHTML = `
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Plan</th>
+            <th>Precio/mes</th>
+            <th>Funcionalidades</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    `;
+  }
+ 
+  abrirEditarPlan(planId) {
+    const plan = this.subscripcionesData.find(s => s.id === planId);
+    if (!plan) return;
+ 
+    document.getElementById('planModalTitle').textContent = 'Editar Plan';
+    document.getElementById('planId').value = plan.id;
+    document.getElementById('planNombre').value = plan.plan || '';
+    document.getElementById('planPrecio').value = plan.precio_mensual || '';
+    document.getElementById('planFeatures').value = Array.isArray(plan.features) ? plan.features.join('\n') : '';
+    new bootstrap.Modal(document.getElementById('planModal')).show();
+  }
+ 
+  async handleGuardarPlan() {
+    const planId = document.getElementById('planId').value;
+    const nombre = document.getElementById('planNombre').value.trim();
+    const precio = parseFloat(document.getElementById('planPrecio').value);
+    const featuresRaw = document.getElementById('planFeatures').value;
+    const features = featuresRaw
+      .split('\n')
+      .map(f => f.trim())
+      .filter(f => f.length > 0);
+ 
+    if (!nombre || isNaN(precio) || precio < 0) {
+      adminAuth.showError('Completá nombre y precio válidos');
+      return;
+    }
+ 
+    const data = {
+      plan: nombre.toLowerCase(),
+      nombre_display: nombre,
+      precio_mensual: precio,
+      features: features
+    };
+ 
+    try {
+      if (planId) {
+        await db.collection('subscripciones').doc(planId).update(data);
+        adminAuth.showSuccess('Plan actualizado');
+      } else {
+        await db.collection('subscripciones').add(data);
+        adminAuth.showSuccess('Plan creado');
+      }
+ 
+      bootstrap.Modal.getInstance(document.getElementById('planModal')).hide();
+      await this.loadSubscripciones();
+      this.renderSubscripcionesTable();
+    } catch (error) {
+      adminAuth.showError('Error al guardar el plan: ' + error.message);
     }
   }
+ 
+  async handleEliminarPlan(planId) {
+    if (!confirm('¿Eliminar este plan? Esta acción no se puede deshacer.')) return;
+ 
+    try {
+      await db.collection('subscripciones').doc(planId).delete();
+      adminAuth.showSuccess('Plan eliminado');
+      await this.loadSubscripciones();
+      this.renderSubscripcionesTable();
+    } catch (error) {
+      adminAuth.showError('Error al eliminar el plan: ' + error.message);
+    }
+  }
+ 
 
   // La sección de Billing (getBillingPageHTML / attachBillingPageEvents) fue
   // retirada de acá: ahora vive en admin/billing/index.html + billing-manager.js,
