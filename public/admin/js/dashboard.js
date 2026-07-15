@@ -1285,7 +1285,8 @@ class Dashboard {
       const currentValue = select.value;
       const opciones = this.subscripcionesData.map(s => {
         const nombre = capitalize(s.nombre_display || s.plan);
-        return `<option value="${s.plan}">${nombre} (${formatCurrency(s.precio_mensual)}/mes)</option>`;
+        const precioLabel = s.precio_a_convenir ? 'Personalizado' : `${formatCurrency(s.precio_mensual)}/mes`;
+        return `<option value="${s.plan}">${nombre} (${precioLabel})</option>`;
       }).join('');
       select.innerHTML = '<option value="">-- Seleccionar plan --</option>' + opciones;
       if (currentValue) select.value = currentValue;
@@ -1527,7 +1528,11 @@ URL: https://trafico-map-general-v2.web.app/login.html`;
               </div>
               <div class="mb-3">
                 <label for="planPrecio" class="form-label">Precio mensual *</label>
-                <input type="number" class="form-control" id="planPrecio" placeholder="Ej: 1000" min="0">
+                <input type="number" class="form-control" id="planPrecio" placeholder="Ej: 750000" min="0">
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="planPrecioConvenir">
+                <label class="form-check-label" for="planPrecioConvenir">Precio a convenir (sin monto fijo)</label>
               </div>
               <div class="mb-3">
                 <label for="planFeatures" class="form-label">Funcionalidades incluidas</label>
@@ -1548,13 +1553,22 @@ URL: https://trafico-map-general-v2.web.app/login.html`;
 
   attachSubscripcionesPageEvents() {
     this.renderSubscripcionesTable();
- 
+
+    // Toggle: al tildar "Precio a convenir" se desactiva el campo numérico
+    document.getElementById('planPrecioConvenir').addEventListener('change', (e) => {
+      const precioInput = document.getElementById('planPrecio');
+      precioInput.disabled = e.target.checked;
+      if (e.target.checked) precioInput.value = '';
+    });
+
     // Botón "Crear Plan" -> abrir modal vacío
     document.getElementById('btnCrearPlan').addEventListener('click', () => {
       document.getElementById('planModalTitle').textContent = 'Crear Plan';
       document.getElementById('planId').value = '';
       document.getElementById('planNombre').value = '';
       document.getElementById('planPrecio').value = '';
+      document.getElementById('planPrecio').disabled = false;
+      document.getElementById('planPrecioConvenir').checked = false;
       document.getElementById('planFeatures').value = '';
       new bootstrap.Modal(document.getElementById('planModal')).show();
     });
@@ -1579,11 +1593,12 @@ URL: https://trafico-map-general-v2.web.app/login.html`;
       const featuresHTML = features.length
         ? `<ul class="mb-0 ps-3">${features.map(f => `<li>${f}</li>`).join('')}</ul>`
         : '<span class="text-muted">Sin funcionalidades cargadas</span>';
- 
+      const precioHTML = s.precio_a_convenir ? '<em>A convenir</em>' : formatCurrency(s.precio_mensual);
+
       return `
         <tr>
           <td class="fw-bold">${capitalize(s.plan)}</td>
-          <td>${formatCurrency(s.precio_mensual)}</td>
+          <td>${precioHTML}</td>
           <td>${featuresHTML}</td>
           <td>
             <button class="btn btn-sm btn-outline-primary me-1" onclick="dashboard.abrirEditarPlan('${s.id}')" title="Editar">
@@ -1617,11 +1632,16 @@ URL: https://trafico-map-general-v2.web.app/login.html`;
   abrirEditarPlan(planId) {
     const plan = this.subscripcionesData.find(s => s.id === planId);
     if (!plan) return;
- 
+
+    const precioInput = document.getElementById('planPrecio');
+    const convenirCheckbox = document.getElementById('planPrecioConvenir');
+
     document.getElementById('planModalTitle').textContent = 'Editar Plan';
     document.getElementById('planId').value = plan.id;
-    document.getElementById('planNombre').value = plan.plan || '';
-    document.getElementById('planPrecio').value = plan.precio_mensual || '';
+    document.getElementById('planNombre').value = plan.nombre_display || plan.plan || '';
+    convenirCheckbox.checked = !!plan.precio_a_convenir;
+    precioInput.disabled = !!plan.precio_a_convenir;
+    precioInput.value = plan.precio_a_convenir ? '' : (plan.precio_mensual || '');
     document.getElementById('planFeatures').value = Array.isArray(plan.features) ? plan.features.join('\n') : '';
     new bootstrap.Modal(document.getElementById('planModal')).show();
   }
@@ -1629,22 +1649,33 @@ URL: https://trafico-map-general-v2.web.app/login.html`;
   async handleGuardarPlan() {
     const planId = document.getElementById('planId').value;
     const nombre = document.getElementById('planNombre').value.trim();
-    const precio = parseFloat(document.getElementById('planPrecio').value);
+    const aConvenir = document.getElementById('planPrecioConvenir').checked;
     const featuresRaw = document.getElementById('planFeatures').value;
     const features = featuresRaw
       .split('\n')
       .map(f => f.trim())
       .filter(f => f.length > 0);
- 
-    if (!nombre || isNaN(precio) || precio < 0) {
-      adminAuth.showError('Completá nombre y precio válidos');
+
+    if (!nombre) {
+      adminAuth.showError('Completá el nombre del plan');
       return;
     }
- 
+
+    let precio_mensual = null;
+    if (!aConvenir) {
+      const precio = parseFloat(document.getElementById('planPrecio').value);
+      if (isNaN(precio) || precio < 0) {
+        adminAuth.showError('Completá un precio válido, o tildá "Precio a convenir"');
+        return;
+      }
+      precio_mensual = precio;
+    }
+
     const data = {
       plan: nombre.toLowerCase(),
       nombre_display: nombre,
-      precio_mensual: precio,
+      precio_mensual: precio_mensual,
+      precio_a_convenir: aConvenir,
       features: features
     };
  
