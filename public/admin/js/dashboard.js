@@ -389,10 +389,10 @@ class Dashboard {
   }
 
   getMonthlyRevenue() {
-    const currentMonth = moment().format("YYYY-MM");
-    return this.billingData
-      .filter(b => b.periodo === currentMonth && b.estado === "facturado")
-      .reduce((total, b) => total + (b.precio || 0), 0);
+     const currentMonth = moment().format("YYYY-MM");
+     return this.billingData
+       .filter(b => b.pagada && b.periodo_desde && b.periodo_desde.substring(0, 7) === currentMonth)
+       .reduce((total, b) => total + (b.monto || 0), 0);
   }
 
   getExpiringSubscriptions() {
