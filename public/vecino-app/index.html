@@ -74,11 +74,40 @@ textarea { min-height: 90px; resize: vertical; }
   70%  { box-shadow: 0 0 0 14px rgba(220,38,38,0); }
   100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
 }
+.panico-cercano {
+  border-left: 5px solid #dc2626;
+  background: #fef2f2;
+  animation: pulso-tarjeta 1.6s infinite;
+}
+@keyframes pulso-tarjeta {
+  0%, 100% { box-shadow: 0 2px 8px rgba(220,38,38,0.15); }
+  50% { box-shadow: 0 2px 16px rgba(220,38,38,0.5); }
+}
+.banner-instalar {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  position: relative;
+}
+.banner-instalar strong { display: block; font-size: 14px; margin-bottom: 4px; }
+.banner-instalar .cerrar-banner {
+  position: absolute; top: 8px; right: 10px;
+  background: rgba(255,255,255,0.2); border: none; color: white;
+  width: 22px; height: 22px; border-radius: 50%; cursor: pointer; font-size: 13px; line-height: 1;
+}
+.banner-instalar code {
+  background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 4px;
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
 </head>
 <body>
 <div class="app-header">
@@ -86,10 +115,12 @@ textarea { min-height: 90px; resize: vertical; }
   <button class="btn-logout" onclick="logout()">Salir</button>
 </div>
 <div class="container">
-<div class="container">
+  <div id="banner-instalar-container"></div>
   <button class="btn-panico" id="btn-panico" onclick="enviarPanico()">🚨 EMERGENCIA</button>
   <div class="card">
-    <h2>Nueva Denuncia</h2>
+    <h2>🚨 Alertas Cercanas</h2>
+    <div id="lista-alertas-cercanas"><div class="empty">Buscando alertas cerca tuyo...</div></div>
+  </div>
   <div class="card">
     <h2>Nueva Denuncia</h2>
     <label>Categoría</label>

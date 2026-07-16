@@ -7,6 +7,15 @@ let vecinoNombre = '', vecinoEmail = '';
 let fotoSeleccionada = null;
 
 // ========================================
+// PÁNICO POR RADIO - Variables nuevas
+// ========================================
+let messaging = null;
+let miUltimaUbicacion = null; // { lat, lng } - actualizada por el watch de geolocalización
+let watchIdUbicacion = null;
+const VAPID_KEY = 'BLVqLV44MjFG0JbNIt5wvP6mTD-_SIrKy3fXSiubSGT7pXWvauVA6soiDcPbGr7m9wA2AC2ZDj0p3O6JsEKOwKI';
+const RADIO_ALERTA_METROS = 300;
+
+// ========================================
 // SISTEMA DE DEBUG/LOGGING
 // ========================================
 let debugLogs = [];
@@ -161,6 +170,11 @@ async function initFirebase() {
     db = firebase.firestore();
     auth = firebase.auth();
     storage = firebase.storage();
+    if (firebase.messaging && firebase.messaging.isSupported && firebase.messaging.isSupported()) {
+      messaging = firebase.messaging();
+    } else {
+      console.warn('⚠️ Firebase Messaging no soportado en este navegador');
+    }
     console.log('✅ Firebase initialized (vecino)');
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
@@ -202,6 +216,10 @@ async function initFirebase() {
         return;
       }
       cargarMisDenuncias();
+      iniciarTrackingUbicacion();
+      configurarNotificaciones();
+      cargarAlertasCercanas();
+      mostrarBannerInstalacion();
     });
   } catch (e) {
     console.error('❌ Firebase error:', e);
@@ -340,6 +358,10 @@ function cargarMisDenuncias() {
           <div class="denuncia-fecha">${fecha}</div>
           ${d.hasImage && d.imageUrl ? `<img src="${d.imageUrl}" style="max-width:100%;border-radius:8px;margin:8px 0;">` : ''}
           <div>${d.texto || ''}</div>
+          ${d.categoria === 'panico' && d.estado !== 'cerrada' ? `
+            <button class="btn" style="background:#dc2626;color:#fff;margin-top:8px;padding:8px 14px;width:auto;"
+              onclick="cerrarMiAlerta('${d.id}')">🔕 Cerrar alerta</button>
+          ` : ''}
           <div class="chat-box" id="chat-${d.id}"></div>
           <div class="chat-input-row">
             <input type="text" id="input-${d.id}" placeholder="Responder...">
@@ -476,5 +498,237 @@ async function enviarPanico() {
   } finally {
     btn.disabled = false;
     btn.textContent = '🚨 EMERGENCIA';
+  }
+}
+
+// ========================================
+// BANNER: "Instalá la app para recibir alertas"
+// ========================================
+function mostrarBannerInstalacion() {
+  const cont = document.getElementById('banner-instalar-container');
+  if (!cont) return;
+
+  const yaInstalada =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true; // Safari iOS
+
+  if (yaInstalada) return; // ya la tiene instalada, no molestar
+
+  if (localStorage.getItem('banner_instalar_cerrado') === '1') return;
+
+  const ua = navigator.userAgent;
+  const esIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  const esAndroid = /Android/.test(ua);
+
+  let mensaje;
+  if (esIOS) {
+    mensaje = `
+      <strong>📲 Instalá la app para recibir alertas</strong>
+      Sin instalarla no vas a recibir notificaciones. Abrí esta página en <b>Safari</b>,
+      tocá el botón compartir <code>⬆️</code> y elegí <b>"Agregar a inicio"</b>.
+    `;
+  } else if (esAndroid) {
+    mensaje = `
+      <strong>📲 Instalá la app para recibir alertas</strong>
+      Tocá el menú <code>⋮</code> de Chrome y elegí <b>"Instalar app"</b> o
+      <b>"Agregar a pantalla de inicio"</b>. Así vas a recibir avisos aunque tengas el celular bloqueado.
+    `;
+  } else {
+    mensaje = `
+      <strong>📲 Instalá la app para recibir alertas</strong>
+      Buscá la opción "Instalar" o "Agregar a pantalla de inicio" en el menú de tu navegador.
+    `;
+  }
+
+  cont.innerHTML = `
+    <div class="banner-instalar">
+      <button class="cerrar-banner" onclick="cerrarBannerInstalacion()">✕</button>
+      ${mensaje}
+    </div>
+  `;
+}
+
+function cerrarBannerInstalacion() {
+  localStorage.setItem('banner_instalar_cerrado', '1');
+  const cont = document.getElementById('banner-instalar-container');
+  if (cont) cont.innerHTML = '';
+}
+
+// ========================================
+// TRACKING DE UBICACIÓN (para poder recibir alertas de vecinos cercanos)
+// ========================================
+function iniciarTrackingUbicacion() {
+  if (!navigator.geolocation) {
+    console.warn('⚠️ Geolocalización no disponible en este navegador');
+    return;
+  }
+
+  let ultimoGuardado = 0;
+  const INTERVALO_MIN_MS = 30000; // no escribir en Firestore más seguido que cada 30s
+
+  watchIdUbicacion = navigator.geolocation.watchPosition(async (pos) => {
+    miUltimaUbicacion = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+
+    const ahora = Date.now();
+    if (ahora - ultimoGuardado < INTERVALO_MIN_MS) return;
+    ultimoGuardado = ahora;
+
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      await db.collection(`clientes/${clienteId}/vecinos`).doc(user.uid).set({
+        lat: miUltimaUbicacion.lat,
+        lng: miUltimaUbicacion.lng,
+        ubicacion_actualizada_en: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } catch (e) {
+      console.warn('⚠️ No se pudo guardar la ubicación:', e.message);
+    }
+  }, (err) => {
+    console.warn('⚠️ Error obteniendo ubicación en segundo plano:', err.message);
+  }, { enableHighAccuracy: true, maximumAge: 15000, timeout: 10000 });
+}
+
+// ========================================
+// NOTIFICACIONES PUSH (Firebase Cloud Messaging)
+// ========================================
+async function configurarNotificaciones() {
+  if (!messaging) return;
+  try {
+    const permiso = await Notification.requestPermission();
+    if (permiso !== 'granted') {
+      console.warn('⚠️ Permiso de notificaciones no otorgado por el usuario');
+      return;
+    }
+
+    const token = await messaging.getToken({ vapidKey: VAPID_KEY });
+    if (!token) {
+      console.warn('⚠️ No se pudo obtener el token de notificaciones');
+      return;
+    }
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    await db.collection(`clientes/${clienteId}/vecinos`).doc(user.uid).set({
+      fcm_token: token
+    }, { merge: true });
+    console.log('✅ Token de notificaciones guardado');
+
+    // Notificación recibida con la app abierta en primer plano
+    messaging.onMessage((payload) => {
+      console.log('📩 Notificación en primer plano:', payload);
+      if (payload.notification) {
+        alert(`${payload.notification.title}\n${payload.notification.body}`);
+      }
+      cargarAlertasCercanas();
+    });
+  } catch (e) {
+    console.error('❌ Error configurando notificaciones push:', e);
+  }
+}
+
+// ========================================
+// ALERTAS CERCANAS (pánicos de otros vecinos a menos de 300m)
+// ========================================
+function distanciaMetros(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const toRad = (d) => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function cargarAlertasCercanas() {
+  db.collection(`clientes/${clienteId}/denuncias`)
+    .where('categoria', '==', 'panico')
+    .onSnapshot((snap) => {
+      const cont = document.getElementById('lista-alertas-cercanas');
+      if (!cont) return;
+
+      const docs = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(d => d.estado !== 'cerrada' && d.vecinoEmail !== vecinoEmail); // no mostrar la mía propia acá
+
+      const cercanas = docs.filter(d => {
+        if (!miUltimaUbicacion || d.lat == null || d.lng == null) return false;
+        return distanciaMetros(miUltimaUbicacion.lat, miUltimaUbicacion.lng, d.lat, d.lng) <= RADIO_ALERTA_METROS;
+      });
+
+      if (cercanas.length === 0) {
+        cont.innerHTML = '<div class="empty">Sin alertas activas cerca tuyo</div>';
+        return;
+      }
+
+      cont.innerHTML = '';
+      cercanas.forEach(d => {
+        const fecha = d.timestamp?.toDate ? d.timestamp.toDate().toLocaleString('es-AR') : '--';
+        const dist = Math.round(distanciaMetros(miUltimaUbicacion.lat, miUltimaUbicacion.lng, d.lat, d.lng));
+        const div = document.createElement('div');
+        div.className = 'card denuncia-item panico-cercano';
+        div.innerHTML = `
+          <span class="denuncia-cat">🚨 EMERGENCIA</span>
+          <div class="denuncia-fecha">${fecha} · a ${dist}m de vos</div>
+          <div><strong>${d.vecino || 'Vecino'}</strong> activó una alerta</div>
+          <div class="chat-box" id="chat-alerta-${d.id}"></div>
+          <div class="chat-input-row">
+            <input type="text" id="input-alerta-${d.id}" placeholder="Escribirle...">
+            <button onclick="enviarChatAlerta('${d.id}')">Enviar</button>
+          </div>
+        `;
+        cont.appendChild(div);
+        escucharChatAlerta(d.id);
+      });
+    }, (err) => console.error('Error cargando alertas cercanas:', err));
+}
+
+function escucharChatAlerta(denunciaId) {
+  db.collection(`clientes/${clienteId}/denuncias/${denunciaId}/mensajes`)
+    .orderBy('timestamp', 'asc')
+    .onSnapshot((snap) => {
+      const box = document.getElementById('chat-alerta-' + denunciaId);
+      if (!box) return;
+      box.innerHTML = '';
+      snap.forEach(doc => {
+        const m = doc.data();
+        const mine = m.autor_uid === auth.currentUser?.uid;
+        const div = document.createElement('div');
+        div.className = 'msg ' + (mine ? 'mine' : 'theirs');
+        const nombre = mine ? '' : `${m.autor_nombre || 'Vecino'}: `;
+        div.textContent = nombre + (m.text || '');
+        box.appendChild(div);
+      });
+    });
+}
+
+async function enviarChatAlerta(denunciaId) {
+  const input = document.getElementById('input-alerta-' + denunciaId);
+  const text = input.value.trim();
+  if (!text) return;
+  const user = auth.currentUser;
+  if (!user) return;
+  await db.collection(`clientes/${clienteId}/denuncias/${denunciaId}/mensajes`).add({
+    from: 'VECINO',
+    autor_uid: user.uid,
+    autor_nombre: vecinoNombre,
+    text: text,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  input.value = '';
+}
+
+async function cerrarMiAlerta(denunciaId) {
+  if (!confirm('¿Cerrar esta alerta de emergencia?')) return;
+  try {
+    await db.collection(`clientes/${clienteId}/denuncias`).doc(denunciaId).update({
+      estado: 'cerrada',
+      cerrado_por: 'vecino',
+      cerrado_en: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    console.log('✅ Alerta cerrada por el vecino');
+  } catch (e) {
+    console.error('❌ Error cerrando alerta:', e);
+    alert('Error cerrando la alerta: ' + e.message);
   }
 }

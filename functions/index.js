@@ -1523,3 +1523,207 @@ exports.createOperario = functions.https.onCall(async (data, context) => {
     throw error;
   }
 });
+
+// ============================================================================
+// FUNCIÓN: ENVIAR FACTURA POR EMAIL (Gmail SMTP vía nodemailer)
+// ============================================================================
+/**
+ * Cloud Function Callable para enviar una factura por email al cliente.
+ * Requiere: role admin o superadmin en los custom claims del que llama.
+ * Params esperados: { facturaId, email }
+ */
+
+// Transporter reutilizable (usa credenciales de functions.config().gmail)
+function getMailTransporter() {
+  const gmailUser = process.env.GMAIL_USER;
+  const gmailPass = process.env.GMAIL_PASS;
+
+  if (!gmailUser || !gmailPass) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'Credenciales de Gmail no configuradas. Revisá functions/.env'
+    );
+  }
+
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: gmailUser, pass: gmailPass }
+  });
+}
+
+exports.enviarFacturaEmail = functions.https.onCall(async (data, context) => {
+  // 1) Validar autenticación y rol
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'No autenticado');
+  }
+  const role = context.auth.token.role;
+  if (role !== 'admin' && role !== 'superadmin') {
+    throw new functions.https.HttpsError('permission-denied', 'Solo administradores pueden enviar facturas');
+  }
+
+  // 2) Validar datos
+  const { facturaId, email } = data || {};
+  if (!facturaId || !email) {
+    throw new functions.https.HttpsError('invalid-argument', 'Faltan datos: facturaId, email');
+  }
+
+  // 3) Buscar la factura y el cliente asociado
+  const facturaDoc = await db.collection('billing').doc(facturaId).get();
+  if (!facturaDoc.exists) {
+    throw new functions.https.HttpsError('not-found', 'Factura no encontrada');
+  }
+  const factura = facturaDoc.data();
+
+  let clienteNombre = 'Cliente';
+  if (factura.cliente_id) {
+    const clienteDoc = await db.collection('clientes').doc(factura.cliente_id).get();
+    if (clienteDoc.exists) {
+      clienteNombre = clienteDoc.data().nombre || clienteNombre;
+    }
+  }
+
+  const monto = factura.monto ? `$${Number(factura.monto).toLocaleString('es-AR')}` : '-';
+  const vence = factura.vence_en ? new Date(factura.vence_en).toLocaleDateString('es-AR') : '-';
+
+  // 4) Armar y enviar el mail
+  const transporter = getMailTransporter();
+  const gmailUser = process.env.GMAIL_USER;
+  const mailOptions = {
+    from: `TraficoMap <${gmailUser}>`,
+    to: email,
+    subject: `Factura ${facturaId} - TraficoMap`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #667eea;">Factura de TraficoMap</h2>
+        <p>Hola,</p>
+        <p>Te compartimos el detalle de tu factura:</p>
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Cliente</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${clienteNombre}</td></tr>
+          <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Factura</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${facturaId}</td></tr>
+          <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Monto</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${monto}</td></tr>
+          <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Vencimiento</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${vence}</td></tr>
+          <tr><td style="padding: 8px;"><strong>Estado</strong></td><td style="padding: 8px;">${factura.pagada ? 'Pagada' : 'Pendiente'}</td></tr>
+        </table>
+        <p>Ante cualquier consulta, respondé este mismo correo.</p>
+        <p>Saludos,<br/>Equipo TraficoMap</p>
+      </div>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Email enviado a ${email} - Factura ${facturaId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error enviando email:', error);
+    throw new functions.https.HttpsError('internal', 'Error enviando el email: ' + error.message);
+  }
+});
+
+
+/**
+ * ========================================
+ * PÁNICO POR RADIO - Alertas a vecinos cercanos
+ * ========================================
+ * Se dispara cuando se crea una denuncia con categoria === 'panico'.
+ * Busca vecinos del mismo cliente/barrio dentro de un radio de 300m
+ * (usando su última ubicación reportada) y les envía una notificación
+ * push con los datos de la alerta para que puedan verla y comunicarse
+ * con el vecino que la activó.
+ */
+
+const RADIO_ALERTA_METROS = 300;
+const VENTANA_UBICACION_ACTIVA_MS = 20 * 60 * 1000; // 20 minutos
+
+function haversineMetros(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+exports.onPanicoCreado = functions.firestore
+  .document('clientes/{clienteId}/denuncias/{denunciaId}')
+  .onCreate(async (snap, context) => {
+    const denuncia = snap.data();
+
+    if (denuncia.categoria !== 'panico') {
+      return null; // no es un pánico, no hacemos nada
+    }
+
+    if (denuncia.lat == null || denuncia.lng == null) {
+      console.warn('⚠️ Pánico sin coordenadas GPS, no se puede notificar por radio');
+      return null;
+    }
+
+    const { clienteId, denunciaId } = context.params;
+
+    try {
+      const vecinosSnap = await db.collection(`clientes/${clienteId}/vecinos`).get();
+
+      const ahora = Date.now();
+      const cercanos = [];
+
+      vecinosSnap.forEach((doc) => {
+        const v = doc.data();
+
+        if (!v.lat || !v.lng || !v.fcm_token) return; // sin ubicación o sin token, no se puede notificar
+        if (v.email && denuncia.vecinoEmail && v.email === denuncia.vecinoEmail) return; // no notificar al que activó
+
+        // Ignorar ubicaciones viejas (vecino con la app cerrada hace rato)
+        if (v.ubicacion_actualizada_en) {
+          const t = v.ubicacion_actualizada_en.toMillis
+            ? v.ubicacion_actualizada_en.toMillis()
+            : new Date(v.ubicacion_actualizada_en).getTime();
+          if (ahora - t > VENTANA_UBICACION_ACTIVA_MS) return;
+        } else {
+          return; // nunca reportó ubicación
+        }
+
+        const distancia = haversineMetros(denuncia.lat, denuncia.lng, v.lat, v.lng);
+        if (distancia <= RADIO_ALERTA_METROS) {
+          cercanos.push({ uid: doc.id, token: v.fcm_token, distancia: Math.round(distancia) });
+        }
+      });
+
+      if (cercanos.length === 0) {
+        console.log(`Sin vecinos en ${RADIO_ALERTA_METROS}m para notificar (pánico ${denunciaId})`);
+        return null;
+      }
+
+      const tokens = cercanos.map((c) => c.token);
+
+      const respuesta = await admin.messaging().sendEachForMulticast({
+        tokens,
+        notification: {
+          title: '🚨 Alerta de emergencia cerca tuyo',
+          body: `${denuncia.vecino || 'Un vecino'} activó una alerta a metros de tu ubicación. Tocá para ver y comunicarte.`
+        },
+        data: {
+          tipo: 'panico',
+          clienteId: String(clienteId),
+          denunciaId: String(denunciaId),
+          lat: String(denuncia.lat),
+          lng: String(denuncia.lng)
+        }
+      });
+
+      console.log(
+        `✅ Pánico ${denunciaId}: ${respuesta.successCount} notificaciones enviadas, ${respuesta.failureCount} fallidas`
+      );
+
+      await snap.ref.update({
+        notificados: cercanos.map((c) => c.uid)
+      });
+
+      return null;
+    } catch (error) {
+      console.error('❌ Error procesando pánico por radio:', error);
+      return null;
+    }
+  });
+  

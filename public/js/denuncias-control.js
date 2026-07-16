@@ -82,6 +82,7 @@ function renderDenuncias() {
   lista.forEach(d => {
     const fecha = d.timestamp?.toDate ? d.timestamp.toDate().toLocaleString('es-AR') : '--';
     const esPanico = d.emergencia === true || d.categoria === 'panico';
+    const panicoActivo = esPanico && d.estado !== 'cerrada';
     const sinLeer = d.leida === false;
     const div = document.createElement('div');
     div.className = 'denuncia' + (esPanico ? ' panico' : '') + (sinLeer ? ' sin-leer' : '');
@@ -89,6 +90,7 @@ function renderDenuncias() {
       <div class="denuncia-head">
         <span class="cat">${esPanico ? '🚨 EMERGENCIA' : (d.categoria || 'sin categoría')}</span>
         ${sinLeer ? '<span class="badge-nuevo">NUEVA</span>' : ''}
+        ${esPanico && !panicoActivo ? '<span class="badge-nuevo" style="background:#64748b;">CERRADA</span>' : ''}
         <span class="fecha">${fecha}</span>
         <button class="btn-borrar" onclick="borrarDenuncia('${d.id}')">🗑️ Borrar</button>
       </div>
@@ -96,7 +98,9 @@ function renderDenuncias() {
       ${d.hasImage && d.imageUrl ? `<img src="${d.imageUrl}" class="foto" onclick="window.open('${d.imageUrl}','_blank')">` : ''}
       <div class="texto">${d.texto || ''}</div>
       ${d.lat && d.lng ? `<div class="vecino-info">📍 ${d.lat.toFixed(5)}, ${d.lng.toFixed(5)}</div>` : ''}
+      ${esPanico && d.notificados ? `<div class="vecino-info">📡 ${d.notificados.length} vecino(s) notificado(s) en el radio</div>` : ''}
       ${sinLeer ? `<button class="btn-leida" onclick="marcarLeida('${d.id}')">✓ Marcar como leída</button>` : ''}
+      ${panicoActivo ? `<button class="btn-leida" style="background:#dc2626;" onclick="cerrarAlertaAdmin('${d.id}')">🔕 Cerrar alerta</button>` : ''}
       <div class="chat-box" id="chat-${d.id}"></div>
       <div class="chat-input-row">
         <input type="text" id="input-${d.id}" placeholder="Responder al vecino...">
@@ -132,7 +136,8 @@ function escucharChat(denunciaId) {
         const mine = m.from === 'CONTROL';
         const div = document.createElement('div');
         div.className = 'msg ' + (mine ? 'mine' : 'theirs');
-        div.textContent = (mine ? '🎛️ ' : '👤 ') + (m.text || '');
+        const etiqueta = mine ? '🎛️ ' : (m.autor_nombre ? `👤 ${m.autor_nombre}: ` : '👤 ');
+        div.textContent = etiqueta + (m.text || '');
         box.appendChild(div);
       });
     });
@@ -222,6 +227,24 @@ async function marcarLeida(denunciaId) {
     console.log(`✓ Denuncia ${denunciaId} marcada como leída`);
   } catch (e) {
     console.error('❌ Error marcando leída:', e);
+  }
+}
+
+// ========================================
+// CERRAR ALERTA DE PÁNICO (desde el panel admin)
+// ========================================
+async function cerrarAlertaAdmin(denunciaId) {
+  if (!confirm('¿Cerrar esta alerta de emergencia? Los vecinos notificados dejarán de verla como activa.')) return;
+  try {
+    await db.collection(`clientes/${clienteId}/denuncias`).doc(denunciaId).update({
+      estado: 'cerrada',
+      cerrado_por: 'admin',
+      cerrado_en: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    console.log(`✅ Alerta ${denunciaId} cerrada por el admin`);
+  } catch (e) {
+    console.error('❌ Error cerrando alerta:', e);
+    alert('Error cerrando la alerta: ' + (e.message || e));
   }
 }
 // ========================================
