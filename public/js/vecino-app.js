@@ -568,6 +568,7 @@ function iniciarTrackingUbicacion() {
 
   watchIdUbicacion = navigator.geolocation.watchPosition(async (pos) => {
     miUltimaUbicacion = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    renderizarAlertasCercanas(); // reevaluar la lista ya con la ubicación disponible
 
     const ahora = Date.now();
     if (ahora - ultimoGuardado < INTERVALO_MIN_MS) return;
@@ -651,47 +652,58 @@ function distanciaMetros(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+let ultimosPanicosActivos = []; // caché de los pánicos activos recibidos por Firestore
+
 function cargarAlertasCercanas() {
   db.collection(`clientes/${clienteId}/denuncias`)
     .where('categoria', '==', 'panico')
     .onSnapshot((snap) => {
-      const cont = document.getElementById('lista-alertas-cercanas');
-      if (!cont) return;
-
-      const docs = snap.docs
+      ultimosPanicosActivos = snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter(d => d.estado !== 'cerrada' && d.vecinoEmail !== vecinoEmail); // no mostrar la mía propia acá
 
-      const cercanas = docs.filter(d => {
-        if (!miUltimaUbicacion || d.lat == null || d.lng == null) return false;
-        return distanciaMetros(miUltimaUbicacion.lat, miUltimaUbicacion.lng, d.lat, d.lng) <= RADIO_ALERTA_METROS;
-      });
-
-      if (cercanas.length === 0) {
-        cont.innerHTML = '<div class="empty">Sin alertas activas cerca tuyo</div>';
-        return;
-      }
-
-      cont.innerHTML = '';
-      cercanas.forEach(d => {
-        const fecha = d.timestamp?.toDate ? d.timestamp.toDate().toLocaleString('es-AR') : '--';
-        const dist = Math.round(distanciaMetros(miUltimaUbicacion.lat, miUltimaUbicacion.lng, d.lat, d.lng));
-        const div = document.createElement('div');
-        div.className = 'card denuncia-item panico-cercano';
-        div.innerHTML = `
-          <span class="denuncia-cat">🚨 EMERGENCIA</span>
-          <div class="denuncia-fecha">${fecha} · a ${dist}m de vos</div>
-          <div><strong>${d.vecino || 'Vecino'}</strong> activó una alerta</div>
-          <div class="chat-box" id="chat-alerta-${d.id}"></div>
-          <div class="chat-input-row">
-            <input type="text" id="input-alerta-${d.id}" placeholder="Escribirle...">
-            <button onclick="enviarChatAlerta('${d.id}')">Enviar</button>
-          </div>
-        `;
-        cont.appendChild(div);
-        escucharChatAlerta(d.id);
-      });
+      renderizarAlertasCercanas();
     }, (err) => console.error('Error cargando alertas cercanas:', err));
+}
+
+function renderizarAlertasCercanas() {
+  const cont = document.getElementById('lista-alertas-cercanas');
+  if (!cont) return;
+
+  if (!miUltimaUbicacion) {
+    cont.innerHTML = '<div class="empty">Obteniendo tu ubicación para buscar alertas cercanas...</div>';
+    return;
+  }
+
+  const cercanas = ultimosPanicosActivos.filter(d => {
+    if (d.lat == null || d.lng == null) return false;
+    return distanciaMetros(miUltimaUbicacion.lat, miUltimaUbicacion.lng, d.lat, d.lng) <= RADIO_ALERTA_METROS;
+  });
+
+  if (cercanas.length === 0) {
+    cont.innerHTML = '<div class="empty">Sin alertas activas cerca tuyo</div>';
+    return;
+  }
+
+  cont.innerHTML = '';
+  cercanas.forEach(d => {
+    const fecha = d.timestamp?.toDate ? d.timestamp.toDate().toLocaleString('es-AR') : '--';
+    const dist = Math.round(distanciaMetros(miUltimaUbicacion.lat, miUltimaUbicacion.lng, d.lat, d.lng));
+    const div = document.createElement('div');
+    div.className = 'card denuncia-item panico-cercano';
+    div.innerHTML = `
+      <span class="denuncia-cat">🚨 EMERGENCIA</span>
+      <div class="denuncia-fecha">${fecha} · a ${dist}m de vos</div>
+      <div><strong>${d.vecino || 'Vecino'}</strong> activó una alerta</div>
+      <div class="chat-box" id="chat-alerta-${d.id}"></div>
+      <div class="chat-input-row">
+        <input type="text" id="input-alerta-${d.id}" placeholder="Escribirle...">
+        <button onclick="enviarChatAlerta('${d.id}')">Enviar</button>
+      </div>
+    `;
+    cont.appendChild(div);
+    escucharChatAlerta(d.id);
+  });
 }
 
 function escucharChatAlerta(denunciaId) {

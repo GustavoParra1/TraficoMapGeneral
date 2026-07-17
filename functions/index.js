@@ -1633,7 +1633,7 @@ exports.enviarFacturaEmail = functions.https.onCall(async (data, context) => {
  */
 
 const RADIO_ALERTA_METROS = 300;
-const VENTANA_UBICACION_ACTIVA_MS = 20 * 60 * 1000; // 20 minutos
+const VENTANA_UBICACION_ACTIVA_MS = 6 * 60 * 60 * 1000; // 6 horas
 
 function haversineMetros(lat1, lng1, lat2, lng2) {
   const R = 6371000;
