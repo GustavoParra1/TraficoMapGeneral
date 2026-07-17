@@ -601,6 +601,17 @@ async function configurarNotificaciones() {
       return;
     }
 
+    // IMPORTANTE: hay que vincular explícitamente el token al Service Worker
+    // real de la app (sw.js). Sin esto, el token puede quedar generado
+    // "desconectado" del sw.js que efectivamente escucha onBackgroundMessage,
+    // y entonces las notificaciones nunca se muestran con la app cerrada.
+    if ('serviceWorker' in navigator) {
+      const registration = await navigator.serviceWorker.ready;
+      messaging.useServiceWorker(registration);
+    } else {
+      console.warn('⚠️ Este navegador no soporta Service Workers, no se pueden recibir push en segundo plano');
+    }
+
     const token = await messaging.getToken({ vapidKey: VAPID_KEY });
     if (!token) {
       console.warn('⚠️ No se pudo obtener el token de notificaciones');
