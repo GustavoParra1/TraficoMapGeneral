@@ -6,28 +6,33 @@ self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', () => {}); // sin caché, solo para ser instalable
 
-// Inicializar Firebase Messaging con la misma config que usa la app
-(async () => {
-  try {
-    const response = await fetch('../config.json');
-    const config = await response.json();
-    firebase.initializeApp(config.firebase);
-    const messaging = firebase.messaging();
+// Config de Firebase hardcodeada (son valores públicos del lado cliente, no secretos).
+// IMPORTANTE: se inicializa de forma SÍNCRONA (sin fetch/await) para que el listener
+// de push quede registrado apenas arranca el Service Worker. Si esto fuera async,
+// una notificación que llega mientras el SW recién está "despertando" (app cerrada,
+// pantalla bloqueada) se pierde sin mostrarse, porque el fetch a config.json no
+// llega a resolver a tiempo.
+firebase.initializeApp({
+  projectId: 'trafico-map-general-v2',
+  apiKey: 'AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA',
+  authDomain: 'trafico-map-general-v2.firebaseapp.com',
+  storageBucket: 'trafico-map-general-v2.firebasestorage.app',
+  messagingSenderId: '540631719751',
+  appId: '1:540631719751:web:bd410f1bbee18e9fabb662'
+});
 
-    messaging.onBackgroundMessage((payload) => {
-      const title = (payload.notification && payload.notification.title) || '🚨 Alerta de emergencia';
-      const body = (payload.notification && payload.notification.body) || 'Hay una alerta activa cerca tuyo';
-      self.registration.showNotification(title, {
-        body,
-        icon: 'icon-192.png',
-        badge: 'icon-192.png',
-        data: payload.data || {}
-      });
-    });
-  } catch (e) {
-    console.error('SW: error inicializando Firebase Messaging', e);
-  }
-})();
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+  const title = (payload.notification && payload.notification.title) || '🚨 Alerta de emergencia';
+  const body = (payload.notification && payload.notification.body) || 'Hay una alerta activa cerca tuyo';
+  self.registration.showNotification(title, {
+    body,
+    icon: 'icon-192.png',
+    badge: 'icon-192.png',
+    data: payload.data || {}
+  });
+});
 
 // Al tocar la notificación, enfocar o abrir la app
 self.addEventListener('notificationclick', (event) => {
