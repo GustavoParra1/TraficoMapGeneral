@@ -1621,6 +1621,7 @@ exports.enviarFacturaEmail = functions.https.onCall(async (data, context) => {
 });
 
 
+
 /**
  * ========================================
  * PÁNICO POR RADIO - Alertas a vecinos cercanos
