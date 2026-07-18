@@ -28,4 +28,4 @@ coverage/
 serviceAccountKey.json
 service-account-key.json
 trafico-map-general-v2-firebase-adminsdk-key.json
-*-firebase-adminsdk*.json
+*-firebase-adminsdk*.json.~lock.*# 
