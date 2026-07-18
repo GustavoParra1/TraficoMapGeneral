@@ -482,12 +482,23 @@ async function enviarPanico() {
       hasImage: false,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
-    // GPS (importante en emergencia)
+    // GPS (importante en emergencia): intentamos una lectura fresca de máxima
+    // precisión, pero si tarda o falla, usamos la última ubicación ya conocida
+    // (la que viene actualizando iniciarTrackingUbicacion en background) en vez
+    // de enviar el pánico sin coordenadas.
     try {
       const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 8000, enableHighAccuracy: true }));
       denuncia.lat = pos.coords.latitude;
       denuncia.lng = pos.coords.longitude;
-    } catch (e) { console.warn('Sin GPS en emergencia'); }
+    } catch (e) {
+      console.warn('Sin GPS fresco en emergencia, uso la última ubicación conocida:', e.message);
+      if (miUltimaUbicacion) {
+        denuncia.lat = miUltimaUbicacion.lat;
+        denuncia.lng = miUltimaUbicacion.lng;
+      } else {
+        console.warn('⚠️ Tampoco hay ubicación previa conocida: el pánico se enviará sin GPS');
+      }
+    }
     await db.collection(`clientes/${clienteId}/denuncias`).add(denuncia);
     console.log('🚨 Alerta de emergencia enviada');
     alert('🚨 Alerta enviada. El centro de control fue notificado.');
