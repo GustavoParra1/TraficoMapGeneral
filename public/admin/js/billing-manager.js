@@ -246,20 +246,20 @@ class BillingManager {
    * Envía factura por email
    */
   async enviarPorEmail(facturaId, email) {
-    try {
-      // TODO: Implementar integración con SendGrid/Resend
-      console.log('📧 Enviando factura a:', email);
+  try {
+    console.log('📧 Enviando factura a:', email);
 
-      // Simulado por ahora
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    const enviarFacturaEmail = firebase.functions().httpsCallable('enviarFacturaEmail');
+    await enviarFacturaEmail({ facturaId, email });
 
-      this.showSuccess(`Factura enviada a ${email}`);
-      return true;
-    } catch (error) {
-      console.error('Error enviando email:', error);
-      throw error;
-    }
+    this.showSuccess(`Factura enviada a ${email}`);
+    return true;
+  } catch (error) {
+    console.error('Error enviando email:', error);
+    this.showError('Error enviando el email: ' + (error.message || 'Error desconocido'));
+    throw error;
   }
+}
 
   /**
    * Descarga factura como PDF
