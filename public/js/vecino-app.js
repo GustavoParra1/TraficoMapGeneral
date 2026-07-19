@@ -665,8 +665,8 @@ async function configurarNotificaciones() {
     // Notificación recibida con la app abierta en primer plano
     messaging.onMessage((payload) => {
       console.log('📩 Notificación en primer plano:', payload);
-      if (payload.notification) {
-        alert(`${payload.notification.title}\n${payload.notification.body}`);
+      if (payload.data && payload.data.title) {
+        alert(`${payload.data.title}\n${payload.data.body || ''}`);
       }
       cargarAlertasCercanas();
     });

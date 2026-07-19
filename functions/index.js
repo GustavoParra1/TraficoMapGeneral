@@ -1697,18 +1697,23 @@ exports.onPanicoCreado = functions.firestore
 
       const tokens = cercanos.map((c) => c.token);
 
+      // IMPORTANTE: enviamos SOLO "data", sin campo "notification". Si mandamos
+      // ambos, Android a veces muestra la notificación automáticamente por su
+      // cuenta (usando el campo "notification") sin pasar por nuestro código
+      // en sw.js — y entonces nuestro manejador de click nunca se ejecuta,
+      // aunque la notificación se vea bien. Con "data" puro, SIEMPRE pasa por
+      // nuestro setBackgroundMessageHandler, que es quien arma la notificación
+      // y controla qué pasa al tocarla.
       const respuesta = await admin.messaging().sendEachForMulticast({
         tokens,
-        notification: {
-          title: '🚨 Alerta de emergencia cerca tuyo',
-          body: `${denuncia.vecino || 'Un vecino'} activó una alerta a metros de tu ubicación. Tocá para ver y comunicarte.`
-        },
         data: {
           tipo: 'panico',
           clienteId: String(clienteId),
           denunciaId: String(denunciaId),
           lat: String(denuncia.lat),
-          lng: String(denuncia.lng)
+          lng: String(denuncia.lng),
+          title: '🚨 Alerta de emergencia cerca tuyo',
+          body: `${denuncia.vecino || 'Un vecino'} activó una alerta a metros de tu ubicación. Tocá para ver y comunicarte.`
         }
       });
 

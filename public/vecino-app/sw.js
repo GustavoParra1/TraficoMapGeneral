@@ -25,8 +25,8 @@ const messaging = firebase.messaging();
 
 messaging.setBackgroundMessageHandler((payload) => {
   console.log('[sw.js] Notificación en background recibida:', payload);
-  const title = (payload.notification && payload.notification.title) || '🚨 Alerta de emergencia';
-  const body = (payload.notification && payload.notification.body) || 'Hay una alerta activa cerca tuyo';
+  const title = (payload.data && payload.data.title) || '🚨 Alerta de emergencia';
+  const body = (payload.data && payload.data.body) || 'Hay una alerta activa cerca tuyo';
   return self.registration.showNotification(title, {
     body,
     icon: 'icon-192.png',
