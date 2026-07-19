@@ -35,24 +35,24 @@ messaging.setBackgroundMessageHandler((payload) => {
   });
 });
 
-// Al tocar la notificación, ir directo a la alerta correspondiente
+// Al tocar la notificación, ir directo a la alerta correspondiente.
+// Usamos navigate() con el ID en la URL (en vez de postMessage) porque
+// postMessage se pierde si el sistema "descartó" la página en background
+// mientras el celular estaba bloqueado un rato largo — navigate() fuerza
+// una carga fresca que siempre va a leer el ID desde la URL, sin depender
+// de que la página vieja siga viva para recibir el mensaje.
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const denunciaId = (event.notification.data && event.notification.data.denunciaId) || null;
+  const targetPath = denunciaId ? `./index.html?panico=${denunciaId}` : './index.html';
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsArr) => {
-      // Si ya hay una ventana de la app abierta, la enfocamos y le avisamos
-      // por mensaje a qué alerta ir (no podemos simplemente cambiarle la URL).
-      for (const client of clientsArr) {
-        if (client.url.includes('vecino-app')) {
-          client.postMessage({ tipo: 'ir_a_alerta', denunciaId });
-          return client.focus();
-        }
+      const existing = clientsArr.find((c) => c.url.includes('vecino-app'));
+      if (existing) {
+        return existing.navigate(targetPath).then((client) => client && client.focus());
       }
-      // Si no hay ninguna ventana abierta, abrimos una nueva con el ID en la URL
-      const url = denunciaId ? `./index.html?panico=${denunciaId}` : './index.html';
-      return self.clients.openWindow(url);
+      return self.clients.openWindow(targetPath);
     })
   );
 });
