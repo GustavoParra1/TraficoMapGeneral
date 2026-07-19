@@ -213,8 +213,16 @@ async function initFirebase() {
       const habilitado = datosVecino && datosVecino.habilitado === true && datosVecino.habilitado_hasta === mesActual;
       if (!habilitado) {
         bloquearApp();
+        esconderOverlayCarga();
         return;
       }
+
+      if (alertaPendienteDeNotificacion) {
+        cargarAlertaPendienteRapido(alertaPendienteDeNotificacion); // esconde el overlay al terminar
+      } else {
+        esconderOverlayCarga();
+      }
+
       cargarMisDenuncias();
       iniciarTrackingUbicacion();
       configurarNotificaciones();
@@ -584,6 +592,50 @@ function esUbicacionInvalida(lat, lng) {
   return false;
 }
 
+async function cargarAlertaPendienteRapido(id) {
+  try {
+    const doc = await db.collection(`clientes/${clienteId}/denuncias`).doc(id).get();
+    if (doc.exists) {
+      renderizarTarjetaAlertaRapida({ id: doc.id, ...doc.data() });
+    }
+  } catch (e) {
+    console.warn('No se pudo precargar la alerta desde la notificación:', e.message);
+  } finally {
+    esconderOverlayCarga();
+  }
+}
+
+function renderizarTarjetaAlertaRapida(d) {
+  const cont = document.getElementById('lista-alertas-cercanas');
+  if (!cont) return;
+  if (document.getElementById('alerta-cercana-' + d.id)) {
+    irAAlertaPendienteSiCorresponde(); // el flujo normal ya la renderizó, solo saltamos ahí
+    return;
+  }
+  if (cont.querySelector('.empty')) cont.innerHTML = '';
+
+  const fecha = d.timestamp?.toDate ? d.timestamp.toDate().toLocaleString('es-AR') : '--';
+  const div = document.createElement('div');
+  div.id = `alerta-cercana-${d.id}`;
+  div.className = 'card denuncia-item panico-cercano';
+  div.innerHTML = `
+    <span class="denuncia-cat">🚨 EMERGENCIA</span>
+    <div class="denuncia-fecha">${fecha}</div>
+    <div><strong>${d.vecino || 'Vecino'}</strong> activó una alerta</div>
+    <div class="chat-box" id="chat-alerta-${d.id}"></div>
+    <div class="chat-input-row">
+      <input type="text" id="input-alerta-${d.id}" placeholder="Escribirle...">
+      <button onclick="enviarChatAlerta('${d.id}')">Enviar</button>
+    </div>
+  `;
+  cont.prepend(div);
+  escucharChatAlerta(d.id);
+  irAAlertaPendienteSiCorresponde();
+  // Nota: cuando el flujo normal (cargarAlertasCercanas) termine de cargar,
+  // va a reconstruir esta lista con el cálculo de distancia real — esta
+  // tarjeta rápida queda reemplazada automáticamente por la definitiva.
+}
+
 function iniciarTrackingUbicacion() {
   if (!navigator.geolocation) {
     console.warn('⚠️ Geolocalización no disponible en este navegador');
@@ -764,8 +816,22 @@ function irAAlertaPendienteSiCorresponde() {
 (function leerAlertaDesdeURL() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('panico');
-  if (id) alertaPendienteDeNotificacion = id;
+  if (id) {
+    alertaPendienteDeNotificacion = id;
+    const txt = document.getElementById('loading-overlay-text');
+    if (txt) txt.textContent = 'Abriendo la alerta...';
+  }
 })();
+
+function esconderOverlayCarga() {
+  const ov = document.getElementById('loading-overlay');
+  if (!ov) return;
+  ov.style.opacity = '0';
+  setTimeout(() => ov.remove(), 300);
+}
+// Salvaguarda: si algo falla en el arranque y nunca llegamos a esconderlo
+// por el camino normal, no dejamos al usuario trabado detrás del overlay.
+setTimeout(esconderOverlayCarga, 8000);
 
 // Si la app ya estaba abierta, el Service Worker nos avisa por mensaje
 if ('serviceWorker' in navigator) {
