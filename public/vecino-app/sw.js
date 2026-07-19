@@ -35,13 +35,24 @@ messaging.setBackgroundMessageHandler((payload) => {
   });
 });
 
-// Al tocar la notificación, enfocar o abrir la app
+// Al tocar la notificación, ir directo a la alerta correspondiente
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+  const denunciaId = (event.notification.data && event.notification.data.denunciaId) || null;
+
   event.waitUntil(
-    self.clients.matchAll({ type: 'window' }).then((clientsArr) => {
-      if (clientsArr.length > 0) return clientsArr[0].focus();
-      return self.clients.openWindow('./index.html');
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsArr) => {
+      // Si ya hay una ventana de la app abierta, la enfocamos y le avisamos
+      // por mensaje a qué alerta ir (no podemos simplemente cambiarle la URL).
+      for (const client of clientsArr) {
+        if (client.url.includes('vecino-app')) {
+          client.postMessage({ tipo: 'ir_a_alerta', denunciaId });
+          return client.focus();
+        }
+      }
+      // Si no hay ninguna ventana abierta, abrimos una nueva con el ID en la URL
+      const url = denunciaId ? `./index.html?panico=${denunciaId}` : './index.html';
+      return self.clients.openWindow(url);
     })
   );
 });

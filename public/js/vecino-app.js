@@ -725,6 +725,7 @@ function renderizarAlertasCercanas() {
     const fecha = d.timestamp?.toDate ? d.timestamp.toDate().toLocaleString('es-AR') : '--';
     const dist = Math.round(distanciaMetros(miUltimaUbicacion.lat, miUltimaUbicacion.lng, d.lat, d.lng));
     const div = document.createElement('div');
+    div.id = `alerta-cercana-${d.id}`;
     div.className = 'card denuncia-item panico-cercano';
     div.innerHTML = `
       <span class="denuncia-cat">🚨 EMERGENCIA</span>
@@ -738,6 +739,41 @@ function renderizarAlertasCercanas() {
     `;
     cont.appendChild(div);
     escucharChatAlerta(d.id);
+  });
+
+  irAAlertaPendienteSiCorresponde();
+}
+
+// ========================================
+// NAVEGACIÓN DIRECTA DESDE LA NOTIFICACIÓN PUSH
+// ========================================
+let alertaPendienteDeNotificacion = null;
+
+function irAAlertaPendienteSiCorresponde() {
+  if (!alertaPendienteDeNotificacion) return;
+  const el = document.getElementById('alerta-cercana-' + alertaPendienteDeNotificacion);
+  if (!el) return; // todavía no está en la lista (puede tardar un instante en llegar por Firestore)
+
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.style.outline = '3px solid #dc2626';
+  setTimeout(() => { el.style.outline = ''; }, 4000);
+  alertaPendienteDeNotificacion = null; // ya la resolvimos, no volver a saltar
+}
+
+// Si la app se abrió directo desde la notificación (?panico=ID en la URL)
+(function leerAlertaDesdeURL() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('panico');
+  if (id) alertaPendienteDeNotificacion = id;
+})();
+
+// Si la app ya estaba abierta, el Service Worker nos avisa por mensaje
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data && event.data.tipo === 'ir_a_alerta' && event.data.denunciaId) {
+      alertaPendienteDeNotificacion = event.data.denunciaId;
+      irAAlertaPendienteSiCorresponde(); // por si la lista ya estaba renderizada
+    }
   });
 }
 
