@@ -488,16 +488,22 @@ async function enviarPanico() {
     // de enviar el pánico sin coordenadas.
     try {
       const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 8000, enableHighAccuracy: true }));
-      denuncia.lat = pos.coords.latitude;
-      denuncia.lng = pos.coords.longitude;
+      if (!esUbicacionInvalida(pos.coords.latitude, pos.coords.longitude)) {
+        denuncia.lat = pos.coords.latitude;
+        denuncia.lng = pos.coords.longitude;
+      } else {
+        console.warn('⚠️ GPS fresco devolvió una ubicación inválida (0,0), la descarto');
+      }
     } catch (e) {
       console.warn('Sin GPS fresco en emergencia, uso la última ubicación conocida:', e.message);
-      if (miUltimaUbicacion) {
-        denuncia.lat = miUltimaUbicacion.lat;
-        denuncia.lng = miUltimaUbicacion.lng;
-      } else {
-        console.warn('⚠️ Tampoco hay ubicación previa conocida: el pánico se enviará sin GPS');
-      }
+    }
+    // Si el GPS fresco no dio una ubicación válida, recurrimos a la última conocida
+    if (denuncia.lat == null && miUltimaUbicacion && !esUbicacionInvalida(miUltimaUbicacion.lat, miUltimaUbicacion.lng)) {
+      denuncia.lat = miUltimaUbicacion.lat;
+      denuncia.lng = miUltimaUbicacion.lng;
+    }
+    if (denuncia.lat == null) {
+      console.warn('⚠️ No hay ninguna ubicación válida conocida: el pánico se enviará sin GPS');
     }
     await db.collection(`clientes/${clienteId}/denuncias`).add(denuncia);
     console.log('🚨 Alerta de emergencia enviada');
@@ -568,6 +574,16 @@ function cerrarBannerInstalacion() {
 // ========================================
 // TRACKING DE UBICACIÓN (para poder recibir alertas de vecinos cercanos)
 // ========================================
+function esUbicacionInvalida(lat, lng) {
+  // (0,0) es el caso más común de valor "basura"; también protegemos contra
+  // null/undefined/NaN o coordenadas fuera del rango físicamente posible.
+  if (lat == null || lng == null) return true;
+  if (Number.isNaN(lat) || Number.isNaN(lng)) return true;
+  if (lat === 0 && lng === 0) return true;
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return true;
+  return false;
+}
+
 function iniciarTrackingUbicacion() {
   if (!navigator.geolocation) {
     console.warn('⚠️ Geolocalización no disponible en este navegador');
@@ -578,6 +594,14 @@ function iniciarTrackingUbicacion() {
   const INTERVALO_MIN_MS = 30000; // no escribir en Firestore más seguido que cada 30s
 
   watchIdUbicacion = navigator.geolocation.watchPosition(async (pos) => {
+    // (0,0) nunca es una ubicación real de un vecino (cae en el Atlántico,
+    // frente a África) — es el valor que a veces devuelve el navegador cuando
+    // algo falla silenciosamente. Lo descartamos para no ensuciar los datos.
+    if (esUbicacionInvalida(pos.coords.latitude, pos.coords.longitude)) {
+      console.warn('⚠️ Ubicación (0,0) descartada, no se guarda');
+      return;
+    }
+
     miUltimaUbicacion = { lat: pos.coords.latitude, lng: pos.coords.longitude };
     renderizarAlertasCercanas(); // reevaluar la lista ya con la ubicación disponible
 

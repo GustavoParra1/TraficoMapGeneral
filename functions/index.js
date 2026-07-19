@@ -1621,7 +1621,6 @@ exports.enviarFacturaEmail = functions.https.onCall(async (data, context) => {
 });
 
 
-
 /**
  * ========================================
  * PÁNICO POR RADIO - Alertas a vecinos cercanos
@@ -1656,8 +1655,8 @@ exports.onPanicoCreado = functions.firestore
       return null; // no es un pánico, no hacemos nada
     }
 
-    if (denuncia.lat == null || denuncia.lng == null) {
-      console.warn('⚠️ Pánico sin coordenadas GPS, no se puede notificar por radio');
+    if (denuncia.lat == null || denuncia.lng == null || (denuncia.lat === 0 && denuncia.lng === 0)) {
+      console.warn('⚠️ Pánico sin coordenadas GPS válidas, no se puede notificar por radio');
       return null;
     }
 
