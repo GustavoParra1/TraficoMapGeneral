@@ -742,8 +742,14 @@ function distanciaMetros(lat1, lng1, lat2, lng2) {
 let ultimosPanicosActivos = []; // caché de los pánicos activos recibidos por Firestore
 
 function cargarAlertasCercanas() {
+  // Solo traemos pánicos de los últimos 30 días: un pánico más viejo que eso
+  // ya no tiene sentido mostrarlo como "activo", y evita que la consulta
+  // crezca indefinidamente a medida que se acumula el historial con el tiempo.
+  const hace30Dias = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
   db.collection(`clientes/${clienteId}/denuncias`)
     .where('categoria', '==', 'panico')
+    .where('timestamp', '>=', hace30Dias)
     .onSnapshot((snap) => {
       ultimosPanicosActivos = snap.docs
         .map(d => ({ id: d.id, ...d.data() }))
