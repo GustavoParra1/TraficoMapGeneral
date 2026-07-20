@@ -534,12 +534,30 @@
           window.location.href = '/login.html';
         } else {
           console.log('✅ Authenticated user:', user.email);
-          
+
+          // Parámetros de la URL: ?city= (para centrar el mapa) y ?client= (ID real del doc en Firestore)
+          const urlParams = new URLSearchParams(window.location.search);
+          const cityFromUrl = urlParams.get('city');
+          const clientFromUrl = urlParams.get('client');
+
           // Obtener el custom claim 'city' del usuario
           const idTokenResult = await user.getIdTokenResult();
           const userCity = idTokenResult.claims.city;
-          
-          if (userCity) {
+
+          // clienteId: SIEMPRE prioriza el ?client= de la URL (necesario para admin multi-cliente).
+          // Es el ID real del documento, con guiones intactos (ej: constitucion-1783519219617).
+          if (clientFromUrl) {
+            clienteId = clientFromUrl;
+            console.log(`🏢 clienteId tomado de la URL (?client=): ${clienteId}`);
+          } else if (userCity) {
+            clienteId = userCity.replace(/-/g, '');
+          }
+
+          // municipio: solo se usa para centrar el mapa (lookup en CITY_COORDS)
+          if (cityFromUrl) {
+            municipio = cityFromUrl.toLowerCase().replace(/-/g, '');
+            console.log(`📍 Ciudad tomada de la URL (?city=): ${municipio}`);
+          } else if (userCity) {
             municipio = userCity;
             console.log(`📍 Ciudad del usuario (custom claim): ${municipio}`);
           } else {
@@ -547,18 +565,22 @@
             console.log('🔍 Buscando en localStorage...');
             const storedCity = localStorage.getItem('selectedCity');
             console.log('📦 localStorage.getItem("selectedCity"):', storedCity);
-            console.log('📦 Tipo:', typeof storedCity);
             if (storedCity) {
-              // Las colecciones en Firestore están sin guiones
               municipio = storedCity.replace(/-/g, '');
+              if (!clienteId) clienteId = municipio;
               console.log(`📍 Ciudad del localStorage: ${storedCity} → ${municipio}`);
             } else {
-              // Por defecto mardelplata
               municipio = 'mardelplata';
+              if (!clienteId) clienteId = 'mardelplata';
               console.warn('⚠️ No se encontró city en custom claims ni localStorage, usando mardelplata');
             }
           }
-          
+
+          if (!clienteId) {
+            clienteId = municipio; // último fallback
+          }
+          console.log(`📡 Ruta final de patrullas: clientes/${clienteId}/patrullas`);
+
           // Iniciar la aplicación
           setupControlCenter();
         }
@@ -627,7 +649,7 @@
   // ========================================
   function listenToPatrullas() {
     // Estructura anidada: clientes/{clienteId}/patrullas/ (mismo modelo que el panel cliente)
-    const clienteId = municipio.replace(/-/g, '');
+    // clienteId es el ID real del documento (puede tener guiones, ej: constitucion-1783519219617)
     const ruta = `clientes/${clienteId}/patrullas`;
     console.log(`📡 Escuchando patrullas en: ${ruta}`);
     db.collection('clientes').doc(clienteId).collection('patrullas').onSnapshot((snapshot) => {
@@ -933,7 +955,6 @@
    async function toggleEmergencia(patrollaId) {
     const p = patrullas.get(patrollaId);
     if (!p) return;
-    const clienteId = municipio.replace(/-/g, '');
     await db.collection('clientes').doc(clienteId).collection('patrullas').doc(patrollaId).update({
       emergencia: !p.emergencia,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
