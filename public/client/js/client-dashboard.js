@@ -70,6 +70,26 @@ class ClientDashboard {
 
   async init() {
     console.log("📊 Inicializando ClientDashboard...");
+
+    // Sincronizar clientData ANTES de intentar la sesión de Firebase
+    // (ensureFirebaseSession necesita email_admin/contraseña de acá adentro).
+    if (typeof clientAuth !== 'undefined' && clientAuth.clientData) {
+      this.clientData = clientAuth.clientData;
+    }
+
+    // IMPORTANTE: establecer una sesión real de Firebase Auth (con los
+    // custom claims role=admin y cliente_id) ANTES de mostrar el dashboard.
+    // Sin esto, todas las escrituras a Firestore (crear patrullas/operarios/
+    // vecinos, importar barrios/cámaras/siniestros) corrían sin autenticación
+    // real, dependiendo por completo de que las reglas de Firestore estén
+    // abiertas — este paso es lo que permite después cerrarlas de verdad.
+    try {
+      await this.ensureFirebaseSession();
+      console.log("✅ Sesión de Firebase Auth establecida");
+    } catch (e) {
+      console.error("❌ No se pudo establecer la sesión de Firebase Auth:", e.message);
+    }
+
     // Mostrar dashboard por defecto (initQuestionsPanel se llamará desde showDashboard)
     this.showPage('dashboard');
   }

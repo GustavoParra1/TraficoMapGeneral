@@ -192,7 +192,7 @@ class ClientAuth {
     }
     
     // Mostrar panel del cliente
-    this.showClientPanel();
+    await this.showClientPanel();
     
     // Cargar datos del cliente
     setTimeout(() => {
@@ -203,7 +203,7 @@ class ClientAuth {
     }, 500);
   }
 
-  showClientPanel() {
+  async showClientPanel() {
     console.log("🎨 Mostrando panel del cliente...");
     const app = document.getElementById('app');
     
@@ -289,6 +289,18 @@ class ClientAuth {
     // Mostrar dashboard por defecto
     clientDashboard.clientData = this.clientData;
     clientDashboard.clientDb = this.clientDb;  // ✅ Pasar instancia de Firestore del CLIENTE
+
+    // IMPORTANTE: establecer una sesión real de Firebase Auth (con los custom
+    // claims role=admin y cliente_id) ANTES de mostrar el dashboard. Este es
+    // el único camino que SIEMPRE se ejecuta después de un login (a diferencia
+    // del init() con setTimeout, que corre 500ms más tarde y de forma redundante).
+    try {
+      await clientDashboard.ensureFirebaseSession();
+      console.log("✅ Sesión de Firebase Auth establecida");
+    } catch (e) {
+      console.error("❌ No se pudo establecer la sesión de Firebase Auth:", e.message);
+    }
+
     clientDashboard.showPage('dashboard');
   }
 
