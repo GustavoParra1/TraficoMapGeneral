@@ -444,6 +444,13 @@ exports.crearVecinoAdmin = functions.https.onCall(async (data, context) => {
  */
 exports.criarClienteAdmin = functions.https.onCall(async (data, context) => {
   try {
+    // IMPORTANTE: solo el superadmin puede crear clientes nuevos. Antes esta
+    // función no validaba nada — cualquier usuario autenticado (incluso un
+    // admin de una sola ciudad) podía llamarla y crear clientes ajenos.
+    if (!context.auth || context.auth.token.role !== 'superadmin') {
+      throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede crear clientes');
+    }
+
     const { 
       nombreCliente, 
       email, 
@@ -611,9 +618,14 @@ exports.criarClienteAdmin = functions.https.onCall(async (data, context) => {
 // ============================================================================
 exports.eliminarCliente = functions.https.onCall(async (data, context) => {
   try {
-    // Validar autenticación
+    // Validar autenticación Y rol — antes solo pedía estar logueado con
+    // cualquier cuenta, lo que permitía a un admin de una sola ciudad
+    // borrar clientes ajenos si conocía su clienteId.
     if (!context.auth) {
       throw new functions.https.HttpsError('unauthenticated', 'Debe estar autenticado');
+    }
+    if (context.auth.token.role !== 'superadmin') {
+      throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede eliminar clientes');
     }
 
     const { clienteId, nombreCliente } = data;
@@ -1557,6 +1569,7 @@ exports.enviarFacturaEmail = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('unauthenticated', 'No autenticado');
   }
   const role = context.auth.token.role;
+  const clienteIdDelToken = context.auth.token.cliente_id;
   if (role !== 'admin' && role !== 'superadmin') {
     throw new functions.https.HttpsError('permission-denied', 'Solo administradores pueden enviar facturas');
   }
@@ -1573,6 +1586,17 @@ exports.enviarFacturaEmail = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('not-found', 'Factura no encontrada');
   }
   const factura = facturaDoc.data();
+
+  // IMPORTANTE: un admin de ciudad solo puede enviar facturas de SU PROPIO
+  // cliente. Sin este chequeo, cualquier admin autenticado podía mandarse
+  // (o mandarle a cualquiera) una factura de otro municipio, con solo saber
+  // el facturaId. El superadmin (role: 'superadmin') no tiene esta restricción.
+  if (role !== 'superadmin' && factura.cliente_id !== clienteIdDelToken) {
+    throw new functions.https.HttpsError(
+      'permission-denied',
+      'No podés enviar facturas de otro cliente'
+    );
+  }
 
   let clienteNombre = 'Cliente';
   if (factura.cliente_id) {
