@@ -199,9 +199,9 @@ async function initFirebase() {
     // Obtener datos del vecino desde Firestore (nombre + estado de suscripción)
       let datosVecino = null;
       try {
-        const snap = await db.collection(`clientes/${clienteId}/vecinos`).where('email', '==', vecinoEmail).limit(1).get();
-        if (!snap.empty) {
-          datosVecino = snap.docs[0].data();
+        const docSnap = await db.collection(`clientes/${clienteId}/vecinos`).doc(user.uid).get();
+        if (docSnap.exists) {
+          datosVecino = docSnap.data();
           vecinoNombre = datosVecino.nombre || vecinoEmail;
         } else {
           vecinoNombre = vecinoEmail;
