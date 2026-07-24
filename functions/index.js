@@ -78,6 +78,11 @@ exports.loginClientePanel = functions.https.onCall(async (data, context) => {
   const clienteId = clienteDoc.id;
   const passwordStored = clienteData.contraseña || clienteData.password;
 
+  // Verificar que el cliente esté activo ANTES de validar contraseña.
+  if (clienteData.estado !== 'activo') {
+    throw new functions.https.HttpsError('permission-denied', `estado:${clienteData.estado || 'desconocido'}`);
+  }
+
   if (passwordStored !== password) {
     throw new functions.https.HttpsError('permission-denied', 'Contraseña incorrecta');
   }
@@ -108,10 +113,15 @@ exports.loginClientePanel = functions.https.onCall(async (data, context) => {
     cliente_id: clienteId
   });
 
+  // No devolver la contraseña en texto plano al front: ya cumplió su
+  // propósito (validarla acá, en el servidor) y no hace falta que el
+  // navegador la reciba ni la guarde en sessionStorage.
+  const { contraseña, password: _pw, ...clienteDataSinPassword } = clienteData;
+
   return {
     success: true,
     clienteId,
-    clienteData
+    clienteData: clienteDataSinPassword
   };
 });
 
