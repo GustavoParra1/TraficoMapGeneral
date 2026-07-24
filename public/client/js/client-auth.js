@@ -92,68 +92,48 @@ class ClientAuth {
   async handleLogin() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    
+
     try {
-      console.log("🔐 Validando credenciales contra Firestore:", email);
-      
-      // ✅ PASO 1: Buscar cliente en Firestore (sin autenticar)
-      const db = firebase.firestore();
-      const clientesSnapshot = await db.collection('clientes')
-        .where('email_admin', '==', email)
-        .limit(1)
-        .get();
-      
-      if (clientesSnapshot.empty) {
-        throw new Error("Usuario no encontrado. Verifica el email.");
-      }
-      
-      const clienteDoc = clientesSnapshot.docs[0];
-      const clienteData = clienteDoc.data();
-      const clienteId = clienteDoc.id;
-      
+      console.log("🔐 Validando credenciales vía Cloud Function:", email);
+
+      // ✅ Validación de credenciales en el servidor (Cloud Function
+      // loginClientePanel). Reemplaza la lectura directa de `clientes` +
+      // comparación de contraseña en el navegador: esto permite cerrar el
+      // acceso de lectura pública a ese documento en firestore.rules.
+      const functionsRef = firebase.app().functions('us-central1');
+      const loginClientePanel = functionsRef.httpsCallable('loginClientePanel');
+      const result = await loginClientePanel({ email, password });
+      const { clienteId, clienteData } = result.data;
+
       console.log("🔍 Cliente encontrado:", clienteData.nombre);
-
-      // ✅ PASO 1.5: Verificar que el cliente esté activo ANTES de validar
-      // contraseña. Sin este chequeo, un cliente recién suspendido igual
-      // podía loguearse desde cero (el listener en tiempo real solo protege
-      // sesiones que ya estaban abiertas, no un login nuevo).
-      if (clienteData.estado !== 'activo') {
-        let motivo = "";
-        switch (clienteData.estado) {
-          case 'suspendido':
-            motivo = "Su acceso ha sido suspendido por el administrador";
-            break;
-          case 'inactivo':
-            motivo = "Su cuenta no está activa";
-            break;
-          default:
-            motivo = `Estado: ${clienteData.estado}`;
-        }
-        console.warn(`⛔ Intento de login con cliente en estado "${clienteData.estado}". Bloqueado.`);
-        throw new Error(motivo);
-      }
-
-      // ✅ PASO 2: Validar contraseña
-      const passwordStored = clienteData.contraseña || clienteData.password;
-      if (passwordStored !== password) {
-        throw new Error("Contraseña incorrecta.");
-      }
-      
       console.log("✅ Credenciales válidas");
-      
-      // ✅ PASO 3: Guardar datos del cliente en sessionStorage
+
+      // ✅ Guardar datos del cliente en sessionStorage
       sessionStorage.setItem('clienteId', clienteId);
       sessionStorage.setItem('clienteData', JSON.stringify(clienteData));
       sessionStorage.setItem('email_acceso', email);
-      
-      console.log("✅ Login exitoso con credenciales de Firestore");
-      
-      // ✅ PASO 4: Cargar el cliente
+
+      console.log("✅ Login exitoso vía Cloud Function");
+
+      // ✅ Cargar el cliente
       await this.onClientAuthenticated(clienteId, clienteData);
-      
+
     } catch (error) {
       console.error("❌ Error de login:", error);
-      this.showError(error.message || this.getErrorMessage(error.code || 'unknown-error'));
+      // Los errores 'permission-denied' de la Cloud Function llegan con
+      // mensajes tipo "estado:suspendido" o "Contraseña incorrecta".
+      let mensaje = error.message || this.getErrorMessage(error.code || 'unknown-error');
+      if (mensaje.startsWith('estado:')) {
+        const estado = mensaje.split(':')[1];
+        const motivos = {
+          suspendido: "Su acceso ha sido suspendido por el administrador",
+          inactivo: "Su cuenta no está activa"
+        };
+        mensaje = motivos[estado] || `Estado: ${estado}`;
+      } else if (error.code === 'functions/not-found') {
+        mensaje = "Usuario no encontrado. Verifica el email.";
+      }
+      this.showError(mensaje);
     }
   }
 

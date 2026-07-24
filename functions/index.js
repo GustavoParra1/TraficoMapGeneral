@@ -113,15 +113,15 @@ exports.loginClientePanel = functions.https.onCall(async (data, context) => {
     cliente_id: clienteId
   });
 
-  // No devolver la contraseña en texto plano al front: ya cumplió su
-  // propósito (validarla acá, en el servidor) y no hace falta que el
-  // navegador la reciba ni la guarde en sessionStorage.
-  const { contraseña, password: _pw, ...clienteDataSinPassword } = clienteData;
-
+  // Nota: clienteData (con la contraseña incluida) viaja solo al usuario
+  // que ya la escribió correctamente para llegar hasta acá — no es un dato
+  // expuesto a terceros. Además ensureFirebaseSession() en
+  // client-dashboard.js necesita clientData.contraseña para re-loguear
+  // contra Firebase Auth, así que no se puede sacar de la respuesta.
   return {
     success: true,
     clienteId,
-    clienteData: clienteDataSinPassword
+    clienteData
   };
 });
 
