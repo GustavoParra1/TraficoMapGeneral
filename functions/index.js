@@ -446,6 +446,164 @@ exports.crearVecinoAdmin = functions.https.onCall(async (data, context) => {
 });
 
 // ============================================================================
+// FUNCIÓN: AUTO-REGISTRO DE VECINO (self-service, sin admin)
+// ============================================================================
+/**
+ * Permite que un vecino se registre solo, sin que un admin le cree la cuenta.
+ * Requiere haberse verificado por SMS con Firebase Phone Auth ANTES de llamar
+ * a esta función (el front hace signInWithPhoneNumber + confirm(codigo), y
+ * recién ahí llama a esta callable ya autenticado como ese usuario).
+ *
+ * Elige un barrio: si ya existe (otro vecino ya lo creó) se suma a esa
+ * comunidad; si no existe, la crea como "comunidad en prueba" (plan: 'prueba',
+ * vence en 2 meses). Es una función nueva y separada — NO toca
+ * criarClienteAdmin ni sus validaciones de superadmin.
+ */
+function normalizarSlugBarrio(texto) {
+  return (texto || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .substring(0, 40);
+}
+
+exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, context) => {
+  try {
+    // 1️⃣ Exigir verificación por SMS (Firebase Phone Auth) ANTES de registrar.
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'Necesitás verificar tu celular primero');
+    }
+    const signInProvider = context.auth.token.firebase && context.auth.token.firebase.sign_in_provider;
+    if (signInProvider !== 'phone') {
+      throw new functions.https.HttpsError('permission-denied', 'El registro requiere verificación por SMS');
+    }
+
+    const uid = context.auth.uid;
+    const telefono = context.auth.token.phone_number || '';
+
+    // Anti-duplicado simple: si el token YA trae cliente_id de un registro
+    // anterior (login previo ya con claims asignados), no crear otra
+    // membresía — devolver la que ya tiene.
+    if (context.auth.token.cliente_id) {
+      console.log(`ℹ️ [registrarVecinoAutoservicio] uid ${uid} ya pertenece a ${context.auth.token.cliente_id}, no se crea de nuevo`);
+      return {
+        success: true,
+        clienteId: context.auth.token.cliente_id,
+        esNuevaComunidad: false,
+        mensaje: 'Ya estás registrado en una comunidad'
+      };
+    }
+
+    const { barrioNombre = '', nombreVecino = '', direccion = '' } = data || {};
+
+    if (!barrioNombre.trim()) {
+      throw new functions.https.HttpsError('invalid-argument', 'barrioNombre es requerido');
+    }
+    if (!nombreVecino.trim()) {
+      throw new functions.https.HttpsError('invalid-argument', 'nombreVecino es requerido');
+    }
+
+    const barrioSlug = normalizarSlugBarrio(barrioNombre);
+    if (!barrioSlug) {
+      throw new functions.https.HttpsError('invalid-argument', 'barrioNombre inválido');
+    }
+
+    console.log(`🚀 [registrarVecinoAutoservicio] uid ${uid} registrando en barrio "${barrioNombre}" (slug: ${barrioSlug})`);
+
+    // 2️⃣ Buscar si la comunidad (barrio) ya existe; si no, crearla en prueba.
+    let clienteId;
+    let esNuevaComunidad = false;
+
+    const barrioSnap = await db.collection('clientes')
+      .where('barrio_slug', '==', barrioSlug)
+      .limit(1)
+      .get();
+
+    if (!barrioSnap.empty) {
+      clienteId = barrioSnap.docs[0].id;
+      console.log(`✅ Comunidad existente encontrada: ${clienteId}`);
+    } else {
+      esNuevaComunidad = true;
+      clienteId = `${barrioSlug}-${Date.now()}`;
+      const ahora = new Date().toISOString();
+      const trialHasta = new Date();
+      trialHasta.setMonth(trialHasta.getMonth() + 2);
+
+      const datosComunidad = {
+        id: clienteId,
+        nombre: barrioNombre.trim(),
+        barrio_slug: barrioSlug,
+        ciudad: barrioNombre.trim(),
+        plan: 'prueba',
+        estado: 'activo',
+        trial_hasta: trialHasta.toISOString(),
+        es_autoservicio: true,
+        email_admin: null,
+        created_at: ahora,
+        updated_at: ahora,
+        api_key: generateApiKey(),
+        usuarios_creados: []
+      };
+
+      await db.collection('clientes').doc(clienteId).set(datosComunidad);
+      console.log(`✅ Comunidad en prueba creada: ${clienteId} (vence ${trialHasta.toISOString()})`);
+    }
+
+    // 3️⃣ Asignar custom claims (rol: vecino, cliente de la comunidad elegida)
+    try {
+      await auth.setCustomUserClaims(uid, {
+        role: 'vecino',
+        rol: 'vecino',
+        city: barrioSlug,
+        cliente_id: clienteId
+      });
+      console.log(`✅ Custom claims asignados a vecino autoregistrado: ${uid}`);
+    } catch (claimsError) {
+      console.warn(`⚠️ Error asignando claims: ${claimsError.message}`);
+    }
+
+    // 4️⃣ Guardar vecino en clientes/{clienteId}/vecinos/{uid} (mismo uid de Auth)
+    const dataVecino = {
+      uid,
+      telefono,
+      nombre: nombreVecino.trim(),
+      displayName: nombreVecino.trim(),
+      direccion: direccion.trim(),
+      email: null,
+      online: false,
+      estado: 'activo',
+      autoservicio: true,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      created_at: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    await db.collection(`clientes/${clienteId}/vecinos`).doc(uid).set(dataVecino, { merge: true });
+    console.log(`✅ Vecino autoregistrado guardado en clientes/${clienteId}/vecinos:`, uid);
+
+    // RESPUESTA
+    return {
+      success: true,
+      clienteId,
+      esNuevaComunidad,
+      vecino: {
+        uid,
+        nombre: nombreVecino.trim(),
+        coleccion: `clientes/${clienteId}/vecinos`
+      },
+      mensaje: esNuevaComunidad
+        ? `Comunidad "${barrioNombre.trim()}" creada en modo prueba. ¡Sos el primer vecino!`
+        : `Te uniste a la comunidad "${barrioNombre.trim()}"`
+    };
+  } catch (error) {
+    console.error('❌ Error en registrarVecinoAutoservicio:', error);
+    throw error;
+  }
+});
+
+// ============================================================================
 // FUNCIÓN 1: CREAR CLIENTE (callable - sin CORS)
 // ============================================================================
 /**
