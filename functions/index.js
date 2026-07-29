@@ -456,7 +456,7 @@ exports.crearVecinoAdmin = functions.https.onCall(async (data, context) => {
  *
  * Elige un barrio: si ya existe (otro vecino ya lo creó) se suma a esa
  * comunidad; si no existe, la crea como "comunidad en prueba" (plan: 'prueba',
- * vence en 2 meses). Es una función nueva y separada — NO toca
+ * vence en 3 meses). Es una función nueva y separada — NO toca
  * criarClienteAdmin ni sus validaciones de superadmin.
  */
 function normalizarSlugBarrio(texto) {
@@ -530,7 +530,7 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
       clienteId = `${barrioSlug}-${Date.now()}`;
       const ahora = new Date().toISOString();
       const trialHasta = new Date();
-      trialHasta.setMonth(trialHasta.getMonth() + 2);
+      trialHasta.setMonth(trialHasta.getMonth() + 3);
 
       const datosComunidad = {
         id: clienteId,
@@ -609,6 +609,127 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
     console.error('❌ Error en registrarVecinoAutoservicio:', error);
     throw error;
   }
+});
+
+// ============================================================================
+// FUNCIÓN PROGRAMADA: mantener comunidades en prueba (corre 1 vez por día)
+// ============================================================================
+/**
+ * Todos los días:
+ * 1) A las comunidades en prueba que TODAVÍA no vencieron, les renueva
+ *    "habilitado_hasta" al mes en curso para sus vecinos autoservicio, así
+ *    no se bloquean solos cada mes nuevo dentro del período de prueba.
+ * 2) A las que están por vencer (7 días o menos) o ya vencieron, les marca
+ *    trial_pendiente_decision: true — el panel de superadmin lee ese flag
+ *    y pregunta si querés extenderla o dejarla vencer.
+ * No toca clientes con plan pago (solo plan === 'prueba').
+ */
+exports.mantenerComunidadesPrueba = functions.pubsub
+  .schedule('every 24 hours')
+  .onRun(async (context) => {
+    const mesActual = new Date().toISOString().slice(0, 7);
+    const ahora = new Date();
+    const unaSemanaMs = 7 * 24 * 60 * 60 * 1000;
+
+    const snap = await db.collection('clientes')
+      .where('plan', '==', 'prueba')
+      .where('estado', '==', 'activo')
+      .get();
+
+    console.log(`🔄 [mantenerComunidadesPrueba] revisando ${snap.size} comunidades en prueba`);
+
+    for (const clienteDoc of snap.docs) {
+      const cliente = clienteDoc.data();
+      const clienteId = clienteDoc.id;
+      const trialHasta = cliente.trial_hasta ? new Date(cliente.trial_hasta) : null;
+      if (!trialHasta) continue;
+
+      const faltante = trialHasta.getTime() - ahora.getTime();
+      const vencida = faltante <= 0;
+      const porVencer = faltante > 0 && faltante <= unaSemanaMs;
+
+      if (!vencida) {
+        // Todavía dentro del período de prueba: renovar habilitado_hasta
+        // de los vecinos autoservicio para el mes en curso.
+        try {
+          const vecinosSnap = await db.collection(`clientes/${clienteId}/vecinos`)
+            .where('autoservicio', '==', true)
+            .get();
+          const batch = db.batch();
+          vecinosSnap.docs.forEach(v => {
+            batch.set(v.ref, { habilitado: true, habilitado_hasta: mesActual }, { merge: true });
+          });
+          if (!vecinosSnap.empty) {
+            await batch.commit();
+            console.log(`✅ Renovados ${vecinosSnap.size} vecinos de ${clienteId} para ${mesActual}`);
+          }
+        } catch (e) {
+          console.error(`❌ Error renovando vecinos de ${clienteId}:`, e.message);
+        }
+      }
+
+      if ((vencida || porVencer) && !cliente.trial_pendiente_decision) {
+        await clienteDoc.ref.set({
+          trial_pendiente_decision: true,
+          trial_vencida: vencida
+        }, { merge: true });
+        console.log(`⏰ ${clienteId} marcada para revisión de superadmin (vencida: ${vencida})`);
+      }
+    }
+
+    return null;
+  });
+
+// ============================================================================
+// FUNCIÓN: EXTENDER PRUEBA DE UNA COMUNIDAD (solo superadmin)
+// ============================================================================
+exports.extenderPruebaComunidad = functions.https.onCall(async (data, context) => {
+  if (!context.auth || context.auth.token.role !== 'superadmin') {
+    throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede extender una prueba');
+  }
+
+  const { clienteId, meses = 1 } = data || {};
+  if (!clienteId) {
+    throw new functions.https.HttpsError('invalid-argument', 'clienteId es requerido');
+  }
+
+  const clienteRef = db.collection('clientes').doc(clienteId);
+  const clienteSnap = await clienteRef.get();
+  if (!clienteSnap.exists) {
+    throw new functions.https.HttpsError('not-found', 'Comunidad no encontrada');
+  }
+  const cliente = clienteSnap.data();
+  if (cliente.plan !== 'prueba') {
+    throw new functions.https.HttpsError('failed-precondition', 'Esta comunidad no está en modo prueba');
+  }
+
+  // Extiende desde la fecha de vencimiento actual (o desde ahora si ya venció)
+  const base = cliente.trial_hasta && new Date(cliente.trial_hasta) > new Date()
+    ? new Date(cliente.trial_hasta)
+    : new Date();
+  base.setMonth(base.getMonth() + Number(meses));
+
+  const mesActual = new Date().toISOString().slice(0, 7);
+
+  await clienteRef.set({
+    trial_hasta: base.toISOString(),
+    trial_pendiente_decision: false,
+    trial_vencida: false
+  }, { merge: true });
+
+  // Re-habilitar a los vecinos ya, sin esperar al próximo ciclo diario
+  const vecinosSnap = await db.collection(`clientes/${clienteId}/vecinos`)
+    .where('autoservicio', '==', true)
+    .get();
+  const batch = db.batch();
+  vecinosSnap.docs.forEach(v => {
+    batch.set(v.ref, { habilitado: true, habilitado_hasta: mesActual }, { merge: true });
+  });
+  if (!vecinosSnap.empty) await batch.commit();
+
+  console.log(`✅ Prueba de ${clienteId} extendida ${meses} mes(es) hasta ${base.toISOString()}`);
+
+  return { success: true, clienteId, trial_hasta: base.toISOString() };
 });
 
 // ============================================================================

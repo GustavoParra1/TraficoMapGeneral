@@ -33,6 +33,37 @@ class Dashboard {
       }
     });
     console.log("✅ Listener de hashchange agregado");
+
+    // Avisar si hay comunidades en prueba por vencer o vencidas
+    this.revisarComunidadesEnPrueba();
+  }
+
+  async revisarComunidadesEnPrueba() {
+    try {
+      const pendientes = this.clientesData.filter(c => c.plan === 'prueba' && c.trial_pendiente_decision);
+      if (pendientes.length === 0) return;
+
+      const extenderPruebaComunidad = firebase.functions().httpsCallable('extenderPruebaComunidad');
+
+      for (const c of pendientes) {
+        const estadoTexto = c.trial_vencida ? 'ya venció' : 'está por vencer';
+        const quiere = confirm(
+          `La comunidad en prueba "${c.nombre}" ${estadoTexto}.\n\n` +
+          `¿Querés extenderla? Aceptar = extender 1 mes más. Cancelar = dejarla como está (los vecinos quedarán sin acceso).`
+        );
+        if (!quiere) continue;
+
+        try {
+          await extenderPruebaComunidad({ clienteId: c.id, meses: 1 });
+          console.log(`✅ Prueba de ${c.id} extendida 1 mes`);
+        } catch (e) {
+          console.error(`❌ Error extendiendo prueba de ${c.id}:`, e.message);
+          alert(`No se pudo extender "${c.nombre}": ${e.message}`);
+        }
+      }
+    } catch (e) {
+      console.error('❌ Error revisando comunidades en prueba:', e);
+    }
   }
 
   async loadClienteCount(retryCount = 0) {
