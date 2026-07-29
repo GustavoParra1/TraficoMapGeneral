@@ -132,6 +132,13 @@ if (!firebase.apps.length) {
 const auth = firebase.auth();
 const functions = firebase.app().functions('us-central1');
 
+// IMPORTANTE: esta pestaña usa persistencia de SESIÓN, no LOCAL.
+// Si no hacemos esto, y el vecino (o vos probando) tiene otra pestaña
+// abierta con sesión de admin/otro rol en el mismo proyecto Firebase,
+// esa sesión "pisa" la del vecino recién verificado por SMS acá,
+// porque Firebase sincroniza el estado de auth entre pestañas por default.
+auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+
 let confirmationResult = null;
 let recaptchaVerifier = null;
 
