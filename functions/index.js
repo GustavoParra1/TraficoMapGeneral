@@ -566,6 +566,12 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
     }
 
     // 4️⃣ Guardar vecino en clientes/{clienteId}/vecinos/{uid} (mismo uid de Auth)
+    // Comunidad en prueba => se habilita al vecino automáticamente por el
+    // mes en curso, sin esperar que un admin confirme un pago (todavía no
+    // hay admin ni cobro en esta etapa). habilitado/habilitado_hasta es el
+    // mismo mecanismo que usa client-dashboard.js al registrar un pago.
+    const mesActual = new Date().toISOString().slice(0, 7); // "2026-07"
+
     const dataVecino = {
       uid,
       telefono,
@@ -576,6 +582,8 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
       online: false,
       estado: 'activo',
       autoservicio: true,
+      habilitado: true,
+      habilitado_hasta: mesActual,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
       created_at: admin.firestore.FieldValue.serverTimestamp()
     };
