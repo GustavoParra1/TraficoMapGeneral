@@ -238,6 +238,11 @@ document.getElementById('btn-verificar-codigo').addEventListener('click', async 
   setCargando(btn, true, 'Verificar código');
   try {
     await confirmationResult.confirm(codigo);
+    // Ya estamos autenticados de verdad como el vecino (no hay riesgo de que
+    // nos pise otra pestaña). Migramos a persistencia LOCAL para que
+    // vecino-app.js (que usa el default LOCAL) reconozca esta sesión al
+    // redirigir en el paso 4.
+    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     ocultarMensaje();
     irAPaso(3);
   } catch (error) {
