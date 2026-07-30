@@ -532,6 +532,15 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
       const trialHasta = new Date();
       trialHasta.setMonth(trialHasta.getMonth() + 3);
 
+      // Admin automático para que el superadmin pueda entrar a /client/ a
+      // administrar esta comunidad (Vecinos, Denuncias, Facturación, etc.)
+      // igual que con cualquier cliente pago. OJO: estas credenciales NO se
+      // devuelven en la respuesta de esta función (que va al vecino que se
+      // está registrando) — solo quedan en el doc del cliente, visibles
+      // para el superadmin desde el panel de administración.
+      const passwordAdmin = generateSecurePassword();
+      const emailAdmin = `admin.${clienteId}@traficomap.local`;
+
       const datosComunidad = {
         id: clienteId,
         nombre: barrioNombre.trim(),
@@ -541,7 +550,8 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
         estado: 'activo',
         trial_hasta: trialHasta.toISOString(),
         es_autoservicio: true,
-        email_admin: null,
+        email_admin: emailAdmin,
+        contraseña: passwordAdmin,
         created_at: ahora,
         updated_at: ahora,
         api_key: generateApiKey(),
@@ -730,6 +740,46 @@ exports.extenderPruebaComunidad = functions.https.onCall(async (data, context) =
   console.log(`✅ Prueba de ${clienteId} extendida ${meses} mes(es) hasta ${base.toISOString()}`);
 
   return { success: true, clienteId, trial_hasta: base.toISOString() };
+});
+
+// ============================================================================
+// FUNCIÓN: GENERAR/VER CREDENCIALES ADMIN DE UNA COMUNIDAD (solo superadmin)
+// ============================================================================
+/**
+ * Para comunidades que ya existen (creadas antes de este fix, o si en algún
+ * momento se quiere resetear la contraseña). Genera email_admin + contraseña
+ * si no tiene, o solo devuelve las que ya tiene. El superadmin usa esto para
+ * poder entrar a /client/ como admin de esa comunidad.
+ */
+exports.generarAdminComunidad = functions.https.onCall(async (data, context) => {
+  if (!context.auth || context.auth.token.role !== 'superadmin') {
+    throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede ver/generar credenciales de admin');
+  }
+
+  const { clienteId, regenerar = false } = data || {};
+  if (!clienteId) {
+    throw new functions.https.HttpsError('invalid-argument', 'clienteId es requerido');
+  }
+
+  const clienteRef = db.collection('clientes').doc(clienteId);
+  const clienteSnap = await clienteRef.get();
+  if (!clienteSnap.exists) {
+    throw new functions.https.HttpsError('not-found', 'Comunidad no encontrada');
+  }
+  const cliente = clienteSnap.data();
+
+  if (cliente.email_admin && cliente.contraseña && !regenerar) {
+    return { success: true, email_admin: cliente.email_admin, contraseña: cliente.contraseña, generada: false };
+  }
+
+  const emailAdmin = cliente.email_admin || `admin.${clienteId}@traficomap.local`;
+  const passwordAdmin = generateSecurePassword();
+
+  await clienteRef.set({ email_admin: emailAdmin, contraseña: passwordAdmin }, { merge: true });
+
+  console.log(`✅ Credenciales admin ${regenerar ? 'regeneradas' : 'generadas'} para ${clienteId}`);
+
+  return { success: true, email_admin: emailAdmin, contraseña: passwordAdmin, generada: true };
 });
 
 // ============================================================================
