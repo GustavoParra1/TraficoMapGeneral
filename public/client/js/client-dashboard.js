@@ -1938,3 +1938,4 @@ class ClientDashboard {
 const clientDashboard = new ClientDashboard();
 
 console.log("✅ ClientDashboard loaded");
+
