@@ -546,6 +546,7 @@ class ClientesManager {
       : 'Sin suscripción activa';
 
     // Obtener credenciales - pueden estar en diferentes campos
+    const esPruebaSinAdmin = cliente.plan === 'prueba' && !cliente.email_admin;
     const email_acceso = cliente.email_admin || cliente.email || 'no disponible';
     const contraseña = cliente.contraseña || cliente.password || cliente.contraseña_temporal || '(generada al crear)';
     const url_acceso = cliente.url_acceso || 'https://trafico-map-general-v2.web.app/client/';
@@ -556,6 +557,14 @@ class ClientesManager {
           <h6 class="mb-0">🔐 Acceso al Panel de Cliente</h6>
         </div>
         <div class="card-body">
+          ${esPruebaSinAdmin ? `
+          <div class="alert alert-warning py-2 mb-3">
+            Esta comunidad se creó por auto-registro (vecinos) y todavía no tiene admin generado.
+            <button class="btn btn-sm btn-warning mt-1 btn-generar-admin" data-cliente-id="${cliente.id}">
+              <i class="bi bi-key"></i> Generar acceso admin
+            </button>
+          </div>
+          ` : ''}
           <div class="row mb-2">
             <div class="col-md-6">
               <small class="text-muted">Email (Usuario):</small><br/>
@@ -627,6 +636,29 @@ class ClientesManager {
       btnCopyPassword.addEventListener('click', () => {
         navigator.clipboard.writeText(contraseña);
         alert('✅ Contraseña copiada');
+      });
+    }
+
+    const btnGenerarAdmin = content.querySelector('.btn-generar-admin');
+    if (btnGenerarAdmin) {
+      btnGenerarAdmin.addEventListener('click', async () => {
+        const clienteId = btnGenerarAdmin.dataset.clienteId;
+        btnGenerarAdmin.disabled = true;
+        btnGenerarAdmin.textContent = 'Generando...';
+        try {
+          const generarAdminComunidad = firebase.functions().httpsCallable('generarAdminComunidad');
+          const resultado = await generarAdminComunidad({ clienteId });
+          const { email_admin, contraseña: nuevaContraseña } = resultado.data;
+          // Actualizar los datos en memoria y refrescar el modal con las credenciales ya cargadas
+          cliente.email_admin = email_admin;
+          cliente.contraseña = nuevaContraseña;
+          this.showClienteDetailModal(cliente, suscripcion);
+        } catch (e) {
+          console.error('❌ Error generando admin:', e);
+          alert('No se pudo generar el acceso admin: ' + e.message);
+          btnGenerarAdmin.disabled = false;
+          btnGenerarAdmin.innerHTML = '<i class="bi bi-key"></i> Generar acceso admin';
+        }
       });
     }
 
