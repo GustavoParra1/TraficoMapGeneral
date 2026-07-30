@@ -36,6 +36,25 @@ class Dashboard {
 
     // Avisar si hay comunidades en prueba por vencer o vencidas
     this.revisarComunidadesEnPrueba();
+    // Dejar accesible desde la consola: verCredencialesComunidad('constitucion-123...')
+    window.verCredencialesComunidad = (clienteId) => this.verCredencialesComunidad(clienteId);
+  }
+
+  async verCredencialesComunidad(clienteId) {
+    try {
+      const generarAdminComunidad = firebase.functions().httpsCallable('generarAdminComunidad');
+      const resultado = await generarAdminComunidad({ clienteId });
+      const { email_admin, contraseña } = resultado.data;
+      alert(
+        `Acceso admin para "${clienteId}":\n\n` +
+        `URL: https://trafico-map-general-v2.web.app/client/\n` +
+        `Email: ${email_admin}\n` +
+        `Contraseña: ${contraseña}`
+      );
+    } catch (e) {
+      console.error('❌ Error obteniendo credenciales:', e);
+      alert('No se pudieron obtener las credenciales: ' + e.message);
+    }
   }
 
   async revisarComunidadesEnPrueba() {
