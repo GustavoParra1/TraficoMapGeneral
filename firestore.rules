@@ -1,8 +1,217 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ========================================================================
+    // FUNCIONES AUXILIARES
+    // ========================================================================
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function role() {
+      return request.auth.token.role;
+    }
+    function myClienteId() {
+      return request.auth.token.cliente_id;
+    }
+    function myCity() {
+      return request.auth.token.city;
+    }
+    function isSuperadmin() {
+      return isSignedIn() && role() == 'superadmin';
+    }
+    function isClienteAdmin(clienteId) {
+      return isSignedIn() && role() == 'admin' && myClienteId() == clienteId;
+    }
+    function isOperarioDeCliente(clienteId) {
+      return isSignedIn() && role() == 'operario' && myClienteId() == clienteId;
+    }
+    function isPatrullaDeCliente(clienteId) {
+      return isSignedIn() && role() == 'patrulla' && myClienteId() == clienteId;
+    }
+    // "Staff" = cualquiera que trabaje para ese cliente (admin/operario/patrulla) o el superadmin.
+    function isStaffDeCliente(clienteId) {
+      return isSuperadmin()
+        || isClienteAdmin(clienteId)
+        || isOperarioDeCliente(clienteId)
+        || isPatrullaDeCliente(clienteId);
+    }
+    function isVecinoDeCliente(clienteId) {
+      return isSignedIn() && role() == 'vecino' && myClienteId() == clienteId;
+    }
+
+    // ========================================================================
+    // USERS (tu cuenta de superadmin)
+    // ========================================================================
+    match /users/{userId} {
+      allow read, write: if isSuperadmin();
+    }
+
+    // ========================================================================
+    // CLIENTES (municipios) y todo lo que cuelga de cada uno
+    // ========================================================================
+    match /clientes/{clienteId} {
+      // ✅ CERRADO: el login del panel de clientes ya no lee este documento
+      // directo desde el navegador (ver client-auth.js + Cloud Function
+      // loginClientePanel, que valida credenciales server-side con el
+      // Admin SDK, que ignora estas reglas). Ahora la lectura solo se
+      // permite a quien ya esté autenticado como staff de ESE cliente
+      // (admin/operario/patrulla) o al superadmin — por ejemplo, para el
+      // listener en tiempo real de cambios de estado (suspendido/inactivo)
+      // que corre después del login, y para el panel de superadmin que
+      // lista todos los clientes.
+      allow read: if isStaffDeCliente(clienteId);
+      allow write: if false;
+
+      match /barrios/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+      match /cameras/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+      match /cameras_privadas/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+      match /colectivos/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+      match /colegios_escuelas/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+      match /corredores_escolares/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+      match /flujo/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+      match /robo/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+      match /semaforos/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+      match /siniestros/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+
+      // Patrullas: el admin las gestiona; cada patrulla actualiza su propia
+      // ubicación en vivo (map.html).
+      match /patrullas/{patrullaId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId) || isPatrullaDeCliente(clienteId);
+      }
+
+      // Operarios: gestión exclusiva del admin (crear/editar vía Cloud Function
+      // + el propio doc; no hace falta que el operario se escriba a sí mismo).
+      match /operarios/{operarioId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+
+      // Vecinos: el admin/operario ve la lista; cada vecino lee y actualiza
+      // SOLO su propio documento (ubicación, token FCM).
+      match /vecinos/{vecinoId} {
+        allow read: if isStaffDeCliente(clienteId) || (isSignedIn() && request.auth.uid == vecinoId);
+        allow write: if isClienteAdmin(clienteId) || (isSignedIn() && request.auth.uid == vecinoId);
+
+        // Pagos del vecino (historial de cobros de la app de denuncias):
+        // solo el admin del cliente registra pagos; el propio vecino o el
+        // staff del cliente pueden consultar el historial.
+        match /pagos/{pagoId} {
+          allow read: if isStaffDeCliente(clienteId) || (isSignedIn() && request.auth.uid == vecinoId);
+          allow write: if isClienteAdmin(clienteId);
+        }
+      }
+
+      // Denuncias (incluye pánico): vecinos del mismo cliente pueden ver todas
+      // (necesario para "alertas cercanas" de pánico) y crear las suyas;
+      // operarios/admin gestionan todo; solo admin/operario pueden borrar.
+      match /denuncias/{denunciaId} {
+  allow read: if isStaffDeCliente(clienteId) || isVecinoDeCliente(clienteId);
+  allow create: if isStaffDeCliente(clienteId) || isVecinoDeCliente(clienteId);
+  allow update: if isStaffDeCliente(clienteId) || isVecinoDeCliente(clienteId);
+  allow delete: if isClienteAdmin(clienteId)
+    || isOperarioDeCliente(clienteId)
+    || (isVecinoDeCliente(clienteId) && resource.data.vecinoEmail == request.auth.token.email);
+
+  match /mensajes/{mensajeId} {
+    allow read: if isStaffDeCliente(clienteId) || isVecinoDeCliente(clienteId);
+    allow create: if isStaffDeCliente(clienteId) || isVecinoDeCliente(clienteId);
+    allow delete: if isClienteAdmin(clienteId)
+      || isOperarioDeCliente(clienteId)
+      || isVecinoDeCliente(clienteId);
+    }
+   }
+    }
+
+    // ========================================================================
+    // BILLING / SUSCRIPCIONES / AUDITORÍA
+    // Cada admin de ciudad ve/gestiona SOLO lo de su propio cliente.
+    // La escritura queda cerrada: solo Cloud Functions.
+    // ========================================================================
+    match /billing/{facturaId} {
+      allow read: if isSuperadmin()
+        || (isSignedIn() && role() == 'admin' && myClienteId() == resource.data.cliente_id);
+      allow write: if false;
+    }
+    match /subscripciones/{subId} {
+      allow read: if isSuperadmin()
+        || (isSignedIn() && role() == 'admin' && myClienteId() == resource.data.cliente_id);
+      allow write: if false;
+    }
+    match /auditoria/{docId} {
+      allow read: if isSuperadmin()
+        || (isSignedIn() && role() == 'admin' && myClienteId() == resource.data.cliente_id);
+      allow write: if false;
+    }
+
+    // ========================================================================
+    // CHATS DE PATRULLAS POR CIUDAD
+    // Colecciones de nombre fijo (no se puede parametrizar con wildcard).
+    // NOTA: se compara contra cliente_id (confirmado presente en todos los
+    // tokens) en vez de city (claim que en la práctica nunca se está
+    // seteando al crear usuarios admin/operario/patrulla, lo que dejaba
+    // el chat bloqueado con "Missing or insufficient permissions" pese a
+    // que el resto del panel funcionaba bien).
+    // ========================================================================
+    match /chat_constitucion/{msgId} {
+      allow read, write: if isSuperadmin()
+        || (isSignedIn() && (role() == 'admin' || role() == 'operario' || role() == 'patrulla') && myClienteId() == 'constitucion-1783519219617');
+    }
+    match /chat_cordoba/{msgId} {
+      allow read, write: if isSuperadmin()
+        || (isSignedIn() && (role() == 'admin' || role() == 'operario' || role() == 'patrulla') && myClienteId() == 'cordoba');
+    }
+    match /chat_laplata/{msgId} {
+      allow read, write: if isSuperadmin()
+        || (isSignedIn() && (role() == 'admin' || role() == 'operario' || role() == 'patrulla') && myClienteId() == 'laplata');
+    }
+    match /chat_mardelplata/{msgId} {
+      allow read, write: if isSuperadmin()
+        || (isSignedIn() && (role() == 'admin' || role() == 'operario' || role() == 'patrulla') && myClienteId() == 'mardelplata');
+    }
+    match /chat_mendoza/{msgId} {
+      allow read, write: if isSuperadmin()
+        || (isSignedIn() && (role() == 'admin' || role() == 'operario' || role() == 'patrulla') && myClienteId() == 'mendoza');
+    }
+
+    // ========================================================================
+    // Cualquier otra cosa no listada arriba: denegado por defecto.
+    // ========================================================================
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }
+
+
