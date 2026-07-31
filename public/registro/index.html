@@ -20,6 +20,9 @@ html, body { min-height: 100%; font-family: -apple-system, BlinkMacSystemFont, '
 .app-header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 20px; text-align: center; }
 .app-header h1 { font-size: 20px; font-weight: 700; }
 .app-header p { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+.header-brand { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.header-logo { width: 52px; height: 52px; border-radius: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.35); flex-shrink: 0; }
+.header-text { text-align: left; }
 .container { max-width: 460px; margin: 0 auto; padding: 16px; }
 .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 .card h2 { font-size: 16px; margin-bottom: 14px; color: #0f172a; }
@@ -54,8 +57,13 @@ input:focus, select:focus { outline: none; border-color: #0ea5e9; }
 <body>
 
 <div class="app-header">
-  <h1>📢 Sumate a tu comunidad</h1>
-  <p>Denuncias vecinales y botón de pánico</p>
+  <div class="header-brand">
+    <img src="icon-192.png" alt="Vecino Denuncias" class="header-logo">
+    <div class="header-text">
+      <h1>Sumate a tu comunidad</h1>
+      <p>Denuncias vecinales y botón de pánico</p>
+    </div>
+  </div>
 </div>
 
 <div class="container">
