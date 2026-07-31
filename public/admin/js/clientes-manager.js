@@ -604,7 +604,7 @@ class ClientesManager {
         <div class="card-body">
           <div class="row mb-3">
             <div class="col-md-6"><strong>ID:</strong> ${cliente.id}</div>
-            <div class="col-md-6"><strong>Email Admin:</strong> ${cliente.email}</div>
+            <div class="col-md-6"><strong>Email Admin:</strong> ${cliente.email_admin || 'Sin generar'}</div>
           </div>
           <div class="row mb-3">
             <div class="col-md-6"><strong>Ciudad:</strong> ${cliente.ciudad || '-'}</div>
