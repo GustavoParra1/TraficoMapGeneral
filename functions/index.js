@@ -376,22 +376,6 @@ exports.crearVecinoAdmin = functions.https.onCall(async (data, context) => {
     if (!clienteId) {
       throw new functions.https.HttpsError('invalid-argument', 'clienteId es requerido');
     }
-
-    // 🛡️ Anti-duplicado: si ya hay un vecino con este teléfono dentro de la
-    // misma comunidad, avisar en vez de crear un segundo registro silencioso.
-    if (telefono && telefono.trim()) {
-      const dupVecino = await db.collection(`clientes/${clienteId}/vecinos`)
-        .where('telefono', '==', telefono.trim())
-        .limit(1)
-        .get();
-      if (!dupVecino.empty) {
-        throw new functions.https.HttpsError(
-          'already-exists',
-          `Ya existe un vecino con el teléfono ${telefono} en esta comunidad (uid: ${dupVecino.docs[0].id}).`
-        );
-      }
-    }
-
     console.log(`🚀 [crearVecinoAdmin] Creando usuario vecino: ${email} para cliente: ${clienteId}`);
     // 1️⃣ Crear usuario en Firebase Auth
     let userVecino;
@@ -470,17 +454,10 @@ exports.crearVecinoAdmin = functions.https.onCall(async (data, context) => {
  * a esta función (el front hace signInWithPhoneNumber + confirm(codigo), y
  * recién ahí llama a esta callable ya autenticado como ese usuario).
  *
- * Elige un barrio: si ya existe (otro vecino ya lo creó, o es un cliente
- * pago con barrio_slug asignado) se suma a esa comunidad; si no existe, la
- * crea como "comunidad en prueba" (plan: 'prueba', vence en 3 meses).
- *
- * 🛡️ IMPORTANTE (fix): si la comunidad encontrada tiene un plan PAGO
- * (no 'prueba'), el vecino se registra igual (autoservicio: carga sus
- * datos sin depender de que el admin le cree la cuenta a mano), pero
- * queda habilitado:false, pendiente_activacion:true — el admin del barrio
- * pago sigue siendo quien lo activa al confirmar el pago del abono, igual
- * que con los vecinos que carga manualmente. Solo las comunidades en
- * modo 'prueba' habilitan automático y gratis por 3 meses.
+ * Elige un barrio: si ya existe (otro vecino ya lo creó) se suma a esa
+ * comunidad; si no existe, la crea como "comunidad en prueba" (plan: 'prueba',
+ * vence en 3 meses). Es una función nueva y separada — NO toca
+ * criarClienteAdmin ni sus validaciones de superadmin.
  */
 function normalizarSlugBarrio(texto) {
   return (texto || '')
@@ -539,7 +516,6 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
     // 2️⃣ Buscar si la comunidad (barrio) ya existe; si no, crearla en prueba.
     let clienteId;
     let esNuevaComunidad = false;
-    let planComunidad = 'prueba'; // si es nueva, siempre nace en modo prueba
 
     const barrioSnap = await db.collection('clientes')
       .where('barrio_slug', '==', barrioSlug)
@@ -548,8 +524,7 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
 
     if (!barrioSnap.empty) {
       clienteId = barrioSnap.docs[0].id;
-      planComunidad = barrioSnap.docs[0].data().plan || 'prueba';
-      console.log(`✅ Comunidad existente encontrada: ${clienteId} (plan: ${planComunidad})`);
+      console.log(`✅ Comunidad existente encontrada: ${clienteId}`);
     } else {
       esNuevaComunidad = true;
       clienteId = `${barrioSlug}-${Date.now()}`;
@@ -601,17 +576,11 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
     }
 
     // 4️⃣ Guardar vecino en clientes/{clienteId}/vecinos/{uid} (mismo uid de Auth)
-    // - Comunidad en prueba => se habilita al vecino automáticamente por el
-    //   mes en curso, sin esperar que un admin confirme un pago (todavía no
-    //   hay admin ni cobro en esta etapa). habilitado/habilitado_hasta es el
-    //   mismo mecanismo que usa client-dashboard.js al registrar un pago.
-    // - Comunidad con plan pago => el vecino se crea igual (autoservicio,
-    //   sin depender de que el admin le cree la cuenta a mano) pero
-    //   habilitado:false, pendiente_activacion:true — el admin del barrio
-    //   lo activa cuando confirma que pagó su abono, igual que a los
-    //   vecinos que él mismo carga manualmente desde el panel.
+    // Comunidad en prueba => se habilita al vecino automáticamente por el
+    // mes en curso, sin esperar que un admin confirme un pago (todavía no
+    // hay admin ni cobro en esta etapa). habilitado/habilitado_hasta es el
+    // mismo mecanismo que usa client-dashboard.js al registrar un pago.
     const mesActual = new Date().toISOString().slice(0, 7); // "2026-07"
-    const esComunidadPaga = planComunidad !== 'prueba';
 
     const dataVecino = {
       uid,
@@ -623,15 +592,14 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
       online: false,
       estado: 'activo',
       autoservicio: true,
-      habilitado: !esComunidadPaga,
-      habilitado_hasta: esComunidadPaga ? null : mesActual,
-      pendiente_activacion: esComunidadPaga,
+      habilitado: true,
+      habilitado_hasta: mesActual,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
       created_at: admin.firestore.FieldValue.serverTimestamp()
     };
 
     await db.collection(`clientes/${clienteId}/vecinos`).doc(uid).set(dataVecino, { merge: true });
-    console.log(`✅ Vecino autoregistrado guardado en clientes/${clienteId}/vecinos:`, uid, esComunidadPaga ? '(pendiente activación admin)' : '(habilitado automático - prueba)');
+    console.log(`✅ Vecino autoregistrado guardado en clientes/${clienteId}/vecinos:`, uid);
 
     // RESPUESTA
     return {
@@ -645,9 +613,7 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
       },
       mensaje: esNuevaComunidad
         ? `Comunidad "${barrioNombre.trim()}" creada en modo prueba. ¡Sos el primer vecino!`
-        : esComunidadPaga
-          ? `Te registraste en "${barrioNombre.trim()}". Un administrador debe activar tu cuenta para habilitar el botón de pánico.`
-          : `Te uniste a la comunidad "${barrioNombre.trim()}"`
+        : `Te uniste a la comunidad "${barrioNombre.trim()}"`
     };
   } catch (error) {
     console.error('❌ Error en registrarVecinoAutoservicio:', error);
@@ -817,6 +783,84 @@ exports.generarAdminComunidad = functions.https.onCall(async (data, context) => 
 });
 
 // ============================================================================
+// FUNCIÓN: PROMOVER COMUNIDAD DE PRUEBA A CLIENTE PAGO (solo superadmin)
+// ============================================================================
+/**
+ * Cambia una comunidad de plan: 'prueba' a un plan pago y le crea su
+ * suscripción inicial (mismo formato que criarClienteAdmin). NO borra ni
+ * toca vecinos/denuncias existentes — sigue siendo el mismo cliente, mismo
+ * clienteId, solo cambia de categoría. El admin (email/contraseña) ya
+ * generado con generarAdminComunidad sigue funcionando igual después.
+ */
+exports.promoverComunidadAPago = functions.https.onCall(async (data, context) => {
+  if (!context.auth || context.auth.token.role !== 'superadmin') {
+    throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede promover una comunidad');
+  }
+
+  const { clienteId, plan } = data || {};
+  const preciosValidos = { basico: 1000, profesional: 5000, enterprise: 15000 };
+  if (!clienteId || !plan || !preciosValidos[plan]) {
+    throw new functions.https.HttpsError('invalid-argument', 'clienteId y un plan válido (basico/profesional/enterprise) son requeridos');
+  }
+
+  const clienteRef = db.collection('clientes').doc(clienteId);
+  const clienteSnap = await clienteRef.get();
+  if (!clienteSnap.exists) {
+    throw new functions.https.HttpsError('not-found', 'Comunidad no encontrada');
+  }
+  const cliente = clienteSnap.data();
+  if (cliente.plan !== 'prueba') {
+    throw new functions.https.HttpsError('failed-precondition', 'Esta comunidad ya no está en modo prueba');
+  }
+
+  const ahora = new Date().toISOString();
+
+  // Cambiar el cliente a plan pago. Dejamos es_autoservicio: true como
+  // registro histórico de cómo se originó (no afecta nada funcionalmente).
+  await clienteRef.set({
+    plan,
+    trial_hasta: admin.firestore.FieldValue.delete(),
+    trial_pendiente_decision: admin.firestore.FieldValue.delete(),
+    trial_vencida: admin.firestore.FieldValue.delete(),
+    promovido_a_pago_en: ahora,
+    updated_at: ahora
+  }, { merge: true });
+
+  // Suscripción inicial (mismo formato que criarClienteAdmin)
+  const subscripcionId = `sub_${Date.now()}`;
+  const vencimiento = new Date();
+  vencimiento.setFullYear(vencimiento.getFullYear() + 1);
+
+  const datosSubscripcion = {
+    id: subscripcionId,
+    cliente_id: clienteId,
+    plan,
+    precio_mensual: preciosValidos[plan],
+    precio_anual: preciosValidos[plan] * 12,
+    expiration_date: vencimiento.toISOString(),
+    activa: true,
+    created_at: ahora,
+    updated_at: ahora,
+    renovaciones: 0,
+    cambios_plan: []
+  };
+  await db.collection('subscripciones').doc(subscripcionId).set(datosSubscripcion);
+
+  // Re-habilitar a todos los vecinos ya, sin esperar al ciclo diario
+  const mesActual = ahora.slice(0, 7);
+  const vecinosSnap = await db.collection(`clientes/${clienteId}/vecinos`).get();
+  const batch = db.batch();
+  vecinosSnap.docs.forEach(v => {
+    batch.set(v.ref, { habilitado: true, habilitado_hasta: mesActual }, { merge: true });
+  });
+  if (!vecinosSnap.empty) await batch.commit();
+
+  console.log(`✅ Comunidad ${clienteId} promovida a plan ${plan}`);
+
+  return { success: true, clienteId, plan, subscripcionId };
+});
+
+// ============================================================================
 // FUNCIÓN 1: CREAR CLIENTE (callable - sin CORS)
 // ============================================================================
 /**
@@ -850,26 +894,6 @@ exports.criarClienteAdmin = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('invalid-argument', 'Plan inválido');
     }
 
-    // 🛡️ Validación anti-duplicado: si ya existe un cliente activo con este
-    // mismo barrio (por slug normalizado), no crear otro. Esto evita el caso
-    // de que se cree un cliente pago para un barrio que ya tiene comunidad
-    // (pago o prueba), o viceversa.
-    const barrioSlugNuevo = normalizarSlugBarrio(ciudad || nombreCliente);
-    if (barrioSlugNuevo) {
-      const dupSnap = await db.collection('clientes')
-        .where('barrio_slug', '==', barrioSlugNuevo)
-        .where('estado', '==', 'activo')
-        .limit(1)
-        .get();
-      if (!dupSnap.empty) {
-        const existente = dupSnap.docs[0];
-        throw new functions.https.HttpsError(
-          'already-exists',
-          `Ya existe una comunidad activa para "${ciudad || nombreCliente}" (cliente: ${existente.id}, plan: ${existente.data().plan}). Si querés promoverla a pago, usá esa comunidad en vez de crear una nueva.`
-        );
-      }
-    }
-
     console.log(`🚀 [onCall] Creando cliente: ${nombreCliente}`);
 
     // ✅ NUEVA: Generar contraseña PRIMERO
@@ -897,7 +921,6 @@ exports.criarClienteAdmin = functions.https.onCall(async (data, context) => {
       plan: plan,
       estado: 'activo',
       ciudad: ciudad || '',
-      barrio_slug: barrioSlugNuevo, // 🛡️ para detectar duplicados de comunidad
       telefono: telefono || '',
       password: passwordAdmin, // ✅ NUEVA: Guardar contraseña en el documento
       contraseña: passwordAdmin, // ✅ NUEVA: También con tilde por compatibilidad
