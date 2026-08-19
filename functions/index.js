@@ -731,38 +731,48 @@ exports.mantenerVecinosAutoservicio = functions.pubsub
     const mesActual = ahora.toISOString().slice(0, 7);
     const unaSemanaMs = 7 * 24 * 60 * 60 * 1000;
 
-    const vecinosSnap = await db.collectionGroup('vecinos')
-      .where('autoservicio', '==', true)
-      .where('habilitado', '==', true)
-      .get();
+    // Recorremos cliente por cliente (en vez de collectionGroup) para evitar
+    // depender de un índice especial de "collection group" en Firestore —
+    // con ~11-20 clientes esto es rápido y no requiere configuración extra.
+    const clientesSnap = await db.collection('clientes').get();
+    let totalRevisados = 0;
 
-    console.log(`🔄 [mantenerVecinosAutoservicio] revisando ${vecinosSnap.size} vecinos autoservicio habilitados`);
+    for (const clienteDoc of clientesSnap.docs) {
+      const vecinosSnap = await clienteDoc.ref.collection('vecinos')
+        .where('autoservicio', '==', true)
+        .where('habilitado', '==', true)
+        .get();
 
-    for (const vecinoDoc of vecinosSnap.docs) {
-      const vecino = vecinoDoc.data();
-      if (!vecino.vecino_trial_hasta || vecino.vecino_pendiente_decision) continue;
+      totalRevisados += vecinosSnap.size;
 
-      const trialHasta = new Date(vecino.vecino_trial_hasta);
-      const faltante = trialHasta.getTime() - ahora.getTime();
-      const vencido = faltante <= 0;
-      const porVencer = faltante > 0 && faltante <= unaSemanaMs;
+      for (const vecinoDoc of vecinosSnap.docs) {
+        const vecino = vecinoDoc.data();
+        if (!vecino.vecino_trial_hasta || vecino.vecino_pendiente_decision) continue;
 
-      if (!vencido) {
-        // Sigue dentro del trial: renovar habilitado_hasta para que
-        // vecino-app.js lo siga dejando pasar este mes.
-        if (vecino.habilitado_hasta !== mesActual) {
-          await vecinoDoc.ref.set({ habilitado_hasta: mesActual }, { merge: true });
+        const trialHasta = new Date(vecino.vecino_trial_hasta);
+        const faltante = trialHasta.getTime() - ahora.getTime();
+        const vencido = faltante <= 0;
+        const porVencer = faltante > 0 && faltante <= unaSemanaMs;
+
+        if (!vencido) {
+          // Sigue dentro del trial: renovar habilitado_hasta para que
+          // vecino-app.js lo siga dejando pasar este mes.
+          if (vecino.habilitado_hasta !== mesActual) {
+            await vecinoDoc.ref.set({ habilitado_hasta: mesActual }, { merge: true });
+          }
+        }
+
+        if (vencido || porVencer) {
+          await vecinoDoc.ref.set({
+            vecino_pendiente_decision: true,
+            vecino_trial_vencido: vencido
+          }, { merge: true });
+          console.log(`⏰ Vecino ${vecinoDoc.id} (${clienteDoc.id}) pendiente de decisión (vencido: ${vencido})`);
         }
       }
-
-      if (vencido || porVencer) {
-        await vecinoDoc.ref.set({
-          vecino_pendiente_decision: true,
-          vecino_trial_vencido: vencido
-        }, { merge: true });
-        console.log(`⏰ Vecino ${vecinoDoc.id} (${vecinoDoc.ref.parent.parent.id}) pendiente de decisión (vencido: ${vencido})`);
-      }
     }
+
+    console.log(`🔄 [mantenerVecinosAutoservicio] revisados ${totalRevisados} vecinos autoservicio habilitados en ${clientesSnap.size} clientes`);
 
     return null;
   });
@@ -1121,10 +1131,6 @@ exports.backfillTrialVecinosAutoservicio = functions.https.onCall(async (data, c
     throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede ejecutar el backfill');
   }
 
-  const vecinosSnap = await db.collectionGroup('vecinos')
-    .where('autoservicio', '==', true)
-    .get();
-
   const trialHasta = new Date();
   trialHasta.setMonth(trialHasta.getMonth() + 3);
   const mesActual = new Date().toISOString().slice(0, 7);
@@ -1132,19 +1138,29 @@ exports.backfillTrialVecinosAutoservicio = functions.https.onCall(async (data, c
   const actualizados = [];
   const omitidos = [];
 
-  for (const doc of vecinosSnap.docs) {
-    const vecino = doc.data();
-    if (vecino.vecino_trial_hasta) {
-      omitidos.push({ id: doc.id, motivo: 'ya tiene vecino_trial_hasta' });
-      continue;
+  // Recorremos cliente por cliente (en vez de collectionGroup) para evitar
+  // depender de un índice especial de "collection group" en Firestore.
+  const clientesSnap = await db.collection('clientes').get();
+
+  for (const clienteDoc of clientesSnap.docs) {
+    const vecinosSnap = await clienteDoc.ref.collection('vecinos')
+      .where('autoservicio', '==', true)
+      .get();
+
+    for (const doc of vecinosSnap.docs) {
+      const vecino = doc.data();
+      if (vecino.vecino_trial_hasta) {
+        omitidos.push({ id: doc.id, clienteId: clienteDoc.id, motivo: 'ya tiene vecino_trial_hasta' });
+        continue;
+      }
+      await doc.ref.set({
+        vecino_trial_hasta: trialHasta.toISOString(),
+        vecino_pendiente_decision: false,
+        habilitado_hasta: vecino.habilitado ? mesActual : (vecino.habilitado_hasta || null)
+      }, { merge: true });
+      actualizados.push({ id: doc.id, clienteId: clienteDoc.id, vecino_trial_hasta: trialHasta.toISOString() });
+      console.log(`✅ [backfillTrialVecinosAutoservicio] ${clienteDoc.id}/${doc.id} -> trial hasta ${trialHasta.toISOString()}`);
     }
-    await doc.ref.set({
-      vecino_trial_hasta: trialHasta.toISOString(),
-      vecino_pendiente_decision: false,
-      habilitado_hasta: vecino.habilitado ? mesActual : (vecino.habilitado_hasta || null)
-    }, { merge: true });
-    actualizados.push({ id: doc.id, clienteId: doc.ref.parent.parent.id, vecino_trial_hasta: trialHasta.toISOString() });
-    console.log(`✅ [backfillTrialVecinosAutoservicio] ${doc.ref.parent.parent.id}/${doc.id} -> trial hasta ${trialHasta.toISOString()}`);
   }
 
   return { success: true, actualizados, omitidos };
