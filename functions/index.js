@@ -1181,7 +1181,57 @@ exports.backfillTrialVecinosAutoservicio = functions.https.onCall(async (data, c
   return { success: true, actualizados, omitidos };
 });
 
+// ============================================================================
+// FUNCIÓN: BACKFILL VECINOS MANUALES SIN HABILITAR (corrige el bug del
+// 2026-08-19: crearVecinoAdmin no seteaba habilitado/habilitado_hasta, y
+// client-dashboard.js los pisaba a false después de creados)
+// ============================================================================
+/**
+ * A diferencia de backfillTrialVecinosAutoservicio (que solo mira vecinos
+ * con autoservicio:true), esta recorre TODOS los vecinos de TODOS los
+ * clientes y corrige cualquiera que le falte habilitado===true o
+ * habilitado_hasta===mesActual — sea que nunca los haya tenido (creados con
+ * el bug de crearVecinoAdmin) o que estén simplemente vencidos de un mes
+ * anterior. No toca a los que ya están bien habilitados para este mes.
+ */
+exports.backfillVecinosManualesSinHabilitar = functions.https.onCall(async (data, context) => {
+  if (!context.auth || context.auth.token.role !== 'superadmin') {
+    throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede ejecutar el backfill');
+  }
 
+  const trialHasta = new Date();
+  trialHasta.setMonth(trialHasta.getMonth() + 3);
+  const mesActual = new Date().toISOString().slice(0, 7);
+
+  const actualizados = [];
+  const clientesSnap = await db.collection('clientes').get();
+
+  for (const clienteDoc of clientesSnap.docs) {
+    const vecinosSnap = await clienteDoc.ref.collection('vecinos').get();
+
+    for (const doc of vecinosSnap.docs) {
+      const vecino = doc.data();
+      const yaHabilitado = vecino.habilitado === true && vecino.habilitado_hasta === mesActual;
+      if (yaHabilitado) continue;
+
+      const patch = {
+        autoservicio: true, // uniforma a todos para que entren en los crons existentes (mantenerVecinosAutoservicio, etc.)
+        habilitado: true,
+        habilitado_hasta: mesActual,
+        vecino_pendiente_decision: false
+      };
+      if (!vecino.vecino_trial_hasta) {
+        patch.vecino_trial_hasta = trialHasta.toISOString();
+      }
+
+      await doc.ref.set(patch, { merge: true });
+      actualizados.push({ id: doc.id, clienteId: clienteDoc.id, nombre: vecino.nombre || vecino.displayName || '' });
+      console.log(`✅ [backfillVecinosManualesSinHabilitar] ${clienteDoc.id}/${doc.id} (${vecino.nombre || vecino.displayName || ''}) -> habilitado hasta ${mesActual}`);
+    }
+  }
+
+  return { success: true, total: actualizados.length, actualizados };
+});
 
 // ============================================================================
 // FUNCIÓN 1: CREAR CLIENTE (callable - sin CORS)
