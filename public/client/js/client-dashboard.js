@@ -275,19 +275,11 @@ class ClientDashboard {
           clienteId: clienteId
         });
         console.log(`✅ Vecino creado exitosamente:`, resultado.data);
-        // Inicializar campos de suscripción (arranca BLOQUEADO hasta primer pago)
-        try {
-          const uid = resultado.data && resultado.data.vecino && resultado.data.vecino.uid;
-          if (uid) {
-            await firebase.firestore().collection(`clientes/${clienteId}/vecinos`).doc(uid).set({
-              habilitado: false,
-              habilitado_hasta: '',
-              monto: 15000
-            }, { merge: true });
-          }
-        } catch (subErr) {
-          console.warn('⚠️ No se pudieron inicializar campos de suscripción:', subErr);
-        }
+        // NOTA: crearVecinoAdmin ya deja al vecino habilitado con 3 meses
+        // gratis (mismo trial que registrarVecinoAutoservicio) — antes este
+        // bloque pisaba eso con habilitado:false/habilitado_hasta:'' para
+        // forzar bloqueo hasta el primer pago. Se sacó a propósito para que
+        // el alta manual se comporte igual que el autoservicio.
       } catch (e) {
         console.error('❌ Error creando usuario vecino:', e);
         alert('Error creando vecino: ' + (e.message || e));
