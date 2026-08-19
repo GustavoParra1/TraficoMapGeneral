@@ -408,6 +408,16 @@ exports.crearVecinoAdmin = functions.https.onCall(async (data, context) => {
       console.warn(`⚠️ Error asignando claims: ${claimsError.message}`);
     }
     // 3️⃣ Guardar en Firestore (estructura anidada: clientes/{clienteId}/vecinos/)
+    // Mismo trial de 3 meses gratis que registrarVecinoAutoservicio: se marca
+    // autoservicio:true para que entre en el cron mantenerVecinosAutoservicio
+    // (que le renueva habilitado_hasta mes a mes) y en mantenerComunidadesPrueba,
+    // aunque el alta la haya hecho el admin y no el vecino por SMS. Sin esto,
+    // vecino-app.js lo bloquea siempre: exige habilitado===true Y
+    // habilitado_hasta === mes en curso, y crearVecinoAdmin nunca los seteaba.
+    const trialVecinoAdmin = new Date();
+    trialVecinoAdmin.setMonth(trialVecinoAdmin.getMonth() + 3);
+    const mesActualVecinoAdmin = new Date().toISOString().slice(0, 7); // "2026-08"
+
     const dataVecino = {
       uid: userVecino.uid,
       email: email,
@@ -419,6 +429,11 @@ exports.crearVecinoAdmin = functions.https.onCall(async (data, context) => {
       password: password,
       online: false,
       estado: 'activo',
+      autoservicio: true,
+      habilitado: true,
+      habilitado_hasta: mesActualVecinoAdmin,
+      vecino_trial_hasta: trialVecinoAdmin.toISOString(),
+      vecino_pendiente_decision: false,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
       created_at: admin.firestore.FieldValue.serverTimestamp()
     };
