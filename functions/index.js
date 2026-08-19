@@ -582,8 +582,16 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
     // se le vence, la función programada mantenerVecinosAutoservicio lo
     // marca como pendiente para que el admin de ESE barrio decida:
     // extenderlo gratis (extenderVecinoAutoservicio) o pedirle que pague.
+    // IMPORTANTE: vecino-app.js (el frontend que usa el vecino en el celular)
+    // exige DOS condiciones para dejarlo pasar: habilitado === true Y
+    // habilitado_hasta === mes en curso (formato "2026-08"). Por eso acá
+    // seguimos escribiendo habilitado_hasta como siempre, ADEMÁS del nuevo
+    // vecino_trial_hasta (que es la fecha real de vencimiento del trial de
+    // 3 meses). mantenerVecinosAutoservicio se encarga de renovar
+    // habilitado_hasta mes a mes mientras el vecino siga dentro de su trial.
     const trialVecino = new Date();
     trialVecino.setMonth(trialVecino.getMonth() + 3);
+    const mesActualVecino = new Date().toISOString().slice(0, 7); // "2026-08"
 
     const dataVecino = {
       uid,
@@ -596,6 +604,7 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
       estado: 'activo',
       autoservicio: true,
       habilitado: true,
+      habilitado_hasta: mesActualVecino,
       vecino_registrado_en: new Date().toISOString(),
       vecino_trial_hasta: trialVecino.toISOString(),
       vecino_pendiente_decision: false,
@@ -702,15 +711,24 @@ exports.mantenerComunidadesPrueba = functions.pubsub
  * A diferencia de mantenerComunidadesPrueba (que mira el plan de la
  * COMUNIDAD), esta revisa el vencimiento individual de CADA vecino
  * autoservicio, en TODAS las comunidades (pagas o no) — porque los 3 meses
- * gratis son por vecino, no por barrio. Cuando a un vecino le queda una
- * semana o menos, o ya venció, lo marca vecino_pendiente_decision:true para
- * que el admin de ESE cliente lo vea en su panel y decida (extenderlo con
- * extenderVecinoAutoservicio, o dejar que se desactive).
+ * gratis son por vecino, no por barrio.
+ *
+ * Todos los días:
+ * 1) A los vecinos que TODAVÍA no vencieron su trial, les renueva
+ *    habilitado_hasta al mes en curso — vecino-app.js exige ese campo
+ *    exacto (formato "2026-08") además de habilitado:true para dejarlos
+ *    pasar, así que sin esta renovación se bloquearían solos cada mes
+ *    nuevo aunque su trial siga vigente.
+ * 2) A los que les queda una semana o menos, o ya vencieron, los marca
+ *    vecino_pendiente_decision:true para que el admin de ESE cliente lo
+ *    vea en su panel y decida (extenderlo con extenderVecinoAutoservicio,
+ *    o dejar que se desactive).
  */
 exports.mantenerVecinosAutoservicio = functions.pubsub
   .schedule('every 24 hours')
   .onRun(async (context) => {
     const ahora = new Date();
+    const mesActual = ahora.toISOString().slice(0, 7);
     const unaSemanaMs = 7 * 24 * 60 * 60 * 1000;
 
     const vecinosSnap = await db.collectionGroup('vecinos')
@@ -728,6 +746,14 @@ exports.mantenerVecinosAutoservicio = functions.pubsub
       const faltante = trialHasta.getTime() - ahora.getTime();
       const vencido = faltante <= 0;
       const porVencer = faltante > 0 && faltante <= unaSemanaMs;
+
+      if (!vencido) {
+        // Sigue dentro del trial: renovar habilitado_hasta para que
+        // vecino-app.js lo siga dejando pasar este mes.
+        if (vecino.habilitado_hasta !== mesActual) {
+          await vecinoDoc.ref.set({ habilitado_hasta: mesActual }, { merge: true });
+        }
+      }
 
       if (vencido || porVencer) {
         await vecinoDoc.ref.set({
@@ -780,8 +806,10 @@ exports.extenderVecinoAutoservicio = functions.https.onCall(async (data, context
   if (accion === 'extender') {
     const base = new Date();
     base.setMonth(base.getMonth() + Number(meses));
+    const mesActualExtender = new Date().toISOString().slice(0, 7);
     await vecinoRef.set({
       habilitado: true,
+      habilitado_hasta: mesActualExtender, // vecino-app.js exige este campo === mes en curso
       vecino_trial_hasta: base.toISOString(),
       vecino_pendiente_decision: false,
       vecino_trial_vencido: false
@@ -1074,6 +1102,52 @@ exports.migrarComunidadDuplicada = functions.https.onCall(async (data, context) 
   console.log(`✅ [migrarComunidadDuplicada] ${clienteIdOrigen} -> ${clienteIdDestino}:`, resultado);
 
   return { success: true, ...resultado };
+});
+
+// ============================================================================
+// FUNCIÓN: BACKFILL vecino_trial_hasta EN VECINOS AUTOSERVICIO VIEJOS (solo superadmin)
+// ============================================================================
+/**
+ * Uso único: vecinos que se autoregistraron ANTES de que
+ * registrarVecinoAutoservicio empezara a guardar vecino_trial_hasta (todos
+ * los que ya existían, como Gustavo) no tienen ese campo, así que
+ * mantenerVecinosAutoservicio los salta y quedan habilitados para siempre
+ * sin que nadie les gestione el trial. Este backfill les asigna 3 meses
+ * desde HOY (no desde su fecha real de registro, que ya no tenemos forma
+ * de saber si corresponde cobrarles) para que entren en el circuito normal.
+ */
+exports.backfillTrialVecinosAutoservicio = functions.https.onCall(async (data, context) => {
+  if (!context.auth || context.auth.token.role !== 'superadmin') {
+    throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede ejecutar el backfill');
+  }
+
+  const vecinosSnap = await db.collectionGroup('vecinos')
+    .where('autoservicio', '==', true)
+    .get();
+
+  const trialHasta = new Date();
+  trialHasta.setMonth(trialHasta.getMonth() + 3);
+  const mesActual = new Date().toISOString().slice(0, 7);
+
+  const actualizados = [];
+  const omitidos = [];
+
+  for (const doc of vecinosSnap.docs) {
+    const vecino = doc.data();
+    if (vecino.vecino_trial_hasta) {
+      omitidos.push({ id: doc.id, motivo: 'ya tiene vecino_trial_hasta' });
+      continue;
+    }
+    await doc.ref.set({
+      vecino_trial_hasta: trialHasta.toISOString(),
+      vecino_pendiente_decision: false,
+      habilitado_hasta: vecino.habilitado ? mesActual : (vecino.habilitado_hasta || null)
+    }, { merge: true });
+    actualizados.push({ id: doc.id, clienteId: doc.ref.parent.parent.id, vecino_trial_hasta: trialHasta.toISOString() });
+    console.log(`✅ [backfillTrialVecinosAutoservicio] ${doc.ref.parent.parent.id}/${doc.id} -> trial hasta ${trialHasta.toISOString()}`);
+  }
+
+  return { success: true, actualizados, omitidos };
 });
 
 
