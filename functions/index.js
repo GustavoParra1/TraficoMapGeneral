@@ -576,11 +576,14 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
     }
 
     // 4️⃣ Guardar vecino en clientes/{clienteId}/vecinos/{uid} (mismo uid de Auth)
-    // Comunidad en prueba => se habilita al vecino automáticamente por el
-    // mes en curso, sin esperar que un admin confirme un pago (todavía no
-    // hay admin ni cobro en esta etapa). habilitado/habilitado_hasta es el
-    // mismo mecanismo que usa client-dashboard.js al registrar un pago.
-    const mesActual = new Date().toISOString().slice(0, 7); // "2026-07"
+    // SIEMPRE queda habilitado automático con 3 meses gratis, sin importar
+    // si la comunidad ya es cliente pago o no — el plazo es POR VECINO
+    // (vecino_trial_hasta), no por comunidad ni por mes calendario. Cuando
+    // se le vence, la función programada mantenerVecinosAutoservicio lo
+    // marca como pendiente para que el admin de ESE barrio decida:
+    // extenderlo gratis (extenderVecinoAutoservicio) o pedirle que pague.
+    const trialVecino = new Date();
+    trialVecino.setMonth(trialVecino.getMonth() + 3);
 
     const dataVecino = {
       uid,
@@ -593,13 +596,15 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
       estado: 'activo',
       autoservicio: true,
       habilitado: true,
-      habilitado_hasta: mesActual,
+      vecino_registrado_en: new Date().toISOString(),
+      vecino_trial_hasta: trialVecino.toISOString(),
+      vecino_pendiente_decision: false,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
       created_at: admin.firestore.FieldValue.serverTimestamp()
     };
 
     await db.collection(`clientes/${clienteId}/vecinos`).doc(uid).set(dataVecino, { merge: true });
-    console.log(`✅ Vecino autoregistrado guardado en clientes/${clienteId}/vecinos:`, uid);
+    console.log(`✅ Vecino autoregistrado guardado en clientes/${clienteId}/vecinos:`, uid, `(trial hasta ${trialVecino.toISOString()})`);
 
     // RESPUESTA
     return {
@@ -612,8 +617,8 @@ exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, contex
         coleccion: `clientes/${clienteId}/vecinos`
       },
       mensaje: esNuevaComunidad
-        ? `Comunidad "${barrioNombre.trim()}" creada en modo prueba. ¡Sos el primer vecino!`
-        : `Te uniste a la comunidad "${barrioNombre.trim()}"`
+        ? `Comunidad "${barrioNombre.trim()}" creada. ¡Sos el primer vecino! Tenés 3 meses gratis.`
+        : `Te uniste a la comunidad "${barrioNombre.trim()}". Tenés 3 meses gratis.`
     };
   } catch (error) {
     console.error('❌ Error en registrarVecinoAutoservicio:', error);
@@ -689,6 +694,110 @@ exports.mantenerComunidadesPrueba = functions.pubsub
 
     return null;
   });
+
+// ============================================================================
+// FUNCIÓN PROGRAMADA: mantener vecinos autoservicio (corre 1 vez por día)
+// ============================================================================
+/**
+ * A diferencia de mantenerComunidadesPrueba (que mira el plan de la
+ * COMUNIDAD), esta revisa el vencimiento individual de CADA vecino
+ * autoservicio, en TODAS las comunidades (pagas o no) — porque los 3 meses
+ * gratis son por vecino, no por barrio. Cuando a un vecino le queda una
+ * semana o menos, o ya venció, lo marca vecino_pendiente_decision:true para
+ * que el admin de ESE cliente lo vea en su panel y decida (extenderlo con
+ * extenderVecinoAutoservicio, o dejar que se desactive).
+ */
+exports.mantenerVecinosAutoservicio = functions.pubsub
+  .schedule('every 24 hours')
+  .onRun(async (context) => {
+    const ahora = new Date();
+    const unaSemanaMs = 7 * 24 * 60 * 60 * 1000;
+
+    const vecinosSnap = await db.collectionGroup('vecinos')
+      .where('autoservicio', '==', true)
+      .where('habilitado', '==', true)
+      .get();
+
+    console.log(`🔄 [mantenerVecinosAutoservicio] revisando ${vecinosSnap.size} vecinos autoservicio habilitados`);
+
+    for (const vecinoDoc of vecinosSnap.docs) {
+      const vecino = vecinoDoc.data();
+      if (!vecino.vecino_trial_hasta || vecino.vecino_pendiente_decision) continue;
+
+      const trialHasta = new Date(vecino.vecino_trial_hasta);
+      const faltante = trialHasta.getTime() - ahora.getTime();
+      const vencido = faltante <= 0;
+      const porVencer = faltante > 0 && faltante <= unaSemanaMs;
+
+      if (vencido || porVencer) {
+        await vecinoDoc.ref.set({
+          vecino_pendiente_decision: true,
+          vecino_trial_vencido: vencido
+        }, { merge: true });
+        console.log(`⏰ Vecino ${vecinoDoc.id} (${vecinoDoc.ref.parent.parent.id}) pendiente de decisión (vencido: ${vencido})`);
+      }
+    }
+
+    return null;
+  });
+
+// ============================================================================
+// FUNCIÓN: EXTENDER O DESACTIVAR VECINO AUTOSERVICIO (admin del cliente o superadmin)
+// ============================================================================
+/**
+ * El admin del barrio (o el superadmin) decide qué pasa con un vecino cuyo
+ * trial de 3 meses está por vencer o venció: extenderlo gratis N meses más,
+ * o marcarlo para que empiece a pagar (lo que en la práctica hoy significa
+ * deshabilitarlo hasta que el admin confirme el pago, igual que a un vecino
+ * cargado manualmente).
+ */
+exports.extenderVecinoAutoservicio = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'No autenticado');
+  }
+  const role = context.auth.token.role;
+  const clienteIdDelToken = context.auth.token.cliente_id;
+  if (role !== 'admin' && role !== 'superadmin') {
+    throw new functions.https.HttpsError('permission-denied', 'Solo administradores pueden gestionar vecinos');
+  }
+
+  const { clienteId, vecinoUid, accion, meses = 3 } = data || {};
+  if (!clienteId || !vecinoUid || !['extender', 'requerir_pago'].includes(accion)) {
+    throw new functions.https.HttpsError('invalid-argument', 'clienteId, vecinoUid y accion (extender|requerir_pago) son requeridos');
+  }
+
+  // Un admin de barrio solo puede tocar vecinos de SU PROPIO cliente.
+  if (role !== 'superadmin' && clienteId !== clienteIdDelToken) {
+    throw new functions.https.HttpsError('permission-denied', 'No podés gestionar vecinos de otro cliente');
+  }
+
+  const vecinoRef = db.collection(`clientes/${clienteId}/vecinos`).doc(vecinoUid);
+  const vecinoSnap = await vecinoRef.get();
+  if (!vecinoSnap.exists) {
+    throw new functions.https.HttpsError('not-found', 'Vecino no encontrado');
+  }
+
+  if (accion === 'extender') {
+    const base = new Date();
+    base.setMonth(base.getMonth() + Number(meses));
+    await vecinoRef.set({
+      habilitado: true,
+      vecino_trial_hasta: base.toISOString(),
+      vecino_pendiente_decision: false,
+      vecino_trial_vencido: false
+    }, { merge: true });
+    console.log(`✅ Vecino ${vecinoUid} de ${clienteId} extendido ${meses} mes(es) hasta ${base.toISOString()}`);
+    return { success: true, vecinoUid, vecino_trial_hasta: base.toISOString() };
+  } else {
+    await vecinoRef.set({
+      habilitado: false,
+      vecino_pendiente_decision: false,
+      pendiente_activacion: true // mismo flag que usa el flujo de carga manual/pago
+    }, { merge: true });
+    console.log(`✅ Vecino ${vecinoUid} de ${clienteId} marcado para requerir pago`);
+    return { success: true, vecinoUid, habilitado: false };
+  }
+});
 
 // ============================================================================
 // FUNCIÓN: EXTENDER PRUEBA DE UNA COMUNIDAD (solo superadmin)
@@ -815,6 +924,7 @@ exports.promoverComunidadAPago = functions.https.onCall(async (data, context) =>
 
   const ahora = new Date().toISOString();
 
+
   // Cambiar el cliente a plan pago. Dejamos es_autoservicio: true como
   // registro histórico de cómo se originó (no afecta nada funcionalmente).
   await clienteRef.set({
@@ -859,6 +969,114 @@ exports.promoverComunidadAPago = functions.https.onCall(async (data, context) =>
 
   return { success: true, clienteId, plan, subscripcionId };
 });
+
+  // ============================================================================
+// FUNCIÓN: BACKFILL barrio_slug EN CLIENTES EXISTENTES (solo superadmin)
+// ============================================================================
+/**
+ * Función de uso único (o repetible sin riesgo) para clientes creados ANTES
+ * de que criarClienteAdmin empezara a guardar barrio_slug. Sin este campo,
+ * registrarVecinoAutoservicio no puede detectar que el barrio ya tiene una
+ * comunidad paga, y termina creando una comunidad de prueba duplicada.
+ * Recorre todos los clientes con plan pago (no 'prueba') que no tengan
+ * barrio_slug, lo calcula desde 'ciudad' (o 'nombre' si ciudad está vacío),
+ * y lo guarda. No toca clientes que ya tienen barrio_slug.
+ */
+exports.backfillBarrioSlug = functions.https.onCall(async (data, context) => {
+  if (!context.auth || context.auth.token.role !== 'superadmin') {
+    throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede ejecutar el backfill');
+  }
+
+  const snap = await db.collection('clientes').get();
+  const actualizados = [];
+  const omitidos = [];
+
+  for (const doc of snap.docs) {
+    const cliente = doc.data();
+
+    // Solo clientes pagos (la lógica de prueba ya crea barrio_slug siempre)
+    if (cliente.plan === 'prueba') {
+      omitidos.push({ id: doc.id, motivo: 'es prueba' });
+      continue;
+    }
+    if (cliente.barrio_slug) {
+      omitidos.push({ id: doc.id, motivo: 'ya tiene barrio_slug' });
+      continue;
+    }
+
+    const base = cliente.ciudad || cliente.nombre || '';
+    const slug = normalizarSlugBarrio(base);
+    if (!slug) {
+      omitidos.push({ id: doc.id, motivo: 'sin ciudad ni nombre para generar slug' });
+      continue;
+    }
+
+    await doc.ref.set({ barrio_slug: slug }, { merge: true });
+    actualizados.push({ id: doc.id, barrio_slug: slug });
+    console.log(`✅ [backfillBarrioSlug] ${doc.id} -> barrio_slug: "${slug}"`);
+  }
+
+  return { success: true, actualizados, omitidos };
+});
+
+// ============================================================================
+// FUNCIÓN: MIGRAR COMUNIDAD DUPLICADA A OTRA (solo superadmin)
+// ============================================================================
+/**
+ * Uso puntual: copia vecinos y denuncias de una comunidad "origen" (ej. la
+ * de prueba duplicada) hacia una comunidad "destino" (ej. la paga real del
+ * mismo barrio), y desactiva la de origen. No borra nada del origen — solo
+ * copia y marca estado:'inactivo', para poder auditar después si hace falta.
+ */
+exports.migrarComunidadDuplicada = functions.https.onCall(async (data, context) => {
+  if (!context.auth || context.auth.token.role !== 'superadmin') {
+    throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede migrar comunidades');
+  }
+
+  const { clienteIdOrigen, clienteIdDestino } = data || {};
+  if (!clienteIdOrigen || !clienteIdDestino) {
+    throw new functions.https.HttpsError('invalid-argument', 'clienteIdOrigen y clienteIdDestino son requeridos');
+  }
+  if (clienteIdOrigen === clienteIdDestino) {
+    throw new functions.https.HttpsError('invalid-argument', 'Origen y destino no pueden ser el mismo cliente');
+  }
+
+  const origenRef = db.collection('clientes').doc(clienteIdOrigen);
+  const destinoRef = db.collection('clientes').doc(clienteIdDestino);
+  const [origenSnap, destinoSnap] = await Promise.all([origenRef.get(), destinoRef.get()]);
+
+  if (!origenSnap.exists) throw new functions.https.HttpsError('not-found', `Origen ${clienteIdOrigen} no existe`);
+  if (!destinoSnap.exists) throw new functions.https.HttpsError('not-found', `Destino ${clienteIdDestino} no existe`);
+
+  const resultado = { vecinosMigrados: [], denunciasMigradas: [] };
+
+  // Migrar vecinos
+  const vecinosSnap = await origenRef.collection('vecinos').get();
+  for (const v of vecinosSnap.docs) {
+    await destinoRef.collection('vecinos').doc(v.id).set(v.data(), { merge: true });
+    resultado.vecinosMigrados.push(v.id);
+  }
+
+  // Migrar denuncias
+  const denunciasSnap = await origenRef.collection('denuncias').get();
+  for (const d of denunciasSnap.docs) {
+    await destinoRef.collection('denuncias').doc(d.id).set(d.data(), { merge: true });
+    resultado.denunciasMigradas.push(d.id);
+  }
+
+  // Desactivar la comunidad de origen (no se borra, queda como historial)
+  await origenRef.set({
+    estado: 'inactivo',
+    migrada_a: clienteIdDestino,
+    migrada_en: new Date().toISOString()
+  }, { merge: true });
+
+  console.log(`✅ [migrarComunidadDuplicada] ${clienteIdOrigen} -> ${clienteIdDestino}:`, resultado);
+
+  return { success: true, ...resultado };
+});
+
+
 
 // ============================================================================
 // FUNCIÓN 1: CREAR CLIENTE (callable - sin CORS)
