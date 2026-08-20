@@ -325,21 +325,48 @@ class ClientDashboard {
     }
 
     // Llama a la Cloud Function extenderVecinoAutoservicio para extender el
-    // trial gratis de un vecino puntual, o marcarlo para que pague.
-    async gestionarVecinoPendiente(vecino, accion) {
+    // trial gratis de un vecino puntual, o marcarlo para que pague. Recibe
+    // el <li> del DOM para actualizarlo en el lugar (mostrar el resultado
+    // unos segundos) en vez de recargar toda la página de golpe.
+    async gestionarVecinoPendiente(vecino, accion, liElement) {
+      const botones = liElement.querySelectorAll('button');
+      botones.forEach(b => (b.disabled = true));
       try {
         const clienteId = this.clientData.id;
         const fn = firebase.functions().httpsCallable('extenderVecinoAutoservicio');
-        await fn({ clienteId, vecinoUid: vecino.uid || vecino._docId, accion, meses: 3 });
+        const resultado = await fn({ clienteId, vecinoUid: vecino.uid || vecino._docId, accion, meses: 3 });
+
         if (accion === 'extender') {
-          alert(`✅ ${vecino.nombre || 'Vecino'} extendido 3 meses gratis más.`);
+          const nuevaFecha = resultado.data && resultado.data.vecino_trial_hasta
+            ? new Date(resultado.data.vecino_trial_hasta).toLocaleDateString('es-AR')
+            : '-';
+          liElement.classList.add('list-group-item-success');
+          liElement.querySelector('.acciones-vecino-pendiente').innerHTML =
+            `<span class="badge bg-success"><i class="bi bi-check-circle"></i> Extendido hasta ${nuevaFecha}</span>`;
         } else {
-          alert(`✅ ${vecino.nombre || 'Vecino'} marcado para requerir pago. Se desactivó hasta que registres su pago.`);
+          liElement.classList.add('list-group-item-danger');
+          liElement.querySelector('.acciones-vecino-pendiente').innerHTML =
+            `<span class="badge bg-danger"><i class="bi bi-x-circle"></i> Pasado a pago — desactivado</span>`;
         }
-        this.showVecinos();
+
+        // Dejamos el resultado visible unos segundos antes de sacarlo de la
+        // lista, así el admin ve confirmado que el cambio se aplicó.
+        setTimeout(() => {
+          liElement.style.transition = 'opacity 0.4s';
+          liElement.style.opacity = '0';
+          setTimeout(() => {
+            liElement.remove();
+            const listaRestante = document.getElementById('listaVecinosPendientes');
+            const card = document.getElementById('cardVecinosPendientes');
+            if (listaRestante && card && listaRestante.children.length === 0) {
+              card.style.display = 'none';
+            }
+          }, 400);
+        }, 2500);
       } catch (e) {
         console.error('❌ Error gestionando vecino pendiente:', e);
         alert('Error: ' + (e.message || e));
+        botones.forEach(b => (b.disabled = false));
       }
     }
     // Abre el modal de registro de pago
@@ -1124,15 +1151,15 @@ class ClientDashboard {
             <b>${v.nombre || 'Sin nombre'}</b> ${vencidoBadge} — trial hasta ${trialHasta}<br>
             <small>${v.direccion || 's/dirección'} — ${v.telefono || 's/tel'}</small>
           </div>
-          <div class="d-flex gap-2">
+          <div class="d-flex gap-2 acciones-vecino-pendiente">
             <button class="btn btn-sm btn-success extender-btn">Extender 3 meses gratis</button>
             <button class="btn btn-sm btn-outline-danger pago-req-btn">Pasar a pago</button>
           </div>
         `;
-        li.querySelector('.extender-btn').onclick = () => this.gestionarVecinoPendiente(v, 'extender');
+        li.querySelector('.extender-btn').onclick = () => this.gestionarVecinoPendiente(v, 'extender', li);
         li.querySelector('.pago-req-btn').onclick = () => {
           if (confirm(`¿Marcar a ${v.nombre || 'este vecino'} para que empiece a pagar? Se desactiva su acceso hasta que registres el pago.`)) {
-            this.gestionarVecinoPendiente(v, 'requerir_pago');
+            this.gestionarVecinoPendiente(v, 'requerir_pago', li);
           }
         };
         lista.appendChild(li);
@@ -1154,11 +1181,14 @@ class ClientDashboard {
             ? '<span class="badge bg-success">✅ Habilitado</span>'
             : '<span class="badge bg-danger">⛔ Vencido</span>';
           const hasta = v.habilitado_hasta ? ` (hasta ${v.habilitado_hasta})` : '';
+          const trialInfo = v.vecino_trial_hasta
+            ? ` · trial gratis hasta ${new Date(v.vecino_trial_hasta).toLocaleDateString('es-AR')}`
+            : '';
           const li = document.createElement('li');
           li.className = 'list-group-item d-flex align-items-center justify-content-between';
           li.innerHTML = `
             <div style="flex:1;">
-              <b>${v.nombre}</b> ${estadoBadge}${hasta} — ${v.direccion || 's/dirección'} — ${v.telefono || 's/tel'}<br>
+              <b>${v.nombre}</b> ${estadoBadge}${hasta}${trialInfo} — ${v.direccion || 's/dirección'} — ${v.telefono || 's/tel'}<br>
               <small><b>Usuario:</b> ${v.usuario} <b>Pass:</b> ${v.password} · <b>Monto:</b> $${v.monto || 15000}</small>
             </div>
             <div class="d-flex gap-2">
