@@ -94,6 +94,49 @@ class ClientMapManager {
         color: '#8B0000',
         label: '🚗 Robo Automotor',
         iconSize: [26, 26]
+      },
+      // Categorías de denuncias vecinales (collection `denuncias`, campo `categoria`)
+      luminarias: {
+        icon: 'https://cdn-icons-png.flaticon.com/512/1519/1519575.png',
+        color: '#FBBF24',
+        label: '💡 Luminarias',
+        iconSize: [26, 26]
+      },
+      baches: {
+        icon: 'https://cdn-icons-png.flaticon.com/512/8815/8815321.png',
+        color: '#78716C',
+        label: '🕳️ Baches',
+        iconSize: [26, 26]
+      },
+      sospechosos: {
+        icon: 'https://cdn-icons-png.flaticon.com/512/1077/1077012.png',
+        color: '#4B5563',
+        label: '👤 Sospechosos',
+        iconSize: [26, 26]
+      },
+      robos: {
+        icon: 'https://cdn-icons-png.flaticon.com/512/2589/2589054.png',
+        color: '#B91C1C',
+        label: '🔓 Robos',
+        iconSize: [26, 26]
+      },
+      choques: {
+        icon: 'https://cdn-icons-png.flaticon.com/512/3596/3596123.png',
+        color: '#EA580C',
+        label: '💥 Choques',
+        iconSize: [26, 26]
+      },
+      panico: {
+        icon: 'https://cdn-icons-png.flaticon.com/512/564/564619.png',
+        color: '#DC2626',
+        label: '🚨 Pánico',
+        iconSize: [34, 34]
+      },
+      denuncia_otro: {
+        icon: 'https://cdn-icons-png.flaticon.com/512/3059/3059518.png',
+        color: '#667eea',
+        label: '📢 Otra denuncia',
+        iconSize: [26, 26]
       }
     };
     return styles[type] || {
@@ -154,7 +197,9 @@ class ClientMapManager {
       barrios: L.featureGroup(),
       flujo: L.featureGroup(),
       robo: L.featureGroup(),
-      colectivos: L.featureGroup()
+      colectivos: L.featureGroup(),
+      denuncias: L.featureGroup(),
+      panico: L.featureGroup()
     };
 
     // Agregar todas las capas al mapa por defecto
@@ -197,6 +242,7 @@ class ClientMapManager {
       await this.loadGeoJSON('corredores', 'corredores_escolares');
       await this.loadMarkers('flujo', 'flujo');
       await this.loadColectivos();
+      await this.loadDenuncias();
 
       console.log('✅ Todos los datos cargados');
       console.log('📊 Bounds actual:', this.bounds);
@@ -322,6 +368,78 @@ class ClientMapManager {
       console.log(`${action} ${count} siniestros cargados`);
     } catch (error) {
       console.error('❌ Error cargando siniestros:', error);
+    }
+  }
+
+  // Cargar denuncias vecinales (mismas que ve el panel de /denuncias/) —
+  // categorías (luminarias, baches, sospechosos, robos, choques, etc.) van
+  // a la capa "denuncias"; las de categoria === 'panico' (botón de pánico)
+  // van a la capa separada "panico" para poder togglearlas aparte, ya que
+  // son las más urgentes. Cada popup tiene un link directo al panel de
+  // denuncias, que ya soporta saltar y resaltar la denuncia por su ID
+  // (#denuncia-ID), incluyendo su chat con el vecino.
+  async loadDenuncias() {
+    try {
+      const colPath = `clientes/${this.clientId}/denuncias`;
+      console.log(`🔄 Cargando denuncias desde: ${colPath}`);
+
+      const ref = firebase.firestore().collection(colPath);
+      const snap = await ref.get();
+
+      let count = 0;
+      let countPanico = 0;
+
+      snap.forEach(doc => {
+        const data = doc.data();
+        if (!data.lat || !data.lng) return;
+
+        const esPanico = data.emergencia === true || data.categoria === 'panico';
+        const panicoActivo = esPanico && data.estado !== 'cerrada';
+        const categoriasConocidas = ['luminarias', 'semaforos', 'baches', 'sospechosos', 'robos', 'choques'];
+        const styleKey = esPanico
+          ? 'panico'
+          : (categoriasConocidas.includes(data.categoria) ? data.categoria : 'denuncia_otro');
+        const style = this.getLayerStyle(styleKey);
+
+        const marker = this.createMarker([data.lat, data.lng], {
+          title: esPanico ? '🚨 Alerta de pánico' : (data.categoria || 'Denuncia'),
+          type: styleKey,
+          icon: style.icon,
+          iconSize: style.iconSize
+        });
+
+        const fecha = this.formatDate(data.timestamp);
+        const foto = data.hasImage && data.imageUrl
+          ? `<img src="${data.imageUrl}" style="max-width:180px;border-radius:6px;margin:6px 0;display:block;" onclick="window.open('${data.imageUrl}','_blank')">`
+          : '';
+        const linkPanel = `../denuncias/?cliente=${this.clientId}#denuncia-${doc.id}`;
+
+        const popupContent = `
+          <div style="max-width: 240px; font-size: 12px;">
+            <strong>${esPanico ? '🚨 EMERGENCIA' : (data.categoria || 'Denuncia')}</strong>
+            ${esPanico && !panicoActivo ? ' <span style="color:#64748b;">(cerrada)</span>' : ''}<br>
+            <span>👤 ${data.vecino || 'Anónimo'}</span><br>
+            ${data.texto ? `<span>${data.texto}</span><br>` : ''}
+            ${foto}
+            <small class="text-muted">${fecha}</small><br>
+            <a href="${linkPanel}" target="_blank" style="display:inline-block;margin-top:6px;color:#667eea;font-weight:600;">Ver en el panel de denuncias →</a>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
+
+        if (esPanico) {
+          marker.addTo(this.layers.panico);
+          countPanico++;
+        } else {
+          marker.addTo(this.layers.denuncias);
+          count++;
+        }
+        this.expandBounds([data.lat, data.lng]);
+      });
+
+      console.log(`${count > 0 ? '✅' : '⚠️'} ${count} denuncias cargadas · ${countPanico > 0 ? '🚨' : '⚠️'} ${countPanico} alertas de pánico`);
+    } catch (error) {
+      console.error('❌ Error cargando denuncias:', error);
     }
   }
 
@@ -565,7 +683,9 @@ class ClientMapManager {
       '📍 Barrios': this.layers.barrios,
       '📊 Flujo Vehicular': this.layers.flujo,
       '🚗 Robo Automotor': this.layers.robo,
-      '🚌 Colectivos': this.layers.colectivos
+      '🚌 Colectivos': this.layers.colectivos,
+      '📢 Denuncias Vecinales': this.layers.denuncias,
+      '🚨 Alertas de Pánico': this.layers.panico
     };
 
     this.layerControl = L.control.layers(null, overlayMaps, {
