@@ -56,6 +56,7 @@ function iniciarMapa() {
       const modules = [
         ['GeoLayers', () => GeoLayers.init(map)],
         ['SiniestrosLayer', () => SiniestrosLayer.init(map)],
+        ['SiniestrosHistoricoLayer', () => typeof SiniestrosHistoricoLayer !== 'undefined' && SiniestrosHistoricoLayer.init(map)],
         ['CamerasLayer', () => CamerasLayer.init(map)],
         ['PrivateCamerasLayer', () => PrivateCamerasLayer.init(map)],
         ['LprLayer', () => typeof LprLayer !== 'undefined' && LprLayer.init(map)],
@@ -66,6 +67,7 @@ function iniciarMapa() {
         ['HeatmapLayer', () => heatmapLayer.init()],
         ['AforosLayer', () => typeof AforosLayer !== 'undefined' && AforosLayer.init(map)],
         ['RoboLayer', () => typeof RoboLayer !== 'undefined' && RoboLayer.init(map)],
+        ['DenunciasHistoricoLayer', () => typeof DenunciasHistoricoLayer !== 'undefined' && DenunciasHistoricoLayer.init(map)],
         ['StreetViewLayer', () => typeof StreetViewLayer !== 'undefined' && StreetViewLayer.init()],
         ['GeoLocator', () => typeof GeoLocator !== 'undefined' && GeoLocator.init(map)]
       ];
@@ -1480,7 +1482,54 @@ auth.onAuthStateChanged((user) => {
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-title">🚓 Patrullas</div>
+        <div class="sidebar-title">� Históricos (Opción B)</div>
+        <div style="font-size: 11px; margin-bottom: 12px; color: #888; font-style: italic;">
+          Registros permanentes: no se pierden si se eliminan de la app
+        </div>
+        
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-bottom: 10px;">
+          <input type="checkbox" id="siniestros-historico-checkbox" style="cursor: pointer; width: 16px; height: 16px;">
+          <span>🚦 Siniestros Históricos (<span id="total-siniestros-historico-count">0</span>)</span>
+        </label>
+
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-bottom: 12px;">
+          <input type="checkbox" id="denuncias-historico-checkbox" style="cursor: pointer; width: 16px; height: 16px;">
+          <span>📋 Denuncias Vecinal Históricas (<span id="total-denuncias-historico-count">0</span>)</span>
+        </label>
+
+        <div id="siniestros-historico-filters" style="display: none; font-size: 12px; padding: 10px; background: #f5f5f5; border-radius: 4px;">
+          <label style="display: block; margin-bottom: 8px;">
+            Año:
+            <select id="siniestros-year-filter" style="width: 100%; padding: 4px;"><option value="all">Todos</option></select>
+          </label>
+          <label style="display: block; margin-bottom: 8px;">
+            Causa:
+            <select id="siniestros-causa-filter" style="width: 100%; padding: 4px;"><option value="all">Todas</option></select>
+          </label>
+        </div>
+
+        <div id="denuncias-historico-filters" style="display: none; font-size: 12px; padding: 10px; background: #f5f5f5; border-radius: 4px;">
+          <label style="display: block; margin-bottom: 8px;">
+            Año:
+            <select id="denuncias-year-filter" style="width: 100%; padding: 4px;"><option value="all">Todos</option></select>
+          </label>
+          <label style="display: block; margin-bottom: 8px;">
+            Categoría:
+            <select id="denuncias-categoria-filter" style="width: 100%; padding: 4px;"><option value="all">Todas</option></select>
+          </label>
+          <label style="display: block; margin-bottom: 8px;">
+            Estado:
+            <select id="denuncias-estado-filter" style="width: 100%; padding: 4px;">
+              <option value="all">Todas</option>
+              <option value="nueva">Nueva</option>
+              <option value="cerrada">Cerrada</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">�🚓 Patrullas</div>
         <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-bottom: 12px;">
           <input type="checkbox" id="patrullas-checkbox" style="cursor: pointer; width: 16px; height: 16px;">
           <span>Mostrar Patrullas</span>
@@ -2766,6 +2815,84 @@ auth.onAuthStateChanged((user) => {
       console.log('✅ Event listener asignado a btnOpenControlCenter');
     } else {
       console.error('❌ NO SE ENCONTRÓ btnOpenControlCenter');
+    }
+    
+    // ==========================================
+    // CAPAS HISTÓRICAS (OPCIÓN B)
+    // ==========================================
+    const siniestrosHistoricoCheckbox = document.getElementById('siniestros-historico-checkbox');
+    const denunciasHistoricoCheckbox = document.getElementById('denuncias-historico-checkbox');
+    const siniestrosHistoricoFilters = document.getElementById('siniestros-historico-filters');
+    const denunciasHistoricoFilters = document.getElementById('denuncias-historico-filters');
+
+    if (siniestrosHistoricoCheckbox) {
+      siniestrosHistoricoCheckbox.addEventListener('change', (e) => {
+        const shouldShow = e.target.checked;
+        if (typeof SiniestrosHistoricoLayer !== 'undefined') {
+          SiniestrosHistoricoLayer.toggle(shouldShow);
+          console.log(`🚦 Siniestros Históricos ${shouldShow ? 'mostrados' : 'ocultados'}`);
+        }
+        if (siniestrosHistoricoFilters) {
+          siniestrosHistoricoFilters.style.display = shouldShow ? 'block' : 'none';
+        }
+      });
+    }
+
+    if (denunciasHistoricoCheckbox) {
+      denunciasHistoricoCheckbox.addEventListener('change', (e) => {
+        const shouldShow = e.target.checked;
+        if (typeof DenunciasHistoricoLayer !== 'undefined') {
+          DenunciasHistoricoLayer.toggle(shouldShow);
+          console.log(`📋 Denuncias Históricas ${shouldShow ? 'mostradas' : 'ocultadas'}`);
+        }
+        if (denunciasHistoricoFilters) {
+          denunciasHistoricoFilters.style.display = shouldShow ? 'block' : 'none';
+        }
+      });
+    }
+
+    // Event listeners para filtros de siniestros históricos
+    const siniestrosYearFilter = document.getElementById('siniestros-year-filter');
+    const siniestrosCausaFilter = document.getElementById('siniestros-causa-filter');
+    if (siniestrosYearFilter) {
+      siniestrosYearFilter.addEventListener('change', () => {
+        if (typeof SiniestrosHistoricoLayer !== 'undefined') {
+          SiniestrosHistoricoLayer.setFilter('year', siniestrosYearFilter.value);
+        }
+      });
+    }
+    if (siniestrosCausaFilter) {
+      siniestrosCausaFilter.addEventListener('change', () => {
+        if (typeof SiniestrosHistoricoLayer !== 'undefined') {
+          SiniestrosHistoricoLayer.setFilter('causa', siniestrosCausaFilter.value);
+        }
+      });
+    }
+
+    // Event listeners para filtros de denuncias históricas
+    const denunciasHistoricoYearFilter = document.getElementById('denuncias-year-filter');
+    const denunciasHistoricoCategoriaFilter = document.getElementById('denuncias-categoria-filter');
+    const denunciasHistoricoEstadoFilter = document.getElementById('denuncias-estado-filter');
+    if (denunciasHistoricoYearFilter) {
+      denunciasHistoricoYearFilter.addEventListener('change', () => {
+        if (typeof DenunciasHistoricoLayer !== 'undefined') {
+          DenunciasHistoricoLayer.setFilter('year', denunciasHistoricoYearFilter.value);
+        }
+      });
+    }
+    if (denunciasHistoricoCategoriaFilter) {
+      denunciasHistoricoCategoriaFilter.addEventListener('change', () => {
+        if (typeof DenunciasHistoricoLayer !== 'undefined') {
+          DenunciasHistoricoLayer.setFilter('categoria', denunciasHistoricoCategoriaFilter.value);
+        }
+      });
+    }
+    if (denunciasHistoricoEstadoFilter) {
+      denunciasHistoricoEstadoFilter.addEventListener('change', () => {
+        if (typeof DenunciasHistoricoLayer !== 'undefined') {
+          DenunciasHistoricoLayer.setFilter('estado', denunciasHistoricoEstadoFilter.value);
+        }
+      });
     }
     
     // ==========================================

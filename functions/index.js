@@ -2553,4 +2553,118 @@ exports.onPanicoCreado = functions.firestore
       return null;
     }
   });
-  
+
+// ============================================================================
+// CLOUD FUNCTIONS: COPIAR DENUNCIAS A HISTÓRICO (Opción B)
+// ============================================================================
+
+/**
+ * Trigger: Se ejecuta cuando se crea una nueva denuncia
+ * Acción: Copia a la colección histórica (denuncias_historico, siniestros_historico, etc)
+ * Propósito: Mantener registro permanente incluso si se elimina de la app
+ */
+exports.onDenunciaCreada = functions.firestore
+  .document('clientes/{clienteId}/denuncias/{denunciaId}')
+  .onCreate(async (snap, context) => {
+    try {
+      const { clienteId, denunciaId } = context.params;
+      const denuncia = snap.data();
+
+      // Preparar documento para archivo histórico
+      const denunciaHistorico = {
+        ...denuncia,
+        // Adicionales para histórico
+        archivoEn: admin.firestore.FieldValue.serverTimestamp(),
+        denunciaId: denunciaId, // Referencia al documento original
+      };
+
+      // Copiar a colección histórica
+      await db
+        .collection(`clientes/${clienteId}/denuncias_historico`)
+        .doc(denunciaId)
+        .set(denunciaHistorico);
+
+      console.log(
+        `✅ Denuncia ${denunciaId} copiada a histórico (clienteId: ${clienteId})`
+      );
+
+      return null;
+    } catch (error) {
+      console.error('❌ Error en onDenunciaCreada:', error);
+      return null;
+    }
+  });
+
+/**
+ * Trigger: Se ejecuta cuando se crea un nuevo siniestro
+ * Acción: Copia a la colección histórica (siniestros_historico)
+ * Propósito: Mantener registro permanente de accidentes viales
+ */
+exports.onSiniestroCreado = functions.firestore
+  .document('clientes/{clienteId}/siniestros/{siniestroId}')
+  .onCreate(async (snap, context) => {
+    try {
+      const { clienteId, siniestroId } = context.params;
+      const siniestro = snap.data();
+
+      // Preparar documento para archivo histórico
+      const siniestroHistorico = {
+        ...siniestro,
+        // Adicionales para histórico
+        archivoEn: admin.firestore.FieldValue.serverTimestamp(),
+        siniestroId: siniestroId, // Referencia al documento original
+      };
+
+      // Copiar a colección histórica
+      await db
+        .collection(`clientes/${clienteId}/siniestros_historico`)
+        .doc(siniestroId)
+        .set(siniestroHistorico);
+
+      console.log(
+        `✅ Siniestro ${siniestroId} copiado a histórico (clienteId: ${clienteId})`
+      );
+
+      return null;
+    } catch (error) {
+      console.error('❌ Error en onSiniestroCreado:', error);
+      return null;
+    }
+  });
+
+/**
+ * Trigger: Se ejecuta cuando se crea un nuevo robo
+ * Acción: Copia a la colección histórica (robos_historico)
+ * Propósito: Mantener registro permanente de delitos contra vehículos
+ */
+exports.onRoboCreado = functions.firestore
+  .document('clientes/{clienteId}/robos/{roboId}')
+  .onCreate(async (snap, context) => {
+    try {
+      const { clienteId, roboId } = context.params;
+      const robo = snap.data();
+
+      // Preparar documento para archivo histórico
+      const roboHistorico = {
+        ...robo,
+        // Adicionales para histórico
+        archivoEn: admin.firestore.FieldValue.serverTimestamp(),
+        roboId: roboId, // Referencia al documento original
+      };
+
+      // Copiar a colección histórica
+      await db
+        .collection(`clientes/${clienteId}/robos_historico`)
+        .doc(roboId)
+        .set(roboHistorico);
+
+      console.log(
+        `✅ Robo ${roboId} copiado a histórico (clienteId: ${clienteId})`
+      );
+
+      return null;
+    } catch (error) {
+      console.error('❌ Error en onRoboCreado:', error);
+      return null;
+    }
+  });

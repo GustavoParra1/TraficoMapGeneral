@@ -16,6 +16,12 @@ const VAPID_KEY = 'BLVqLV44MjFG0JbNIt5wvP6mTD-_SIrKy3fXSiubSGT7pXWvauVA6soiDcPbG
 const RADIO_ALERTA_METROS = 300;
 
 // ========================================
+// CATEGORÍAS JERÁRQUICAS
+// ========================================
+let selectedMainCategory = null;
+let selectedSubcategory = null;
+
+// ========================================
 // SISTEMA DE DEBUG/LOGGING
 // ========================================
 let debugLogs = [];
@@ -38,6 +44,113 @@ function addLog(msg, type = 'info') {
       panel.removeChild(panel.lastChild);
     }
   }
+}
+
+// ========================================
+// GESTIÓN DE CATEGORÍAS JERÁRQUICAS
+// ========================================
+
+/**
+ * Renderizar botones de categorías principales
+ */
+function renderMainCategories() {
+  const container = document.getElementById('main-categories-container');
+  if (!container) {
+    console.warn('⚠️ main-categories-container no encontrado');
+    return;
+  }
+  
+  container.innerHTML = '';
+  const mainCategories = getMainCategories();
+  
+  mainCategories.forEach(catKey => {
+    const info = getCategoryInfo(catKey);
+    const btn = document.createElement('button');
+    btn.className = 'category-btn main-category-btn';
+    btn.innerHTML = `<span class="cat-icon">${info.icon}</span><span class="cat-label">${info.label}</span>`;
+    btn.style.borderColor = info.color;
+    btn.style.color = info.color;
+    btn.onclick = () => selectMainCategory(catKey);
+    
+    if (selectedMainCategory === catKey) {
+      btn.classList.add('active');
+      btn.style.background = info.color;
+      btn.style.color = 'white';
+    }
+    
+    container.appendChild(btn);
+  });
+}
+
+/**
+ * Seleccionar categoría principal y mostrar subcategorías
+ */
+function selectMainCategory(mainCat) {
+  selectedMainCategory = mainCat;
+  selectedSubcategory = null; // Reset subcategory
+  renderMainCategories();
+  renderSubcategories();
+}
+
+/**
+ * Renderizar botones de subcategorías
+ */
+function renderSubcategories() {
+  const container = document.getElementById('sub-categories-container');
+  if (!container) return;
+  
+  if (!selectedMainCategory) {
+    container.innerHTML = '<div class="empty" style="padding: 16px;">Selecciona una categoría principal</div>';
+    return;
+  }
+  
+  container.innerHTML = '';
+  const subcats = getSubcategories(selectedMainCategory);
+  const mainInfo = getCategoryInfo(selectedMainCategory);
+  
+  Object.entries(subcats).forEach(([subKey, subData]) => {
+    const btn = document.createElement('button');
+    btn.className = 'category-btn sub-category-btn';
+    btn.innerHTML = `<span class="cat-icon">${subData.icon}</span><span class="cat-label">${subData.label}</span>`;
+    btn.style.borderColor = mainInfo.color;
+    btn.onclick = () => selectSubcategory(subKey);
+    
+    if (selectedSubcategory === subKey) {
+      btn.classList.add('active');
+      btn.style.background = mainInfo.color;
+      btn.style.color = 'white';
+    }
+    
+    container.appendChild(btn);
+  });
+}
+
+/**
+ * Seleccionar subcategoría
+ */
+function selectSubcategory(subCat) {
+  selectedSubcategory = subCat;
+  renderSubcategories();
+  
+  // Mostrar el botón de envío
+  const submitBtn = document.getElementById('btn-enviar-con-categoria');
+  if (submitBtn) {
+    submitBtn.style.display = 'block';
+  }
+}
+
+/**
+ * Obtener la categoría seleccionada como string legible
+ */
+function getSelectedCategoryDisplay() {
+  if (!selectedMainCategory || !selectedSubcategory) {
+    return '';
+  }
+  
+  const mainInfo = getCategoryInfo(selectedMainCategory);
+  const subInfo = getSubcategoryInfo(selectedMainCategory, selectedSubcategory);
+  
+  return `${mainInfo.icon} ${subInfo.label}`;
 }
 
 // Capturar console logs
@@ -217,6 +330,10 @@ async function initFirebase() {
         return;
       }
 
+      // Inicializar interfaz de categorías jerárquicas
+      renderMainCategories();
+      renderSubcategories();
+
       if (alertaPendienteDeNotificacion) {
         cargarAlertaPendienteRapido(alertaPendienteDeNotificacion); // esconde el overlay al terminar
       } else {
@@ -293,14 +410,38 @@ if (recognition) {
 // ENVIAR DENUNCIA
 // ========================================
 document.getElementById('btn-enviar').addEventListener('click', async () => {
-  const categoria = document.getElementById('categoria').value;
+  // Usar nueva estructura si existe, si no fallback a antigua
+  let categoria, subcategoria;
+  
+  if (selectedMainCategory && selectedSubcategory) {
+    categoria = selectedMainCategory;
+    subcategoria = selectedSubcategory;
+  } else {
+    // Fallback para compatibilidad con interfaz antigua
+    categoria = document.getElementById('categoria')?.value;
+    subcategoria = null;
+  }
+  
   const texto = document.getElementById('texto').value.trim();
   const btn = document.getElementById('btn-enviar');
-  if (!texto && !fotoSeleccionada) { alert('Escribí una descripción o adjuntá una foto'); return; }
-  btn.disabled = true; btn.textContent = 'Enviando...';
+  
+  if (!texto && !fotoSeleccionada) { 
+    alert('Escribí una descripción o adjuntá una foto'); 
+    return; 
+  }
+  
+  if (!categoria) {
+    alert('Selecciona una categoría');
+    return;
+  }
+  
+  btn.disabled = true; 
+  btn.textContent = 'Enviando...';
+  
   try {
     const denuncia = {
       categoria: categoria,
+      subcategoria: subcategoria, // Nuevo campo
       texto: texto,
       vecino: vecinoNombre,
       vecinoEmail: vecinoEmail,
@@ -308,12 +449,14 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
       hasImage: false,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
+    
     // GPS opcional
     try {
       const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 }));
       denuncia.lat = pos.coords.latitude;
       denuncia.lng = pos.coords.longitude;
     } catch (e) { console.warn('Sin GPS'); }
+    
     // Subir foto si hay
     if (fotoSeleccionada) {
       const arr = fotoSeleccionada.split(',');
@@ -329,18 +472,29 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
       denuncia.imagePath = filename;
       denuncia.hasImage = true;
     }
+    
+    // Detectar si es pánico para emergencia
+    if (categoria === 'emergencias' && subcategoria === 'panico') {
+      denuncia.emergencia = true;
+    }
+    
     await db.collection(`clientes/${clienteId}/denuncias`).add(denuncia);
     console.log('✅ Denuncia enviada');
     document.getElementById('texto').value = '';
     fotoSeleccionada = null;
     document.getElementById('foto-preview').innerHTML = '';
+    selectedMainCategory = null;
+    selectedSubcategory = null;
+    renderMainCategories();
+    renderSubcategories();
     alert('✅ Denuncia enviada correctamente');
     cargarMisDenuncias();
   } catch (e) {
     console.error('❌ Error enviando denuncia:', e);
     alert('Error: ' + e.message);
   } finally {
-    btn.disabled = false; btn.textContent = 'Enviar Denuncia';
+    btn.disabled = false; 
+    btn.textContent = 'Enviar Denuncia';
   }
 });
 // ========================================
@@ -359,14 +513,29 @@ function cargarMisDenuncias() {
         const fecha = d.timestamp?.toDate ? d.timestamp.toDate().toLocaleString('es-AR') : '--';
         const div = document.createElement('div');
         div.className = 'card denuncia-item';
+        
+        // Obtener label de categoría
+        let categoryLabel = d.categoria || '';
+        let categoryColor = '#666';
+        if (d.categoria && CATEGORIES_TAXONOMY[d.categoria]) {
+          const catInfo = getCategoryInfo(d.categoria);
+          categoryLabel = catInfo.label;
+          categoryColor = catInfo.color;
+          
+          if (d.subcategoria) {
+            const subInfo = getSubcategoryInfo(d.categoria, d.subcategoria);
+            categoryLabel += ` > ${subInfo.label}`;
+          }
+        }
+        
         div.innerHTML = `
-          <span class="denuncia-cat">${d.categoria || ''}</span>
+          <span class="denuncia-cat" style="background: ${categoryColor}22; color: ${categoryColor}; border-left: 3px solid ${categoryColor}; padding-left: 8px;">${categoryLabel}</span>
           <button onclick="eliminarDenuncia('${d.id}')" title="Eliminar denuncia"
             style="float:right;background:none;border:none;cursor:pointer;font-size:18px;color:#ef4444;">🗑️</button>
           <div class="denuncia-fecha">${fecha}</div>
           ${d.hasImage && d.imageUrl ? `<img src="${d.imageUrl}" style="max-width:100%;border-radius:8px;margin:8px 0;">` : ''}
           <div>${d.texto || ''}</div>
-          ${d.categoria === 'panico' && d.estado !== 'cerrada' ? `
+          ${(d.categoria === 'emergencias' && d.subcategoria === 'panico') || (d.categoria === 'panico' && d.estado !== 'cerrada') ? `
             <button class="btn" style="background:#dc2626;color:#fff;margin-top:8px;padding:8px 14px;width:auto;"
               onclick="cerrarMiAlerta('${d.id}')">🔕 Cerrar alerta</button>
           ` : ''}
