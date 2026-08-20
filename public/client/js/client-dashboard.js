@@ -313,6 +313,35 @@ class ClientDashboard {
       const mesActual = new Date().toISOString().slice(0, 7); // "2026-06"
       return v.habilitado_hasta === mesActual;
     }
+
+    // Trae los vecinos autoservicio marcados vecino_pendiente_decision:true
+    // (los marca la función programada mantenerVecinosAutoservicio cuando a
+    // alguno se le acerca o vence su trial de 3 meses gratis).
+    async cargarVecinosPendientesDecision() {
+      const clientId = this.clientData.id;
+      const ref = firebase.firestore().collection(`clientes/${clientId}/vecinos`);
+      const snap = await ref.where('vecino_pendiente_decision', '==', true).get();
+      return snap.docs.map(doc => ({ ...doc.data(), _docId: doc.id }));
+    }
+
+    // Llama a la Cloud Function extenderVecinoAutoservicio para extender el
+    // trial gratis de un vecino puntual, o marcarlo para que pague.
+    async gestionarVecinoPendiente(vecino, accion) {
+      try {
+        const clienteId = this.clientData.id;
+        const fn = firebase.functions().httpsCallable('extenderVecinoAutoservicio');
+        await fn({ clienteId, vecinoUid: vecino.uid || vecino._docId, accion, meses: 3 });
+        if (accion === 'extender') {
+          alert(`✅ ${vecino.nombre || 'Vecino'} extendido 3 meses gratis más.`);
+        } else {
+          alert(`✅ ${vecino.nombre || 'Vecino'} marcado para requerir pago. Se desactivó hasta que registres su pago.`);
+        }
+        this.showVecinos();
+      } catch (e) {
+        console.error('❌ Error gestionando vecino pendiente:', e);
+        alert('Error: ' + (e.message || e));
+      }
+    }
     // Abre el modal de registro de pago
     abrirModalPago(vecino) {
       const mesActual = new Date().toISOString().slice(0, 7);
@@ -1056,6 +1085,15 @@ class ClientDashboard {
             <span id="vecinoCredenciales" class="d-block"></span>
           </div>
         </div>
+        <div class="card mb-3" id="cardVecinosPendientes" style="display:none;">
+          <div class="card-header bg-warning text-dark">
+            <i class="bi bi-exclamation-triangle"></i> Vecinos por vencer o vencidos (trial gratis de 3 meses)
+          </div>
+          <div class="card-body">
+            <p class="small text-muted mb-3">Estos vecinos se registraron solos (o los cargaste vos) con 3 meses gratis. Elegí si les das más tiempo gratis o si a partir de ahora tienen que pagar el abono.</p>
+            <ul id="listaVecinosPendientes" class="list-group"></ul>
+          </div>
+        </div>
         <div class="card mb-3">
           <div class="card-header bg-info text-white">Vecinos registrados</div>
           <div class="card-body">
@@ -1064,6 +1102,42 @@ class ClientDashboard {
         </div>
       </div>
     `;
+    // Cargar vecinos pendientes de decisión (trial por vencer/vencido)
+    this.cargarVecinosPendientesDecision().then(pendientes => {
+      const card = document.getElementById('cardVecinosPendientes');
+      const lista = document.getElementById('listaVecinosPendientes');
+      if (!pendientes || pendientes.length === 0) {
+        card.style.display = 'none';
+        return;
+      }
+      card.style.display = 'block';
+      lista.innerHTML = '';
+      pendientes.forEach(v => {
+        const vencidoBadge = v.vecino_trial_vencido
+          ? '<span class="badge bg-danger">Trial vencido</span>'
+          : '<span class="badge bg-warning text-dark">Por vencer</span>';
+        const trialHasta = v.vecino_trial_hasta ? new Date(v.vecino_trial_hasta).toLocaleDateString('es-AR') : '-';
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex align-items-center justify-content-between';
+        li.innerHTML = `
+          <div style="flex:1;">
+            <b>${v.nombre || 'Sin nombre'}</b> ${vencidoBadge} — trial hasta ${trialHasta}<br>
+            <small>${v.direccion || 's/dirección'} — ${v.telefono || 's/tel'}</small>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-success extender-btn">Extender 3 meses gratis</button>
+            <button class="btn btn-sm btn-outline-danger pago-req-btn">Pasar a pago</button>
+          </div>
+        `;
+        li.querySelector('.extender-btn').onclick = () => this.gestionarVecinoPendiente(v, 'extender');
+        li.querySelector('.pago-req-btn').onclick = () => {
+          if (confirm(`¿Marcar a ${v.nombre || 'este vecino'} para que empiece a pagar? Se desactiva su acceso hasta que registres el pago.`)) {
+            this.gestionarVecinoPendiente(v, 'requerir_pago');
+          }
+        };
+        lista.appendChild(li);
+      });
+    });
     // Cargar lista de vecinos existentes
     this.cargarVecinosFirestore().then(vecinos => {
       const lista = document.getElementById('listaVecinos');
