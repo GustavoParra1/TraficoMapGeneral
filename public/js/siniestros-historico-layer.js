@@ -467,9 +467,14 @@ window.SiniestrosHistoricoLayer = (() => {
 
   /**
    * Mostrar/ocultar capa
+   * ✅ CAMBIO: Agregada validación de map para evitar errores de null
    */
   function toggle(show) {
     isVisible = show;
+    if (!map) {
+      console.warn('⚠️ SiniestrosHistoricoLayer.toggle(): map no disponible');
+      return;
+    }
     if (show) {
       if (!map.hasLayer(clusterGroup)) {
         map.addLayer(clusterGroup);
