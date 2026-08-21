@@ -104,6 +104,25 @@ service cloud.firestore {
         allow write: if isClienteAdmin(clienteId);
       }
 
+      // 🆕 NUEVO: Histórico permanente de siniestros (Opción B).
+      // Mismo criterio que /siniestros: staff lee, solo admin escribe
+      // (si en el futuro un backfill/Cloud Function escribe acá con el
+      // Admin SDK, esa escritura ignora estas reglas de todas formas).
+      match /siniestros_historico/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+
+      // 🆕 NUEVO: Histórico permanente de denuncias vecinales (Opción B).
+      // Antes esta subcolección no tenía ninguna regla y caía en el
+      // "allow read, write: if false" del final del archivo, por eso
+      // tiraba "Missing or insufficient permissions" al leerla desde
+      // denuncias-historico-layer.js.
+      match /denuncias_historico/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if isClienteAdmin(clienteId);
+      }
+
       // Patrullas: el admin las gestiona; cada patrulla actualiza su propia
       // ubicación en vivo (map.html).
       match /patrullas/{patrullaId} {
@@ -213,5 +232,4 @@ service cloud.firestore {
     }
   }
 }
-
 
