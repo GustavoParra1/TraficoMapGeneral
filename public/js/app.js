@@ -66,6 +66,8 @@ function iniciarMapa() {
   ['HeatmapLayer', () => heatmapLayer.init()],
   ['AforosLayer', () => typeof AforosLayer !== 'undefined' && AforosLayer.init(map)],
   ['RoboLayer', () => typeof RoboLayer !== 'undefined' && RoboLayer.init(map)],
+  ['SiniestrosHistoricoLayer', () => typeof SiniestrosHistoricoLayer !== 'undefined' && SiniestrosHistoricoLayer.init(map)],
+  ['DenunciasHistoricoLayer', () => typeof DenunciasHistoricoLayer !== 'undefined' && DenunciasHistoricoLayer.init(map)],
   ['StreetViewLayer', () => typeof StreetViewLayer !== 'undefined' && StreetViewLayer.init()],
   ['GeoLocator', () => typeof GeoLocator !== 'undefined' && GeoLocator.init(map)]
 ];
