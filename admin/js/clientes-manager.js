@@ -21,14 +21,31 @@ class ClientesManager {
    */
   async init() {
     try {
-      console.log('📋 Inicializando ClientesManager...');
-      await this.loadClientes();
+      console.log('📋 [ClientesManager.init] ========== INICIANDO ==========');
+      
+      console.log('📋 [ClientesManager.init] Paso 1: Cargando clientes...');
+      const loadSuccess = await this.loadClientes();
+      if (loadSuccess) {
+        console.log('✅ [ClientesManager.init] Clientes cargados exitosamente');
+      } else {
+        console.warn('⚠️ [ClientesManager.init] Carga de clientes no exitosa, continuando...');
+      }
+      
+      console.log('📋 [ClientesManager.init] Paso 2: Renderizando tabla...');
       this.renderClientesTable();
+      console.log('✅ [ClientesManager.init] Tabla renderizada exitosamente');
+      
+      console.log('📋 [ClientesManager.init] Paso 3: Adjuntando eventos...');
       this.attachEvents();
-      console.log('✅ ClientesManager iniciado');
+      console.log('✅ [ClientesManager.init] Eventos adjuntados exitosamente');
+      
+      console.log('✅ [ClientesManager.init] ========== INICIALIZACIÓN COMPLETA ==========');
     } catch (error) {
-      console.error('❌ Error iniciando ClientesManager:', error);
-      this.showError('Error al inicializar manager: ' + error.message);
+      console.error('❌ [ClientesManager.init] Error CRÍTICO durante inicialización:', error);
+      console.error('❌ [ClientesManager.init] Error details:', {
+        code: error.code,
+        message: error.message
+      });
     }
   }
 
@@ -37,15 +54,43 @@ class ClientesManager {
    */
   async loadClientes() {
     try {
+      console.log("📥 [ClientesManager] Iniciando carga de clientes...");
+      console.log("📥 [ClientesManager] Intentando: db.collection('clientes').get()");
+      
       const snapshot = await db.collection('clientes').get();
+      
+      console.log(`✅ [ClientesManager] Query exitosa, documentos encontrados: ${snapshot.size}`);
+      
       this.clientesData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+      
       this.applyFilters();
-      console.log(`📊 Cargados ${this.clientesData.length} clientes`);
+      console.log(`📊 [ClientesManager] Cargados ${this.clientesData.length} clientes`);
+      
+      if (this.clientesData.length === 0) {
+        console.warn(`⚠️ [ClientesManager] ADVERTENCIA: No hay clientes en la colección`);
+      } else {
+        this.clientesData.forEach(c => {
+          console.log(`   📌 Cliente: ${c.nombre} (${c.id}) - Estado: ${c.estado}`);
+        });
+      }
+      
+      return true;
     } catch (error) {
-      console.error('Error cargando clientes:', error);
+      console.error('❌ [ClientesManager] Error cargando clientes:', error);
+      console.error('❌ [ClientesManager] Error code:', error.code);
+      console.error('❌ [ClientesManager] Error message:', error.message);
+      
+      if (error.code === 'permission-denied') {
+        console.error('❌🔐 [ClientesManager] ERROR DE PERMISOS (permission-denied)');
+        console.error('   - Las Firestore rules están denegando acceso');
+        console.error('   - Verifica que el usuario tenga role=admin en custom claims');
+      }
+      
+      this.clientesData = [];
+      this.applyFilters();
       throw error;
     }
   }
@@ -55,13 +100,15 @@ class ClientesManager {
    */
   async getCliente(clienteId) {
     try {
+      console.log(`   📥 Leyendo cliente: clientes/${clienteId}`);
       const doc = await db.collection('clientes').doc(clienteId).get();
       if (doc.exists) {
+        console.log(`   ✅ Cliente encontrado:`, doc.data());
         return { id: doc.id, ...doc.data() };
       }
       throw new Error('Cliente no encontrado');
     } catch (error) {
-      console.error('Error obteniendo cliente:', error);
+      console.error('❌ Error obteniendo cliente:', error);
       throw error;
     }
   }
@@ -71,6 +118,7 @@ class ClientesManager {
    */
   async getClienteSuscripcion(clienteId) {
     try {
+      console.log(`   📥 Buscando suscripción de: ${clienteId}`);
       const snapshot = await db.collection('subscripciones')
         .where('cliente_id', '==', clienteId)
         .where('activa', '==', true)
@@ -78,11 +126,13 @@ class ClientesManager {
         .get();
       
       if (snapshot.docs.length > 0) {
+        console.log(`   ✅ Suscripción encontrada`);
         return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
       }
+      console.log(`   ℹ️ Sin suscripción activa`);
       return null;
     } catch (error) {
-      console.error('Error obteniendo suscripción:', error);
+      console.error('❌ Error obteniendo suscripción:', error);
       return null;
     }
   }
@@ -101,130 +151,59 @@ class ClientesManager {
         throw new Error('Email inválido');
       }
 
+      // ✅ VALIDAR FIREBASE CONFIG
+      if (!clienteData.firebaseConfig) {
+        throw new Error('Credenciales de Firebase requeridas');
+      }
+
       const planesValidos = ['basico', 'profesional', 'enterprise'];
       if (!planesValidos.includes(clienteData.plan)) {
         throw new Error('Plan inválido');
       }
 
-      console.log('🚀 Creando cliente (directo en Firestore - SIN Cloud Functions):', clienteData.nombre);
+      console.log('🚀 Llamando Cloud Function criarCliente:', clienteData.nombre);
+      console.log('📱 Firebase Project:', clienteData.firebaseConfig.projectId);
 
-      // PASO 1: Crear documento cliente
-      const clienteId = generateId('cli');
-      const ahora = new Date().toISOString();
+      // ✅ Llamar Cloud Function con credenciales de Firebase
+      const response = await fetch(
+        'https://us-central1-trafico-map-general-v2.cloudfunctions.net/criarCliente',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            nombreCliente: clienteData.nombre,
+            email: clienteData.email,
+            plan: clienteData.plan,
+            ciudad: clienteData.ciudad || '',
+            telefono: clienteData.telefono || '',
+            firebaseConfig: clienteData.firebaseConfig  // ✅ ENVIAR CREDENCIALES
+          })
+        }
+      );
 
-      const datosCliente = {
-        id: clienteId,
-        nombre: clienteData.nombre,
-        email: clienteData.email,
-        plan: clienteData.plan,
-        estado: 'activo',
-        ciudad: clienteData.ciudad || '',
-        telefono: clienteData.telefono || '',
-        dominio: clienteData.dominio || '',
-        created_at: ahora,
-        updated_at: ahora,
-        api_key: generateApiKey()
-      };
-
-      await db.collection('clientes').doc(clienteId).set(datosCliente);
-      console.log('✅ Cliente creado en Firestore');
-
-      // PASO 2: Crear suscripción
-      const precios = {
-        basico: 1000,
-        profesional: 5000,
-        enterprise: 15000
-      };
-
-      const subscripcionId = generateId('sub');
-      const vencimiento = new Date();
-      vencimiento.setFullYear(vencimiento.getFullYear() + 1);
-
-      const datosSubscripcion = {
-        id: subscripcionId,
-        cliente_id: clienteId,
-        plan: clienteData.plan,
-        precio_mensual: precios[clienteData.plan],
-        precio_anual: precios[clienteData.plan] * 12,
-        expiration_date: vencimiento.toISOString(),
-        activa: true,
-        created_at: ahora,
-        updated_at: ahora,
-        renovaciones: 0,
-        cambios_plan: []
-      };
-
-      await db.collection('subscripciones').doc(subscripcionId).set(datosSubscripcion);
-      console.log('✅ Suscripción creada');
-
-      // PASO 3: Crear factura inicial
-      const datosBilling = {
-        id: generateId('fac'),
-        cliente_id: clienteId,
-        subscripcion_id: subscripcionId,
-        monto: precios[clienteData.plan] * 12,
-        moneda: 'ARS',
-        descripcion: `Suscripción ${clienteData.plan.toUpperCase()} - Año 1`,
-        periodo_desde: ahora,
-        periodo_hasta: vencimiento.toISOString(),
-        estado: 'pendiente',
-        creada_en: ahora,
-        vence_en: vencimiento.toISOString(),
-        pagada: false,
-        fecha_pago: null,
-        metodo_pago: 'pendiente'
-      };
-
-      await db.collection('billing').add(datosBilling);
-      console.log('✅ Factura inicial creada');
-
-      // PASO 4: Crear usuario en Firebase Auth
-      // Usar Firebase Auth del cliente (sin Admin SDK)
-      const passwordTemp = generateSecurePassword();
-
-      let userCreated = false;
-      try {
-        // Crear usuario con email y contraseña usando Firebase Auth (lado del cliente)
-        const userCredential = await firebase.auth().createUserWithEmailAndPassword(
-          clienteData.email,
-          passwordTemp
-        );
-        
-        const user = userCredential.user;
-        console.log('✅ Usuario creado en Firebase Auth:', user.uid);
-
-        // Asignar custom claims (esto normalmente se hace en el backend, pero aquí lo simulamos)
-        // En una app real, usarías una Cloud Function para esto
-        // Por ahora, guardamos el rol en Firestore
-        await db.collection('usuarios_clientes').doc(user.uid).set({
-          uid: user.uid,
-          email: clienteData.email,
-          cliente_id: clienteId,
-          role: 'client',
-          created_at: ahora,
-          activo: true
-        });
-
-        // Actualizar cliente con UID del usuario
-        await db.collection('clientes').doc(clienteId).update({
-          usuario_uid: user.uid,
-          password_temporal: passwordTemp // SOLO PARA DEMOSTRACIÓN - No guardar en producción
-        });
-
-        userCreated = true;
-      } catch (error) {
-        console.warn('⚠️ Error creando usuario en Firebase Auth:', error.message);
-        // Continuar incluso si falla la creación del usuario
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error creando cliente');
       }
+
+      const resultado = await response.json();
+
+      if (!resultado.success) {
+        throw new Error(resultado.error || 'Error en respuesta de servidor');
+      }
+
+      console.log('✅ Cliente creado exitosamente:', resultado.cliente.id);
+      this.showSuccess(`Cliente ${clienteData.nombre} creado exitosamente`);
 
       // Recargar tabla
       await this.loadClientes();
-      
-      this.showSuccess(`Cliente "${clienteData.nombre}" creado exitosamente`);
 
-      return datosCliente;
+      return resultado;
+
     } catch (error) {
-      console.error('Error creando cliente:', error);
+      console.error('❌ Error creando cliente:', error);
       throw error;
     }
   }
@@ -350,35 +329,68 @@ class ClientesManager {
    * Renderiza tabla de clientes
    */
   renderClientesTable() {
+    console.log('📊 [renderClientesTable] Iniciando renderizado...');
+    
     const container = document.getElementById('clientesTable');
-    if (!container) return;
+    console.log('📊 [renderClientesTable] Div container encontrado:', !!container);
+    
+    if (!container) {
+      console.error('❌ [renderClientesTable] NO ENCONTRÉ el div #clientesTable');
+      return;
+    }
+
+    console.log(`📊 [renderClientesTable] Datos disponibles: ${this.filteredData.length} clientes`);
 
     if (this.filteredData.length === 0) {
+      console.warn('⚠️ [renderClientesTable] No hay clientes para mostrar');
       container.innerHTML = '<div class="alert alert-info"><i class="bi bi-info-circle"></i> No hay clientes</div>';
       return;
     }
 
-    const rows = this.filteredData.map(c => `
-      <tr>
-        <td><strong>${c.nombre}</strong><br/><small class="text-muted">${c.id}</small></td>
-        <td>${c.email}</td>
-        <td><span class="badge bg-info">${c.plan}</span></td>
-        <td><span class="badge ${c.estado === 'activo' ? 'bg-success' : 'bg-warning'}">${c.estado}</span></td>
-        <td>${formatDate(c.created_at)}</td>
-        <td>
-          <button class="btn btn-sm btn-primary" onclick="clientesManager.handleVerCliente('${c.id}')"><i class="bi bi-eye"></i></button>
-          <button class="btn btn-sm btn-warning" onclick="clientesManager.handleEditarCliente('${c.id}')"><i class="bi bi-pencil"></i></button>
-          <button class="btn btn-sm btn-${c.estado === 'activo' ? 'outline-danger' : 'outline-success'}" onclick="clientesManager.handleToggleSuspender('${c.id}')"><i class="bi bi-${c.estado === 'activo' ? 'pause' : 'play'}"></i></button>
-        </td>
-      </tr>
-    `).join('');
+    console.log('📊 [renderClientesTable] Generando filas de tabla...');
+    const rows = this.filteredData.map(c => {
+      try {
+        const createdDate = c.created_at || c.createdAt || c.fecha_creacion || null;
+        const estado = c.estado || 'activo';
+        const plan = c.plan || 'N/A';
+        
+        return `
+          <tr>
+            <td><strong>${c.nombre || 'Sin nombre'}</strong><br/><small class="text-muted">${c.id}</small></td>
+            <td>${c.email || '-'}</td>
+            <td><span class="badge bg-info">${plan}</span></td>
+            <td><span class="badge ${estado === 'activo' ? 'bg-success' : 'bg-warning'}">${estado}</span></td>
+            <td>${formatDate(createdDate)}</td>
+            <td>
+              <button class="btn btn-sm btn-primary" onclick="clientesManager.handleVerCliente('${c.id}')"><i class="bi bi-eye"></i></button>
+              <button class="btn btn-sm btn-warning" onclick="clientesManager.handleEditarCliente('${c.id}')"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-sm btn-${estado === 'activo' ? 'outline-danger' : 'outline-success'}" onclick="clientesManager.handleToggleSuspender('${c.id}')"><i class="bi bi-${estado === 'activo' ? 'pause' : 'play'}"></i></button>
+              <button class="btn btn-sm btn-danger" onclick="clientesManager.handleEliminarCliente('${c.id}', '${c.nombre}')"><i class="bi bi-trash"></i></button>
+            </td>
+          </tr>
+        `;
+      } catch (error) {
+        console.error(`⚠️ Error renderizando cliente ${c.id}:`, error);
+        return `
+          <tr>
+            <td><strong>${c.nombre || 'Error'}</strong></td>
+            <td colspan="5" class="text-danger">Error renderizando fila</td>
+          </tr>
+        `;
+      }
+    }).join('');
 
-    container.innerHTML = `
+    console.log(`📊 [renderClientesTable] ${rows.split('<tr>').length - 1} filas generadas`);
+    
+    const html = `
       <table class="table table-striped table-hover">
         <thead><tr><th>Nombre</th><th>Email</th><th>Plan</th><th>Estado</th><th>Creado</th><th>Acciones</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     `;
+    
+    container.innerHTML = html;
+    console.log('✅ [renderClientesTable] Tabla renderizada exitosamente');
   }
 
   /**
@@ -446,7 +458,42 @@ class ClientesManager {
       const telefono = document.getElementById('telefonoCliente').value || '';
       const dominio = document.getElementById('dominioCliente').value || '';
 
-      await this.createCliente({ nombre, email, plan, ciudad, telefono, dominio });
+      // ✅ NUEVO: Recolectar credenciales de Firebase
+      const firebaseProjectId = document.getElementById('firebaseProjectId').value;
+      const firebaseApiKey = document.getElementById('firebaseApiKey').value;
+      const firebaseAuthDomain = document.getElementById('firebaseAuthDomain').value;
+      const firebaseStorageBucket = document.getElementById('firebaseStorageBucket').value;
+      const firebaseMessagingSenderId = document.getElementById('firebaseMessagingSenderId').value;
+      const firebaseAppId = document.getElementById('firebaseAppId').value;
+      const firebaseDatabaseURL = document.getElementById('firebaseDatabaseURL').value || '';
+
+      // Validar Firebase config
+      if (!firebaseProjectId || !firebaseApiKey || !firebaseAuthDomain || !firebaseStorageBucket) {
+        throw new Error('Faltan credenciales de Firebase requeridas');
+      }
+
+      // Construir objeto firebaseConfig
+      const firebaseConfig = {
+        apiKey: firebaseApiKey,
+        authDomain: firebaseAuthDomain,
+        projectId: firebaseProjectId,
+        storageBucket: firebaseStorageBucket,
+        messagingSenderId: firebaseMessagingSenderId,
+        appId: firebaseAppId,
+        databaseURL: firebaseDatabaseURL
+      };
+
+      console.log('📱 Credenciales de Firebase a enviar:', firebaseConfig);
+
+      await this.createCliente({ 
+        nombre, 
+        email, 
+        plan, 
+        ciudad, 
+        telefono, 
+        dominio,
+        firebaseConfig  // ✅ NUEVO: Enviar firebaseConfig
+      });
 
       document.getElementById('formCrearCliente').reset();
       const modal = document.getElementById('modalCrearCliente');
@@ -465,11 +512,24 @@ class ClientesManager {
    */
   async handleVerCliente(clienteId) {
     try {
+      console.log(`👁️ [handleVerCliente] Abriendo detalle de cliente: ${clienteId}`);
+      
+      console.log('   1️⃣ Obteniendo cliente...');
       const cliente = await this.getCliente(clienteId);
+      console.log('   ✅ Cliente obtenido:', cliente);
+      
+      console.log('   2️⃣ Obteniendo suscripción...');
       const suscripcion = await this.getClienteSuscripcion(clienteId);
+      console.log('   ✅ Suscripción obtenida:', suscripcion);
+      
       this.currentCliente = cliente;
+      
+      console.log('   3️⃣ Mostrando modal...');
       this.showClienteDetailModal(cliente, suscripcion);
+      console.log('   ✅ Modal mostrado');
+      
     } catch (error) {
+      console.error(`❌ [handleVerCliente] Error:`, error);
       this.showError('Error: ' + error.message);
     }
   }
@@ -485,35 +545,242 @@ class ClientesManager {
       ? `${suscripcion.plan.toUpperCase()} - Vence: ${formatDate(suscripcion.expiration_date)}`
       : 'Sin suscripción activa';
 
-    content.innerHTML = `
-      <div class="card">
-        <div class="card-header bg-primary text-white"><h5 class="mb-0">${cliente.nombre}</h5></div>
+    // Obtener credenciales - pueden estar en diferentes campos
+    const esPruebaSinAdmin = cliente.plan === 'prueba' && !cliente.email_admin;
+    const esPrueba = cliente.plan === 'prueba';
+    const email_acceso = cliente.email_admin || cliente.email || 'no disponible';
+    const contraseña = cliente.contraseña || cliente.password || cliente.contraseña_temporal || '(generada al crear)';
+    const url_acceso = cliente.url_acceso || 'https://trafico-map-general-v2.web.app/client/';
+
+    const credentialsHTML = `
+      <div class="card mb-3 border-primary">
+        <div class="card-header bg-primary text-white">
+          <h6 class="mb-0">🔐 Acceso al Panel de Cliente</h6>
+        </div>
         <div class="card-body">
-          <div class="row mb-3">
-            <div class="col-md-6"><strong>ID:</strong> ${cliente.id}</div>
-            <div class="col-md-6"><strong>Email:</strong> ${cliente.email}</div>
+          ${esPruebaSinAdmin ? `
+          <div class="alert alert-warning py-2 mb-3">
+            Esta comunidad se creó por auto-registro (vecinos) y todavía no tiene admin generado.
+            <button class="btn btn-sm btn-warning mt-1 btn-generar-admin" data-cliente-id="${cliente.id}">
+              <i class="bi bi-key"></i> Generar acceso admin
+            </button>
           </div>
-          <div class="row mb-3">
-            <div class="col-md-6"><strong>Ciudad:</strong> ${cliente.ciudad || '-'}</div>
-            <div class="col-md-6"><strong>Teléfono:</strong> ${cliente.telefono || '-'}</div>
+          ` : ''}
+          ${esPrueba ? `
+          <div class="alert alert-info py-2 mb-3">
+            Comunidad en modo prueba. Se puede promover a cliente pago sin perder vecinos ni denuncias.
+            <div class="mt-1">
+              <button class="btn btn-sm btn-success btn-promover-pago" data-cliente-id="${cliente.id}" data-plan="basico">Promover a Básico</button>
+              <button class="btn btn-sm btn-success btn-promover-pago" data-cliente-id="${cliente.id}" data-plan="profesional">Promover a Profesional</button>
+              <button class="btn btn-sm btn-success btn-promover-pago" data-cliente-id="${cliente.id}" data-plan="enterprise">Promover a Enterprise</button>
+            </div>
+          </div>
+          ` : ''}
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <small class="text-muted">Email (Usuario):</small><br/>
+              <code class="bg-light p-2 d-block copy-email">${email_acceso}</code>
+            </div>
+            <div class="col-md-6">
+              <small class="text-muted">Contraseña:</small><br/>
+              <code class="bg-light p-2 d-block copy-password">${contraseña}</code>
+            </div>
           </div>
           <div class="row">
-            <div class="col-md-6"><strong>Estado:</strong> <span class="badge bg-${cliente.estado === 'activo' ? 'success' : 'warning'}">${cliente.estado}</span></div>
-            <div class="col-md-6"><strong>Suscripción:</strong> <span class="badge bg-info">${sub_text}</span></div>
+            <div class="col-12">
+              <small class="text-muted">URL de Acceso:</small><br/>
+              <code class="bg-light p-2 d-block">${url_acceso}</code>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-12">
+              <button class="btn btn-sm btn-primary btn-copy-email">
+                <i class="bi bi-clipboard"></i> Copiar Email
+              </button>
+              <button class="btn btn-sm btn-primary btn-copy-password">
+                <i class="bi bi-clipboard"></i> Copiar Contraseña
+              </button>
+              <a href="${url_acceso}" target="_blank" class="btn btn-sm btn-success">
+                <i class="bi bi-arrow-up-right"></i> Ir al Panel
+              </a>
+            </div>
           </div>
         </div>
       </div>
     `;
 
+    content.innerHTML = credentialsHTML + `
+      <div class="card">
+        <div class="card-header bg-primary text-white"><h5 class="mb-0">${cliente.nombre}</h5></div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-6"><strong>ID:</strong> ${cliente.id}</div>
+            <div class="col-md-6"><strong>Email Admin:</strong> ${cliente.email_admin || 'Sin generar'}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6"><strong>Ciudad:</strong> ${cliente.ciudad || '-'}</div>
+            <div class="col-md-6"><strong>Teléfono:</strong> ${cliente.telefono || '-'}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6"><strong>Plan:</strong> <span class="badge bg-info">${cliente.plan || 'N/A'}</span></div>
+            <div class="col-md-6"><strong>Estado:</strong> <span class="badge bg-${cliente.estado === 'activo' ? 'success' : 'warning'}">${cliente.estado}</span></div>
+          </div>
+          <div class="row">
+            <div class="col-12"><strong>Suscripción:</strong> <span class="badge bg-info">${sub_text}</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Agregar event listeners
+    const btnCopyEmail = content.querySelector('.btn-copy-email');
+    const btnCopyPassword = content.querySelector('.btn-copy-password');
+    
+    if (btnCopyEmail) {
+      btnCopyEmail.addEventListener('click', () => {
+        navigator.clipboard.writeText(email_acceso);
+        alert('✅ Email copiado');
+      });
+    }
+    
+    if (btnCopyPassword) {
+      btnCopyPassword.addEventListener('click', () => {
+        navigator.clipboard.writeText(contraseña);
+        alert('✅ Contraseña copiada');
+      });
+    }
+
+    const btnGenerarAdmin = content.querySelector('.btn-generar-admin');
+    if (btnGenerarAdmin) {
+      btnGenerarAdmin.addEventListener('click', async () => {
+        const clienteId = btnGenerarAdmin.dataset.clienteId;
+        btnGenerarAdmin.disabled = true;
+        btnGenerarAdmin.textContent = 'Generando...';
+        try {
+          const generarAdminComunidad = firebase.functions().httpsCallable('generarAdminComunidad');
+          const resultado = await generarAdminComunidad({ clienteId });
+          const { email_admin, contraseña: nuevaContraseña } = resultado.data;
+          // Actualizar los datos en memoria y refrescar el modal con las credenciales ya cargadas
+          cliente.email_admin = email_admin;
+          cliente.contraseña = nuevaContraseña;
+          this.showClienteDetailModal(cliente, suscripcion);
+        } catch (e) {
+          console.error('❌ Error generando admin:', e);
+          alert('No se pudo generar el acceso admin: ' + e.message);
+          btnGenerarAdmin.disabled = false;
+          btnGenerarAdmin.innerHTML = '<i class="bi bi-key"></i> Generar acceso admin';
+        }
+      });
+    }
+
+    const botonesPromover = content.querySelectorAll('.btn-promover-pago');
+    botonesPromover.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const clienteId = btn.dataset.clienteId;
+        const plan = btn.dataset.plan;
+        const confirmar = confirm(
+          `¿Promover "${cliente.nombre}" al plan ${plan.toUpperCase()}?\n\n` +
+          `Los vecinos y denuncias que ya tiene NO se pierden. Se le crea una suscripción activa por 1 año.`
+        );
+        if (!confirmar) return;
+
+        botonesPromover.forEach(b => b.disabled = true);
+        btn.textContent = 'Promoviendo...';
+        try {
+          const promoverComunidadAPago = firebase.functions().httpsCallable('promoverComunidadAPago');
+          await promoverComunidadAPago({ clienteId, plan });
+          alert(`✅ "${cliente.nombre}" promovida a plan ${plan.toUpperCase()}.`);
+          this.init();
+          bootstrap.Modal.getInstance(document.getElementById('modalClienteDetail'))?.hide();
+        } catch (e) {
+          console.error('❌ Error promoviendo comunidad:', e);
+          alert('No se pudo promover: ' + e.message);
+          botonesPromover.forEach(b => b.disabled = false);
+        }
+      });
+    });
+
+
     const modal = document.getElementById('modalClienteDetail');
-    if (modal) modal.style.display = 'block';
+    if (modal) {
+      console.log('✅ [showClienteDetailModal] Mostrando modal...');
+      try {
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+        console.log('✅ [showClienteDetailModal] Modal mostrado correctamente');
+      } catch (error) {
+        console.error('❌ Error mostrando modal:', error);
+      }
+    } else {
+      console.error('❌ [showClienteDetailModal] NO ENCONTRÉ #modalClienteDetail');
+    }
   }
 
   /**
    * Editar cliente
    */
-  handleEditarCliente(clienteId) {
-    alert('Edición de cliente - próximamente implementado');
+  async handleEditarCliente(clienteId) {
+    try {
+      console.log(`📝 [handleEditarCliente] Abriendo editor para: ${clienteId}`);
+      
+      // Obtener datos del cliente
+      const cliente = await this.getCliente(clienteId);
+      
+      // Poblar el modal de edición
+      document.getElementById('editClienteId').value = cliente.id;
+      document.getElementById('editNombreCliente').value = cliente.nombre || '';
+      document.getElementById('editEmailCliente').value = cliente.email || '';
+      document.getElementById('editPlanCliente').value = cliente.plan || '';
+      document.getElementById('editDominioCliente').value = cliente.ciudad || '';
+      document.getElementById('editTelefonoCliente').value = cliente.telefono || '';
+      
+      // Mostrar modal de edición
+      const modal = new bootstrap.Modal(document.getElementById('modalEditarCliente'));
+      modal.show();
+      
+    } catch (error) {
+      console.error('❌ Error abriendo editor:', error);
+      showError('Error al abrir el editor');
+    }
+  }
+
+  /**
+   * Guardar cambios del cliente
+   */
+  async handleGuardarEdicion(clienteId) {
+    try {
+      console.log(`💾 [handleGuardarEdicion] Guardando cambios para: ${clienteId}`);
+      
+      const datosActualizados = {
+        nombre: document.getElementById('editNombreCliente').value,
+        plan: document.getElementById('editPlanCliente').value,
+        ciudad: document.getElementById('editDominioCliente').value,
+        telefono: document.getElementById('editTelefonoCliente').value,
+        updated_at: new Date().toISOString()
+      };
+      
+      // Validar campos requeridos (sin email, ya que no se puede cambiar)
+      if (!datosActualizados.nombre || !datosActualizados.plan) {
+        showError('Completa los campos requeridos');
+        return;
+      }
+      
+      // Actualizar en Firestore
+      await db.collection('clientes').doc(clienteId).update(datosActualizados);
+      console.log('✅ Cliente actualizado exitosamente');
+      
+      // Cerrar modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarCliente'));
+      if (modal) modal.hide();
+      
+      // Recargar tabla
+      await this.init();
+      adminAuth.showSuccess('✅ Cliente actualizado exitosamente');
+      
+    } catch (error) {
+      console.error('❌ Error guardando edición:', error);
+      showError('Error al guardar: ' + error.message);
+    }
   }
 
   /**
@@ -530,6 +797,86 @@ class ClientesManager {
       this.renderClientesTable();
     } catch (error) {
       this.showError('Error: ' + error.message);
+    }
+  }
+
+  /**
+   * Eliminar cliente
+   */
+  async handleEliminarCliente(clienteId, nombreCliente) {
+    // Guardar datos en variables globales para usarlas en los modales
+    window.clienteEnEliminacion = { id: clienteId, nombre: nombreCliente };
+    
+    // Mostrar primera modal de confirmación
+    document.getElementById('nombreClienteEliminar').textContent = nombreCliente;
+    const modal = new bootstrap.Modal(document.getElementById('modalConfirmarEliminar'));
+    modal.show();
+  }
+
+  /**
+   * Mostrar segunda confirmación (escribir nombre)
+   */
+  mostrarConfirmacionFinal() {
+    const { nombre } = window.clienteEnEliminacion;
+    
+    // Cerrar primera modal
+    const modalPrimera = bootstrap.Modal.getInstance(document.getElementById('modalConfirmarEliminar'));
+    if (modalPrimera) modalPrimera.hide();
+    
+    // Limpiar y mostrar segunda modal
+    document.getElementById('nombreClienteConfirmar').textContent = nombre;
+    document.getElementById('inputNombreClienteConfirmar').value = '';
+    document.getElementById('inputNombreClienteConfirmar').focus();
+    
+    // Pequeño delay para que se cierre la primera modal
+    setTimeout(() => {
+      const modalSegunda = new bootstrap.Modal(document.getElementById('modalConfirmarEscribirNombre'));
+      modalSegunda.show();
+    }, 300);
+  }
+
+  /**
+   * Proceder con la eliminación después de validar
+   */
+  async procederEliminacion() {
+    const { id: clienteId, nombre: nombreCliente } = window.clienteEnEliminacion;
+    const nombreEscrito = document.getElementById('inputNombreClienteConfirmar').value;
+    
+    // Validar que el nombre coincida EXACTAMENTE
+    if (nombreEscrito !== nombreCliente) {
+      adminAuth.showError(`❌ El nombre no coincide. Escribiste: "${nombreEscrito}" pero el cliente se llama "${nombreCliente}"`);
+      return;
+    }
+    
+    try {
+      console.log(`🗑️ Eliminando cliente: ${clienteId}`);
+      showLoading(document.body);
+
+      // Llamar Cloud Function callable para eliminar
+      const eliminarClienteFunc = firebase.functions().httpsCallable('eliminarCliente');
+      const resultado = await eliminarClienteFunc({ clienteId, nombreCliente });
+      
+      console.log('✅ Cliente eliminado completamente');
+      
+      // Cerrar modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('modalConfirmarEscribirNombre'));
+      if (modal) modal.hide();
+      
+      hideLoading();
+      
+      // Mostrar éxito y recargar página después de 1 segundo
+      adminAuth.showSuccess(`✅ Cliente "${nombreCliente}" eliminado PERMANENTEMENTE`);
+      
+      // Pequeño delay y luego recargar la página completamente
+      setTimeout(() => {
+        console.log('🔄 Recargando página...');
+        location.reload();
+      }, 1500);
+
+    } catch (error) {
+      hideLoading();
+      console.error('❌ Error eliminando cliente:', error);
+      adminAuth.showError('❌ Error al eliminar: ' + error.message);
     }
   }
 

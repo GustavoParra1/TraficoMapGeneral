@@ -1,7 +1,7 @@
 /**
  * 🚦 SINIESTROS HISTÓRICO LAYER
  * Módulo para visualizar y filtrar siniestros viales permanentes (accidentes)
- * Datos: Firestore - clientes/{clienteId}/siniestros_historico/*
+ * Datos: Firestore - clientes/{clienteId}/siniestros/*
  * 
  * Opción B: Mantiene registro histórico permanente para análisis de patrones de accidentes.
  * Incluye datos de listas oficiales + reporte comunitario de vecinos.
@@ -129,9 +129,10 @@ window.SiniestrosHistoricoLayer = (() => {
 
     try {
       // Listener en tiempo real - usar window.db
-      console.log(`🚦 SiniestrosHistoricoLayer: Escuchando clientes/${clienteId}/siniestros_historico`);
+      // ✅ CAMBIO: Usar 'siniestros' en lugar de 'siniestros_historico'
+      console.log(`🚦 SiniestrosHistoricoLayer: Escuchando clientes/${clienteId}/siniestros`);
       unsubscribe = window.db
-        .collection(`clientes/${clienteId}/siniestros_historico`)
+        .collection(`clientes/${clienteId}/siniestros`)
         .orderBy('timestamp', 'desc')
         .onSnapshot(
           (snap) => {

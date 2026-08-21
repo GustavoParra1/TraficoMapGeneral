@@ -54,23 +54,21 @@ function iniciarMapa() {
       
       // Inicializar módulos con error handling
       const modules = [
-        ['GeoLayers', () => GeoLayers.init(map)],
-        ['SiniestrosLayer', () => SiniestrosLayer.init(map)],
-        ['SiniestrosHistoricoLayer', () => typeof SiniestrosHistoricoLayer !== 'undefined' && SiniestrosHistoricoLayer.init(map)],
-        ['CamerasLayer', () => CamerasLayer.init(map)],
-        ['PrivateCamerasLayer', () => PrivateCamerasLayer.init(map)],
-        ['LprLayer', () => typeof LprLayer !== 'undefined' && LprLayer.init(map)],
-        ['SemaforosLayer', () => SemaforosLayer.init(map)],
-        ['ColegiosLayer', () => ColegiosLayer.init(map)],
-        ['CorredoresLayer', () => CorredoresLayer.init(map)],
-        ['ColectivosLayer', () => ColectivosLayer.init(map)],
-        ['HeatmapLayer', () => heatmapLayer.init()],
-        ['AforosLayer', () => typeof AforosLayer !== 'undefined' && AforosLayer.init(map)],
-        ['RoboLayer', () => typeof RoboLayer !== 'undefined' && RoboLayer.init(map)],
-        ['DenunciasHistoricoLayer', () => typeof DenunciasHistoricoLayer !== 'undefined' && DenunciasHistoricoLayer.init(map)],
-        ['StreetViewLayer', () => typeof StreetViewLayer !== 'undefined' && StreetViewLayer.init()],
-        ['GeoLocator', () => typeof GeoLocator !== 'undefined' && GeoLocator.init(map)]
-      ];
+  ['GeoLayers', () => GeoLayers.init(map)],
+  ['SiniestrosLayer', () => SiniestrosLayer.init(map)],
+  ['CamerasLayer', () => CamerasLayer.init(map)],
+  ['PrivateCamerasLayer', () => PrivateCamerasLayer.init(map)],
+  ['LprLayer', () => typeof LprLayer !== 'undefined' && LprLayer.init(map)],
+  ['SemaforosLayer', () => SemaforosLayer.init(map)],
+  ['ColegiosLayer', () => ColegiosLayer.init(map)],
+  ['CorredoresLayer', () => CorredoresLayer.init(map)],
+  ['ColectivosLayer', () => ColectivosLayer.init(map)],
+  ['HeatmapLayer', () => heatmapLayer.init()],
+  ['AforosLayer', () => typeof AforosLayer !== 'undefined' && AforosLayer.init(map)],
+  ['RoboLayer', () => typeof RoboLayer !== 'undefined' && RoboLayer.init(map)],
+  ['StreetViewLayer', () => typeof StreetViewLayer !== 'undefined' && StreetViewLayer.init()],
+  ['GeoLocator', () => typeof GeoLocator !== 'undefined' && GeoLocator.init(map)]
+];
       
       for (const [moduleName, initFn] of modules) {
         try {
