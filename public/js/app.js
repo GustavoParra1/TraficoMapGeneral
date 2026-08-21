@@ -2851,6 +2851,21 @@ auth.onAuthStateChanged((user) => {
       });
     }
 
+    // 🆕 NUEVO: Los contadores "(0)" del sidebar nunca se actualizaban porque
+    // nada llamaba a getMetadata().count. Como los datos vienen de un listener
+    // en tiempo real de Firestore (onSnapshot), sincronizamos con un polling
+    // liviano cada 2s en vez de depender de un evento puntual.
+    setInterval(() => {
+      const siniestrosCountSpan = document.getElementById('total-siniestros-historico-count');
+      if (siniestrosCountSpan && typeof SiniestrosHistoricoLayer !== 'undefined') {
+        siniestrosCountSpan.textContent = SiniestrosHistoricoLayer.getMetadata().count;
+      }
+      const denunciasCountSpan = document.getElementById('total-denuncias-historico-count');
+      if (denunciasCountSpan && typeof DenunciasHistoricoLayer !== 'undefined') {
+        denunciasCountSpan.textContent = DenunciasHistoricoLayer.getMetadata().count;
+      }
+    }, 2000);
+
     // Event listeners para filtros de siniestros históricos
     const siniestrosYearFilter = document.getElementById('siniestros-year-filter');
     const siniestrosCausaFilter = document.getElementById('siniestros-causa-filter');
