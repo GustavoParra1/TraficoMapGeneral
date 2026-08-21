@@ -82,6 +82,44 @@ window.SiniestrosHistoricoLayer = (() => {
   }
 
   /**
+   * Obtener la fecha real de un siniestro probando distintos campos posibles.
+   * Los documentos importados masivamente NO tienen 'timestamp': tienen
+   * 'created_at' (Firestore Timestamp) y/o 'FECHA' (string "dd/mm/aa").
+   * Antes el código solo miraba 'timestamp', por eso el orderBy y los
+   * filtros de año descartaban silenciosamente todos los documentos.
+   */
+  function getSiniestroDate(s) {
+    if (!s) return null;
+
+    if (s.timestamp) {
+      if (s.timestamp instanceof Date) return s.timestamp;
+      if (s.timestamp.toMillis) return new Date(s.timestamp.toMillis());
+      const d = new Date(s.timestamp);
+      if (!isNaN(d)) return d;
+    }
+
+    if (s.created_at) {
+      if (s.created_at instanceof Date) return s.created_at;
+      if (s.created_at.toMillis) return new Date(s.created_at.toMillis());
+      const d = new Date(s.created_at);
+      if (!isNaN(d)) return d;
+    }
+
+    // Fallback: parsear "FECHA" tipo "23/04/25" (dd/mm/aa)
+    const fechaStr = s.FECHA || s.fecha;
+    if (typeof fechaStr === 'string' && fechaStr.includes('/')) {
+      const [dd, mm, yy] = fechaStr.split('/');
+      if (dd && mm && yy) {
+        const year = yy.length === 2 ? `20${yy}` : yy;
+        const d = new Date(`${year}-${mm}-${dd}`);
+        if (!isNaN(d)) return d;
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * Obtener etiqueta de causa
    */
   function getCauseLabel(causa) {
@@ -133,7 +171,7 @@ window.SiniestrosHistoricoLayer = (() => {
       console.log(`🚦 SiniestrosHistoricoLayer: Escuchando clientes/${clienteId}/siniestros`);
       unsubscribe = window.db
         .collection(`clientes/${clienteId}/siniestros`)
-        .orderBy('timestamp', 'desc')
+        .orderBy('created_at', 'desc')
         .onSnapshot(
           (snap) => {
             siniestrosData = [];
@@ -212,11 +250,8 @@ window.SiniestrosHistoricoLayer = (() => {
 
     siniestrosData.forEach((s) => {
       if (s.causa) causas.add(s.causa);
-      if (s.timestamp) {
-        const date =
-          s.timestamp instanceof Date
-            ? s.timestamp
-            : new Date(s.timestamp.toMillis?.() || s.timestamp);
+      const date = getSiniestroDate(s);
+      if (date) {
         const year = date.getFullYear().toString();
         años.add(year);
       }
@@ -267,11 +302,8 @@ window.SiniestrosHistoricoLayer = (() => {
 
       // Filtro de año
       if (filters.year !== 'all') {
-        const date =
-          s.timestamp instanceof Date
-            ? s.timestamp
-            : new Date(s.timestamp?.toMillis?.() || s.timestamp);
-        if (date.getFullYear().toString() !== filters.year) {
+        const date = getSiniestroDate(s);
+        if (!date || date.getFullYear().toString() !== filters.year) {
           return false;
         }
       }
@@ -352,7 +384,7 @@ window.SiniestrosHistoricoLayer = (() => {
       const color = getCauseColor(siniestro.causa);
       const causeLabel = getCauseLabel(siniestro.causa);
       renderizados++;
-      const fecha = formatDate(siniestro.timestamp);
+      const fecha = formatDate(getSiniestroDate(siniestro));
 
       // Círculo marcador
       const marker = L.circleMarker([siniestro.lat, siniestro.lng], {
