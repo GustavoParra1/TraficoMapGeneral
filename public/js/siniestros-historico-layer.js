@@ -1,10 +1,16 @@
 /**
  * 🚦 SINIESTROS HISTÓRICO LAYER
- * Módulo para visualizar y filtrar siniestros viales permanentes (accidentes)
- * Datos: Firestore - clientes/{clienteId}/siniestros/*
- * 
- * Opción B: Mantiene registro histórico permanente para análisis de patrones de accidentes.
- * Incluye datos de listas oficiales + reporte comunitario de vecinos.
+ * Módulo para visualizar y filtrar siniestros viales reportados por VECINOS
+ * (no incluye la lista oficial masiva que carga el administrador, esa se ve
+ * con el checkbox "Mostrar Siniestros" de arriba).
+ *
+ * Datos: Firestore - clientes/{clienteId}/denuncias_historico/*
+ * filtrados por categoria === 'accidentes' (ver categories-taxonomy.js).
+ *
+ * denuncias_historico ya se archiva automáticamente al crearse cada denuncia
+ * (Cloud Function onDenunciaCreada), y NO se borra si luego se elimina la
+ * denuncia original desde el panel — por eso un siniestro reportado por un
+ * vecino sigue apareciendo acá aunque se borre de "Denuncias".
  */
 
 window.SiniestrosHistoricoLayer = (() => {
@@ -16,22 +22,8 @@ window.SiniestrosHistoricoLayer = (() => {
   let barriosGeoJson = null;
   let unsubscribe = null;
 
-  // Mapa de colores por causa de accidente
-  const causaColores = {
-    'D': '#e74c3c',   // Distracción - Rojo
-    'A': '#c0392b',   // Alcohol - Rojo oscuro
-    'EV': '#f39c12',  // Exceso velocidad - Naranja
-    'FV': '#e67e22',  // Fatiga/Sueño - Naranja oscuro
-    'G': '#2980b9',   // Giro indebido - Azul
-    'MI': '#9b59b6',  // Maniobra indebida - Púrpura
-    'MR': '#1abc9c',  // Mala ruptura - Verde azulado
-    'NR': '#27ae60',  // Niebla/Lluvia - Verde
-    'PC': '#34495e',  // Problema conducción - Gris oscuro
-    'PS': '#7f8c8d',  // Problema suspensión - Gris
-    'OT': '#95a5a6'   // Otros - Gris claro
-  };
-
   // Filtros activos
+  // "causa" ahora representa la subcategoría del accidente (choque, colision, etc.)
   const filters = {
     globalBarrio: 'all',
     year: 'all',
@@ -75,10 +67,15 @@ window.SiniestrosHistoricoLayer = (() => {
   }
 
   /**
-   * Obtener color por causa
+   * Obtener color por subcategoría (usa el color de la categoría "accidentes"
+   * de categories-taxonomy.js; si esa taxonomía no está cargada, usa un
+   * color por defecto).
    */
-  function getCauseColor(causa) {
-    return causaColores[causa] || '#95a5a6';
+  function getCauseColor(subcategoria) {
+    if (typeof CATEGORIES_TAXONOMY !== 'undefined' && CATEGORIES_TAXONOMY.accidentes) {
+      return CATEGORIES_TAXONOMY.accidentes.color || '#06b6d4';
+    }
+    return '#06b6d4';
   }
 
   /**
@@ -120,23 +117,14 @@ window.SiniestrosHistoricoLayer = (() => {
   }
 
   /**
-   * Obtener etiqueta de causa
+   * Obtener etiqueta de subcategoría (choque, colisión, etc.) usando
+   * categories-taxonomy.js.
    */
-  function getCauseLabel(causa) {
-    const labels = {
-      'D': 'Distracción',
-      'A': 'Alcohol',
-      'EV': 'Exceso de Velocidad',
-      'FV': 'Fatiga/Sueño',
-      'G': 'Giro Indebido',
-      'MI': 'Maniobra Indebida',
-      'MR': 'Mala Ruptura',
-      'NR': 'Niebla/Lluvia',
-      'PC': 'Problema Conducción',
-      'PS': 'Problema Suspensión',
-      'OT': 'Otros'
-    };
-    return labels[causa] || causa || 'Causa desconocida';
+  function getCauseLabel(subcategoria) {
+    if (typeof getSubcategoryInfo === 'function') {
+      return getSubcategoryInfo('accidentes', subcategoria).label;
+    }
+    return subcategoria || 'Sin especificar';
   }
 
   /**
@@ -166,25 +154,29 @@ window.SiniestrosHistoricoLayer = (() => {
     }
 
     try {
-      // Listener en tiempo real - usar window.db
-      // ✅ CAMBIO: Usar 'siniestros' en lugar de 'siniestros_historico'
-      console.log(`🚦 SiniestrosHistoricoLayer: Escuchando clientes/${clienteId}/siniestros`);
+      // Listener en tiempo real sobre denuncias_historico, filtrando en el
+      // cliente por categoria === 'accidentes'. Se filtra en el cliente (no
+      // con .where() en la query) para no requerir un índice compuesto de
+      // Firestore (categoria + orderBy timestamp).
+      console.log(`🚦 SiniestrosHistoricoLayer: Escuchando clientes/${clienteId}/denuncias_historico (categoria=accidentes)`);
       unsubscribe = window.db
-        .collection(`clientes/${clienteId}/siniestros`)
-        .orderBy('created_at', 'desc')
+        .collection(`clientes/${clienteId}/denuncias_historico`)
+        .orderBy('timestamp', 'desc')
         .onSnapshot(
           (snap) => {
             siniestrosData = [];
             snap.forEach((doc) => {
               const data = doc.data();
-              siniestrosData.push({
-                id: doc.id,
-                ...data
-              });
+              if (data.categoria === 'accidentes') {
+                siniestrosData.push({
+                  id: doc.id,
+                  ...data
+                });
+              }
             });
 
             console.log(
-              `🚦 ${siniestrosData.length} siniestros históricos cargados`
+              `🚦 ${siniestrosData.length} siniestros históricos (reportados por vecinos) cargados`
             );
             
             // DEBUG: Mostrar estructura del primer siniestro
@@ -249,7 +241,7 @@ window.SiniestrosHistoricoLayer = (() => {
     const años = new Set();
 
     siniestrosData.forEach((s) => {
-      if (s.causa) causas.add(s.causa);
+      if (s.subcategoria) causas.add(s.subcategoria);
       const date = getSiniestroDate(s);
       if (date) {
         const year = date.getFullYear().toString();
@@ -295,8 +287,10 @@ window.SiniestrosHistoricoLayer = (() => {
    */
   function applyFilters() {
     filteredSiniestros = siniestrosData.filter((s) => {
-      // Filtro de causa
-      if (filters.causa !== 'all' && s.causa !== filters.causa) {
+      // Filtro de subcategoría (choque, colisión, etc. — la key "causa" se
+      // mantiene por compatibilidad con app.js/setFilter, pero compara
+      // contra el campo real 'subcategoria' de la denuncia)
+      if (filters.causa !== 'all' && s.subcategoria !== filters.causa) {
         return false;
       }
 
@@ -366,7 +360,7 @@ window.SiniestrosHistoricoLayer = (() => {
     console.log(`🎯 Renderizando ${filteredSiniestros.length} siniestros filtrados...`);
     console.log('🎯 Primeros 3 siniestros filtrados:');
     filteredSiniestros.slice(0, 3).forEach((s, i) => {
-      console.log(`  [${i}] lat=${s.lat}, lng=${s.lng}, causa=${s.causa}, barrio=${s.barrio}`);
+      console.log(`  [${i}] lat=${s.lat}, lng=${s.lng}, subcategoria=${s.subcategoria}, vecino=${s.vecino}`);
     });
     
     let renderizados = 0;
@@ -381,8 +375,8 @@ window.SiniestrosHistoricoLayer = (() => {
         return;
       }
 
-      const color = getCauseColor(siniestro.causa);
-      const causeLabel = getCauseLabel(siniestro.causa);
+      const color = getCauseColor(siniestro.subcategoria);
+      const causeLabel = getCauseLabel(siniestro.subcategoria);
       renderizados++;
       const fecha = formatDate(getSiniestroDate(siniestro));
 
@@ -396,32 +390,30 @@ window.SiniestrosHistoricoLayer = (() => {
         fillOpacity: 0.7
       });
 
-      // Popup con información detallada
-      const participantes =
-        siniestro.participantes_codigos || '[Sin datos]';
-
+      // Popup con información real de la denuncia del vecino
       const popupContent = `
         <div style="font-size: 12px; max-width: 250px;">
           <div style="font-weight: bold; color: ${color}; margin-bottom: 6px;">
-            🚦 Siniestro Vial
+            🚦 Siniestro Vial (reportado por vecino)
           </div>
           <div style="font-size: 11px; color: #666; margin-bottom: 4px;">
-            <strong>Causa:</strong> ${causeLabel}
+            <strong>Tipo:</strong> ${causeLabel}
           </div>
-          <div style="font-size: 11px; color: #666; margin-bottom: 4px;">
-            <strong>Participantes:</strong> ${participantes}
+          <div style="margin-bottom: 6px; white-space: pre-wrap; max-height: 100px; overflow-y: auto;">
+            ${siniestro.texto || 'Sin descripción'}
+          </div>
+          <div style="font-size: 10px; color: #999; margin-bottom: 4px;">
+            <strong>Reportado por:</strong> ${siniestro.vecino || 'Anónimo'}
           </div>
           <div style="font-size: 10px; color: #999; margin-bottom: 4px;">
             <strong>Fecha:</strong> ${fecha}
           </div>
-          ${siniestro.barrio ? `
-            <div style="font-size: 10px; color: #999; margin-bottom: 4px;">
-              <strong>Barrio:</strong> ${siniestro.barrio}
-            </div>
-          ` : ''}
-          ${siniestro.calle || siniestro.ubicacion ? `
-            <div style="font-size: 10px; color: #999;">
-              <strong>Ubicación:</strong> ${siniestro.calle || siniestro.ubicacion}
+          <div style="font-size: 10px; color: #999;">
+            <strong>Estado:</strong> ${siniestro.estado || 'nueva'}
+          </div>
+          ${siniestro.hasImage && siniestro.imageUrl ? `
+            <div style="margin-top: 8px;">
+              <img src="${siniestro.imageUrl}" style="max-width: 100%; border-radius: 4px; max-height: 150px;">
             </div>
           ` : ''}
         </div>
@@ -524,10 +516,10 @@ window.SiniestrosHistoricoLayer = (() => {
    */
   function getMetadata() {
     return {
-      name: 'Siniestros Históricos',
+      name: 'Siniestros Viales (vecinos)',
       layers: clusterGroup,
       icon: '🚦',
-      color: '#e74c3c',
+      color: '#06b6d4',
       count: filteredSiniestros.length,
       filters: ['causa', 'year', 'globalBarrio', 'participantes']
     };

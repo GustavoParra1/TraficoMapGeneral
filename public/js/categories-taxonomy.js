@@ -27,7 +27,6 @@ const CATEGORIES_TAXONOMY = {
       robo_moto: { label: 'Robo de moto', icon: '🏍️' },
       robo_bicicleta: { label: 'Robo de bicicleta', icon: '🚲' },
       rotura_vehiculo: { label: 'Rotura de vehículo', icon: '⚒️' },
-      choque: { label: 'Choque', icon: '💥' },
       otro_vehiculos: { label: 'Otro', icon: '❓' }
     }
   },
