@@ -450,9 +450,10 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
     
-    // GPS opcional
+    // GPS opcional (timeout ampliado de 5s a 15s: 5s era muy corto para
+    // celulares en interiores o con GPS "frío" que tardan en enganchar)
     try {
-      const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 }));
+      const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 15000 }));
       denuncia.lat = pos.coords.latitude;
       denuncia.lng = pos.coords.longitude;
     } catch (e) { console.warn('Sin GPS'); }
