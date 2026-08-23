@@ -1979,6 +1979,96 @@ exports.getClientFirebaseConfig = functions.https.onCall(async (data, context) =
 });
 
 // ============================================================================
+// FUNCIÓN 4C: OBTENER INFO PÚBLICA DEL CLIENTE (MODO VECINO — MAPA MOBILE)
+// ============================================================================
+/**
+ * Cloud Function Callable para que map.html en modo "vista=vecino" pueda
+ * inicializar el Firebase del cliente. NO lee /clientes/{clienteId} directo
+ * desde el navegador (las reglas de Firestore exigen ser staff del cliente
+ * para eso). En cambio corre con el Admin SDK y devuelve SOLO nombre y
+ * firebase_cliente (config pública del proyecto Firebase de esa ciudad, no
+ * es información sensible) — nunca email_admin, contraseña, facturación,
+ * ni el resto del documento.
+ *
+ * IMPORTANTE — control de acceso:
+ * - Exige sesión de Firebase Auth válida (context.auth). No es pública ni
+ *   anónima: cualquiera que consiga la URL del mapa sin haber iniciado
+ *   sesión como vecino/staff de ESE cliente es rechazado acá.
+ * - Si el usuario es "vecino", se vuelve a validar en Firestore que siga
+ *   habilitado (mismo criterio que usa vecino-app.js: habilitado===true Y
+ *   habilitado_hasta===mes actual). Esto es lo que evita que un vecino con
+ *   el trial vencido siga entrando al mapa aunque tenga el link guardado.
+ * - Si el usuario es staff (admin/operario/patrulla) o superadmin, pasa
+ *   directo, igual que ya podían leer /clientes/{clienteId} por las reglas.
+ */
+exports.getClientPublicInfo = functions.https.onCall(async (data, context) => {
+  try {
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'Necesitás iniciar sesión');
+    }
+
+    const clienteId = data && data.clienteId;
+    if (!clienteId) {
+      throw new functions.https.HttpsError('invalid-argument', 'Falta clienteId');
+    }
+
+    const role = context.auth.token.role;
+    const clienteIdDelToken = context.auth.token.cliente_id;
+
+    const esSuperadmin = role === 'superadmin';
+    const esStaffDeEsteCliente = ['admin', 'operario', 'patrulla'].includes(role) && clienteIdDelToken === clienteId;
+    const esVecinoDeEsteCliente = role === 'vecino' && clienteIdDelToken === clienteId;
+
+    if (!esSuperadmin && !esStaffDeEsteCliente && !esVecinoDeEsteCliente) {
+      throw new functions.https.HttpsError('permission-denied', 'No tenés acceso a este cliente');
+    }
+
+    // Si es vecino, re-validar la suscripción server-side (no confiar en
+    // que vecino-app.js ya lo haya chequeado del lado del cliente).
+    if (esVecinoDeEsteCliente) {
+      const vecinoDoc = await db.collection(`clientes/${clienteId}/vecinos`).doc(context.auth.uid).get();
+      const vecinoData = vecinoDoc.exists ? vecinoDoc.data() : null;
+      const mesActual = new Date().toISOString().slice(0, 7); // "2026-08"
+      const habilitado = vecinoData && vecinoData.habilitado === true && vecinoData.habilitado_hasta === mesActual;
+
+      if (!habilitado) {
+        throw new functions.https.HttpsError('permission-denied', 'Tu suscripción no está activa');
+      }
+    }
+
+    const clienteDoc = await db.collection('clientes').doc(clienteId).get();
+
+    if (!clienteDoc.exists) {
+      throw new functions.https.HttpsError('not-found', 'Cliente no encontrado');
+    }
+
+    const clienteData = clienteDoc.data();
+
+    if (clienteData.estado && clienteData.estado !== 'activo') {
+      throw new functions.https.HttpsError('permission-denied', 'Cliente no disponible');
+    }
+
+    if (!clienteData.firebase_cliente) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'Credenciales de Firebase no configuradas para este cliente'
+      );
+    }
+
+    // ✅ DEVOLVER SOLO estos dos campos, nunca el documento completo
+    return {
+      success: true,
+      nombre: clienteData.nombre,
+      firebase_cliente: clienteData.firebase_cliente
+    };
+
+  } catch (error) {
+    console.error('❌ Error obteniendo info pública del cliente:', error.message);
+    throw error;
+  }
+});
+
+// ============================================================================
 // FUNCIÓN 5: DISABLE/ENABLE USER
 // ============================================================================
 /**

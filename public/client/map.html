@@ -429,6 +429,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js"></script>
 
 <!-- Firebase Config -->
 <script>
@@ -552,7 +553,70 @@ async function initializeClientFirebase() {
             console.error('❌ Documento del cliente no encontrado en Firestore:', clienteId);
           }
         } catch (error) {
-          console.error('❌ Error obteniendo datos del cliente:', error.message);
+          // 🆕 Caso esperado en modo vecino: las reglas de Firestore exigen
+          // ser staff del cliente para leer /clientes/{clienteId} directo,
+          // así que un vecino (rol "vecino") recibe siempre
+          // "Missing or insufficient permissions" acá. En ese caso caemos
+          // a la Cloud Function getClientPublicInfo, que:
+          //  - exige que haya una sesión de Firebase Auth válida (no es
+          //    pública/anónima),
+          //  - si el rol es "vecino", vuelve a validar habilitado===true y
+          //    habilitado_hasta===mes actual (mismo criterio que
+          //    vecino-app.js), así que un vecino con el trial vencido NO
+          //    puede seguir usando el mapa aunque tenga el link guardado,
+          //  - y solo entonces devuelve nombre + firebase_cliente (nunca
+          //    el resto del documento).
+          console.warn('⚠️ Lectura directa de Firestore falló (probablemente sin permisos):', error.message);
+          console.log('🔁 Verificando sesión de Firebase Auth antes de reintentar vía Cloud Function...');
+
+          // Esperar (hasta 4s) a que Firebase Auth restaure la sesión del
+          // vecino que vino logueado desde vecino-app.js. Si no hay
+          // sesión, no tiene sentido llamar a la función: no va a pasar
+          // el chequeo igual.
+          const usuario = await new Promise((resolve) => {
+            if (auth.currentUser) { resolve(auth.currentUser); return; }
+            const timeout = setTimeout(() => resolve(auth.currentUser), 4000);
+            const unsubscribe = auth.onAuthStateChanged((user) => {
+              if (user) {
+                clearTimeout(timeout);
+                unsubscribe();
+                resolve(user);
+              }
+            });
+          });
+
+          if (!usuario) {
+            console.error('❌ No hay sesión de Firebase Auth activa. Redirigiendo a la app vecino...');
+            alert('Tu sesión expiró. Volvé a ingresar desde la app.');
+            window.location.href = '../vecino-app/index.html';
+            return;
+          }
+
+          try {
+            const getClientPublicInfo = firebase.functions().httpsCallable('getClientPublicInfo');
+            const result = await getClientPublicInfo({ clienteId });
+
+            if (result && result.data && result.data.success) {
+              clienteData = {
+                nombre: result.data.nombre,
+                firebase_cliente: result.data.firebase_cliente
+              };
+              window.restoredClienteData = clienteData;
+              window.restoredClienteId = clienteId;
+              console.log('✅ Datos públicos del cliente obtenidos vía Cloud Function:', clienteData.nombre);
+            } else {
+              console.error('❌ La Cloud Function no devolvió datos válidos del cliente');
+            }
+          } catch (fnError) {
+            console.error('❌ Error obteniendo datos públicos del cliente vía Cloud Function:', fnError.message);
+            // 'permission-denied' acá significa: o no pertenece a este
+            // cliente, o es vecino con la suscripción vencida/deshabilitada.
+            if (fnError.code === 'functions/permission-denied' || fnError.code === 'permission-denied') {
+              alert('Tu acceso al mapa no está disponible. Si tu suscripción venció, contactá al administrador.');
+              window.location.href = '../vecino-app/index.html';
+              return;
+            }
+          }
         }
       } else {
         console.log('⚠️ No hay clienteId para buscar en Firestore');
