@@ -598,8 +598,10 @@ async function initializeClientFirebase() {
 
             if (result && result.data && result.data.success) {
               clienteData = {
+                id: result.data.id,
+                clienteId: result.data.id,
                 nombre: result.data.nombre,
-                firebase_cliente: result.data.firebase_cliente
+                firebase_cliente: result.data.firebase_cliente || null
               };
               window.restoredClienteData = clienteData;
               window.restoredClienteId = clienteId;
@@ -623,49 +625,52 @@ async function initializeClientFirebase() {
       }
     }
     
-    // Esperar a que los datos estén disponibles
-    while (attempts < maxAttempts && (!clienteData || !clienteData.firebase_cliente)) {
-      if (clienteData && clienteData.firebase_cliente) {
-        console.log('🔧 Datos del cliente restaurados, inicializando Firebase...');
-        break;
-      }
+    // Esperar a que los datos del cliente estén disponibles. firebase_cliente
+    // es OPCIONAL (solo lo tienen clientes premium con proyecto propio) así
+    // que ya no se espera por él, solo por tener clienteData con id.
+    while (attempts < maxAttempts && (!clienteData || !(clienteData.id || clienteData.clienteId))) {
       await new Promise(r => setTimeout(r, 100));
       attempts++;
     }
-    
-    if (clienteData && clienteData.firebase_cliente) {
-      try {
-        console.log('🔥 Modo cliente detectado - Inicializando Firebase del cliente...');
-        
-        const clientFirebaseConfig = clienteData.firebase_cliente;
-        
-        // Crear nueva instancia de Firebase para el cliente
-        const clientApp = firebase.initializeApp(clientFirebaseConfig, `client-map-${clienteId}`);
-        
-        // Crear referencias globales  
-        window.clientDb = clientApp.firestore();
-        window.clientAuth = clientApp.auth();
-        window.clientApp = clientApp;
-        
-        console.log('✅ Firebase del cliente inicializado correctamente en map.html');
-        console.log(`   clienteId: ${clienteId}`);
-        console.log(`   projectId: ${clientFirebaseConfig.projectId}`);
-        
-      } catch (error) {
-        console.error('❌ Error inicializando Firebase del cliente:', error.message);
+
+    if (clienteData && (clienteData.id || clienteData.clienteId)) {
+      // Siempre exponer los datos del cliente, tenga o no proyecto Firebase
+      // propio — de esto dependen las capas históricas (robos, denuncias,
+      // siniestros) que leen directo del proyecto principal (window.db).
+      window.restoredClienteData = clienteData;
+
+      if (clienteData.firebase_cliente) {
+        try {
+          console.log('🔥 Cliente con proyecto Firebase propio - Inicializando...');
+
+          const clientFirebaseConfig = clienteData.firebase_cliente;
+
+          // Crear nueva instancia de Firebase para el cliente
+          const clientApp = firebase.initializeApp(clientFirebaseConfig, `client-map-${clienteId}`);
+
+          // Crear referencias globales
+          window.clientDb = clientApp.firestore();
+          window.clientAuth = clientApp.auth();
+          window.clientApp = clientApp;
+
+          console.log('✅ Firebase del cliente inicializado correctamente en map.html');
+          console.log(`   clienteId: ${clienteId}`);
+          console.log(`   projectId: ${clientFirebaseConfig.projectId}`);
+
+        } catch (error) {
+          console.error('❌ Error inicializando Firebase del cliente:', error.message);
+        }
+      } else {
+        // 🆕 Normal para clientes de comunidad/autoservicio: no tienen
+        // proyecto Firebase propio y usan el principal para todo. No es
+        // un error, no hace falta bloquear el mapa por esto.
+        console.log('ℹ️ Cliente sin proyecto Firebase propio (comunidad/autoservicio) - usando proyecto principal');
       }
     } else {
-      console.log('⚠️ No se pudo obtener las credenciales firebase_cliente');
+      console.log('⚠️ No se pudieron obtener los datos del cliente');
       console.log(`  - isClientMode: ${window.isClientMode}`);
       console.log(`  - clienteId: ${clienteId}`);
       console.log(`  - clienteData: ${!!clienteData}`);
-      if (clienteData) {
-        console.log(`  - clienteData keys: ${Object.keys(clienteData).join(', ')}`);
-        console.log(`  - firebase_cliente field: ${!!clienteData.firebase_cliente}`);
-        if (!clienteData.firebase_cliente) {
-          console.log('  ⚠️ Documento del cliente NO contiene firebase_cliente. Necesita actualización manual.');
-        }
-      }
     }
   } else {
     console.log('ℹ️ No es modo cliente');

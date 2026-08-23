@@ -2048,18 +2048,21 @@ exports.getClientPublicInfo = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('permission-denied', 'Cliente no disponible');
     }
 
-    if (!clienteData.firebase_cliente) {
-      throw new functions.https.HttpsError(
-        'failed-precondition',
-        'Credenciales de Firebase no configuradas para este cliente'
-      );
-    }
+    // 🆕 firebase_cliente es OPCIONAL: solo lo tienen los clientes "premium"
+    // con proyecto Firebase propio. Los clientes de comunidad/autoservicio
+    // (como los que se dan de alta con registrarVecinoAutoservicio) usan el
+    // proyecto principal (window.db) para todo, así que no hace falta
+    // bloquear el mapa si este campo no existe.
 
-    // ✅ DEVOLVER SOLO estos dos campos, nunca el documento completo
+    // ✅ DEVOLVER SOLO estos campos, nunca el documento completo.
+    // "id" es imprescindible: las capas (robos-historico-layer.js, etc.)
+    // leen window.restoredClienteData.id para saber de qué cliente traer
+    // los datos desde el proyecto principal.
     return {
       success: true,
+      id: clienteId,
       nombre: clienteData.nombre,
-      firebase_cliente: clienteData.firebase_cliente
+      firebase_cliente: clienteData.firebase_cliente || null
     };
 
   } catch (error) {
