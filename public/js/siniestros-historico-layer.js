@@ -380,41 +380,32 @@ window.SiniestrosHistoricoLayer = (() => {
       renderizados++;
       const fecha = formatDate(getSiniestroDate(siniestro));
 
-      // Círculo marcador
+      // Círculo marcador — mismo estilo que SiniestrosLayer (la lista
+      // oficial de 4056), con borde oscuro fijo en vez de borde del mismo
+      // color que el relleno, para que se vean como "la misma familia" de
+      // marcador en el mapa.
       const marker = L.circleMarker([siniestro.lat, siniestro.lng], {
-        radius: 7,
+        radius: 8,
         fillColor: color,
-        color: color,
+        color: '#1a1a1a',
         weight: 2,
-        opacity: 0.8,
-        fillOpacity: 0.7
+        opacity: 0.9,
+        fillOpacity: 0.85
       });
 
-      // Popup con información real de la denuncia del vecino
+      // Popup con el mismo formato "plano" que usa SiniestrosLayer
+      // (strong + emojis + <br>, sin cajas de colores), adaptado a los
+      // campos reales de una denuncia de vecino en vez de los de la lista
+      // oficial (que no existen acá: sin barrio, sin participantes_codigos).
       const popupContent = `
         <div style="font-size: 12px; max-width: 250px;">
-          <div style="font-weight: bold; color: ${color}; margin-bottom: 6px;">
-            🚦 Siniestro Vial (reportado por vecino)
-          </div>
-          <div style="font-size: 11px; color: #666; margin-bottom: 4px;">
-            <strong>Tipo:</strong> ${causeLabel}
-          </div>
-          <div style="margin-bottom: 6px; white-space: pre-wrap; max-height: 100px; overflow-y: auto;">
-            ${siniestro.texto || 'Sin descripción'}
-          </div>
-          <div style="font-size: 10px; color: #999; margin-bottom: 4px;">
-            <strong>Reportado por:</strong> ${siniestro.vecino || 'Anónimo'}
-          </div>
-          <div style="font-size: 10px; color: #999; margin-bottom: 4px;">
-            <strong>Fecha:</strong> ${fecha}
-          </div>
-          <div style="font-size: 10px; color: #999;">
-            <strong>Estado:</strong> ${siniestro.estado || 'nueva'}
-          </div>
+          <strong>⚠️ ${causeLabel}</strong><br>
+          ${siniestro.texto ? `<small>${siniestro.texto}</small><br>` : ''}
+          📅 ${fecha}<br>
+          👤 Reportado por: ${siniestro.vecino || 'Anónimo'}<br>
+          Estado: ${siniestro.estado || 'nueva'}
           ${siniestro.hasImage && siniestro.imageUrl ? `
-            <div style="margin-top: 8px;">
-              <img src="${siniestro.imageUrl}" style="max-width: 100%; border-radius: 4px; max-height: 150px;">
-            </div>
+            <br><img src="${siniestro.imageUrl}" style="max-width: 100%; border-radius: 4px; max-height: 150px; margin-top: 6px;">
           ` : ''}
         </div>
       `;
@@ -433,10 +424,10 @@ window.SiniestrosHistoricoLayer = (() => {
 
       marker.on('mouseout', function () {
         this.setStyle({
-          radius: 7,
+          radius: 8,
           weight: 2,
-          opacity: 0.8,
-          fillOpacity: 0.7
+          opacity: 0.9,
+          fillOpacity: 0.85
         });
       });
 
