@@ -67,6 +67,7 @@ function iniciarMapa() {
   ['AforosLayer', () => typeof AforosLayer !== 'undefined' && AforosLayer.init(map)],
   ['RoboLayer', () => typeof RoboLayer !== 'undefined' && RoboLayer.init(map)],
   ['SiniestrosHistoricoLayer', () => typeof SiniestrosHistoricoLayer !== 'undefined' && SiniestrosHistoricoLayer.init(map)],
+  ['RobosHistoricoLayer', () => typeof RobosHistoricoLayer !== 'undefined' && RobosHistoricoLayer.init(map)],
   ['DenunciasHistoricoLayer', () => typeof DenunciasHistoricoLayer !== 'undefined' && DenunciasHistoricoLayer.init(map)],
   ['StreetViewLayer', () => typeof StreetViewLayer !== 'undefined' && StreetViewLayer.init()],
   ['GeoLocator', () => typeof GeoLocator !== 'undefined' && GeoLocator.init(map)]
@@ -104,11 +105,112 @@ function iniciarMapa() {
       }
       
       console.log("✅ Mapa inicializado completamente");
+
+      // 🆕 NUEVO: Modo mobile para vecinos (?vista=vecino en la URL).
+      // Ver activarModoVecino() más abajo en el archivo.
+      try {
+        activarModoVecino();
+      } catch (err) {
+        console.error('❌ Error activando modo vecino:', err);
+      }
     } catch (err) {
       console.error('❌ ERROR CRÍTICO en iniciarMapa():', err);
       console.log('📱 Abre DevTools (F12) → Console para ver detalles completos');
     }
   }
+}
+
+// ============================================================================
+// 🆕 NUEVO: MODO VECINO — mapa simplificado para mobile, accedido desde la
+// app de vecinos con ?vista=vecino en la URL. Reusa TODA la lógica de carga
+// de datos existente (mismo map.html/app.js que usa el panel admin) — solo
+// oculta con CSS lo que no le sirve a un vecino y auto-activa las capas
+// relevantes: Siniestros (lista + históricos vecinos), Robos (lista +
+// históricos vecinos), Cámaras públicas/privadas, Mapa de calor.
+//
+// No filtra por barrio del vecino todavía (decisión consciente: ese dato
+// no se guarda hoy en el perfil del vecino para clientes municipales con
+// varios barrios — se agregará en una iteración futura).
+// ============================================================================
+function activarModoVecino() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('vista') !== 'vecino') return;
+
+  console.log('📱 Modo vecino activado (?vista=vecino)');
+  document.body.classList.add('vista-vecino');
+
+  // --- CSS: convertir el sidebar de escritorio en una hoja inferior mobile,
+  // y ocultar por default todas las secciones (después mostramos solo las
+  // relevantes agregándoles la clase .vecino-visible).
+  const style = document.createElement('style');
+  style.id = 'vista-vecino-style';
+  style.textContent = `
+    body.vista-vecino .sidebar-section { display: none !important; }
+    body.vista-vecino .sidebar-section.vecino-visible { display: block !important; }
+    body.vista-vecino #sidebar {
+      position: fixed !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      top: auto !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      max-height: 45vh !important;
+      overflow-y: auto !important;
+      border-radius: 16px 16px 0 0 !important;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.25) !important;
+      z-index: 2000 !important;
+      padding-top: 10px !important;
+    }
+    body.vista-vecino #sidebar::before {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 4px;
+      background: #ccc;
+      border-radius: 2px;
+      margin: 0 auto 10px auto;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // --- Mostrar solo las secciones del sidebar que tengan alguno de estos
+  // checkboxes adentro (recorremos hacia arriba hasta .sidebar-section).
+  const idsRelevantes = [
+    'siniestros-checkbox',
+    'siniestros-historico-checkbox',
+    'robo-checkbox',
+    'robos-historico-checkbox',
+    'cameras-checkbox',
+    'private-cameras-checkbox',
+    'heatmap-checkbox'
+  ];
+  idsRelevantes.forEach((id) => {
+    const el = document.getElementById(id);
+    const section = el && el.closest('.sidebar-section');
+    if (section) section.classList.add('vecino-visible');
+  });
+
+  // --- Auto-activar esas capas (usamos .click() y no checked=true para que
+  // se disparen los mismos listeners 'change' que ya usa el panel admin).
+  // Reintenta durante unos segundos por si algún checkbox todavía no está
+  // habilitado (ej. el de aforos arranca disabled durante la carga inicial;
+  // acá no lo tocamos, pero por las dudas nos protegemos con el intento).
+  let intentos = 0;
+  const activarCapas = setInterval(() => {
+    intentos++;
+    let faltan = false;
+    idsRelevantes.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) { faltan = true; return; }
+      if (el.disabled) { faltan = true; return; }
+      if (!el.checked) el.click();
+    });
+    if (!faltan || intentos > 15) {
+      clearInterval(activarCapas);
+      console.log('📱 Modo vecino: capas activadas');
+    }
+  }, 700);
 }
 
 // ============================
@@ -1492,6 +1594,11 @@ auth.onAuthStateChanged((user) => {
           <span>🚦 Siniestros Históricos (<span id="total-siniestros-historico-count">0</span>)</span>
         </label>
 
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-bottom: 10px;">
+          <input type="checkbox" id="robos-historico-checkbox" style="cursor: pointer; width: 16px; height: 16px;">
+          <span>🚗 Robos Históricos (<span id="total-robos-historico-count">0</span>)</span>
+        </label>
+
         <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-bottom: 12px;">
           <input type="checkbox" id="denuncias-historico-checkbox" style="cursor: pointer; width: 16px; height: 16px;">
           <span>📋 Denuncias Vecinal Históricas (<span id="total-denuncias-historico-count">0</span>)</span>
@@ -1505,6 +1612,17 @@ auth.onAuthStateChanged((user) => {
           <label style="display: block; margin-bottom: 8px;">
             Causa:
             <select id="siniestros-causa-filter" style="width: 100%; padding: 4px;"><option value="all">Todas</option></select>
+          </label>
+        </div>
+
+        <div id="robos-historico-filters" style="display: none; font-size: 12px; padding: 10px; background: #f5f5f5; border-radius: 4px;">
+          <label style="display: block; margin-bottom: 8px;">
+            Año:
+            <select id="robos-year-filter" style="width: 100%; padding: 4px;"><option value="all">Todos</option></select>
+          </label>
+          <label style="display: block; margin-bottom: 8px;">
+            Tipo:
+            <select id="robos-causa-filter" style="width: 100%; padding: 4px;"><option value="all">Todas</option></select>
           </label>
         </div>
 
@@ -2821,8 +2939,10 @@ auth.onAuthStateChanged((user) => {
     // CAPAS HISTÓRICAS (OPCIÓN B)
     // ==========================================
     const siniestrosHistoricoCheckbox = document.getElementById('siniestros-historico-checkbox');
+    const robosHistoricoCheckbox = document.getElementById('robos-historico-checkbox');
     const denunciasHistoricoCheckbox = document.getElementById('denuncias-historico-checkbox');
     const siniestrosHistoricoFilters = document.getElementById('siniestros-historico-filters');
+    const robosHistoricoFilters = document.getElementById('robos-historico-filters');
     const denunciasHistoricoFilters = document.getElementById('denuncias-historico-filters');
 
     if (siniestrosHistoricoCheckbox) {
@@ -2834,6 +2954,19 @@ auth.onAuthStateChanged((user) => {
         }
         if (siniestrosHistoricoFilters) {
           siniestrosHistoricoFilters.style.display = shouldShow ? 'block' : 'none';
+        }
+      });
+    }
+
+    if (robosHistoricoCheckbox) {
+      robosHistoricoCheckbox.addEventListener('change', (e) => {
+        const shouldShow = e.target.checked;
+        if (typeof RobosHistoricoLayer !== 'undefined') {
+          RobosHistoricoLayer.toggle(shouldShow);
+          console.log(`🚗 Robos Históricos ${shouldShow ? 'mostrados' : 'ocultados'}`);
+        }
+        if (robosHistoricoFilters) {
+          robosHistoricoFilters.style.display = shouldShow ? 'block' : 'none';
         }
       });
     }
@@ -2860,6 +2993,10 @@ auth.onAuthStateChanged((user) => {
       if (siniestrosCountSpan && typeof SiniestrosHistoricoLayer !== 'undefined') {
         siniestrosCountSpan.textContent = SiniestrosHistoricoLayer.getMetadata().count;
       }
+      const robosCountSpan = document.getElementById('total-robos-historico-count');
+      if (robosCountSpan && typeof RobosHistoricoLayer !== 'undefined') {
+        robosCountSpan.textContent = RobosHistoricoLayer.getMetadata().count;
+      }
       const denunciasCountSpan = document.getElementById('total-denuncias-historico-count');
       if (denunciasCountSpan && typeof DenunciasHistoricoLayer !== 'undefined') {
         denunciasCountSpan.textContent = DenunciasHistoricoLayer.getMetadata().count;
@@ -2880,6 +3017,24 @@ auth.onAuthStateChanged((user) => {
       siniestrosCausaFilter.addEventListener('change', () => {
         if (typeof SiniestrosHistoricoLayer !== 'undefined') {
           SiniestrosHistoricoLayer.setFilter('causa', siniestrosCausaFilter.value);
+        }
+      });
+    }
+
+    // Event listeners para filtros de robos históricos
+    const robosYearFilter = document.getElementById('robos-year-filter');
+    const robosCausaFilter = document.getElementById('robos-causa-filter');
+    if (robosYearFilter) {
+      robosYearFilter.addEventListener('change', () => {
+        if (typeof RobosHistoricoLayer !== 'undefined') {
+          RobosHistoricoLayer.setFilter('year', robosYearFilter.value);
+        }
+      });
+    }
+    if (robosCausaFilter) {
+      robosCausaFilter.addEventListener('change', () => {
+        if (typeof RobosHistoricoLayer !== 'undefined') {
+          RobosHistoricoLayer.setFilter('causa', robosCausaFilter.value);
         }
       });
     }

@@ -345,6 +345,17 @@ async function initFirebase() {
       configurarNotificaciones();
       cargarAlertasCercanas();
       mostrarBannerInstalacion();
+
+      // 🆕 NUEVO: Botón "Ver mapa de mi ciudad" — abre el mapa (mismo
+      // map.html que usa el panel admin) en modo mobile simplificado
+      // (?vista=vecino), con los datos de este mismo cliente/ciudad.
+      const btnVerMapa = document.getElementById('btn-ver-mapa');
+      if (btnVerMapa) {
+        btnVerMapa.addEventListener('click', () => {
+          const url = `../client/map.html?city=${encodeURIComponent(municipio)}&client=${encodeURIComponent(clienteId)}&vista=vecino`;
+          window.location.href = url;
+        });
+      }
     });
   } catch (e) {
     console.error('❌ Firebase error:', e);
