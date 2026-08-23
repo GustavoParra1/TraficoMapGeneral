@@ -43,7 +43,48 @@ function iniciar() {
     return;
   }
   document.getElementById('ciudad-label').textContent = `(${clienteId})`;
+  poblarFiltroCategorias();
   escucharDenuncias();
+}
+// ========================================
+// POBLAR FILTRO DE CATEGORÍAS DINÁMICAMENTE
+// (antes estaba hardcodeado en el HTML con categorías viejas que ya no
+// coinciden con las que usa la app de vecinos — categories-taxonomy.js)
+// ========================================
+function poblarFiltroCategorias() {
+  const select = document.getElementById('filtro-categoria');
+  if (!select || typeof CATEGORIES_TAXONOMY === 'undefined') return;
+  Object.keys(CATEGORIES_TAXONOMY).forEach((catKey) => {
+    const option = document.createElement('option');
+    option.value = catKey;
+    option.textContent = CATEGORIES_TAXONOMY[catKey].label;
+    select.appendChild(option);
+  });
+}
+// ========================================
+// ETIQUETA DE CATEGORÍA PARA MOSTRAR
+// Usa CATEGORIES_TAXONOMY si está disponible; si la denuncia tiene una
+// categoría vieja (de antes de la taxonomía jerárquica), la traduce.
+// ========================================
+function obtenerEtiquetaCategoria(d) {
+  if (typeof CATEGORIES_TAXONOMY === 'undefined') {
+    return d.categoria || 'sin categoría';
+  }
+  if (d.categoria && CATEGORIES_TAXONOMY[d.categoria]) {
+    let label = CATEGORIES_TAXONOMY[d.categoria].label;
+    if (d.subcategoria && CATEGORIES_TAXONOMY[d.categoria].subcategories?.[d.subcategoria]) {
+      label += ' · ' + CATEGORIES_TAXONOMY[d.categoria].subcategories[d.subcategoria].label;
+    }
+    return label;
+  }
+  // Categoría vieja (formato plano, previo a la taxonomía jerárquica)
+  if (typeof migrateOldCategory === 'function') {
+    const migrada = migrateOldCategory(d.categoria);
+    if (migrada && CATEGORIES_TAXONOMY[migrada.mainCategory]) {
+      return CATEGORIES_TAXONOMY[migrada.mainCategory].label;
+    }
+  }
+  return d.categoria || 'sin categoría';
 }
 // ========================================
 // ESCUCHAR DENUNCIAS EN TIEMPO REAL
@@ -66,10 +107,26 @@ function escucharDenuncias() {
 // ========================================
 // RENDERIZAR LISTA
 // ========================================
+/**
+ * Devuelve la categoría principal "normalizada" de una denuncia para poder
+ * filtrarla, sea que use el formato nuevo (categoria='accidentes') o el
+ * formato plano viejo (categoria='choques') de antes de la taxonomía.
+ */
+function obtenerCategoriaPrincipal(d) {
+  if (typeof CATEGORIES_TAXONOMY !== 'undefined' && CATEGORIES_TAXONOMY[d.categoria]) {
+    return d.categoria;
+  }
+  if (typeof migrateOldCategory === 'function') {
+    const migrada = migrateOldCategory(d.categoria);
+    if (migrada) return migrada.mainCategory;
+  }
+  return d.categoria;
+}
+
 function renderDenuncias() {
   const cont = document.getElementById('lista');
   const filtro = document.getElementById('filtro-categoria').value;
-  const lista = filtro ? todasLasDenuncias.filter(d => d.categoria === filtro) : todasLasDenuncias;
+  const lista = filtro ? todasLasDenuncias.filter(d => obtenerCategoriaPrincipal(d) === filtro) : todasLasDenuncias;
   // Contar SIN LEER (Opción A: solo las que tienen leida === false explícito)
   const sinLeer = todasLasDenuncias.filter(d => d.leida === false).length;
   const cont2 = document.getElementById('contador');
@@ -88,7 +145,7 @@ function renderDenuncias() {
     div.className = 'denuncia' + (esPanico ? ' panico' : '') + (sinLeer ? ' sin-leer' : '');
     div.innerHTML = `
       <div class="denuncia-head">
-        <span class="cat">${esPanico ? '🚨 EMERGENCIA' : (d.categoria || 'sin categoría')}</span>
+        <span class="cat">${esPanico ? '🚨 EMERGENCIA' : obtenerEtiquetaCategoria(d)}</span>
         ${sinLeer ? '<span class="badge-nuevo">NUEVA</span>' : ''}
         ${esPanico && !panicoActivo ? '<span class="badge-nuevo" style="background:#64748b;">CERRADA</span>' : ''}
         <span class="fecha">${fecha}</span>
