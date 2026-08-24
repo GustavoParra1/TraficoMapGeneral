@@ -16,14 +16,6 @@ window.DenunciasHistoricoLayer = (() => {
   let barriosGeoJson = null;
   let unsubscribe = null;
 
-  // 🆕 Renderer Canvas con "tolerance": agrega un margen invisible alrededor
-  // de cada marcador que también cuenta como clickeable/tocable, sin agrandar
-  // el punto visualmente. El radius:6 del marcador es ~12px de diámetro —
-  // un blanco muy chico para un dedo real, por eso costaba tanto abrir el
-  // popup en mobile. El renderer SVG (default de Leaflet) no soporta esta
-  // opción; por eso acá se fuerza Canvas para esta capa puntualmente.
-  const touchRenderer = L.canvas({ tolerance: 15 });
-
   // Mapa de colores por categoría principal
   const categoriasColores = {
     personas: '#dc2626',           // Rojo
@@ -34,6 +26,28 @@ window.DenunciasHistoricoLayer = (() => {
     emergencias: '#dc2626',         // Rojo (pánico)
     seguridad: '#8b5cf6'            // Púrpura claro
   };
+
+  // 🆕 Ícono por categoría (2026-02): antes cada denuncia era un círculo de
+  // 6px sin distinción visual entre tipos — difícil de tocar en mobile y sin
+  // pista de qué era cada punto de un vistazo (a diferencia de referencias
+  // como voybien.com.ar, que usan un ícono distinto por categoría). Ahora
+  // cada marcador es un ícono de 34px con emoji sobre círculo de color, vía
+  // L.divIcon en vez de L.circleMarker — al ser un <div> real del DOM (no
+  // SVG/canvas), el área táctil es el ícono completo, sin necesidad del
+  // truco de "tolerance" que se usaba antes.
+  const categoriasIconos = {
+    personas: '🏃',
+    vehiculos: '🚗',
+    propiedad: '🏠',
+    infraestructura: '🔧',
+    accidentes: '💥',
+    emergencias: '🚨',
+    seguridad: '🛡️'
+  };
+
+  function getCategoryIcon(categoria) {
+    return categoriasIconos[categoria] || '📍';
+  }
 
   // Filtros activos
   const filters = {
@@ -105,23 +119,14 @@ window.DenunciasHistoricoLayer = (() => {
             console.log(
               `📋 ${denunciasData.length} denuncias históricas cargadas`
             );
-            
-            // DEBUG: Mostrar estructura
-            if (denunciasData.length > 0) {
-              console.log('📍 === PRIMERA DENUNCIA HISTÓRICA ===');
-              console.log('📍 Objeto completo:', JSON.stringify(denunciasData[0], null, 2));
-              console.log('📍 Campos:', Object.keys(denunciasData[0]));
-              console.log(`📍 lat type: ${typeof denunciasData[0].lat}, value: ${denunciasData[0].lat}`);
-              console.log(`📍 lng type: ${typeof denunciasData[0].lng}, value: ${denunciasData[0].lng}`);
-              
-              const conCoords = denunciasData.filter(d => d.lat && d.lng).length;
-              console.log(`📍 Con coordenadas: ${conCoords}/${denunciasData.length}`);
-              
-              console.log('📍 Tipos de lat/lng en primeros 5:');
-              denunciasData.slice(0, 5).forEach((d, i) => {
-                console.log(`  [${i}] lat=${d.lat} (${typeof d.lat}), lng=${d.lng} (${typeof d.lng})`);
-              });
-            }
+
+            // 🆕 Se sacó el bloque de debug que imprimía JSON.stringify del
+            // primer objeto completo + detalle de lat/lng de los primeros 5
+            // en CADA actualización de Firestore (2026-02). Era debug de
+            // cuando se armó esta capa, ya cumplió su función — dejarlo
+            // corriendo en producción, en cada onSnapshot, era puro costo de
+            // performance sin beneficio (y explicaba buena parte de los
+            // cientos de mensajes en consola que se veían en mobile).
 
             // Obtener filtros disponibles
             updateDenunciasFilters();
@@ -275,21 +280,23 @@ window.DenunciasHistoricoLayer = (() => {
       if (!denuncia.lat || !denuncia.lng) return;
 
       const color = getCategoryColor(denuncia.categoria);
+      const icon = getCategoryIcon(denuncia.categoria);
       const categoryLabel = getCategoryLabel(denuncia.categoria);
       const subLabel = denuncia.subcategoria
         ? getSubcategoryInfoLabel(denuncia.categoria, denuncia.subcategoria)
         : '';
 
-      // Crear marcador
-      const marker = L.circleMarker([denuncia.lat, denuncia.lng], {
-        renderer: touchRenderer,
-        radius: 6,
-        fillColor: color,
-        color: color,
-        weight: 2,
-        opacity: 0.8,
-        fillOpacity: 0.6
+      // Ícono de categoría: círculo de color con emoji adentro, borde blanco
+      // y sombra para que se lea bien sobre cualquier fondo del mapa.
+      const divIcon = L.divIcon({
+        className: 'denuncia-marker-icon',
+        html: `<div style="width:34px;height:34px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:17px;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);">${icon}</div>`,
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
+        popupAnchor: [0, -18]
       });
+
+      const marker = L.marker([denuncia.lat, denuncia.lng], { icon: divIcon });
 
       // Popup con información
       const popupContent = `
@@ -320,26 +327,7 @@ window.DenunciasHistoricoLayer = (() => {
         </div>
       `;
 
-      marker.bindPopup(popupContent, { closeButton: true });
-
-      // Marca visual al abrir/cerrar popup (funciona en mobile y desktop)
-      marker.on('popupopen', function () {
-        this.setStyle({
-          radius: 9,
-          weight: 3,
-          opacity: 1,
-          fillOpacity: 0.9
-        });
-      });
-
-      marker.on('popupclose', function () {
-        this.setStyle({
-          radius: 6,
-          weight: 2,
-          opacity: 0.8,
-          fillOpacity: 0.6
-        });
-      });
+      marker.bindPopup(popupContent);
 
       denunciasLayer.addLayer(marker);
     });

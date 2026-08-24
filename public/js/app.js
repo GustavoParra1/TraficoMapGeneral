@@ -139,6 +139,16 @@ function activarModoVecino() {
   console.log('📱 Modo vecino activado (?vista=vecino)');
   document.body.classList.add('vista-vecino');
 
+  // 🆕 Zoom mínimo para vecino (2026-02): el zoom con el que abre el mapa
+  // depende de la config del cliente en Firestore (o del citiesConfig
+  // general), pensado para la vista admin de toda la ciudad. Para el vecino
+  // eso deja las calles ilegibles — acá se fuerza un piso de zoom 15 (nivel
+  // de barrio/calle) sin bajar el zoom si el cliente ya tenía configurado
+  // algo más cercano.
+  if (map && typeof map.getZoom === 'function' && map.getZoom() < 15) {
+    map.setZoom(15);
+  }
+
   // --- CSS: el sidebar de escritorio completo queda oculto (sigue existiendo
   // en el DOM sin display, así que toda la lógica de app.js que hace
   // getElementById(...) sobre sus checkboxes sigue funcionando igual que en
@@ -157,84 +167,89 @@ function activarModoVecino() {
     }
     #vecino-layers-panel {
       position: fixed;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
       z-index: 2000;
       display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: rgba(15, 23, 42, 0.92);
-      padding: 10px;
-      border-radius: 18px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      padding: 8px;
+      border-radius: 999px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.28);
+      max-width: calc(100vw - 20px);
     }
     #vecino-layers-panel button {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 4px;
-      width: 68px;
-      height: 68px;
-      padding: 0;
+      gap: 8px;
+      padding: 8px 16px 8px 8px;
       border: none;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.08);
-      color: #cbd5e1;
-      font-size: 11px;
+      border-radius: 999px;
+      background: transparent;
+      color: #1e293b;
+      font-size: 13px;
       font-weight: 700;
-      line-height: 1.15;
-      text-align: center;
       cursor: pointer;
-      transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+      transition: background 0.15s ease, color 0.15s ease;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
       -webkit-user-select: none;
       user-select: none;
       pointer-events: auto;
+      white-space: nowrap;
     }
-    #vecino-layers-panel button .vlp-icon { font-size: 24px; }
+    #vecino-layers-panel button .vlp-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: #f1f5f9;
+      flex-shrink: 0;
+    }
     #vecino-layers-panel button.active {
       background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
       color: white;
-      box-shadow: 0 4px 14px rgba(2,132,199,0.45);
     }
-    #vecino-layers-panel button:active { transform: scale(0.94); }
+    #vecino-layers-panel button.active .vlp-icon { background: rgba(255,255,255,0.25); }
+    #vecino-layers-panel button:active { transform: scale(0.96); }
     #vecino-layers-panel select {
-      width: 100%;
-      max-width: 130px;
       font-size: 12px;
-      padding: 8px 6px;
-      border-radius: 12px;
+      font-weight: 600;
+      padding: 9px 12px;
+      border-radius: 999px;
       border: none;
-      background: rgba(255,255,255,0.08);
-      color: #e2e8f0;
+      background: #f1f5f9;
+      color: #334155;
       -webkit-appearance: none;
       appearance: none;
     }
     #vecino-layers-panel select:disabled { opacity: 0.4; }
     #vecino-volver-btn {
       position: fixed;
-      left: 10px;
-      bottom: 16px;
+      right: 12px;
+      top: 12px;
       z-index: 2000;
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: #ffffff;
+      color: #1e293b;
+      font-size: 18px;
       display: flex;
       align-items: center;
-      gap: 7px;
-      padding: 12px 18px;
-      border: none;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-      color: white;
-      font-size: 14px;
-      font-weight: 700;
-      box-shadow: 0 4px 14px rgba(2,132,199,0.45);
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
       cursor: pointer;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
-    #vecino-volver-btn:active { transform: scale(0.96); }
+    #vecino-volver-btn:active { transform: scale(0.94); }
   `;
   document.head.appendChild(style);
 
@@ -352,7 +367,8 @@ function activarModoVecino() {
     if (document.getElementById('vecino-volver-btn')) return;
     const btn = document.createElement('button');
     btn.id = 'vecino-volver-btn';
-    btn.innerHTML = '← Volver';
+    btn.title = 'Volver';
+    btn.innerHTML = '←';
     btn.addEventListener('click', () => {
       window.location.href = '../vecino-app/index.html';
     });
