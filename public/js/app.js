@@ -155,10 +155,6 @@ function activarModoVecino() {
       height: 1px !important;
       overflow: hidden !important;
     }
-    body.vista-vecino #map {
-      width: 100% !important;
-      min-height: 100vh !important;
-    }
     #vecino-layers-panel {
       position: fixed;
       right: 10px;
@@ -209,6 +205,19 @@ function activarModoVecino() {
     #vecino-layers-panel button:active { transform: scale(0.94); }
   `;
   document.head.appendChild(style);
+
+  // --- El sidebar que ocupaba espacio en el layout (flex) desaparece del
+  // flujo normal al pasar a position:fixed, así que #map pasa a ocupar todo
+  // el ancho automáticamente (ya tiene flex:1 en el CSS de escritorio). Pero
+  // Leaflet cachea el tamaño del contenedor al crear el mapa, ANTES de que
+  // este cambio de layout ocurra — si no le avisamos, el mapa sigue
+  // calculando arrastre/zoom con las medidas viejas (por eso el zoom con
+  // botones funciona pero arrastrar el mapa queda roto o errático).
+  // invalidateSize() le dice a Leaflet "medí de nuevo".
+  if (typeof map !== 'undefined' && map && map.invalidateSize) {
+    setTimeout(() => map.invalidateSize(), 50);
+    setTimeout(() => map.invalidateSize(), 400);
+  }
 
   // --- IDs de los checkboxes reales del sidebar admin que este panel
   // controla. label = texto corto del botón, icon = emoji.
