@@ -221,11 +221,9 @@ function activarModoVecino() {
   // --- IDs de los checkboxes reales del sidebar admin que este panel
   // controla. label = texto corto del botón, icon = emoji.
   const capasVecino = [
-    { id: 'siniestros-checkbox',         icon: '🚦', label: 'Siniestros' },
-    { id: 'robo-checkbox',               icon: '🚗', label: 'Robos' },
-    { id: 'siniestros-historico-checkbox', icon: '📜', label: 'Siniestros\nhist.' },
-    { id: 'robos-historico-checkbox',    icon: '🗂️', label: 'Robos\nhist.' },
-    { id: 'denuncias-historico-checkbox', icon: '📋', label: 'Denuncias\nhist.' }
+    { id: 'siniestros-historico-checkbox', icon: '📜', label: 'Siniestros' },
+    { id: 'robos-historico-checkbox',    icon: '🗂️', label: 'Robos' },
+    { id: 'denuncias-historico-checkbox', icon: '📋', label: 'Denuncias' }
   ];
 
   // --- Crear el panel lateral con un botón por capa. Cada botón hace
@@ -470,6 +468,10 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
     }
     
     // CARGAR SINIESTROS
+    // 🆕 En modo vecino se saca del listado "siniestros" en vivo (dataset
+    // grande, importado en bloque) — el vecino solo ve "siniestros_historico"
+    // (denuncias reales cargadas por vecinos/admin, lista mucho más chica).
+    if (!esVecino) {
     try {
       console.log(`📍 Cargando siniestros del cliente...`);
       const siniestros = await clientDb.collection(`clientes/${clienteId}/siniestros`).get();
@@ -494,6 +496,9 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
       }
     } catch (error) {
       console.warn(`⚠️ Error cargando siniestros:`, error.message);
+    }
+    } else {
+      console.log('📱 Modo vecino: se omite carga de siniestros en vivo (queda solo el histórico)');
     }
     
     // CARGAR CÁMARAS PÚBLICAS
@@ -643,6 +648,9 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
     }
     
     // Robo Automotor
+    // 🆕 Igual que siniestros: en modo vecino se omite (dataset grande en
+    // vivo), queda solo "robos_historico" (más chico, denuncias reales).
+    if (!esVecino) {
     try {
       console.log(`🚗 Cargando robos automotores del cliente...`);
       const robos = await clientDb.collection(`clientes/${clienteId}/robo`).get();
@@ -659,6 +667,9 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
       }
     } catch (error) {
       console.debug(`ℹ️ Robos no disponibles:`, error.message);
+    }
+    } else {
+      console.log('📱 Modo vecino: se omite carga de robos en vivo (queda solo el histórico)');
     }
     
     // Colectivos
