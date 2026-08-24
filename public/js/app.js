@@ -259,10 +259,15 @@ function activarModoVecino() {
       btn.id = `vlp-btn-${id}`;
       btn.innerHTML = `<span class="vlp-icon">${icon}</span><span>${label.replace('\n', '<br>')}</span>`;
 
-      // Pointer Events: un solo evento estándar que cubre touch/mouse/pen
-      // por igual, sin el manejo manual de touchend+click+debounce que
-      // podía pisarse entre sí en Android Chrome.
-      btn.addEventListener('pointerup', () => {
+      // 🆕 Se cambió pointerup -> click (2026-02). pointerup solo se pierde
+      // seguido en Android real: si el dedo se mueve un poco al tocar (jitter
+      // normal), Chrome interpreta que puede ser un scroll y dispara
+      // pointercancel en vez de pointerup, así que el toque no hace nada.
+      // 'click' es el evento donde el navegador YA resolvió esa ambigüedad
+      // tap-vs-scroll con más tolerancia al movimiento — es un solo listener
+      // (no hay touchend en paralelo que lo duplique), así que no reintroduce
+      // el problema de doble disparo que tenía el manejo viejo.
+      btn.addEventListener('click', () => {
         const cb = document.getElementById(id);
         if (cb && !cb.disabled) cb.click();
       });
