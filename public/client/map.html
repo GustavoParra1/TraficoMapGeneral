@@ -533,7 +533,17 @@ async function initializeClientFirebase() {
     console.log(`  📋 clienteId: ${clienteId}`);
     
     // Si no tenemos firebase_cliente en la sesión restaurada, buscarlo en Firestore
-    if (!clienteData || !clienteData.firebase_cliente) {
+    // 🩹 FIX: antes esta condición también disparaba cuando clienteData YA
+    // estaba completo (sesión de admin restaurada bien) pero simplemente
+    // era un cliente "comunidad/autoservicio" sin firebase_cliente — eso es
+    // NORMAL, no un dato faltante. Disparar la búsqueda igual hacía que el
+    // admin cayera en el fallback pensado para vecinos (que exige sesión de
+    // Firebase Auth, cosa que el admin de client-auth.js no tiene — su
+    // sesión vive en sessionStorage), mostrando "Tu sesión expiró" y
+    // redirigiendo a la app vecino aunque el admin estuviera bien logueado.
+    // Ahora solo buscamos si NO tenemos clienteData en absoluto (caso real:
+    // vecino sin sesión restaurada, solo con ?client= en la URL).
+    if (!clienteData) {
       console.log('🔍 Buscando datos completos del cliente en Firestore...');
       
       // Si tenemos clienteId (de sesión o URL params), usarlo para consultar directamente
@@ -734,6 +744,6 @@ setTimeout(() => {
 <script src="../js/patrulla-layer.js?v=20260607001"></script>
 <script src="../js/patrulla-chat.js?v=20260509024"></script>
 <script src="../testing-patrullas.js?v=20260509024"></script>
-<script src="../js/app.js?v=20260824002"></script>
+<script src="../js/app.js?v=20260823002"></script>
 </body>
 </html>
