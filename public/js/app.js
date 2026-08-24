@@ -202,6 +202,19 @@ function activarModoVecino() {
       box-shadow: 0 0 0 2px rgba(14,165,233,0.35);
     }
     #vecino-layers-panel button:active { transform: scale(0.94); }
+    #vecino-layers-panel select {
+      width: 100%;
+      max-width: 110px;
+      font-size: 11px;
+      padding: 5px 4px;
+      border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06);
+      color: #cbd5e1;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    #vecino-layers-panel select:disabled { opacity: 0.4; }
   `;
   document.head.appendChild(style);
 
@@ -220,9 +233,11 @@ function activarModoVecino() {
 
   // --- IDs de los checkboxes reales del sidebar admin que este panel
   // controla. label = texto corto del botón, icon = emoji.
+  // 🆕 Se sacaron Siniestros y Robos (2026-02): el botón de Siniestros
+  // quedaba trabado en mobile y, aunque el toque se resolviera, cargar las
+  // 3 capas históricas juntas en un mapa chico de vecino sumaba de más al
+  // performance general. Queda solo Denuncias + su filtro de categoría.
   const capasVecino = [
-    { id: 'siniestros-historico-checkbox', icon: '📜', label: 'Siniestros' },
-    { id: 'robos-historico-checkbox',    icon: '🗂️', label: 'Robos' },
     { id: 'denuncias-historico-checkbox', icon: '📋', label: 'Denuncias' }
   ];
 
@@ -254,17 +269,49 @@ function activarModoVecino() {
       panel.appendChild(btn);
     });
 
+    // --- Filtro de categoría de denuncias. No duplicamos la lista de
+    // categorías acá: ese select ya existe (oculto) en el sidebar admin,
+    // en #denuncias-categoria-filter, y algún otro módulo (DenunciasHistoricoLayer)
+    // lo puebla con las categorías reales. Este <select> del panel vecino
+    // es un espejo: copia las <option> del real y, al cambiar, aplica el
+    // valor sobre el real y dispara 'change' para reusar el mismo listener
+    // que ya escucha ese select (ver más abajo en este archivo, sección
+    // "Event listeners para filtros de denuncias históricas").
+    const categoriaSelect = document.createElement('select');
+    categoriaSelect.id = 'vlp-denuncias-categoria';
+    categoriaSelect.disabled = true;
+    categoriaSelect.innerHTML = '<option value="all">Categoría</option>';
+    categoriaSelect.addEventListener('change', () => {
+      const real = document.getElementById('denuncias-categoria-filter');
+      if (!real) return;
+      real.value = categoriaSelect.value;
+      real.dispatchEvent(new Event('change'));
+    });
+    panel.appendChild(categoriaSelect);
+
     document.body.appendChild(panel);
 
     // Sincronizar visualmente los botones con el estado real de cada
     // checkbox (por si se activan solos, ver activarCapas más abajo, o si
-    // el usuario los tocara desde otro lado).
+    // el usuario los tocara desde otro lado). También clona las opciones
+    // del select real de categoría apenas estén disponibles (puede tardar
+    // porque depende de que carguen los datos de denuncias) y solo lo
+    // habilita cuando la capa de Denuncias está activa.
+    let categoriasClonadas = false;
     setInterval(() => {
       capasVecino.forEach(({ id }) => {
         const cb = document.getElementById(id);
         const btn = document.getElementById(`vlp-btn-${id}`);
         if (cb && btn) btn.classList.toggle('active', !!cb.checked);
       });
+
+      const cbDenuncias = document.getElementById('denuncias-historico-checkbox');
+      const realCategoria = document.getElementById('denuncias-categoria-filter');
+      if (realCategoria && (!categoriasClonadas || realCategoria.options.length !== categoriaSelect.options.length)) {
+        categoriaSelect.innerHTML = realCategoria.innerHTML;
+        categoriasClonadas = true;
+      }
+      categoriaSelect.disabled = !(cbDenuncias && cbDenuncias.checked);
     }, 400);
 
     return true;
