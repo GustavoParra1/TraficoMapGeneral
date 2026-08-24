@@ -244,20 +244,13 @@ function activarModoVecino() {
       btn.id = `vlp-btn-${id}`;
       btn.innerHTML = `<span class="vlp-icon">${icon}</span><span>${label.replace('\n', '<br>')}</span>`;
 
-      // Un solo toggle por toque: usamos touchend (dispara sin el delay de
-      // ~300ms de 'click' en mobile) y evitamos que el mismo toque también
-      // dispare el 'click' sintético que el navegador manda después.
-      let ultimoToggle = 0;
-      const toggle = (evt) => {
-        if (evt) evt.preventDefault();
-        const ahora = Date.now();
-        if (ahora - ultimoToggle < 350) return; // evita doble disparo touchend+click
-        ultimoToggle = ahora;
+      // Pointer Events: un solo evento estándar que cubre touch/mouse/pen
+      // por igual, sin el manejo manual de touchend+click+debounce que
+      // podía pisarse entre sí en Android Chrome.
+      btn.addEventListener('pointerup', () => {
         const cb = document.getElementById(id);
         if (cb && !cb.disabled) cb.click();
-      };
-      btn.addEventListener('touchend', toggle, { passive: false });
-      btn.addEventListener('click', toggle);
+      });
       panel.appendChild(btn);
     });
 
