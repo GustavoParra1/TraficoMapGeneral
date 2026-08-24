@@ -22,6 +22,13 @@ window.SiniestrosHistoricoLayer = (() => {
   let barriosGeoJson = null;
   let unsubscribe = null;
 
+  // 🆕 Renderer Canvas con "tolerance": agrega un margen invisible alrededor
+  // de cada marcador que también cuenta como clickeable/tocable, sin agrandar
+  // el punto visualmente. radius:8 es ~16px de diámetro — sigue siendo chico
+  // para un dedo real. El renderer SVG (default de Leaflet) no soporta esta
+  // opción; por eso se fuerza Canvas acá.
+  const touchRenderer = L.canvas({ tolerance: 15 });
+
   // Filtros activos
   // "causa" ahora representa la subcategoría del accidente (choque, colision, etc.)
   const filters = {
@@ -385,6 +392,7 @@ window.SiniestrosHistoricoLayer = (() => {
       // color que el relleno, para que se vean como "la misma familia" de
       // marcador en el mapa.
       const marker = L.circleMarker([siniestro.lat, siniestro.lng], {
+        renderer: touchRenderer,
         radius: 8,
         fillColor: color,
         color: '#1a1a1a',

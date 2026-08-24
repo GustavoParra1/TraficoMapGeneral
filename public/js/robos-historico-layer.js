@@ -28,6 +28,13 @@ window.RobosHistoricoLayer = (() => {
   let barriosGeoJson = null;
   let unsubscribe = null;
 
+  // 🆕 Renderer Canvas con "tolerance": agrega un margen invisible alrededor
+  // de cada marcador que también cuenta como clickeable/tocable, sin agrandar
+  // el punto visualmente. radius:6 es ~12px de diámetro — un blanco muy
+  // chico para un dedo real. El renderer SVG (default de Leaflet) no
+  // soporta esta opción; por eso se fuerza Canvas acá.
+  const touchRenderer = L.canvas({ tolerance: 15 });
+
   // Filtros activos
   // "causa" ahora representa la subcategoría del robo (auto, moto, bicicleta)
   const filters = {
@@ -391,6 +398,7 @@ window.RobosHistoricoLayer = (() => {
       // color que el relleno, para que se vean como "la misma familia" de
       // marcador en el mapa.
       const marker = L.circleMarker([robo.lat, robo.lng], {
+        renderer: touchRenderer,
         radius: 6,
         fillColor: color,
         color: '#333',

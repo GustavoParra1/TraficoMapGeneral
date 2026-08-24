@@ -16,6 +16,14 @@ window.DenunciasHistoricoLayer = (() => {
   let barriosGeoJson = null;
   let unsubscribe = null;
 
+  // 🆕 Renderer Canvas con "tolerance": agrega un margen invisible alrededor
+  // de cada marcador que también cuenta como clickeable/tocable, sin agrandar
+  // el punto visualmente. El radius:6 del marcador es ~12px de diámetro —
+  // un blanco muy chico para un dedo real, por eso costaba tanto abrir el
+  // popup en mobile. El renderer SVG (default de Leaflet) no soporta esta
+  // opción; por eso acá se fuerza Canvas para esta capa puntualmente.
+  const touchRenderer = L.canvas({ tolerance: 15 });
+
   // Mapa de colores por categoría principal
   const categoriasColores = {
     personas: '#dc2626',           // Rojo
@@ -274,6 +282,7 @@ window.DenunciasHistoricoLayer = (() => {
 
       // Crear marcador
       const marker = L.circleMarker([denuncia.lat, denuncia.lng], {
+        renderer: touchRenderer,
         radius: 6,
         fillColor: color,
         color: color,
