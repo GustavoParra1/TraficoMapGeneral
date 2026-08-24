@@ -215,6 +215,27 @@ function activarModoVecino() {
       appearance: none;
     }
     #vecino-layers-panel select:disabled { opacity: 0.4; }
+    #vecino-volver-btn {
+      position: fixed;
+      left: 10px;
+      top: 10px;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.92);
+      color: #f1f5f9;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #vecino-volver-btn:active { transform: scale(0.96); }
   `;
   document.head.appendChild(style);
 
@@ -321,6 +342,24 @@ function activarModoVecino() {
 
     return true;
   }
+
+  // --- Botón "Volver" fijo arriba a la izquierda, para poder salir del
+  // mapa y regresar a la pantalla de pánico/denuncias (public/vecino-app/)
+  // sin usar el botón "atrás" del navegador (que en la PWA instalada no
+  // siempre está disponible). No depende de crearPanelVecino() ni de que
+  // el sidebar admin haya renderizado — se agrega apenas arranca el modo
+  // vecino, así que aparece de entrada.
+  function crearBotonVolver() {
+    if (document.getElementById('vecino-volver-btn')) return;
+    const btn = document.createElement('button');
+    btn.id = 'vecino-volver-btn';
+    btn.innerHTML = '← Volver';
+    btn.addEventListener('click', () => {
+      window.location.href = '../vecino-app/index.html';
+    });
+    document.body.appendChild(btn);
+  }
+  crearBotonVolver();
 
   let intentosPanel = 0;
   const esperarPanel = setInterval(() => {
