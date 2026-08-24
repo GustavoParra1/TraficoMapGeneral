@@ -163,10 +163,10 @@ function activarModoVecino() {
       z-index: 2000;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       background: rgba(15, 23, 42, 0.92);
-      padding: 8px;
-      border-radius: 14px;
+      padding: 10px;
+      border-radius: 18px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
     #vecino-layers-panel button {
@@ -174,43 +174,42 @@ function activarModoVecino() {
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2px;
-      width: 56px;
-      height: 56px;
+      gap: 4px;
+      width: 68px;
+      height: 68px;
       padding: 0;
-      border: 1.5px solid rgba(255,255,255,0.15);
-      border-radius: 10px;
-      background: rgba(255,255,255,0.06);
+      border: none;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.08);
       color: #cbd5e1;
-      font-size: 10px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       line-height: 1.15;
       text-align: center;
       cursor: pointer;
-      transition: background 0.15s ease, border-color 0.15s ease;
+      transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
       -webkit-user-select: none;
       user-select: none;
       pointer-events: auto;
     }
-    #vecino-layers-panel button .vlp-icon { font-size: 18px; }
+    #vecino-layers-panel button .vlp-icon { font-size: 24px; }
     #vecino-layers-panel button.active {
-      background: #0ea5e9;
-      border-color: #0ea5e9;
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
       color: white;
-      box-shadow: 0 0 0 2px rgba(14,165,233,0.35);
+      box-shadow: 0 4px 14px rgba(2,132,199,0.45);
     }
     #vecino-layers-panel button:active { transform: scale(0.94); }
     #vecino-layers-panel select {
       width: 100%;
-      max-width: 110px;
-      font-size: 11px;
-      padding: 5px 4px;
-      border-radius: 8px;
-      border: 1.5px solid rgba(255,255,255,0.15);
-      background: rgba(255,255,255,0.06);
-      color: #cbd5e1;
+      max-width: 130px;
+      font-size: 12px;
+      padding: 8px 6px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(255,255,255,0.08);
+      color: #e2e8f0;
       -webkit-appearance: none;
       appearance: none;
     }
@@ -218,19 +217,19 @@ function activarModoVecino() {
     #vecino-volver-btn {
       position: fixed;
       left: 10px;
-      top: 10px;
+      bottom: 16px;
       z-index: 2000;
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 10px 14px;
+      gap: 7px;
+      padding: 12px 18px;
       border: none;
-      border-radius: 10px;
-      background: rgba(15, 23, 42, 0.92);
-      color: #f1f5f9;
-      font-size: 13px;
-      font-weight: 600;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      border-radius: 999px;
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(2,132,199,0.45);
       cursor: pointer;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
