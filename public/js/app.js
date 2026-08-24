@@ -164,11 +164,10 @@ function activarModoVecino() {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.92);
       padding: 8px;
       border-radius: 14px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-      backdrop-filter: blur(4px);
     }
     #vecino-layers-panel button {
       display: flex;
