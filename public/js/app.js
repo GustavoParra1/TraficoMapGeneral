@@ -192,7 +192,12 @@ function activarModoVecino() {
       line-height: 1.15;
       text-align: center;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+      pointer-events: auto;
     }
     #vecino-layers-panel button .vlp-icon { font-size: 18px; }
     #vecino-layers-panel button.active {
@@ -208,7 +213,6 @@ function activarModoVecino() {
   // --- IDs de los checkboxes reales del sidebar admin que este panel
   // controla. label = texto corto del botón, icon = emoji.
   const capasVecino = [
-    { id: 'toggle-barrios',              icon: '🏘️', label: 'Barrios' },
     { id: 'siniestros-checkbox',         icon: '🚦', label: 'Siniestros' },
     { id: 'robo-checkbox',               icon: '🚗', label: 'Robos' },
     { id: 'siniestros-historico-checkbox', icon: '📜', label: 'Siniestros\nhist.' },
@@ -233,10 +237,21 @@ function activarModoVecino() {
       const btn = document.createElement('button');
       btn.id = `vlp-btn-${id}`;
       btn.innerHTML = `<span class="vlp-icon">${icon}</span><span>${label.replace('\n', '<br>')}</span>`;
-      btn.addEventListener('click', () => {
+
+      // Un solo toggle por toque: usamos touchend (dispara sin el delay de
+      // ~300ms de 'click' en mobile) y evitamos que el mismo toque también
+      // dispare el 'click' sintético que el navegador manda después.
+      let ultimoToggle = 0;
+      const toggle = (evt) => {
+        if (evt) evt.preventDefault();
+        const ahora = Date.now();
+        if (ahora - ultimoToggle < 350) return; // evita doble disparo touchend+click
+        ultimoToggle = ahora;
         const cb = document.getElementById(id);
         if (cb && !cb.disabled) cb.click();
-      });
+      };
+      btn.addEventListener('touchend', toggle, { passive: false });
+      btn.addEventListener('click', toggle);
       panel.appendChild(btn);
     });
 
@@ -420,8 +435,14 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
         features: features
       };
     };
-    
+
+    // 🆕 En modo vecino (?vista=vecino) no cargamos barrios ni semáforos:
+    // no tienen botón en el panel lateral y el vecino no debe ver esos datos
+    // en esta pantalla.
+    const esVecino = new URLSearchParams(window.location.search).get('vista') === 'vecino';
+
     // CARGAR BARRIOS
+    if (!esVecino) {
     try {
       console.log(`📍 Cargando barrios del cliente...`);
       const barrios = await clientDb.collection(`clientes/${clienteId}/barrios`).get();
@@ -435,6 +456,9 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
       }
     } catch (error) {
       console.warn(`⚠️ Error cargando barrios:`, error.message);
+    }
+    } else {
+      console.log('📱 Modo vecino: se omite carga de barrios');
     }
     
     // CARGAR SINIESTROS
@@ -513,6 +537,7 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
     // CARGAR CAPAS OPCIONALES DEL CLIENTE
     
     // Semáforos
+    if (!esVecino) {
     try {
       console.log(`🚦 Cargando semáforos del cliente...`);
       const semaforos = await clientDb.collection(`clientes/${clienteId}/semaforos`).get();
@@ -526,6 +551,9 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
       }
     } catch (error) {
       console.debug(`ℹ️ Semáforos no disponibles:`, error.message);
+    }
+    } else {
+      console.log('📱 Modo vecino: se omite carga de semáforos');
     }
 
     // Aforos (flujo vehicular por cámara). A diferencia de las demás capas,
