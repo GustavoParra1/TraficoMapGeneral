@@ -139,63 +139,134 @@ function activarModoVecino() {
   console.log('📱 Modo vecino activado (?vista=vecino)');
   document.body.classList.add('vista-vecino');
 
-  // --- CSS: convertir el sidebar de escritorio en una hoja inferior mobile,
-  // y ocultar por default todas las secciones (después mostramos solo las
-  // relevantes agregándoles la clase .vecino-visible).
+  // --- CSS: el sidebar de escritorio completo queda oculto (sigue existiendo
+  // en el DOM sin display, así que toda la lógica de app.js que hace
+  // getElementById(...) sobre sus checkboxes sigue funcionando igual que en
+  // el panel admin — solo que invisible para el vecino). El mapa queda a
+  // pantalla completa y agregamos un panel lateral angosto y flotante con
+  // botones para las capas que el vecino puede ver.
   const style = document.createElement('style');
   style.id = 'vista-vecino-style';
   style.textContent = `
-    body.vista-vecino .sidebar-section { display: none !important; }
-    body.vista-vecino .sidebar-section.vecino-visible { display: block !important; }
     body.vista-vecino #sidebar {
       position: fixed !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      top: auto !important;
+      left: -9999px !important;
+      width: 1px !important;
+      height: 1px !important;
+      overflow: hidden !important;
+    }
+    body.vista-vecino #map {
       width: 100% !important;
-      max-width: 100% !important;
-      max-height: 45vh !important;
-      overflow-y: auto !important;
-      border-radius: 16px 16px 0 0 !important;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.25) !important;
-      z-index: 2000 !important;
-      padding-top: 10px !important;
+      min-height: 100vh !important;
     }
-    body.vista-vecino #sidebar::before {
-      content: '';
-      display: block;
-      width: 40px;
-      height: 4px;
-      background: #ccc;
-      border-radius: 2px;
-      margin: 0 auto 10px auto;
+    #vecino-layers-panel {
+      position: fixed;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 8px;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      backdrop-filter: blur(4px);
     }
+    #vecino-layers-panel button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      width: 56px;
+      height: 56px;
+      padding: 0;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      color: #cbd5e1;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1.15;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    #vecino-layers-panel button .vlp-icon { font-size: 18px; }
+    #vecino-layers-panel button.active {
+      background: #0ea5e9;
+      border-color: #0ea5e9;
+      color: white;
+      box-shadow: 0 0 0 2px rgba(14,165,233,0.35);
+    }
+    #vecino-layers-panel button:active { transform: scale(0.94); }
   `;
   document.head.appendChild(style);
 
-  // --- Mostrar solo las secciones del sidebar que tengan alguno de estos
-  // checkboxes adentro (recorremos hacia arriba hasta .sidebar-section).
-  const idsRelevantes = [
-    'siniestros-checkbox',
-    'siniestros-historico-checkbox',
-    'robo-checkbox',
-    'robos-historico-checkbox',
-    'cameras-checkbox',
-    'private-cameras-checkbox',
-    'heatmap-checkbox'
+  // --- IDs de los checkboxes reales del sidebar admin que este panel
+  // controla. label = texto corto del botón, icon = emoji.
+  const capasVecino = [
+    { id: 'toggle-barrios',              icon: '🏘️', label: 'Barrios' },
+    { id: 'siniestros-checkbox',         icon: '🚦', label: 'Siniestros' },
+    { id: 'robo-checkbox',               icon: '🚗', label: 'Robos' },
+    { id: 'siniestros-historico-checkbox', icon: '📜', label: 'Siniestros\nhist.' },
+    { id: 'robos-historico-checkbox',    icon: '🗂️', label: 'Robos\nhist.' },
+    { id: 'denuncias-historico-checkbox', icon: '📋', label: 'Denuncias\nhist.' }
   ];
-  idsRelevantes.forEach((id) => {
-    const el = document.getElementById(id);
-    const section = el && el.closest('.sidebar-section');
-    if (section) section.classList.add('vecino-visible');
-  });
+
+  // --- Crear el panel lateral con un botón por capa. Cada botón hace
+  // .click() sobre el checkbox real (dispara los mismos listeners 'change'
+  // que ya usa el panel admin) y refleja su estado (activo/inactivo).
+  function crearPanelVecino() {
+    if (document.getElementById('vecino-layers-panel')) return true;
+    // Esperar a que el sidebar admin ya esté renderizado (los checkboxes
+    // existen recién después del primer sidebar.innerHTML en auth.js/app.js).
+    const primerCheckbox = document.getElementById('toggle-barrios');
+    if (!primerCheckbox) return false;
+
+    const panel = document.createElement('div');
+    panel.id = 'vecino-layers-panel';
+
+    capasVecino.forEach(({ id, icon, label }) => {
+      const btn = document.createElement('button');
+      btn.id = `vlp-btn-${id}`;
+      btn.innerHTML = `<span class="vlp-icon">${icon}</span><span>${label.replace('\n', '<br>')}</span>`;
+      btn.addEventListener('click', () => {
+        const cb = document.getElementById(id);
+        if (cb && !cb.disabled) cb.click();
+      });
+      panel.appendChild(btn);
+    });
+
+    document.body.appendChild(panel);
+
+    // Sincronizar visualmente los botones con el estado real de cada
+    // checkbox (por si se activan solos, ver activarCapas más abajo, o si
+    // el usuario los tocara desde otro lado).
+    setInterval(() => {
+      capasVecino.forEach(({ id }) => {
+        const cb = document.getElementById(id);
+        const btn = document.getElementById(`vlp-btn-${id}`);
+        if (cb && btn) btn.classList.toggle('active', !!cb.checked);
+      });
+    }, 400);
+
+    return true;
+  }
+
+  let intentosPanel = 0;
+  const esperarPanel = setInterval(() => {
+    intentosPanel++;
+    if (crearPanelVecino() || intentosPanel > 20) clearInterval(esperarPanel);
+  }, 300);
 
   // --- Auto-activar esas capas (usamos .click() y no checked=true para que
   // se disparen los mismos listeners 'change' que ya usa el panel admin).
   // Reintenta durante unos segundos por si algún checkbox todavía no está
-  // habilitado (ej. el de aforos arranca disabled durante la carga inicial;
-  // acá no lo tocamos, pero por las dudas nos protegemos con el intento).
+  // habilitado.
+  const idsRelevantes = capasVecino.map(c => c.id);
   let intentos = 0;
   const activarCapas = setInterval(() => {
     intentos++;
