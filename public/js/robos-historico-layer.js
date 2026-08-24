@@ -424,8 +424,9 @@ window.RobosHistoricoLayer = (() => {
         </div>
       `;
 
-      marker.bindPopup(popupContent);
-      marker.on('mouseover', function () { this.openPopup(); });
+      marker.bindPopup(popupContent, { closeButton: true });
+      // En mobile, los eventos mouseover no funcionan.
+      // bindPopup() abre automáticamente al hacer click en mobile
 
       clusterGroup.addLayer(marker);
     });

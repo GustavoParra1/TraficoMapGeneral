@@ -418,10 +418,10 @@ window.SiniestrosHistoricoLayer = (() => {
         </div>
       `;
 
-      marker.bindPopup(popupContent);
+      marker.bindPopup(popupContent, { closeButton: true });
 
-      // Efectos hover
-      marker.on('mouseover', function () {
+      // Efectos al abrir/cerrar popup (funciona en mobile y desktop)
+      marker.on('popupopen', function () {
         this.setStyle({
           radius: 9,
           weight: 3,
@@ -430,7 +430,7 @@ window.SiniestrosHistoricoLayer = (() => {
         });
       });
 
-      marker.on('mouseout', function () {
+      marker.on('popupclose', function () {
         this.setStyle({
           radius: 8,
           weight: 2,

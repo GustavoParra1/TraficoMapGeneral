@@ -497,9 +497,12 @@ const RoboLayer = (() => {
           <strong>Coordenadas:</strong> ${robo.lat.toFixed(4)}, ${robo.lng.toFixed(4)}
         </div>
       `;
-      marker.bindPopup(popupContent);
-      marker.on('mouseover', function() { this.openPopup(); });
-      marker.on('mouseout', function() { this.closePopup(); });
+      marker.bindPopup(popupContent, { closeButton: true });
+      // En mobile, los eventos mouseover/mouseout no funcionan.
+      // Usar click para abrir popup, y cerrar cuando se toca fuera o se cierra
+      marker.on('click', function() { 
+        this.openPopup(); 
+      });
       roboLayer.addLayer(marker);
     });
     

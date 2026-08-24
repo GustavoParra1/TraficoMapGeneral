@@ -320,19 +320,19 @@ window.DenunciasHistoricoLayer = (() => {
         </div>
       `;
 
-      marker.bindPopup(popupContent);
+      marker.bindPopup(popupContent, { closeButton: true });
 
-      // Hover effects
-      marker.on('mouseover', function () {
+      // Marca visual al abrir/cerrar popup (funciona en mobile y desktop)
+      marker.on('popupopen', function () {
         this.setStyle({
-          radius: 8,
+          radius: 9,
           weight: 3,
           opacity: 1,
-          fillOpacity: 0.8
+          fillOpacity: 0.9
         });
       });
 
-      marker.on('mouseout', function () {
+      marker.on('popupclose', function () {
         this.setStyle({
           radius: 6,
           weight: 2,
