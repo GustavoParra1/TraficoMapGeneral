@@ -2555,6 +2555,12 @@ auth.onAuthStateChanged((user) => {
         console.log(`========================================\n`);
       });
       console.log('✓ Event listener para cambio de ciudad agregado');
+    } else if (!isAdminPage && !adminMode) {
+      // Esperado: en modo cliente/vecino el <select id="city-selector"> ni
+      // siquiera se genera (ver el `${!window.isClientMode ? ... : ''}` de
+      // más arriba, en el HTML del sidebar) — un solo cliente por sesión,
+      // no hace falta elegir ciudad. No es un error real, así que no se
+      // loguea como tal.
     } else {
       console.error('❌ citySelector NO encontrado en el DOM');
     }
