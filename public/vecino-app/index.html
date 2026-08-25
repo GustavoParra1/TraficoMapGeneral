@@ -155,12 +155,70 @@ textarea { min-height: 90px; resize: vertical; }
 .sub-category-btn {
   min-width: 110px;
 }
+/* 🆕 Ubicación: GPS (default) vs marcar en el mapa */
+.ubicacion-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.ubicacion-opcion {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  transition: all 0.15s ease;
+}
+.ubicacion-opcion.active {
+  border-color: #0ea5e9;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+#ubicacion-mapa-container {
+  display: none;
+  margin-bottom: 14px;
+}
+#ubicacion-mapa-container.show { display: block; }
+#ubicacion-mini-mapa {
+  width: 100%;
+  height: 220px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid #cbd5e1;
+}
+.ubicacion-ayuda {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 6px;
+  text-align: center;
+}
+.ubicacion-confirmada {
+  font-size: 12px;
+  color: #0369a1;
+  background: #e0f2fe;
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin-top: 6px;
+  text-align: center;
+  font-weight: 600;
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
+<!-- Leaflet: usado para el mini-mapa de "marcar ubicación a mano" -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </head>
 <body>
 <div id="loading-overlay">
@@ -198,6 +256,18 @@ textarea { min-height: 90px; resize: vertical; }
       <option value="robos">🔓 Robos</option>
       <option value="choques">💥 Choques</option>
     </select>
+
+    <!-- 🆕 Ubicación: GPS automático (default) o marcar a mano en el mapa -->
+    <label>Ubicación</label>
+    <div class="ubicacion-toggle">
+      <button type="button" class="ubicacion-opcion active" id="ubicacion-opcion-gps">📍 Mi ubicación (GPS)</button>
+      <button type="button" class="ubicacion-opcion" id="ubicacion-opcion-mapa">🗺️ Marcar en el mapa</button>
+    </div>
+    <div id="ubicacion-mapa-container">
+      <div id="ubicacion-mini-mapa"></div>
+      <div class="ubicacion-ayuda">Tocá el mapa para fijar la ubicación. Podés arrastrar el pin para ajustarla.</div>
+      <div class="ubicacion-confirmada" id="ubicacion-confirmada-msg" style="display:none;"></div>
+    </div>
     
     <label>Descripción</label>
     <div class="input-group">
@@ -220,7 +290,7 @@ textarea { min-height: 90px; resize: vertical; }
 <div class="debug-panel" id="debug-panel"></div>
 <button class="btn-debug" onclick="document.getElementById('debug-panel').classList.toggle('show')">🔧 Debug</button>
 <script src="../js/categories-taxonomy.js?v=20260821004"></script>
-<script src="../js/vecino-app.js?v=20260823001"></script>
+<script src="../js/vecino-app.js?v=20260825001"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW no registrado:', e));

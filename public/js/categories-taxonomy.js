@@ -123,10 +123,21 @@ function getMainCategories() {
  */
 function getCategoryInfo(mainCategory) {
   const cat = CATEGORIES_TAXONOMY[mainCategory];
+  if (!cat) {
+    return { label: mainCategory, color: '#666', icon: '❓' };
+  }
+  // 🩹 FIX (2026-02): las categorías principales nunca tuvieron un campo
+  // `icon` propio (a diferencia de las subcategorías, que sí lo tienen) —
+  // el emoji siempre estuvo pegado como prefijo del `label` (ej:
+  // '👤 Personas'). Por eso `cat?.icon` caía siempre al fallback '❓' en
+  // TODOS los botones de categoría principal. Acá separamos el primer
+  // "token" (el emoji) del resto del texto, sin tocar los datos de arriba.
+  const primerEspacio = cat.label.indexOf(' ');
+  const tieneEmojiPrefijo = primerEspacio > 0;
   return {
-    label: cat?.label || mainCategory,
-    color: cat?.color || '#666',
-    icon: cat?.icon || '❓'
+    label: tieneEmojiPrefijo ? cat.label.slice(primerEspacio + 1) : cat.label,
+    color: cat.color || '#666',
+    icon: tieneEmojiPrefijo ? cat.label.slice(0, primerEspacio) : (cat.icon || '❓')
   };
 }
 

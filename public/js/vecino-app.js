@@ -12,6 +12,15 @@ let fotoSeleccionada = null;
 let messaging = null;
 let miUltimaUbicacion = null; // { lat, lng } - actualizada por el watch de geolocalización
 let watchIdUbicacion = null;
+
+// 🆕 Ubicación manual (2026-02): además del GPS automático (que sigue siendo
+// el default), el vecino puede marcar el punto a mano en un mini-mapa —
+// igual que otras apps de denuncias (ej. voybien/MDD), útil cuando el GPS
+// del celular da una ubicación imprecisa o el hecho pasó en otro lugar.
+let ubicacionModo = 'gps'; // 'gps' | 'mapa'
+let ubicacionManual = null; // { lat, lng } - fijada por el vecino en el mini-mapa
+let miniMapa = null;
+let miniMapaMarker = null;
 const VAPID_KEY = 'BLVqLV44MjFG0JbNIt5wvP6mTD-_SIrKy3fXSiubSGT7pXWvauVA6soiDcPbGr7m9wA2AC2ZDj0p3O6JsEKOwKI';
 const RADIO_ALERTA_METROS = 300;
 
@@ -418,6 +427,79 @@ if (recognition) {
   document.getElementById('voice-status').textContent = '⚠️ Navegador no soportado';
 }
 // ========================================
+// UBICACIÓN: GPS (default) vs marcar en el mapa
+// ========================================
+function actualizarBotonesUbicacion() {
+  document.getElementById('ubicacion-opcion-gps').classList.toggle('active', ubicacionModo === 'gps');
+  document.getElementById('ubicacion-opcion-mapa').classList.toggle('active', ubicacionModo === 'mapa');
+  document.getElementById('ubicacion-mapa-container').classList.toggle('show', ubicacionModo === 'mapa');
+}
+
+function colocarPinManual(lat, lng) {
+  ubicacionManual = { lat, lng };
+  if (!miniMapaMarker) {
+    miniMapaMarker = L.marker([lat, lng], { draggable: true }).addTo(miniMapa);
+    miniMapaMarker.on('dragend', () => {
+      const pos = miniMapaMarker.getLatLng();
+      ubicacionManual = { lat: pos.lat, lng: pos.lng };
+    });
+  } else {
+    miniMapaMarker.setLatLng([lat, lng]);
+  }
+  const msg = document.getElementById('ubicacion-confirmada-msg');
+  msg.style.display = 'block';
+  msg.textContent = '📍 Ubicación fijada — podés arrastrar el pin para ajustarla';
+}
+
+// Se inicializa recién la primera vez que el vecino elige "Marcar en el
+// mapa" (no de arranque): así no gastamos tiles/memoria de un mapa que la
+// mayoría de las veces no hace falta, porque el default sigue siendo GPS.
+function inicializarMiniMapaSiHaceFalta() {
+  if (miniMapa) return;
+
+  // Centrar en la última ubicación conocida por GPS si existe (más útil que
+  // arrancar en cualquier lado); si no hay ninguna todavía, un fallback
+  // razonable y dejar que el vecino navegue el mapa a mano.
+  const centro = (miUltimaUbicacion && !esUbicacionInvalida(miUltimaUbicacion.lat, miUltimaUbicacion.lng))
+    ? [miUltimaUbicacion.lat, miUltimaUbicacion.lng]
+    : [-38.0, -57.55];
+
+  miniMapa = L.map('ubicacion-mini-mapa').setView(centro, 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(miniMapa);
+
+  miniMapa.on('click', (e) => {
+    colocarPinManual(e.latlng.lat, e.latlng.lng);
+  });
+
+  // Leaflet no calcula bien el tamaño de un mapa que nace dentro de un
+  // contenedor oculto (display:none) — como este container empieza oculto
+  // hasta que el vecino elige "Marcar en el mapa", forzamos un
+  // invalidateSize() apenas se muestra por primera vez.
+  setTimeout(() => miniMapa.invalidateSize(), 100);
+
+  // Si ya tenemos GPS, dejamos un pin ahí de arranque (el vecino lo puede
+  // arrastrar si el hecho fue en otro lugar); si no, el mapa queda sin pin
+  // hasta que toque.
+  if (miUltimaUbicacion && !esUbicacionInvalida(miUltimaUbicacion.lat, miUltimaUbicacion.lng)) {
+    colocarPinManual(miUltimaUbicacion.lat, miUltimaUbicacion.lng);
+  }
+}
+
+document.getElementById('ubicacion-opcion-gps').addEventListener('click', () => {
+  ubicacionModo = 'gps';
+  actualizarBotonesUbicacion();
+});
+
+document.getElementById('ubicacion-opcion-mapa').addEventListener('click', () => {
+  ubicacionModo = 'mapa';
+  actualizarBotonesUbicacion();
+  inicializarMiniMapaSiHaceFalta();
+  setTimeout(() => miniMapa && miniMapa.invalidateSize(), 50);
+});
+
+// ========================================
 // ENVIAR DENUNCIA
 // ========================================
 document.getElementById('btn-enviar').addEventListener('click', async () => {
@@ -445,6 +527,13 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
     alert('Selecciona una categoría');
     return;
   }
+
+  // 🆕 Si eligió marcar en el mapa pero todavía no tocó para fijar el pin,
+  // frenar acá en vez de mandar la denuncia sin ubicación silenciosamente.
+  if (ubicacionModo === 'mapa' && !ubicacionManual) {
+    alert('Tocá el mapa para marcar dónde pasó, o volvé a "Mi ubicación (GPS)"');
+    return;
+  }
   
   btn.disabled = true; 
   btn.textContent = 'Enviando...';
@@ -461,13 +550,22 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
     
-    // GPS opcional (timeout ampliado de 5s a 15s: 5s era muy corto para
-    // celulares en interiores o con GPS "frío" que tardan en enganchar)
-    try {
-      const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 15000 }));
-      denuncia.lat = pos.coords.latitude;
-      denuncia.lng = pos.coords.longitude;
-    } catch (e) { console.warn('Sin GPS'); }
+    // 🆕 Ubicación: si el vecino marcó el punto a mano en el mini-mapa, usar
+    // esas coordenadas tal cual (es intencional, no hace falta ir a
+    // buscar GPS). Si no, mantenemos el comportamiento de siempre: GPS
+    // opcional (timeout ampliado de 5s a 15s: 5s era muy corto para
+    // celulares en interiores o con GPS "frío" que tardan en enganchar).
+    if (ubicacionModo === 'mapa' && ubicacionManual) {
+      denuncia.lat = ubicacionManual.lat;
+      denuncia.lng = ubicacionManual.lng;
+      denuncia.ubicacionManual = true; // por si en algún momento se quiere distinguir en el panel admin
+    } else {
+      try {
+        const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 15000 }));
+        denuncia.lat = pos.coords.latitude;
+        denuncia.lng = pos.coords.longitude;
+      } catch (e) { console.warn('Sin GPS'); }
+    }
     
     // Subir foto si hay
     if (fotoSeleccionada) {
@@ -499,6 +597,14 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
     selectedSubcategory = null;
     renderMainCategories();
     renderSubcategories();
+    // 🆕 Volver a GPS por defecto para la próxima denuncia (si dejábamos el
+    // modo "mapa" con el pin viejo puesto, el vecino podría no darse cuenta
+    // y reportar sin querer un hecho nuevo en el lugar del hecho anterior).
+    ubicacionModo = 'gps';
+    ubicacionManual = null;
+    actualizarBotonesUbicacion();
+    const msgUbicacion = document.getElementById('ubicacion-confirmada-msg');
+    if (msgUbicacion) msgUbicacion.style.display = 'none';
     alert('✅ Denuncia enviada correctamente');
     cargarMisDenuncias();
   } catch (e) {
