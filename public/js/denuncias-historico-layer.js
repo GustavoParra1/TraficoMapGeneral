@@ -198,7 +198,8 @@ window.DenunciasHistoricoLayer = (() => {
    */
   function getCategoryLabel(categoria) {
     if (typeof CATEGORIES_TAXONOMY !== 'undefined' && CATEGORIES_TAXONOMY[categoria]) {
-      return getCategoryInfo(categoria).label;
+      const info = getCategoryInfo(categoria);
+      return `${info.icon} ${info.label}`;
     }
     return categoria || 'Sin categoría';
   }
