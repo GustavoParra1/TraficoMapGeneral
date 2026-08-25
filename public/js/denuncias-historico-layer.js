@@ -201,6 +201,20 @@ window.DenunciasHistoricoLayer = (() => {
       const info = getCategoryInfo(categoria);
       return `${info.icon} ${info.label}`;
     }
+    // 🩹 Legacy (2026-08): algunas denuncias viejas guardan la SUBcategoría
+    // directamente en el campo `categoria` (ej: 'luminarias', 'panico',
+    // 'semaforos') en vez de la categoría principal + subcategoria. Antes
+    // esos casos caían al fallback de abajo y salían pelados en el filtro.
+    // Buscamos coincidencia entre las subcategorías de la taxonomía para
+    // mostrarlas con su propio ícono y etiqueta.
+    if (typeof CATEGORIES_TAXONOMY !== 'undefined') {
+      for (const mainKey in CATEGORIES_TAXONOMY) {
+        const sub = CATEGORIES_TAXONOMY[mainKey].subcategories?.[categoria];
+        if (sub) {
+          return `${sub.icon} ${sub.label}`;
+        }
+      }
+    }
     return categoria || 'Sin categoría';
   }
 
