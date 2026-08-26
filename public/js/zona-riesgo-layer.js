@@ -234,18 +234,21 @@ window.ZonaRiesgoLayer = (() => {
     if (clickMarker) {
       map.removeLayer(clickMarker);
     }
-    clickMarker = L.circleMarker([lat, lng], {
-      radius: 8,
+    // 🆕 Círculo real de RADIO_CONSULTA_M metros (L.circle usa metros, a
+    // diferencia de L.circleMarker que usa píxeles) — así se ve exactamente
+    // qué área se tuvo en cuenta para el conteo, no solo un punto.
+    clickMarker = L.circle([lat, lng], {
+      radius: RADIO_CONSULTA_M,
       color: riesgo.color,
       weight: 2,
       fillColor: riesgo.color,
-      fillOpacity: 0.5
+      fillOpacity: 0.12
     }).addTo(map);
 
     const popupContent = `
       <div style="font-size: 13px; min-width: 190px;">
         <div style="font-weight: bold; color: ${riesgo.color}; margin-bottom: 6px;">
-          ${riesgo.emoji} Riesgo ${riesgo.nivel}
+          ${riesgo.emoji} Riesgo ${riesgo.nivel} <span style="font-weight: normal; color: #666;">(radio ${RADIO_CONSULTA_M}m)</span>
         </div>
         <div style="margin-bottom: 4px;">💥 Siniestros: <strong>${totalSiniestros}</strong></div>
         <div style="margin-bottom: 4px;">🚗 Robos: <strong>${totalRobos}</strong></div>
