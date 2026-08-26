@@ -64,6 +64,7 @@ function iniciarMapa() {
   ['CorredoresLayer', () => CorredoresLayer.init(map)],
   ['ColectivosLayer', () => ColectivosLayer.init(map)],
   ['HeatmapLayer', () => heatmapLayer.init()],
+  ['ZonaRiesgoLayer', () => typeof ZonaRiesgoLayer !== 'undefined' && ZonaRiesgoLayer.init(map)],
   ['AforosLayer', () => typeof AforosLayer !== 'undefined' && AforosLayer.init(map)],
   ['RoboLayer', () => typeof RoboLayer !== 'undefined' && RoboLayer.init(map)],
   ['SiniestrosHistoricoLayer', () => typeof SiniestrosHistoricoLayer !== 'undefined' && SiniestrosHistoricoLayer.init(map)],
@@ -273,7 +274,15 @@ function activarModoVecino() {
   // 3 capas históricas juntas en un mapa chico de vecino sumaba de más al
   // performance general. Queda solo Denuncias + su filtro de categoría.
   const capasVecino = [
-    { id: 'denuncias-historico-checkbox', icon: '📋', label: 'Denuncias' }
+    { id: 'denuncias-historico-checkbox', icon: '📋', label: 'Denuncias', autoActivar: true },
+    // 🆕 (2026-08) Zona de Riesgo: heatmap combinado de siniestros+robos
+    // oficiales + reportados por vecinos. Es liviano (solo densidad, sin
+    // marcadores por evento) así que sí puede convivir en el mapa mobile
+    // del vecino — ver zona-riesgo-layer.js. No se auto-activa: es un
+    // heatmap que tapa bastante el mapa y además cada toque sobre el mapa
+    // abre un popup de riesgo, así que mejor que el vecino lo prenda
+    // cuando quiera verlo en vez de encontrárselo puesto de entrada.
+    { id: 'zona-riesgo-checkbox', icon: '🚨', label: 'Zona de\nRiesgo', autoActivar: false }
   ];
 
   // --- Crear el panel lateral con un botón por capa. Cada botón hace
@@ -386,7 +395,7 @@ function activarModoVecino() {
   // se disparen los mismos listeners 'change' que ya usa el panel admin).
   // Reintenta durante unos segundos por si algún checkbox todavía no está
   // habilitado.
-  const idsRelevantes = capasVecino.map(c => c.id);
+  const idsRelevantes = capasVecino.filter(c => c.autoActivar !== false).map(c => c.id);
   let intentos = 0;
   const activarCapas = setInterval(() => {
     intentos++;
@@ -567,37 +576,45 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
     }
     
     // CARGAR SINIESTROS
-    // 🆕 En modo vecino se saca del listado "siniestros" en vivo (dataset
-    // grande, importado en bloque) — el vecino solo ve "siniestros_historico"
-    // (denuncias reales cargadas por vecinos/admin, lista mucho más chica).
-    if (!esVecino) {
+    // 🆕 (2026-08) En modo vecino se sigue omitiendo la capa de marcadores +
+    // clusters de SiniestrosLayer (eso sí era el costo real de performance),
+    // pero ahora SÍ se trae la colección para alimentar el heatmap liviano
+    // de ZonaRiesgoLayer (ver zona-riesgo-layer.js) — un heatmap no arma
+    // marcadores individuales, solo pinta densidad, así que el costo de
+    // pintarlo es bajo aunque el de descargar la colección completa desde
+    // Firestore sea el mismo que en modo admin.
     try {
       console.log(`📍 Cargando siniestros del cliente...`);
       const siniestros = await clientDb.collection(`clientes/${clienteId}/siniestros`).get();
       if (siniestros.size > 0) {
         const sinGeoJson = firestoreColToGeoJSON(siniestros.docs);
         console.log(`  ✓ ${sinGeoJson.features.length} siniestros cargados`);
-        
-        // Solo intentar cargar si SiniestrosLayer está disponible
-        if (typeof SiniestrosLayer !== 'undefined') {
-          SiniestrosLayer.clearFilters();
-          SiniestrosLayer.loadFromGeoJson(sinGeoJson, true);
-          heatmapLayer.setData(sinGeoJson);
-          if (bariosGeoJson) {
-            heatmapLayer.setBarriosGeoJson(bariosGeoJson);
+
+        if (typeof ZonaRiesgoLayer !== 'undefined') {
+          ZonaRiesgoLayer.setSiniestrosOficiales(sinGeoJson);
+        }
+
+        if (!esVecino) {
+          // Solo intentar cargar si SiniestrosLayer está disponible
+          if (typeof SiniestrosLayer !== 'undefined') {
+            SiniestrosLayer.clearFilters();
+            SiniestrosLayer.loadFromGeoJson(sinGeoJson, true);
+            heatmapLayer.setData(sinGeoJson);
+            if (bariosGeoJson) {
+              heatmapLayer.setBarriosGeoJson(bariosGeoJson);
+            }
+            console.log(`  ✅ Siniestros cargados en SiniestrosLayer`);
+          } else {
+            console.log(`  ⚠️ SiniestrosLayer aún no disponible, se cargará después en cargarDatosGeograficos()`);
           }
-          console.log(`  ✅ Siniestros cargados en SiniestrosLayer`);
         } else {
-          console.log(`  ⚠️ SiniestrosLayer aún no disponible, se cargará después en cargarDatosGeograficos()`);
+          console.log('📱 Modo vecino: siniestros solo van al heatmap de Zona de Riesgo (sin marcadores)');
         }
       } else {
         console.log(`  ℹ️ No hay siniestros en la base de datos del cliente`);
       }
     } catch (error) {
       console.warn(`⚠️ Error cargando siniestros:`, error.message);
-    }
-    } else {
-      console.log('📱 Modo vecino: se omite carga de siniestros en vivo (queda solo el histórico)');
     }
     
     // CARGAR CÁMARAS PÚBLICAS
@@ -747,28 +764,34 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
     }
     
     // Robo Automotor
-    // 🆕 Igual que siniestros: en modo vecino se omite (dataset grande en
-    // vivo), queda solo "robos_historico" (más chico, denuncias reales).
-    if (!esVecino) {
+    // 🆕 (2026-08) Igual que siniestros arriba: en modo vecino se sigue
+    // omitiendo RoboLayer (marcadores + clusters), pero se trae la
+    // colección para alimentar el heatmap liviano de ZonaRiesgoLayer.
     try {
       console.log(`🚗 Cargando robos automotores del cliente...`);
       const robos = await clientDb.collection(`clientes/${clienteId}/robo`).get();
       if (robos.size > 0) {
         const robosGeoJson = firestoreColToGeoJSON(robos.docs);
         console.log(`  ✓ ${robosGeoJson.features.length} robos cargados`);
-        RoboLayer.loadRoboFromGeoJSON(robosGeoJson);
-        if (bariosGeoJson) {
-          RoboLayer.setBarriosData(bariosGeoJson);
+
+        if (typeof ZonaRiesgoLayer !== 'undefined') {
+          ZonaRiesgoLayer.setRobosOficiales(robosGeoJson);
         }
-        setTimeout(() => {
-          populateRoboFilters();
-        }, 500);
+
+        if (!esVecino) {
+          RoboLayer.loadRoboFromGeoJSON(robosGeoJson);
+          if (bariosGeoJson) {
+            RoboLayer.setBarriosData(bariosGeoJson);
+          }
+          setTimeout(() => {
+            populateRoboFilters();
+          }, 500);
+        } else {
+          console.log('📱 Modo vecino: robos solo van al heatmap de Zona de Riesgo (sin marcadores)');
+        }
       }
     } catch (error) {
       console.debug(`ℹ️ Robos no disponibles:`, error.message);
-    }
-    } else {
-      console.log('📱 Modo vecino: se omite carga de robos en vivo (queda solo el histórico)');
     }
     
     // Colectivos
@@ -1616,6 +1639,10 @@ auth.onAuthStateChanged((user) => {
             <span style="position: relative; z-index: 100;">🔥 Mapa de Calor de Siniestros</span>
           </label>
           <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="zona-riesgo-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">🚨 Zona de Riesgo (siniestros + robos)</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
             <input type="checkbox" id="colegios-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
             <span style="position: relative; z-index: 100;">🏫 Escuelas y Colegios (<span id="total-colegios-count">0</span>)</span>
           </label>
@@ -2251,6 +2278,14 @@ auth.onAuthStateChanged((user) => {
     
     // Adjuntar listener al checkbox de heatmap
     heatmapLayer.attachCheckboxListener();
+
+    // Adjuntar listener al checkbox de Zona de Riesgo
+    const zonaRiesgoCheckbox = document.getElementById('zona-riesgo-checkbox');
+    if (zonaRiesgoCheckbox && typeof ZonaRiesgoLayer !== 'undefined') {
+      zonaRiesgoCheckbox.addEventListener('change', (e) => {
+        ZonaRiesgoLayer.toggle(e.target.checked);
+      });
+    }
     
     // CARGAR CIUDADES DEL USUARIO AL INICIAR SIDEBAR
     // 🔒 IMPORTANTE: En la página admin/demo, solo mostrar Mar del P y Córdoba

@@ -131,6 +131,14 @@ window.DenunciasHistoricoLayer = (() => {
             // Obtener filtros disponibles
             updateDenunciasFilters();
             applyFilters();
+
+            // 🚨 Alimentar el heatmap de ZonaRiesgoLayer con las denuncias
+            // de vecinos (filtra internamente siniestros/robos y descarta
+            // el resto). Se llama en cada actualización del snapshot, así
+            // que el heatmap queda al día con cada denuncia nueva.
+            if (typeof ZonaRiesgoLayer !== 'undefined') {
+              ZonaRiesgoLayer.setDenunciasVecinos(denunciasData);
+            }
           },
           (error) => {
             console.error('❌ Error escuchando denuncias históricas:', error);
