@@ -139,17 +139,27 @@ window.ZonaRiesgoLayer = (() => {
     }
     if (puntos.length === 0) return;
 
-    // Todos los puntos con la misma intensidad (0.5) — ver nota de pesos
-    // arriba en la cabecera del archivo.
-    const heatData = puntos.map((p) => [p.lat, p.lng, 0.5]);
+    // Todos los puntos con la misma intensidad — ver nota de pesos arriba
+    // en la cabecera del archivo.
+    //
+    // 🎚️ Ajuste de granularidad (2026-08): con radius/blur grandes y sin
+    // "max" explícito, leaflet.heat satura a rojo apenas se superponen
+    // pocos puntos — en una ciudad con lista oficial + reportes, terminaba
+    // casi toda la ciudad roja, sin distinguir zonas de más/menos riesgo.
+    // Radio y blur más chicos + "max" más alto (hace falta más densidad
+    // real para llegar a rojo) dan un degradé más fiel a la cantidad de
+    // eventos de cada zona.
+    const heatData = puntos.map((p) => [p.lat, p.lng, 0.4]);
 
     heatInstance = L.heatLayer(heatData, {
-      radius: 28,
-      blur: 22,
+      radius: 18,
+      blur: 15,
       maxZoom: 17,
+      max: 3.0,
       gradient: {
         0.0: '#22c55e', // Verde: baja densidad
-        0.4: '#eab308', // Amarillo
+        0.3: '#a3e635', // Verde-amarillo
+        0.5: '#eab308', // Amarillo
         0.7: '#f97316', // Naranja
         1.0: '#dc2626'  // Rojo: alta densidad
       }
