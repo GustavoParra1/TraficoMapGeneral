@@ -458,10 +458,17 @@ window.ZonaRiesgoLayer = (() => {
 
     clickMarker.bindPopup(formHtml, { minWidth: 240 }).openPopup();
 
-    // El botón recién existe en el DOM una vez que Leaflet abre el popup.
-    const attachListener = () => {
-      const btn = document.getElementById(`${uid}-btn`);
-      if (!btn) return;
+    // 🐛 Fix (2026-08): antes esto esperaba el evento 'popupopen' del mapa
+    // para enganchar el listener del botón, pero Leaflet dispara ese
+    // evento de forma SINCRÓNICA dentro de .openPopup() — para cuando el
+    // 'map.once(...)' se registraba (una línea más abajo), el evento ya
+    // había pasado y el botón "Calcular" quedaba sin funcionalidad (se
+    // veía el formulario pero tocar el botón no hacía nada). openPopup()
+    // ya deja el contenido insertado en el DOM de forma sincrónica, así
+    // que alcanza con enganchar el listener directo, sin esperar ningún
+    // evento.
+    const btn = document.getElementById(`${uid}-btn`);
+    if (btn) {
       btn.addEventListener('click', () => {
         const fechaInput = document.getElementById(`${uid}-fecha`);
         const valor = fechaInput ? fechaInput.value : '';
@@ -476,9 +483,9 @@ window.ZonaRiesgoLayer = (() => {
         // para que reajuste la posición y no quede cortado.
         if (clickMarker) clickMarker.getPopup().update();
       });
-    };
-
-    map.once('popupopen', attachListener);
+    } else {
+      console.warn('⚠️ ZonaRiesgoLayer: no se encontró el botón del comparador en el DOM');
+    }
   }
 
   function getMetadata() {
