@@ -422,6 +422,10 @@
 
 <!-- Leaflet Heat JS -->
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<!-- turf.js (2026-08): varios módulos ya lo referenciaban (denuncias-historico-layer.js,
+     app.js, zona-riesgo-layer.js) para punto-en-polígono, pero nunca estuvo cargado
+     acá — corrían siempre por el fallback aproximado sin darse cuenta. -->
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
 
 <!-- Firebase JS (v8 Compat) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -733,7 +737,7 @@ setTimeout(() => {
 <script src="../js/colegios-layer.js?v=20260509024"></script>
 <script src="../js/corredores-layer.js?v=20260509024"></script>
 <script src="../js/heatmap-layer.js?v=20260509024"></script>
-<script src="../js/zona-riesgo-layer.js?v=20260825008"></script>
+<script src="../js/zona-riesgo-layer.js?v=20260826001"></script>
 <script src="../js/aforos-layer.js?v=20260509024"></script>
 <script src="../js/colectivos-layer.js?v=20260509024"></script>
 <script src="../js/colectivos-ui.js?v=20260509024"></script>
@@ -745,6 +749,6 @@ setTimeout(() => {
 <script src="../js/patrulla-layer.js?v=20260607001"></script>
 <script src="../js/patrulla-chat.js?v=20260509024"></script>
 <script src="../testing-patrullas.js?v=20260509024"></script>
-<script src="../js/app.js?v=20260825002"></script>
+<script src="../js/app.js?v=20260826001"></script>
 </body>
 </html>

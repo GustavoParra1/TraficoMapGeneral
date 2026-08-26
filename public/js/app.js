@@ -565,6 +565,7 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
         console.log(`  ✓ ${bariosGeoJson.features.length} barrios cargados`);
         GeoLayers.loadEmbeddedGeoJson('Zonas / Barrios', bariosGeoJson, true);
         SiniestrosLayer.setBarriosGeoJson(bariosGeoJson);
+        if (typeof ZonaRiesgoLayer !== 'undefined') ZonaRiesgoLayer.setBarriosGeoJson(bariosGeoJson);
       } else {
         console.log(`  ℹ️ No hay barrios en la base de datos del cliente`);
       }
@@ -1010,6 +1011,7 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
       GeoLayers.loadEmbeddedGeoJson('Zonas / Barrios', bariosGeoJson, false);
       // Pasar barrios a SiniestrosLayer para filtrado geopolítico
       SiniestrosLayer.setBarriosGeoJson(bariosGeoJson);
+      if (typeof ZonaRiesgoLayer !== 'undefined') ZonaRiesgoLayer.setBarriosGeoJson(bariosGeoJson);
     }
     
     // INTENTO 1: Cargar siniestros desde Firestore (datos cargados por usuario)
@@ -1646,6 +1648,18 @@ auth.onAuthStateChanged((user) => {
             <input type="checkbox" id="comparador-zona-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
             <span style="position: relative; z-index: 100;">📊 Comparar Zona (antes/después)</span>
           </label>
+          <div id="comparador-barrio-panel" style="display: none; margin-top: 8px; margin-left: 24px; padding: 8px; background: rgba(14, 165, 233, 0.08); border-radius: 6px;">
+            <label style="font-size: 11px; display: block; margin-bottom: 4px; color: #ccc;">📊 O comparar por barrio:</label>
+            <select id="comparador-barrio-select" style="width: 100%; padding: 4px; margin-bottom: 6px; font-size: 12px; box-sizing: border-box;">
+              <option value="">Elegí un barrio...</option>
+            </select>
+            <label style="font-size: 11px; display: block; margin-bottom: 4px; color: #ccc;">Fecha de la intervención:</label>
+            <input type="date" id="comparador-barrio-fecha" style="width: 100%; padding: 4px; margin-bottom: 6px; font-size: 12px; box-sizing: border-box;">
+            <button id="comparador-barrio-btn" style="width: 100%; padding: 6px; background: #0ea5e9; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;">
+              Calcular
+            </button>
+            <div id="comparador-barrio-resultado"></div>
+          </div>
           <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
             <input type="checkbox" id="colegios-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
             <span style="position: relative; z-index: 100;">🏫 Escuelas y Colegios (<span id="total-colegios-count">0</span>)</span>
@@ -2293,9 +2307,13 @@ auth.onAuthStateChanged((user) => {
 
     // Adjuntar listener al checkbox de Comparar Zona (antes/después)
     const comparadorZonaCheckbox = document.getElementById('comparador-zona-checkbox');
+    const comparadorBarrioPanel = document.getElementById('comparador-barrio-panel');
     if (comparadorZonaCheckbox && typeof ZonaRiesgoLayer !== 'undefined') {
       comparadorZonaCheckbox.addEventListener('change', (e) => {
         ZonaRiesgoLayer.toggleComparador(e.target.checked);
+        if (comparadorBarrioPanel) {
+          comparadorBarrioPanel.style.display = e.target.checked ? 'block' : 'none';
+        }
       });
     }
     
@@ -2509,6 +2527,7 @@ auth.onAuthStateChanged((user) => {
         // 5. Pasar datos de barrios a todos los módulos
         console.log('5️⃣ Actualizando módulos de cámaras y siniestros...');
         if (bariosGeoJson) {
+          if (typeof ZonaRiesgoLayer !== 'undefined') ZonaRiesgoLayer.setBarriosGeoJson(bariosGeoJson);
           // Actualizar SiniestrosLayer
           if (SiniestrosLayer && SiniestrosLayer.setBarriosGeoJson) {
             SiniestrosLayer.setBarriosGeoJson(bariosGeoJson);

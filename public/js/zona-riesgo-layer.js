@@ -64,6 +64,8 @@ window.ZonaRiesgoLayer = (() => {
   let isVisible = false;
   let modoComparador = false;
   let clickHandlerAttached = false;
+  let barriosGeoJson = null;
+  let barrioHighlight = null;
 
   // Cada fuente guarda su propio array de puntos {lat, lng, tipo, fecha}.
   // fecha es un objeto Date o null si no se pudo determinar (documentos
@@ -81,6 +83,7 @@ window.ZonaRiesgoLayer = (() => {
       map.on('click', onMapClick);
       clickHandlerAttached = true;
     }
+    initComparadorBarrioUI();
     console.log('🚨🔥 ZonaRiesgoLayer inicializado');
   }
 
@@ -310,9 +313,15 @@ window.ZonaRiesgoLayer = (() => {
    */
   function toggleComparador(show) {
     modoComparador = show;
-    if (!show && clickMarker) {
-      map.removeLayer(clickMarker);
-      clickMarker = null;
+    if (!show) {
+      if (clickMarker) {
+        map.removeLayer(clickMarker);
+        clickMarker = null;
+      }
+      if (barrioHighlight) {
+        map.removeLayer(barrioHighlight);
+        barrioHighlight = null;
+      }
     }
     console.log(`📊 ZonaRiesgoLayer: modo comparador ${show ? 'activado' : 'desactivado'}`);
   }
@@ -344,6 +353,184 @@ window.ZonaRiesgoLayer = (() => {
       }
     });
     return conteo;
+  }
+
+  /**
+   * Calcula el conteo antes/después de una fecha de corte sobre un
+   * conjunto de puntos YA FILTRADO espacialmente (por radio o por barrio
+   * — ver compararZona()/compararBarrioPorNombre() más abajo). Usa una
+   * ventana simétrica (misma cantidad de días de cada lado — ver nota en
+   * la cabecera del archivo).
+   */
+  function compararConjunto(puntos, fechaCorte) {
+    const msPorDia = 24 * 60 * 60 * 1000;
+    const ahora = new Date();
+
+    // Ventana "después": desde la fecha de corte hasta hoy.
+    const diasDespues = Math.max(1, Math.round((ahora - fechaCorte) / msPorDia));
+    // Ventana "antes": misma cantidad de días, inmediatamente anterior al
+    // corte — así ambos lados cubren el mismo período de tiempo.
+    const diasAntes = diasDespues;
+    const inicioAntes = new Date(fechaCorte.getTime() - diasAntes * msPorDia);
+
+    const antes = { siniestro_oficial: 0, robo_oficial: 0, siniestro_vecino: 0, robo_vecino: 0 };
+    const despues = { siniestro_oficial: 0, robo_oficial: 0, siniestro_vecino: 0, robo_vecino: 0 };
+    let sinFecha = 0;
+
+    puntos.forEach((p) => {
+      if (!p.fecha) {
+        sinFecha++;
+        return;
+      }
+      if (p.fecha >= inicioAntes && p.fecha < fechaCorte) {
+        antes[p.tipo]++;
+      } else if (p.fecha >= fechaCorte && p.fecha <= ahora) {
+        despues[p.tipo]++;
+      }
+    });
+
+    const totalAntes = Object.values(antes).reduce((a, b) => a + b, 0);
+    const totalDespues = Object.values(despues).reduce((a, b) => a + b, 0);
+    const cambioPct = totalAntes > 0 ? ((totalDespues - totalAntes) / totalAntes) * 100 : null;
+
+    return { antes, despues, diasAntes, diasDespues, totalAntes, totalDespues, cambioPct, sinFecha };
+  }
+
+  /**
+   * Comparador por punto + radio (el que ya existía).
+   */
+  function compararZona(lat, lng, fechaCorte) {
+    const puntos = getTodosLosPuntos().filter(
+      (p) => distanciaMetros(lat, lng, p.lat, p.lng) <= RADIO_CONSULTA_M
+    );
+    return compararConjunto(puntos, fechaCorte);
+  }
+
+  /**
+   * 🆕 Comparador por barrio: usa turf.js (ya cargado en map.html) para
+   * un test de punto-en-polígono, mismo criterio que isInBarrio() en
+   * denuncias-historico-layer.js. Un barrio puede tener más de un
+   * feature/polígono (islas, recortes) con el mismo nombre — un punto
+   * cuenta si cae dentro de CUALQUIERA de ellos.
+   */
+  function getNombreBarrio(feature) {
+    const p = (feature && feature.properties) || {};
+    return p.nombre || p.BARRIO || p.barrio || 'Sin nombre';
+  }
+
+  function puntoEnAlgunPoligono(p, features) {
+    if (typeof turf === 'undefined') return false;
+    let point;
+    try {
+      point = turf.point([p.lng, p.lat]);
+    } catch (err) {
+      return false;
+    }
+    return features.some((f) => {
+      try {
+        return turf.booleanPointInPolygon(point, f);
+      } catch (err) {
+        return false;
+      }
+    });
+  }
+
+  function setBarriosGeoJson(geojson) {
+    barriosGeoJson = geojson;
+    poblarSelectorBarrios();
+  }
+
+  function poblarSelectorBarrios() {
+    const select = document.getElementById('comparador-barrio-select');
+    if (!select || !barriosGeoJson || !Array.isArray(barriosGeoJson.features)) return;
+
+    const nombres = Array.from(new Set(barriosGeoJson.features.map(getNombreBarrio)))
+      .filter((n) => n && n !== 'Sin nombre')
+      .sort((a, b) => a.localeCompare(b, 'es'));
+
+    const valorPrevio = select.value;
+    select.innerHTML =
+      '<option value="">Elegí un barrio...</option>' +
+      nombres.map((n) => `<option value="${n}">${n}</option>`).join('');
+    if (nombres.includes(valorPrevio)) select.value = valorPrevio;
+  }
+
+  function resaltarBarrio(nombreBarrio) {
+    if (barrioHighlight) {
+      map.removeLayer(barrioHighlight);
+      barrioHighlight = null;
+    }
+    if (!barriosGeoJson || !nombreBarrio) return;
+
+    const featuresBarrio = barriosGeoJson.features.filter((f) => getNombreBarrio(f) === nombreBarrio);
+    if (featuresBarrio.length === 0) return;
+
+    barrioHighlight = L.geoJSON(
+      { type: 'FeatureCollection', features: featuresBarrio },
+      { style: { color: '#0ea5e9', weight: 2, fillColor: '#0ea5e9', fillOpacity: 0.1 } }
+    ).addTo(map);
+
+    try {
+      map.fitBounds(barrioHighlight.getBounds(), { maxZoom: 16, padding: [20, 20] });
+    } catch (err) {
+      // Si el barrio no tiene geometría válida para bounds, no pasa nada.
+    }
+  }
+
+  function compararBarrioPorNombre(nombreBarrio, fechaCorte) {
+    if (!barriosGeoJson || !nombreBarrio) return null;
+    const featuresBarrio = barriosGeoJson.features.filter((f) => getNombreBarrio(f) === nombreBarrio);
+    if (featuresBarrio.length === 0) return null;
+
+    const puntos = getTodosLosPuntos().filter((p) => puntoEnAlgunPoligono(p, featuresBarrio));
+    return compararConjunto(puntos, fechaCorte);
+  }
+
+  /**
+   * Engancha los controles del panel "Comparar por barrio" del sidebar
+   * (ver app.js). Se llama una sola vez desde init() — los elementos ya
+   * están en el DOM desde que carga la página (ocultos con display:none
+   * hasta que se prende el checkbox de comparador), así que no hace falta
+   * esperar ningún evento.
+   */
+  function initComparadorBarrioUI() {
+    const btn = document.getElementById('comparador-barrio-btn');
+    const select = document.getElementById('comparador-barrio-select');
+    const fechaInput = document.getElementById('comparador-barrio-fecha');
+    const resDiv = document.getElementById('comparador-barrio-resultado');
+    if (!btn || !select || !fechaInput || !resDiv) return;
+
+    // Fecha por defecto: hoy - 30 días (mismo criterio que el comparador
+    // por punto).
+    fechaInput.value = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+    select.addEventListener('change', () => {
+      resDiv.innerHTML = '';
+      if (select.value) resaltarBarrio(select.value);
+    });
+
+    btn.addEventListener('click', () => {
+      const nombreBarrio = select.value;
+      const valor = fechaInput.value;
+      const fechaCorte = valor ? new Date(`${valor}T00:00:00`) : null;
+
+      if (!nombreBarrio) {
+        resDiv.innerHTML = '<div style="font-size: 11px; color: #dc2626; margin-top: 6px;">Elegí un barrio primero.</div>';
+        return;
+      }
+      if (!fechaCorte || isNaN(fechaCorte)) {
+        resDiv.innerHTML = '<div style="font-size: 11px; color: #dc2626; margin-top: 6px;">Fecha inválida.</div>';
+        return;
+      }
+
+      resaltarBarrio(nombreBarrio);
+      const resultado = compararBarrioPorNombre(nombreBarrio, fechaCorte);
+      if (!resultado) {
+        resDiv.innerHTML = '<div style="font-size: 11px; color: #dc2626; margin-top: 6px;">No se encontró la geometría de ese barrio.</div>';
+        return;
+      }
+      resDiv.innerHTML = renderResultadoComparador(resultado, `en el barrio "${nombreBarrio}"`);
+    });
   }
 
   function clasificarRiesgo(total) {
@@ -404,47 +591,7 @@ window.ZonaRiesgoLayer = (() => {
     clickMarker.bindPopup(popupContent).openPopup();
   }
 
-  /**
-   * Calcula el conteo antes/después de una fecha de corte, en el mismo
-   * radio, usando una ventana simétrica (misma cantidad de días de cada
-   * lado — ver nota en la cabecera del archivo).
-   */
-  function compararZona(lat, lng, fechaCorte) {
-    const msPorDia = 24 * 60 * 60 * 1000;
-    const ahora = new Date();
-
-    // Ventana "después": desde la fecha de corte hasta hoy.
-    const diasDespues = Math.max(1, Math.round((ahora - fechaCorte) / msPorDia));
-    // Ventana "antes": misma cantidad de días, inmediatamente anterior al
-    // corte — así ambos lados cubren el mismo período de tiempo.
-    const diasAntes = diasDespues;
-    const inicioAntes = new Date(fechaCorte.getTime() - diasAntes * msPorDia);
-
-    const antes = { siniestro_oficial: 0, robo_oficial: 0, siniestro_vecino: 0, robo_vecino: 0 };
-    const despues = { siniestro_oficial: 0, robo_oficial: 0, siniestro_vecino: 0, robo_vecino: 0 };
-    let sinFecha = 0;
-
-    getTodosLosPuntos().forEach((p) => {
-      if (distanciaMetros(lat, lng, p.lat, p.lng) > RADIO_CONSULTA_M) return;
-      if (!p.fecha) {
-        sinFecha++;
-        return;
-      }
-      if (p.fecha >= inicioAntes && p.fecha < fechaCorte) {
-        antes[p.tipo]++;
-      } else if (p.fecha >= fechaCorte && p.fecha <= ahora) {
-        despues[p.tipo]++;
-      }
-    });
-
-    const totalAntes = Object.values(antes).reduce((a, b) => a + b, 0);
-    const totalDespues = Object.values(despues).reduce((a, b) => a + b, 0);
-    const cambioPct = totalAntes > 0 ? ((totalDespues - totalAntes) / totalAntes) * 100 : null;
-
-    return { antes, despues, diasAntes, diasDespues, totalAntes, totalDespues, cambioPct, sinFecha };
-  }
-
-  function renderResultadoComparador(r) {
+  function renderResultadoComparador(r, ambitoTexto) {
     let cambioTexto = 'Sin eventos "antes" para comparar';
     let colorCambio = '#666';
     if (r.cambioPct !== null) {
@@ -482,7 +629,7 @@ window.ZonaRiesgoLayer = (() => {
           Cambio: ${cambioTexto}
         </div>
         <div style="font-size: 10px; color: #999; margin-top: 6px;">
-          Ventana de ${r.diasAntes} días antes vs ${r.diasDespues} días después de la fecha de corte, en un radio de ${RADIO_CONSULTA_M}m.
+          Ventana de ${r.diasAntes} días antes vs ${r.diasDespues} días después de la fecha de corte, ${ambitoTexto || `en un radio de ${RADIO_CONSULTA_M}m`}.
           ${r.sinFecha > 0 ? `<br>⚠️ ${r.sinFecha} evento(s) sin fecha reconocible, no se contaron.` : ''}
         </div>
         ${muestraChica ? `<div style="font-size: 10px; color: #f59e0b; margin-top: 6px;">⚠️ Muestra chica (${r.totalAntes + r.totalDespues} eventos en total) — tomalo como indicio, no como dato concluyente.</div>` : ''}
@@ -561,7 +708,7 @@ window.ZonaRiesgoLayer = (() => {
           if (!fechaCorte || isNaN(fechaCorte) || !clickMarker) return;
 
           const resultado = compararZona(lat, lng, fechaCorte);
-          const resultadoHtml = renderResultadoComparador(resultado);
+          const resultadoHtml = renderResultadoComparador(resultado, `en un radio de ${RADIO_CONSULTA_M}m`);
 
           clickMarker.getPopup().setContent(buildHtml(valor, resultadoHtml));
           attachHandlers(); // el DOM se reemplazó: reenganchar de nuevo
@@ -588,6 +735,7 @@ window.ZonaRiesgoLayer = (() => {
     setSiniestrosOficiales,
     setRobosOficiales,
     setDenunciasVecinos,
+    setBarriosGeoJson,
     toggle,
     toggleComparador,
     getMetadata,
