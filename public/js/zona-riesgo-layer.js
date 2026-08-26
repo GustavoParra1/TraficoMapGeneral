@@ -85,11 +85,10 @@ window.ZonaRiesgoLayer = (() => {
   }
 
   /**
-   * Obtiene la fecha de un evento probando varios campos posibles (mismo
-   * criterio que getRoboDate() en robos-historico-layer.js): los
-   * documentos importados masivamente no siempre tienen 'timestamp' —
-   * pueden tener 'created_at' (Firestore Timestamp) o 'FECHA'/'fecha'
-   * (string "dd/mm/aa" o similar).
+   * Obtiene la fecha de un evento REPORTADO POR VECINOS (denuncias_historico)
+   * probando varios campos posibles (mismo criterio que getRoboDate() en
+   * robos-historico-layer.js): 'timestamp' es de fiar acá porque es el
+   * momento real en que se creó la denuncia en la app.
    */
   function getEventDate(obj) {
     if (!obj) return null;
@@ -121,6 +120,63 @@ window.ZonaRiesgoLayer = (() => {
     return null;
   }
 
+  function getPropFlexible(props, keys) {
+    if (!props) return null;
+    for (const key of keys) {
+      if (props[key]) return props[key];
+    }
+    // Fallback: coincidencia parcial case-insensitive (mismo criterio que
+    // getProp() en siniestros-layer.js, por si el nombre de columna vino
+    // con variaciones de mayúsculas/encoding del CSV original).
+    const searchKeys = keys.map((k) => k.toLowerCase());
+    for (const [propKey, propVal] of Object.entries(props)) {
+      if (searchKeys.some((sk) => propKey.toLowerCase().includes(sk))) {
+        return propVal;
+      }
+    }
+    return null;
+  }
+
+  function parseFechaFlexible(valor) {
+    if (!valor) return null;
+    if (valor instanceof Date) return valor;
+    if (valor.toMillis) return new Date(valor.toMillis());
+    if (typeof valor === 'string') {
+      if (valor.includes('/')) {
+        const [dd, mm, yy] = valor.split('/');
+        if (dd && mm && yy) {
+          const year = yy.length === 2 ? `20${yy}` : yy;
+          const d = new Date(`${year}-${mm}-${dd}`);
+          if (!isNaN(d)) return d;
+        }
+      }
+      const d = new Date(valor);
+      if (!isNaN(d)) return d;
+    }
+    return null;
+  }
+
+  /**
+   * 🐛 Fix fechas (2026-08): esta es la fecha para datos OFICIALES (lista
+   * masiva subida por el admin) — NO es lo mismo que getEventDate(), que
+   * es para denuncias de vecinos. Al principio esta capa usaba
+   * getEventDate() para todo, con 'timestamp'/'created_at' como primera
+   * opción — pero en los documentos importados en lote esos campos suelen
+   * reflejar cuándo se SUBIÓ el archivo a Firestore, no la fecha real del
+   * siniestro/robo. Resultado: el comparador antes/después mostraba
+   * siempre "0 eventos antes", porque todo terminaba con una fecha de
+   * importación reciente. El campo confiable con la fecha real es
+   * 'fecha'/'FECHA'/'FECHA_SINIESTRO' — el mismo que ya usa
+   * siniestros-layer.js (normalizeFilterProps) para sus filtros por año,
+   * que sabemos que funcionan bien. Si un documento no tiene ese campo,
+   * mejor dejarlo sin fecha (se excluye del comparador) que mentir con
+   * una fecha de importación.
+   */
+  function getFechaOficial(properties) {
+    const valor = getPropFlexible(properties, ['fecha', 'FECHA_SINIESTRO', 'FECHA']);
+    return parseFechaFlexible(valor);
+  }
+
   /**
    * Carga los siniestros oficiales (GeoJSON, mismo formato que usa
    * SiniestrosLayer/heatmapLayer). Se llama desde app.js cada vez que se
@@ -128,6 +184,8 @@ window.ZonaRiesgoLayer = (() => {
    */
   function setSiniestrosOficiales(geojson) {
     fuentes.siniestros_oficial = extraerPuntosDeGeoJson(geojson, 'siniestro_oficial');
+    const conFecha = fuentes.siniestros_oficial.filter((p) => p.fecha).length;
+    console.log(`🚨🔥 ZonaRiesgoLayer: siniestros oficiales con fecha reconocida: ${conFecha}/${fuentes.siniestros_oficial.length}`);
     render();
   }
 
@@ -136,6 +194,8 @@ window.ZonaRiesgoLayer = (() => {
    */
   function setRobosOficiales(geojson) {
     fuentes.robos_oficial = extraerPuntosDeGeoJson(geojson, 'robo_oficial');
+    const conFecha = fuentes.robos_oficial.filter((p) => p.fecha).length;
+    console.log(`🚨🔥 ZonaRiesgoLayer: robos oficiales con fecha reconocida: ${conFecha}/${fuentes.robos_oficial.length}`);
     render();
   }
 
@@ -147,7 +207,7 @@ window.ZonaRiesgoLayer = (() => {
         lat: f.geometry.coordinates[1],
         lng: f.geometry.coordinates[0],
         tipo,
-        fecha: getEventDate(f.properties)
+        fecha: getFechaOficial(f.properties)
       }))
       .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
   }
