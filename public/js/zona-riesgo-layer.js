@@ -294,6 +294,14 @@ window.ZonaRiesgoLayer = (() => {
   }
 
   function onMapClick(e) {
+    // 🛡️ Defensa extra: si el click originó dentro de un popup nuestro
+    // (además del disableClickPropagation que ya se aplica al abrirlo),
+    // ignorarlo — evita que tocar "Calcular" dispare un click de mapa
+    // nuevo y tape el resultado con un popup en blanco.
+    if (e.originalEvent && e.originalEvent.target && e.originalEvent.target.closest) {
+      if (e.originalEvent.target.closest('.leaflet-popup')) return;
+    }
+
     if (modoComparador) {
       onMapClickComparador(e);
       return;
@@ -458,8 +466,8 @@ window.ZonaRiesgoLayer = (() => {
 
     clickMarker.bindPopup(formHtml, { minWidth: 240 }).openPopup();
 
-    // 🐛 Fix (2026-08): antes esto esperaba el evento 'popupopen' del mapa
-    // para enganchar el listener del botón, pero Leaflet dispara ese
+    // 🐛 Fix #1 (2026-08): antes esto esperaba el evento 'popupopen' del
+    // mapa para enganchar el listener del botón, pero Leaflet dispara ese
     // evento de forma SINCRÓNICA dentro de .openPopup() — para cuando el
     // 'map.once(...)' se registraba (una línea más abajo), el evento ya
     // había pasado y el botón "Calcular" quedaba sin funcionalidad (se
@@ -467,16 +475,38 @@ window.ZonaRiesgoLayer = (() => {
     // ya deja el contenido insertado en el DOM de forma sincrónica, así
     // que alcanza con enganchar el listener directo, sin esperar ningún
     // evento.
+    const contenedor = document.getElementById(uid);
     const btn = document.getElementById(`${uid}-btn`);
+
+    // 🐛 Fix #2 (2026-08): el click en "Calcular" también le llegaba al
+    // listener de click del MAPA (map.on('click', onMapClick) en init()),
+    // que en modo comparador vuelve a llamar onMapClickComparador() y arma
+    // un popup nuevo en blanco encima del que ya tenía el resultado — daba
+    // la sensación de que "el botón no hacía nada" cuando en realidad sí
+    // calculaba, pero quedaba tapado al instante. L.DomEvent.disableClickPropagation
+    // corta la propagación del click (y el doble-click) desde todo el
+    // contenido del popup hacia el mapa.
+    if (contenedor && typeof L.DomEvent !== 'undefined' && L.DomEvent.disableClickPropagation) {
+      L.DomEvent.disableClickPropagation(contenedor);
+    }
+
     if (btn) {
-      btn.addEventListener('click', () => {
+      console.log(`📊 ZonaRiesgoLayer: botón "Calcular" enganchado (${uid})`);
+      btn.addEventListener('click', (ev) => {
+        if (ev && ev.stopPropagation) ev.stopPropagation();
+        console.log('📊 ZonaRiesgoLayer: click en "Calcular"');
+
         const fechaInput = document.getElementById(`${uid}-fecha`);
         const valor = fechaInput ? fechaInput.value : '';
         const fechaCorte = valor ? new Date(`${valor}T00:00:00`) : null;
         const resDiv = document.getElementById(`${uid}-resultado`);
-        if (!fechaCorte || isNaN(fechaCorte) || !resDiv) return;
+        if (!fechaCorte || isNaN(fechaCorte) || !resDiv) {
+          console.warn('⚠️ ZonaRiesgoLayer: fecha inválida o falta el div de resultado', { valor, resDiv });
+          return;
+        }
 
         const resultado = compararZona(lat, lng, fechaCorte);
+        console.log('📊 ZonaRiesgoLayer: resultado del comparador', resultado);
         resDiv.innerHTML = renderResultadoComparador(resultado);
 
         // El popup cambió de tamaño con el resultado — avisarle a Leaflet
