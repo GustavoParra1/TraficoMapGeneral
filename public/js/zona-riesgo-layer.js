@@ -450,72 +450,67 @@ window.ZonaRiesgoLayer = (() => {
       .toISOString()
       .slice(0, 10);
 
-    const formHtml = `
-      <div id="${uid}" style="font-size: 13px; min-width: 220px;">
-        <div style="font-weight: bold; margin-bottom: 8px;">📊 Comparar zona (radio ${RADIO_CONSULTA_M}m)</div>
-        <label style="display: block; margin-bottom: 6px; font-size: 12px;">
-          Fecha de la intervención:
-          <input type="date" id="${uid}-fecha" value="${fechaPorDefecto}" style="width: 100%; margin-top: 4px; padding: 4px; box-sizing: border-box;">
-        </label>
-        <button id="${uid}-btn" style="width: 100%; padding: 7px; background: #0ea5e9; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
-          Calcular
-        </button>
-        <div id="${uid}-resultado"></div>
-      </div>
-    `;
-
-    clickMarker.bindPopup(formHtml, { minWidth: 240 }).openPopup();
-
-    // 🐛 Fix #1 (2026-08): antes esto esperaba el evento 'popupopen' del
-    // mapa para enganchar el listener del botón, pero Leaflet dispara ese
-    // evento de forma SINCRÓNICA dentro de .openPopup() — para cuando el
-    // 'map.once(...)' se registraba (una línea más abajo), el evento ya
-    // había pasado y el botón "Calcular" quedaba sin funcionalidad (se
-    // veía el formulario pero tocar el botón no hacía nada). openPopup()
-    // ya deja el contenido insertado en el DOM de forma sincrónica, así
-    // que alcanza con enganchar el listener directo, sin esperar ningún
-    // evento.
-    const contenedor = document.getElementById(uid);
-    const btn = document.getElementById(`${uid}-btn`);
-
-    // 🐛 Fix #2 (2026-08): el click en "Calcular" también le llegaba al
-    // listener de click del MAPA (map.on('click', onMapClick) en init()),
-    // que en modo comparador vuelve a llamar onMapClickComparador() y arma
-    // un popup nuevo en blanco encima del que ya tenía el resultado — daba
-    // la sensación de que "el botón no hacía nada" cuando en realidad sí
-    // calculaba, pero quedaba tapado al instante. L.DomEvent.disableClickPropagation
-    // corta la propagación del click (y el doble-click) desde todo el
-    // contenido del popup hacia el mapa.
-    if (contenedor && typeof L.DomEvent !== 'undefined' && L.DomEvent.disableClickPropagation) {
-      L.DomEvent.disableClickPropagation(contenedor);
+    function buildHtml(fechaValor, resultadoHtml) {
+      return `
+        <div id="${uid}" style="font-size: 13px; min-width: 220px;">
+          <div style="font-weight: bold; margin-bottom: 8px;">📊 Comparar zona (radio ${RADIO_CONSULTA_M}m)</div>
+          <label style="display: block; margin-bottom: 6px; font-size: 12px;">
+            Fecha de la intervención:
+            <input type="date" id="${uid}-fecha" value="${fechaValor}" style="width: 100%; margin-top: 4px; padding: 4px; box-sizing: border-box;">
+          </label>
+          <button id="${uid}-btn" style="width: 100%; padding: 7px; background: #0ea5e9; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            Calcular
+          </button>
+          <div id="${uid}-resultado">${resultadoHtml || ''}</div>
+        </div>
+      `;
     }
 
-    if (btn) {
-      console.log(`📊 ZonaRiesgoLayer: botón "Calcular" enganchado (${uid})`);
-      btn.addEventListener('click', (ev) => {
-        if (ev && ev.stopPropagation) ev.stopPropagation();
-        console.log('📊 ZonaRiesgoLayer: click en "Calcular"');
+    // 🐛 Fix #3 (2026-08, el importante): los dos fixes anteriores
+    // resolvían que el botón se enganchara y que el click no se filtrara
+    // al mapa — con eso el cálculo YA se ejecutaba bien (se veía en la
+    // consola), pero el resultado desaparecía al instante igual. La causa
+    // real: yo estaba mutando resDiv.innerHTML "por afuera" de Leaflet, y
+    // después llamaba a popup.update() para que reacomode el tamaño —
+    // pero Popup.update() llama a _updateContent(), que vuelve a pintar
+    // el popup con el HTML ORIGINAL que se le pasó a bindPopup() (Leaflet
+    // no sabe nada del cambio que hice a mano en el DOM) — así que
+    // literalmente pisaba el resultado que acababa de calcular. La forma
+    // correcta es usar popup.setContent() con el HTML completo actualizado
+    // (formulario + resultado), que si actualiza el estado interno de
+    // Leaflet — y como eso reemplaza los elementos del DOM, hay que
+    // reenganchar los listeners (disableClickPropagation + el botón)
+    // cada vez.
+    function attachHandlers() {
+      const contenedor = document.getElementById(uid);
+      const btn = document.getElementById(`${uid}-btn`);
 
-        const fechaInput = document.getElementById(`${uid}-fecha`);
-        const valor = fechaInput ? fechaInput.value : '';
-        const fechaCorte = valor ? new Date(`${valor}T00:00:00`) : null;
-        const resDiv = document.getElementById(`${uid}-resultado`);
-        if (!fechaCorte || isNaN(fechaCorte) || !resDiv) {
-          console.warn('⚠️ ZonaRiesgoLayer: fecha inválida o falta el div de resultado', { valor, resDiv });
-          return;
-        }
+      if (contenedor && typeof L.DomEvent !== 'undefined' && L.DomEvent.disableClickPropagation) {
+        // Evita que el click en el popup se filtre al mapa y dispare un
+        // click nuevo (que en modo comparador abriría otro popup encima).
+        L.DomEvent.disableClickPropagation(contenedor);
+      }
 
-        const resultado = compararZona(lat, lng, fechaCorte);
-        console.log('📊 ZonaRiesgoLayer: resultado del comparador', resultado);
-        resDiv.innerHTML = renderResultadoComparador(resultado);
+      if (btn) {
+        btn.addEventListener('click', (ev) => {
+          if (ev && ev.stopPropagation) ev.stopPropagation();
 
-        // El popup cambió de tamaño con el resultado — avisarle a Leaflet
-        // para que reajuste la posición y no quede cortado.
-        if (clickMarker) clickMarker.getPopup().update();
-      });
-    } else {
-      console.warn('⚠️ ZonaRiesgoLayer: no se encontró el botón del comparador en el DOM');
+          const fechaInput = document.getElementById(`${uid}-fecha`);
+          const valor = fechaInput ? fechaInput.value : '';
+          const fechaCorte = valor ? new Date(`${valor}T00:00:00`) : null;
+          if (!fechaCorte || isNaN(fechaCorte) || !clickMarker) return;
+
+          const resultado = compararZona(lat, lng, fechaCorte);
+          const resultadoHtml = renderResultadoComparador(resultado);
+
+          clickMarker.getPopup().setContent(buildHtml(valor, resultadoHtml));
+          attachHandlers(); // el DOM se reemplazó: reenganchar de nuevo
+        });
+      }
     }
+
+    clickMarker.bindPopup(buildHtml(fechaPorDefecto, ''), { minWidth: 240 }).openPopup();
+    attachHandlers();
   }
 
   function getMetadata() {
