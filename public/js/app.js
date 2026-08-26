@@ -1643,6 +1643,10 @@ auth.onAuthStateChanged((user) => {
             <span style="position: relative; z-index: 100;">🚨 Zona de Riesgo (siniestros + robos)</span>
           </label>
           <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
+            <input type="checkbox" id="comparador-zona-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
+            <span style="position: relative; z-index: 100;">📊 Comparar Zona (antes/después)</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; margin-top: 8px; position: relative; z-index: 100;">
             <input type="checkbox" id="colegios-checkbox" style="position: relative; z-index: 101; cursor: pointer; width: 16px; height: 16px; margin: 0; padding: 0;">
             <span style="position: relative; z-index: 100;">🏫 Escuelas y Colegios (<span id="total-colegios-count">0</span>)</span>
           </label>
@@ -2284,6 +2288,14 @@ auth.onAuthStateChanged((user) => {
     if (zonaRiesgoCheckbox && typeof ZonaRiesgoLayer !== 'undefined') {
       zonaRiesgoCheckbox.addEventListener('change', (e) => {
         ZonaRiesgoLayer.toggle(e.target.checked);
+      });
+    }
+
+    // Adjuntar listener al checkbox de Comparar Zona (antes/después)
+    const comparadorZonaCheckbox = document.getElementById('comparador-zona-checkbox');
+    if (comparadorZonaCheckbox && typeof ZonaRiesgoLayer !== 'undefined') {
+      comparadorZonaCheckbox.addEventListener('change', (e) => {
+        ZonaRiesgoLayer.toggleComparador(e.target.checked);
       });
     }
     
