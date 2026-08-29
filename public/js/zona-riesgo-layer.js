@@ -625,12 +625,18 @@ window.ZonaRiesgoLayer = (() => {
   }
 
   function onMapClick(e) {
+    // 🔍 Diagnóstico temporal: confirmar si el click está llegando acá.
+    console.log('🚨🔥 ZonaRiesgoLayer.onMapClick DISPARADO', { isVisible, modoComparador, target: e.originalEvent?.target?.tagName });
+
     // 🛡️ Defensa extra: si el click originó dentro de un popup nuestro
     // (además del disableClickPropagation que ya se aplica al abrirlo),
     // ignorarlo — evita que tocar "Calcular" dispare un click de mapa
     // nuevo y tape el resultado con un popup en blanco.
     if (e.originalEvent && e.originalEvent.target && e.originalEvent.target.closest) {
-      if (e.originalEvent.target.closest('.leaflet-popup')) return;
+      if (e.originalEvent.target.closest('.leaflet-popup')) {
+        console.log('🚨🔥 ZonaRiesgoLayer.onMapClick: ignorado (click dentro de un popup)');
+        return;
+      }
     }
 
     if (modoComparador) {
