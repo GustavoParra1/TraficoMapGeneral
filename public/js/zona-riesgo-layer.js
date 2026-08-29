@@ -63,10 +63,17 @@ window.ZonaRiesgoLayer = (() => {
   let clickMarker = null;
   let isVisible = false;
   let modoComparador = false;
+  let clickHandlerAttached = false;
   let barriosGeoJson = null;
   let barrioHighlight = null;
-  let filtroBarrioNombre = null;      // 🆕 barrio en estudio (o null = ciudad completa)
-  let filtroBarrioFeatures = null;    // 🆕 features del barrio filtrado, precalculadas
+
+  // 🆕 Filtro global de barrio (2026-08): mismo bug que tenía RoboLayer —
+  // el heatmap mostraba SIEMPRE todos los eventos de la ciudad, sin
+  // respetar el "Filtro Global por Barrio" del sidebar. filters.globalBarrio
+  // guarda el nombre del barrio seleccionado ('all' = sin filtro).
+  const filters = {
+    globalBarrio: 'all'
+  };
 
   // Cada fuente guarda su propio array de puntos {lat, lng, tipo, fecha}.
   // fecha es un objeto Date o null si no se pudo determinar (documentos
@@ -79,20 +86,11 @@ window.ZonaRiesgoLayer = (() => {
   };
 
   function init(leafletMap) {
-    // 🐛 Fix (2026-08): si init() se llama más de una vez (cambio de
-    // cliente, remount del mapa) hay que desenganchar el listener del
-    // mapa VIEJO antes de pisar la variable `map` — si no, el click nunca
-    // se reengancha al mapa nuevo (quedaba pegado al viejo, que ya no
-    // recibe clicks del usuario) y el heatmap se ve pero el click no hace
-    // nada. Antes esto se evitaba con un flag `clickHandlerAttached` que
-    // solo dejaba enganchar una vez en la vida del módulo — mal si el
-    // mapa se recrea.
-    if (map && map !== leafletMap) {
-      map.off('click', onMapClick);
-    }
     map = leafletMap;
-    map.off('click', onMapClick); // por si init() se llama 2 veces con el mismo mapa
-    map.on('click', onMapClick);
+    if (!clickHandlerAttached) {
+      map.on('click', onMapClick);
+      clickHandlerAttached = true;
+    }
     initComparadorBarrioUI();
     console.log('🚨🔥 ZonaRiesgoLayer inicializado');
   }
@@ -258,15 +256,29 @@ window.ZonaRiesgoLayer = (() => {
       ...fuentes.siniestros_vecino,
       ...fuentes.robos_vecino
     ];
-    // 🆕 Filtro por barrio en estudio: si hay uno seteado, solo cuentan los
-    // puntos que caen dentro de su polígono (mismo criterio punto-en-polígono
-    // que ya usa compararBarrioPorNombre()). Afecta al heatmap (render()) y
-    // también al conteo del popup al hacer click (contarEnRadio()), porque
-    // ambos pasan por acá.
-    if (filtroBarrioFeatures && filtroBarrioFeatures.length > 0) {
-      return todos.filter((p) => puntoEnAlgunPoligono(p, filtroBarrioFeatures));
+
+    // 🆕 Filtro global de barrio: si hay uno seleccionado (!= 'all') y
+    // tenemos el GeoJSON de barrios cargado, nos quedamos solo con los
+    // puntos que caen dentro del polígono de ese barrio.
+    if (filters.globalBarrio === 'all' || !barriosGeoJson || !Array.isArray(barriosGeoJson.features)) {
+      return todos;
     }
-    return todos;
+    const featuresBarrio = barriosGeoJson.features.filter(
+      (f) => getNombreBarrio(f) === filters.globalBarrio
+    );
+    if (featuresBarrio.length === 0) return todos; // no matcheó ningún polígono, mejor mostrar todo que mostrar nada por un nombre que no coincide
+
+    return todos.filter((p) => puntoEnAlgunPoligono(p, featuresBarrio));
+  }
+
+  // 🆕 setFilter: mismo patrón que usan SiniestrosLayer/RoboLayer/etc. para
+  // que app.js pueda avisarle a esta capa cuando cambia el barrio
+  // seleccionado en el "Filtro Global por Barrio" del sidebar.
+  function setFilter(filterName, value) {
+    if (filterName === 'globalBarrio') {
+      filters.globalBarrio = value;
+      render();
+    }
   }
 
   function render() {
@@ -434,7 +446,11 @@ window.ZonaRiesgoLayer = (() => {
    */
   function getNombreBarrio(feature) {
     const p = (feature && feature.properties) || {};
-    return p.nombre || p.BARRIO || p.barrio || 'Sin nombre';
+    // 🆕 soc_fomen agregado (2026-08): es la propiedad que usa el selector
+    // "Filtro Global por Barrio" de app.js para poblar sus opciones — hace
+    // falta reconocerla acá también para que el valor que llega a
+    // setFilter('globalBarrio', ...) matchee contra el polígono correcto.
+    return p.nombre || p.soc_fomen || p.BARRIO || p.barrio || 'Sin nombre';
   }
 
   function puntoEnAlgunPoligono(p, features) {
@@ -454,74 +470,9 @@ window.ZonaRiesgoLayer = (() => {
     });
   }
 
-  /**
-   * 🆕 Nombre del barrio (cualquiera, no solo el filtrado) donde cae un
-   * punto — se usa para agregar el nombre del barrio arriba del popup de
-   * riesgo cuando el click cae dentro de un polígono, en vez de dejar que
-   * el popup de Zonas/Barrios (geo-layers.js) se tape con el nuestro.
-   */
-  function getBarrioEnPunto(lat, lng) {
-    if (!barriosGeoJson || !Array.isArray(barriosGeoJson.features) || typeof turf === 'undefined') {
-      return null;
-    }
-    let point;
-    try {
-      point = turf.point([lng, lat]);
-    } catch (err) {
-      return null;
-    }
-    const feature = barriosGeoJson.features.find((f) => {
-      try {
-        return turf.booleanPointInPolygon(point, f);
-      } catch (err) {
-        return false;
-      }
-    });
-    return feature ? getNombreBarrio(feature) : null;
-  }
-
   function setBarriosGeoJson(geojson) {
     barriosGeoJson = geojson;
     poblarSelectorBarrios();
-    // 🆕 Si ya había un barrio filtrado seteado antes de que llegara el
-    // GeoJSON (orden de carga no garantizado), recalcular sus features ahora.
-    if (filtroBarrioNombre && Array.isArray(geojson?.features)) {
-      const buscado = filtroBarrioNombre.trim().toLowerCase();
-      filtroBarrioFeatures = geojson.features.filter((f) => getNombreBarrio(f).trim().toLowerCase() === buscado);
-      render();
-    }
-  }
-
-  /**
-   * 🆕 Filtra el heatmap (y el conteo del popup al hacer click) para que
-   * solo tenga en cuenta el barrio en estudio, en vez de toda la ciudad.
-   * Firma (key, value) igual que el resto de las capas (SiniestrosLayer,
-   * RoboLayer, etc.) para engancharse desde app.js sin caso especial. Por
-   * ahora solo maneja la clave 'globalBarrio'. Pasar 'all' (o value falsy)
-   * vuelve a ver todos los barrios.
-   */
-  function setFilter(key, value) {
-    if (key !== 'globalBarrio') return;
-    filtroBarrioNombre = (value && value !== 'all') ? value : null;
-    if (filtroBarrioNombre && barriosGeoJson && Array.isArray(barriosGeoJson.features)) {
-      // Case-insensitive + trim (mismo criterio que highlightBarrio() en
-      // geo-layers.js) — el nombre que llega acá sale del selector global
-      // (calculado desde los siniestros, no siempre 1:1 con el nombre tal
-      // cual está en el GeoJSON), así que una comparación exacta podía
-      // fallar por mayúsculas/espacios y dejar el heatmap en cero puntos.
-      const buscado = filtroBarrioNombre.trim().toLowerCase();
-      filtroBarrioFeatures = barriosGeoJson.features.filter(
-        (f) => getNombreBarrio(f).trim().toLowerCase() === buscado
-      );
-    } else {
-      filtroBarrioFeatures = null;
-    }
-    // 🔍 Diagnóstico temporal: confirmar si el nombre matchea contra el
-    // GeoJSON de barrios. Si "features encontradas" da 0 con un barrio
-    // elegido, el heatmap queda filtrado a cero puntos — por eso no se ve
-    // nada aunque la capa esté tildada.
-    console.log(`🚨🔥 ZonaRiesgoLayer.setFilter: barrio="${filtroBarrioNombre}" → ${filtroBarrioFeatures ? filtroBarrioFeatures.length : 'sin filtro'} features encontradas`);
-    render();
   }
 
   function poblarSelectorBarrios() {
@@ -624,34 +575,28 @@ window.ZonaRiesgoLayer = (() => {
     return { nivel: 'Sin datos', color: '#94a3b8', emoji: '⚪' };
   }
 
-  function onMapClick(e) {
-    // 🔍 Diagnóstico temporal: confirmar si el click está llegando acá.
-    console.log('🚨🔥 ZonaRiesgoLayer.onMapClick DISPARADO', { isVisible, modoComparador, target: e.originalEvent?.target?.tagName });
-
-    // 🛡️ Defensa extra: si el click originó dentro de un popup nuestro
-    // (además del disableClickPropagation que ya se aplica al abrirlo),
-    // ignorarlo — evita que tocar "Calcular" dispare un click de mapa
-    // nuevo y tape el resultado con un popup en blanco.
-    if (e.originalEvent && e.originalEvent.target && e.originalEvent.target.closest) {
-      if (e.originalEvent.target.closest('.leaflet-popup')) {
-        console.log('🚨🔥 ZonaRiesgoLayer.onMapClick: ignorado (click dentro de un popup)');
-        return;
-      }
-    }
-
-    if (modoComparador) {
-      onMapClickComparador(e);
-      return;
-    }
-    if (!isVisible) return;
-
-    const { lat, lng } = e.latlng;
-    const nombreBarrio = getBarrioEnPunto(lat, lng);   // 🆕
+  // 🆕 Popup combinado (2026-08): antes, si la capa "Zonas/Barrios" estaba
+  // activa, su propio bindPopup frenaba el click ahí mismo (Leaflet no
+  // deja que el click siga hasta el mapa cuando el layer clickeado ya
+  // abrió un popup propio) — por eso el click de Zona de Riesgo nunca
+  // llegaba a dispararse. Ahora geo-layers.js llama a esta función
+  // directamente cuando detecta que Zona de Riesgo está activa, pasándole
+  // el feature del barrio que YA sabe que clickeaste (más preciso que
+  // buscarlo de nuevo acá por punto-en-polígono). Si no se pasa ningún
+  // feature (click en el mapa vacío, fuera de cualquier barrio dibujado),
+  // se sigue usando la búsqueda por punto-en-polígono de siempre.
+  function mostrarPopupRiesgo(lat, lng, featureBarrioConocido) {
     const conteo = contarEnRadio(lat, lng);
     const totalSiniestros = conteo.siniestro_oficial + conteo.siniestro_vecino;
     const totalRobos = conteo.robo_oficial + conteo.robo_vecino;
     const total = totalSiniestros + totalRobos;
     const riesgo = clasificarRiesgo(total);
+
+    let featureBarrio = featureBarrioConocido || null;
+    if (!featureBarrio && barriosGeoJson && Array.isArray(barriosGeoJson.features)) {
+      featureBarrio = barriosGeoJson.features.find((f) => puntoEnAlgunPoligono({ lat, lng }, [f])) || null;
+    }
+    const nombreBarrio = featureBarrio ? getNombreBarrio(featureBarrio) : null;
 
     if (clickMarker) {
       map.removeLayer(clickMarker);
@@ -669,7 +614,12 @@ window.ZonaRiesgoLayer = (() => {
 
     const popupContent = `
       <div style="font-size: 13px; min-width: 190px;">
-        ${nombreBarrio ? `<div style="font-weight:bold;font-size:14px;margin-bottom:6px;border-bottom:1px solid #e5e7eb;padding-bottom:4px;">📍 ${nombreBarrio}</div>` : ''}
+        ${nombreBarrio ? `
+          <div style="font-weight: bold; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+            📍 ${nombreBarrio}
+          </div>
+          <div style="border-top: 1px solid #e5e7eb; margin-bottom: 6px;"></div>
+        ` : ''}
         <div style="font-weight: bold; color: ${riesgo.color}; margin-bottom: 6px;">
           ${riesgo.emoji} Riesgo ${riesgo.nivel} <span style="font-weight: normal; color: #666;">(radio ${RADIO_CONSULTA_M}m)</span>
         </div>
@@ -681,6 +631,24 @@ window.ZonaRiesgoLayer = (() => {
       </div>
     `;
     clickMarker.bindPopup(popupContent).openPopup();
+  }
+
+  function onMapClick(e) {
+    // 🛡️ Defensa extra: si el click originó dentro de un popup nuestro
+    // (además del disableClickPropagation que ya se aplica al abrirlo),
+    // ignorarlo — evita que tocar "Calcular" dispare un click de mapa
+    // nuevo y tape el resultado con un popup en blanco.
+    if (e.originalEvent && e.originalEvent.target && e.originalEvent.target.closest) {
+      if (e.originalEvent.target.closest('.leaflet-popup')) return;
+    }
+
+    if (modoComparador) {
+      onMapClickComparador(e);
+      return;
+    }
+    if (!isVisible) return;
+
+    mostrarPopupRiesgo(e.latlng.lat, e.latlng.lng, null);
   }
 
   function renderResultadoComparador(r, ambitoTexto) {
@@ -832,6 +800,7 @@ window.ZonaRiesgoLayer = (() => {
     toggle,
     toggleComparador,
     getMetadata,
-    isVisible: () => isVisible
+    isVisible: () => isVisible,
+    mostrarPopupRiesgo
   };
 })();

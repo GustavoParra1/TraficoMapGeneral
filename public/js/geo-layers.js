@@ -127,10 +127,32 @@ const GeoLayers = (() => {
 
   // Handlers for interaction
   function onEachFeature(feature, layer) {
-    // Popup
+    // 🆕 Popup del barrio (2026-08): antes era `layer.bindPopup(...)`, que
+    // deja que Leaflet abra el popup automáticamente en el click — pero
+    // eso también hace que Leaflet frene ahí el evento y nunca llegue al
+    // click del mapa, así que cuando "Zona de Riesgo" estaba activa, su
+    // popup (siniestros+robos del punto) nunca se disparaba si tocabas
+    // justo sobre un barrio dibujado.
+    //
+    // Ahora usamos un click manual: si Zona de Riesgo está activa en este
+    // momento, le pedimos a ese módulo que arme el popup combinado
+    // (nombre del barrio + datos de riesgo) pasándole el feature que ya
+    // sabemos que tocaste — si no está activa, mostramos el popup de
+    // siempre, sin ningún cambio de comportamiento.
     const barrioName = getBarrioName(feature);
     if (barrioName && barrioName !== 'Sin nombre') {
-      layer.bindPopup(getPopupContent(feature));
+      layer.on('click', function (e) {
+        if (
+          typeof ZonaRiesgoLayer !== 'undefined' &&
+          typeof ZonaRiesgoLayer.isVisible === 'function' &&
+          ZonaRiesgoLayer.isVisible() &&
+          typeof ZonaRiesgoLayer.mostrarPopupRiesgo === 'function'
+        ) {
+          ZonaRiesgoLayer.mostrarPopupRiesgo(e.latlng.lat, e.latlng.lng, feature);
+        } else {
+          layer.bindPopup(getPopupContent(feature)).openPopup(e.latlng);
+        }
+      });
     }
 
     // Highlight on hover - solo si el layer es un polígono (tiene setStyle)

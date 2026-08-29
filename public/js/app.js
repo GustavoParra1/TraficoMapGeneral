@@ -2302,6 +2302,15 @@ auth.onAuthStateChanged((user) => {
     if (zonaRiesgoCheckbox && typeof ZonaRiesgoLayer !== 'undefined') {
       zonaRiesgoCheckbox.addEventListener('change', (e) => {
         ZonaRiesgoLayer.toggle(e.target.checked);
+        // 🆕 Mismo patrón que ya usa Robo Automotor (ver su propio
+        // listener más abajo): si ya había un barrio elegido ANTES de
+        // activar esta capa, aplicárselo ahora — si no, quedaba mostrando
+        // toda la ciudad hasta tocar el selector de barrio de nuevo.
+        if (e.target.checked) {
+          applyGlobalBarrioFilter();
+        } else {
+          ZonaRiesgoLayer.setFilter('globalBarrio', 'all');
+        }
       });
     }
 
@@ -2665,6 +2674,7 @@ auth.onAuthStateChanged((user) => {
       const privCamCheckbox = document.getElementById('private-cameras-checkbox');
       const semaforosCheckbox = document.getElementById('semaforos-checkbox');
       const roboCheckbox = document.getElementById('robo-checkbox');
+      const zonaRiesgoCheckbox = document.getElementById('zona-riesgo-checkbox');
       
       // Aplicar filtro a las capas que están visibles, incluso si barrio es 'all'
       if (sinCheckbox && sinCheckbox.checked) {
@@ -2685,15 +2695,14 @@ auth.onAuthStateChanged((user) => {
       if (roboCheckbox && roboCheckbox.checked) {
         RoboLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
       }
+      // 🆕 Zona de Riesgo: mismo caso, el heatmap mostraba siempre todos
+      // los eventos de la ciudad sin respetar el barrio seleccionado.
+      if (zonaRiesgoCheckbox && zonaRiesgoCheckbox.checked) {
+        ZonaRiesgoLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
+      }
       
       // Aplicar filtro al heatmap (siempre, aunque no esté visible en checkboxes)
       heatmapLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
-
-      // 🆕 Zona de Riesgo: mismo criterio, filtrar por barrio en estudio en
-      // vez de mostrar toda la ciudad (siempre, aunque no esté visible).
-      if (typeof ZonaRiesgoLayer !== 'undefined') {
-        ZonaRiesgoLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
-      }
     };
     
     // Toggle de siniestros
@@ -4019,6 +4028,7 @@ auth.onAuthStateChanged((user) => {
           const privCamCheckbox = document.getElementById('private-cameras-checkbox');
           const semaforosCheckbox = document.getElementById('semaforos-checkbox');
           const roboCheckbox = document.getElementById('robo-checkbox');
+          const zonaRiesgoCheckbox = document.getElementById('zona-riesgo-checkbox');
           const toggleBarrios = document.getElementById('toggle-barrios');
           
           // Si se selecciona un barrio específico (no "all"), auto-activar siniestros y barrios
@@ -4073,16 +4083,15 @@ auth.onAuthStateChanged((user) => {
             RoboLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
             console.log(`  ✓ Filtro de robos actualizado: ${barrio}`);
           }
+          // 🆕 Zona de Riesgo: mismo caso.
+          if (zonaRiesgoCheckbox && zonaRiesgoCheckbox.checked) {
+            ZonaRiesgoLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
+            console.log(`  ✓ Filtro de zona de riesgo actualizado: ${barrio}`);
+          }
           
           // Aplicar filtro al heatmap (siempre, aunque no esté visible)
           heatmapLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
           console.log(`  ✓ Filtro de mapa de calor actualizado: ${barrio}`);
-
-          // 🆕 Zona de Riesgo (siempre, aunque no esté visible)
-          if (typeof ZonaRiesgoLayer !== 'undefined') {
-            ZonaRiesgoLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
-            console.log(`  ✓ Filtro de Zona de Riesgo actualizado: ${barrio}`);
-          }
           
           // 🔧 CRUCIAL: Limpiar la capa de siniestros resaltados de la ventana flotante
           // para que no interfiera con el filtrado global
