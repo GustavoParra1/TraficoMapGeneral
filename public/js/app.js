@@ -2688,6 +2688,12 @@ auth.onAuthStateChanged((user) => {
       
       // Aplicar filtro al heatmap (siempre, aunque no esté visible en checkboxes)
       heatmapLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
+
+      // 🆕 Zona de Riesgo: mismo criterio, filtrar por barrio en estudio en
+      // vez de mostrar toda la ciudad (siempre, aunque no esté visible).
+      if (typeof ZonaRiesgoLayer !== 'undefined') {
+        ZonaRiesgoLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
+      }
     };
     
     // Toggle de siniestros
@@ -4071,6 +4077,12 @@ auth.onAuthStateChanged((user) => {
           // Aplicar filtro al heatmap (siempre, aunque no esté visible)
           heatmapLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
           console.log(`  ✓ Filtro de mapa de calor actualizado: ${barrio}`);
+
+          // 🆕 Zona de Riesgo (siempre, aunque no esté visible)
+          if (typeof ZonaRiesgoLayer !== 'undefined') {
+            ZonaRiesgoLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
+            console.log(`  ✓ Filtro de Zona de Riesgo actualizado: ${barrio}`);
+          }
           
           // 🔧 CRUCIAL: Limpiar la capa de siniestros resaltados de la ventana flotante
           // para que no interfiera con el filtrado global

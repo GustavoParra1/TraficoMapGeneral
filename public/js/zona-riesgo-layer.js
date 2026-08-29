@@ -66,6 +66,8 @@ window.ZonaRiesgoLayer = (() => {
   let clickHandlerAttached = false;
   let barriosGeoJson = null;
   let barrioHighlight = null;
+  let filtroBarrioNombre = null;      // 🆕 barrio en estudio (o null = ciudad completa)
+  let filtroBarrioFeatures = null;    // 🆕 features del barrio filtrado, precalculadas
 
   // Cada fuente guarda su propio array de puntos {lat, lng, tipo, fecha}.
   // fecha es un objeto Date o null si no se pudo determinar (documentos
@@ -242,12 +244,21 @@ window.ZonaRiesgoLayer = (() => {
   }
 
   function getTodosLosPuntos() {
-    return [
+    const todos = [
       ...fuentes.siniestros_oficial,
       ...fuentes.robos_oficial,
       ...fuentes.siniestros_vecino,
       ...fuentes.robos_vecino
     ];
+    // 🆕 Filtro por barrio en estudio: si hay uno seteado, solo cuentan los
+    // puntos que caen dentro de su polígono (mismo criterio punto-en-polígono
+    // que ya usa compararBarrioPorNombre()). Afecta al heatmap (render()) y
+    // también al conteo del popup al hacer click (contarEnRadio()), porque
+    // ambos pasan por acá.
+    if (filtroBarrioFeatures && filtroBarrioFeatures.length > 0) {
+      return todos.filter((p) => puntoEnAlgunPoligono(p, filtroBarrioFeatures));
+    }
+    return todos;
   }
 
   function render() {
@@ -435,9 +446,60 @@ window.ZonaRiesgoLayer = (() => {
     });
   }
 
+  /**
+   * 🆕 Nombre del barrio (cualquiera, no solo el filtrado) donde cae un
+   * punto — se usa para agregar el nombre del barrio arriba del popup de
+   * riesgo cuando el click cae dentro de un polígono, en vez de dejar que
+   * el popup de Zonas/Barrios (geo-layers.js) se tape con el nuestro.
+   */
+  function getBarrioEnPunto(lat, lng) {
+    if (!barriosGeoJson || !Array.isArray(barriosGeoJson.features) || typeof turf === 'undefined') {
+      return null;
+    }
+    let point;
+    try {
+      point = turf.point([lng, lat]);
+    } catch (err) {
+      return null;
+    }
+    const feature = barriosGeoJson.features.find((f) => {
+      try {
+        return turf.booleanPointInPolygon(point, f);
+      } catch (err) {
+        return false;
+      }
+    });
+    return feature ? getNombreBarrio(feature) : null;
+  }
+
   function setBarriosGeoJson(geojson) {
     barriosGeoJson = geojson;
     poblarSelectorBarrios();
+    // 🆕 Si ya había un barrio filtrado seteado antes de que llegara el
+    // GeoJSON (orden de carga no garantizado), recalcular sus features ahora.
+    if (filtroBarrioNombre && Array.isArray(geojson?.features)) {
+      filtroBarrioFeatures = geojson.features.filter((f) => getNombreBarrio(f) === filtroBarrioNombre);
+      render();
+    }
+  }
+
+  /**
+   * 🆕 Filtra el heatmap (y el conteo del popup al hacer click) para que
+   * solo tenga en cuenta el barrio en estudio, en vez de toda la ciudad.
+   * Firma (key, value) igual que el resto de las capas (SiniestrosLayer,
+   * RoboLayer, etc.) para engancharse desde app.js sin caso especial. Por
+   * ahora solo maneja la clave 'globalBarrio'. Pasar 'all' (o value falsy)
+   * vuelve a ver todos los barrios.
+   */
+  function setFilter(key, value) {
+    if (key !== 'globalBarrio') return;
+    filtroBarrioNombre = (value && value !== 'all') ? value : null;
+    if (filtroBarrioNombre && barriosGeoJson && Array.isArray(barriosGeoJson.features)) {
+      filtroBarrioFeatures = barriosGeoJson.features.filter((f) => getNombreBarrio(f) === filtroBarrioNombre);
+    } else {
+      filtroBarrioFeatures = null;
+    }
+    render();
   }
 
   function poblarSelectorBarrios() {
@@ -556,6 +618,7 @@ window.ZonaRiesgoLayer = (() => {
     if (!isVisible) return;
 
     const { lat, lng } = e.latlng;
+    const nombreBarrio = getBarrioEnPunto(lat, lng);   // 🆕
     const conteo = contarEnRadio(lat, lng);
     const totalSiniestros = conteo.siniestro_oficial + conteo.siniestro_vecino;
     const totalRobos = conteo.robo_oficial + conteo.robo_vecino;
@@ -578,6 +641,7 @@ window.ZonaRiesgoLayer = (() => {
 
     const popupContent = `
       <div style="font-size: 13px; min-width: 190px;">
+        ${nombreBarrio ? `<div style="font-weight:bold;font-size:14px;margin-bottom:6px;border-bottom:1px solid #e5e7eb;padding-bottom:4px;">📍 ${nombreBarrio}</div>` : ''}
         <div style="font-weight: bold; color: ${riesgo.color}; margin-bottom: 6px;">
           ${riesgo.emoji} Riesgo ${riesgo.nivel} <span style="font-weight: normal; color: #666;">(radio ${RADIO_CONSULTA_M}m)</span>
         </div>
@@ -736,6 +800,7 @@ window.ZonaRiesgoLayer = (() => {
     setRobosOficiales,
     setDenunciasVecinos,
     setBarriosGeoJson,
+    setFilter,
     toggle,
     toggleComparador,
     getMetadata,
