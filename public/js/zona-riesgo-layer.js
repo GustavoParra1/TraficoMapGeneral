@@ -63,7 +63,6 @@ window.ZonaRiesgoLayer = (() => {
   let clickMarker = null;
   let isVisible = false;
   let modoComparador = false;
-  let clickHandlerAttached = false;
   let barriosGeoJson = null;
   let barrioHighlight = null;
   let filtroBarrioNombre = null;      // 🆕 barrio en estudio (o null = ciudad completa)
@@ -80,11 +79,20 @@ window.ZonaRiesgoLayer = (() => {
   };
 
   function init(leafletMap) {
-    map = leafletMap;
-    if (!clickHandlerAttached) {
-      map.on('click', onMapClick);
-      clickHandlerAttached = true;
+    // 🐛 Fix (2026-08): si init() se llama más de una vez (cambio de
+    // cliente, remount del mapa) hay que desenganchar el listener del
+    // mapa VIEJO antes de pisar la variable `map` — si no, el click nunca
+    // se reengancha al mapa nuevo (quedaba pegado al viejo, que ya no
+    // recibe clicks del usuario) y el heatmap se ve pero el click no hace
+    // nada. Antes esto se evitaba con un flag `clickHandlerAttached` que
+    // solo dejaba enganchar una vez en la vida del módulo — mal si el
+    // mapa se recrea.
+    if (map && map !== leafletMap) {
+      map.off('click', onMapClick);
     }
+    map = leafletMap;
+    map.off('click', onMapClick); // por si init() se llama 2 veces con el mismo mapa
+    map.on('click', onMapClick);
     initComparadorBarrioUI();
     console.log('🚨🔥 ZonaRiesgoLayer inicializado');
   }
