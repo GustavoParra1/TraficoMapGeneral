@@ -486,7 +486,8 @@ window.ZonaRiesgoLayer = (() => {
     // 🆕 Si ya había un barrio filtrado seteado antes de que llegara el
     // GeoJSON (orden de carga no garantizado), recalcular sus features ahora.
     if (filtroBarrioNombre && Array.isArray(geojson?.features)) {
-      filtroBarrioFeatures = geojson.features.filter((f) => getNombreBarrio(f) === filtroBarrioNombre);
+      const buscado = filtroBarrioNombre.trim().toLowerCase();
+      filtroBarrioFeatures = geojson.features.filter((f) => getNombreBarrio(f).trim().toLowerCase() === buscado);
       render();
     }
   }
@@ -503,10 +504,23 @@ window.ZonaRiesgoLayer = (() => {
     if (key !== 'globalBarrio') return;
     filtroBarrioNombre = (value && value !== 'all') ? value : null;
     if (filtroBarrioNombre && barriosGeoJson && Array.isArray(barriosGeoJson.features)) {
-      filtroBarrioFeatures = barriosGeoJson.features.filter((f) => getNombreBarrio(f) === filtroBarrioNombre);
+      // Case-insensitive + trim (mismo criterio que highlightBarrio() en
+      // geo-layers.js) — el nombre que llega acá sale del selector global
+      // (calculado desde los siniestros, no siempre 1:1 con el nombre tal
+      // cual está en el GeoJSON), así que una comparación exacta podía
+      // fallar por mayúsculas/espacios y dejar el heatmap en cero puntos.
+      const buscado = filtroBarrioNombre.trim().toLowerCase();
+      filtroBarrioFeatures = barriosGeoJson.features.filter(
+        (f) => getNombreBarrio(f).trim().toLowerCase() === buscado
+      );
     } else {
       filtroBarrioFeatures = null;
     }
+    // 🔍 Diagnóstico temporal: confirmar si el nombre matchea contra el
+    // GeoJSON de barrios. Si "features encontradas" da 0 con un barrio
+    // elegido, el heatmap queda filtrado a cero puntos — por eso no se ve
+    // nada aunque la capa esté tildada.
+    console.log(`🚨🔥 ZonaRiesgoLayer.setFilter: barrio="${filtroBarrioNombre}" → ${filtroBarrioFeatures ? filtroBarrioFeatures.length : 'sin filtro'} features encontradas`);
     render();
   }
 
