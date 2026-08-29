@@ -2664,6 +2664,7 @@ auth.onAuthStateChanged((user) => {
       const camCheckbox = document.getElementById('cameras-checkbox');
       const privCamCheckbox = document.getElementById('private-cameras-checkbox');
       const semaforosCheckbox = document.getElementById('semaforos-checkbox');
+      const roboCheckbox = document.getElementById('robo-checkbox');
       
       // Aplicar filtro a las capas que están visibles, incluso si barrio es 'all'
       if (sinCheckbox && sinCheckbox.checked) {
@@ -2677,6 +2678,12 @@ auth.onAuthStateChanged((user) => {
       }
       if (semaforosCheckbox && semaforosCheckbox.checked) {
         SemaforosLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
+      }
+      // 🆕 Robo Automotor: tenía el filtro por barrio ya implementado en
+      // robo-layer.js (isInBarrio, filters.globalBarrio, setFilter) pero
+      // nadie se lo pedía desde acá — por eso ignoraba el filtro global.
+      if (roboCheckbox && roboCheckbox.checked) {
+        RoboLayer.setFilter('globalBarrio', barrio !== 'all' ? barrio : 'all');
       }
       
       // Aplicar filtro al heatmap (siempre, aunque no esté visible en checkboxes)
@@ -4005,6 +4012,7 @@ auth.onAuthStateChanged((user) => {
           const camCheckbox = document.getElementById('cameras-checkbox');
           const privCamCheckbox = document.getElementById('private-cameras-checkbox');
           const semaforosCheckbox = document.getElementById('semaforos-checkbox');
+          const roboCheckbox = document.getElementById('robo-checkbox');
           const toggleBarrios = document.getElementById('toggle-barrios');
           
           // Si se selecciona un barrio específico (no "all"), auto-activar siniestros y barrios
@@ -4052,6 +4060,12 @@ auth.onAuthStateChanged((user) => {
           if (semaforosCheckbox && semaforosCheckbox.checked) {
             SemaforosLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
             console.log(`  ✓ Filtro de semáforos actualizado: ${barrio}`);
+          }
+          // 🆕 Robo Automotor tenía el filtro por barrio implementado en
+          // robo-layer.js pero nadie se lo pedía desde acá.
+          if (roboCheckbox && roboCheckbox.checked) {
+            RoboLayer.setFilter('globalBarrio', barrio === 'all' ? 'all' : barrio);
+            console.log(`  ✓ Filtro de robos actualizado: ${barrio}`);
           }
           
           // Aplicar filtro al heatmap (siempre, aunque no esté visible)
