@@ -1,6 +1,56 @@
 // js/dashboard.js
 // Lógica del Dashboard Admin
 
+// ------------------------------------------------------------------
+// Barrios oficiales de Mar del Plata — usado en modales de Crear/Editar
+// Cliente. Cada <option> lleva value = nombre oficial (lo que se manda
+// al backend) y data-slug = mismo criterio que normalizarSlugBarrio()
+// en Cloud Functions, para poder preseleccionar por barrio_slug al editar.
+// ------------------------------------------------------------------
+function normalizarSlugBarrioFrontend(texto) {
+  return (texto || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .substring(0, 40);
+}
+
+async function poblarSelectBarrios(selectEl, slugActual) {
+  if (!selectEl) return;
+  try {
+    const res = await fetch('https://trafico-map-general-v2.web.app/data/barrios.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const geojson = await res.json();
+
+    const nombres = new Set();
+    geojson.features.forEach(f => {
+      const p = f.properties || {};
+      const nombre = p.nombre || p.soc_fomen;
+      if (nombre) nombres.add(nombre);
+    });
+    const ordenados = Array.from(nombres).sort((a, b) => a.localeCompare(b, 'es'));
+
+    const opcionVacia = selectEl.options[0]; // conservar "-- No aplica --"
+    selectEl.innerHTML = '';
+    selectEl.appendChild(opcionVacia);
+
+    ordenados.forEach(nombre => {
+      const slug = normalizarSlugBarrioFrontend(nombre);
+      const opt = document.createElement('option');
+      opt.value = nombre;
+      opt.dataset.slug = slug;
+      opt.textContent = nombre;
+      if (slugActual && slug === slugActual) opt.selected = true;
+      selectEl.appendChild(opt);
+    });
+  } catch (err) {
+    console.error('❌ No se pudo cargar la lista de barrios:', err);
+  }
+}
+
 class Dashboard {
   constructor() {
     this.clientesData = [];
@@ -1124,6 +1174,14 @@ class Dashboard {
                   </select>
                 </div>
 
+                <div class="mb-3">
+                  <label class="form-label">Barrio (solo si es un barrio de Mar del Plata)</label>
+                  <select class="form-select" id="barrioCliente">
+                    <option value="">-- No aplica / municipio nuevo --</option>
+                  </select>
+                  <div class="form-text">Elegí el barrio oficial si este cliente corresponde a un barrio de Mar del Plata. Dejalo en "No aplica" si es un municipio nuevo (La Plata, Mendoza, etc.).</div>
+                </div>
+
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Latitud (opcional)</label>
@@ -1240,6 +1298,13 @@ class Dashboard {
                   <input type="email" class="form-control" id="editEmailCliente" readonly>
                 </div>
                 <div class="mb-3">
+                  <label class="form-label">Barrio (solo si es un barrio de Mar del Plata)</label>
+                  <select class="form-select" id="editBarrioCliente">
+                    <option value="">-- No aplica --</option>
+                  </select>
+                  <div class="form-text">Usá esto para corregir el barrio de clientes que quedaron mal asignados (ej: "Centro").</div>
+                </div>
+                <div class="mb-3">
                   <label class="form-label">Plan *</label>
                   <select class="form-select" id="editPlanCliente" required>
                     <option value="">-- Seleccionar plan --</option>
@@ -1353,6 +1418,7 @@ class Dashboard {
     const btnCrear = document.getElementById('btnCrearCliente');
     if (btnCrear) {
       btnCrear.addEventListener('click', () => {
+        poblarSelectBarrios(document.getElementById('barrioCliente'));
         const modal = new bootstrap.Modal(document.getElementById('modalCrearCliente'));
         modal.show();
       });
@@ -1367,6 +1433,7 @@ class Dashboard {
         const email = document.getElementById('emailCliente').value;
         const plan = document.getElementById('planCliente').value;
         const dominio = document.getElementById('dominioCliente').value || '';
+        const barrioOficial = document.getElementById('barrioCliente').value || '';
         const lat = parseFloat(document.getElementById('latCliente').value) || null;
         const lng = parseFloat(document.getElementById('lngCliente').value) || null;
         const zoom = parseInt(document.getElementById('zoomCliente').value) || null;
@@ -1377,7 +1444,7 @@ class Dashboard {
         }
 
         try {
-          console.log('📤 Creando cliente:', { nombre, email, plan, lat, lng, zoom });
+          console.log('📤 Creando cliente:', { nombre, email, plan, barrioOficial, lat, lng, zoom });
           
           // Llamar a función para crear cliente (usar dashboard para acceder a crearClienteAPI)
           const resultadoCreacion = await dashboard.crearClienteAPI({ 
@@ -1385,6 +1452,7 @@ class Dashboard {
             email, 
             plan, 
             dominio,
+            barrioOficial,
             lat,
             lng,
             zoom
@@ -1441,9 +1509,9 @@ class Dashboard {
     showLoading('Creando cliente...');
     
     try {
-      const { nombre, email, plan, dominio, lat, lng, zoom } = clientData;
+      const { nombre, email, plan, dominio, barrioOficial, lat, lng, zoom } = clientData;
       
-      console.log('📤 Llamando Cloud Function callable criarClienteAdmin:', { nombre, email, plan });
+      console.log('📤 Llamando Cloud Function callable criarClienteAdmin:', { nombre, email, plan, barrioOficial });
       
       // Usar Cloud Functions callable (sin CORS)
       const criarClienteAdmin = firebase.functions().httpsCallable('criarClienteAdmin');
@@ -1452,7 +1520,8 @@ class Dashboard {
         email: email,
         plan: plan,
         ciudad: dominio || '',
-        telefono: ''
+        telefono: '',
+        barrioOficial: barrioOficial || ''
       });
       
       hideLoading();

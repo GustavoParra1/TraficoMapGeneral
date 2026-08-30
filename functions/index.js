@@ -11,6 +11,10 @@ const admin = require('firebase-admin');
 const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+// 🆕 Para el "espejo geográfico" de denuncias (ver onDenunciaCreada más
+// abajo): punto-en-polígono para saber en qué barrio cayó una denuncia,
+// sin importar de qué cliente/barrio sea el vecino que la reportó.
+const turf = require('@turf/turf');
 
 // Inicializar Firebase Admin
 admin.initializeApp();
@@ -483,6 +487,94 @@ function normalizarSlugBarrio(texto) {
     .trim()
     .replace(/\s+/g, '-')
     .substring(0, 40);
+}
+
+// ============================================================================
+// 🆕 ESPEJO GEOGRÁFICO DE DENUNCIAS (2026-08)
+// ============================================================================
+/**
+ * Un vecino registrado en el barrio X puede reportar algo que vio en el
+ * barrio Y (ej: Laura, de Constitución, ve un hecho en Nueva Pompeya). La
+ * denuncia sigue quedando en su propio cliente (X) — eso no cambia, así ella
+ * la sigue viendo en "Mis Denuncias" de su app — pero además le interesa a
+ * los vecinos/admin del barrio Y, que son quienes trabajan por reducir los
+ * siniestros ahí. onDenunciaCreada, más abajo, usa estos helpers para
+ * mandarle una copia también al cliente correcto según dónde cayó el pin.
+ *
+ * Usa el mismo GeoJSON de barrios que ya usa el mapa (public/data/
+ * barrios.json, ver cities-config.json -> mar-del-plata -> files.barrios) y
+ * el mismo campo barrio_slug que ya tiene cada cliente (ver
+ * backfillBarrioSlug más arriba) — no hace falta ninguna tabla nueva.
+ */
+
+// Cache en memoria: se baja una sola vez por instancia de la función (no en
+// cada denuncia), para no pagar el costo de red en cada ejecución.
+let barriosMDPCache = null;
+async function getBarriosMDP() {
+  if (barriosMDPCache) return barriosMDPCache;
+  try {
+    const res = await fetch('https://trafico-map-general-v2.web.app/data/barrios.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    barriosMDPCache = await res.json();
+  } catch (err) {
+    console.error('❌ No se pudo cargar barrios.json para el espejo geográfico:', err);
+    barriosMDPCache = null; // no cachear el fallo — reintentar en la próxima denuncia
+  }
+  return barriosMDPCache;
+}
+
+// Mismo criterio que ya usa el front-end (app.js, geo-layers.js,
+// zona-riesgo-layer.js) para leer el nombre de un barrio: primero
+// "nombre", si no existe cae a "soc_fomen" (así vienen etiquetados los
+// polígonos de Mar del Plata en este archivo).
+function getNombreBarrioFeature(feature) {
+  const p = (feature && feature.properties) || {};
+  return p.nombre || p.soc_fomen || null;
+}
+
+/**
+ * Dado un lat/lng, busca en qué barrio de Mar del Plata cae y devuelve el
+ * clienteId de ESE barrio, si existe un cliente activo con ese barrio_slug.
+ * Devuelve null ante cualquier caso "no aplica" (sin coordenadas, sin
+ * polígono que matchee, sin cliente para ese barrio) — nunca lanza error,
+ * para no frenar el guardado normal de la denuncia por esto.
+ */
+async function buscarClienteDelBarrioGeografico(lat, lng) {
+  if (typeof lat !== 'number' || typeof lng !== 'number') return null;
+
+  const barriosGeoJson = await getBarriosMDP();
+  if (!barriosGeoJson || !Array.isArray(barriosGeoJson.features)) return null;
+
+  let punto;
+  try {
+    punto = turf.point([lng, lat]);
+  } catch (err) {
+    return null;
+  }
+
+  const featureEncontrada = barriosGeoJson.features.find((f) => {
+    try {
+      return turf.booleanPointInPolygon(punto, f);
+    } catch (err) {
+      return false;
+    }
+  });
+  if (!featureEncontrada) return null;
+
+  const nombreBarrio = getNombreBarrioFeature(featureEncontrada);
+  if (!nombreBarrio) return null;
+
+  const slug = normalizarSlugBarrio(nombreBarrio);
+  if (!slug) return null;
+
+  const snap = await db.collection('clientes')
+    .where('barrio_slug', '==', slug)
+    .where('estado', '==', 'activo')
+    .limit(1)
+    .get();
+
+  if (snap.empty) return null;
+  return snap.docs[0].id;
 }
 
 exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, context) => {
@@ -1254,7 +1346,8 @@ exports.criarClienteAdmin = functions.https.onCall(async (data, context) => {
       email, 
       plan, 
       ciudad = '',
-      telefono = ''
+      telefono = '',
+      barrioOficial = ''
     } = data || {};
 
     // Validación
@@ -1295,6 +1388,11 @@ exports.criarClienteAdmin = functions.https.onCall(async (data, context) => {
       estado: 'activo',
       ciudad: ciudad || '',
       telefono: telefono || '',
+      // 🆕 Si el admin eligió un barrio oficial de Mar del Plata (select en
+      // vez de texto libre), guardamos el slug directo acá — así el
+      // matching geográfico de onDenunciaCreada funciona desde el día 1,
+      // sin depender del backfillBarrioSlug (que adivina desde ciudad/nombre).
+      ...(barrioOficial ? { barrio_slug: normalizarSlugBarrio(barrioOficial) } : {}),
       password: passwordAdmin, // ✅ NUEVA: Guardar contraseña en el documento
       contraseña: passwordAdmin, // ✅ NUEVA: También con tilde por compatibilidad
       created_at: ahora,
@@ -2671,14 +2769,44 @@ exports.onDenunciaCreada = functions.firestore
         denunciaId: denunciaId, // Referencia al documento original
       };
 
-      // Copiar a colección histórica
+      // 🆕 Destino según DÓNDE pasó el hecho, no según de qué cliente es
+      // el vecino que lo reportó. Si el pin cae geográficamente en OTRO
+      // barrio con cliente propio y activo, el histórico va SOLO para ese
+      // cliente — así los vecinos/admin de ESE barrio lo ven, y NO
+      // aparece en el mapa del barrio de registro del vecino que reportó.
+      //
+      // El vecino igual sigue viendo su propia denuncia en "Mis Denuncias"
+      // de su app, porque esa pantalla lee directo de
+      // clientes/{clienteId}/denuncias (el documento original, que nunca
+      // se mueve ni se toca) — no de denuncias_historico.
+      let clienteDestino = clienteId; // default: comportamiento de siempre
+      let esBarrioAjeno = false;
+      try {
+        const clienteGeografico = await buscarClienteDelBarrioGeografico(denuncia.lat, denuncia.lng);
+        if (clienteGeografico && clienteGeografico !== clienteId) {
+          clienteDestino = clienteGeografico;
+          esBarrioAjeno = true;
+        }
+      } catch (errGeo) {
+        // Si falla la geolocalización por cualquier motivo, nos quedamos
+        // con el comportamiento de siempre (destino = cliente de origen) —
+        // más vale que quede en algún lado a que se pierda.
+        console.error('❌ Error determinando barrio geográfico, uso cliente de origen:', errGeo);
+      }
+
+      const datosAGuardar = esBarrioAjeno
+        ? { ...denunciaHistorico, origenClienteId: clienteId, origenVecinoAjeno: true }
+        : denunciaHistorico;
+
       await db
-        .collection(`clientes/${clienteId}/denuncias_historico`)
+        .collection(`clientes/${clienteDestino}/denuncias_historico`)
         .doc(denunciaId)
-        .set(denunciaHistorico);
+        .set(datosAGuardar);
 
       console.log(
-        `✅ Denuncia ${denunciaId} copiada a histórico (clienteId: ${clienteId})`
+        esBarrioAjeno
+          ? `📍 Denuncia ${denunciaId} de ${clienteId} impacta SOLO en ${clienteDestino} (barrio geográfico distinto)`
+          : `✅ Denuncia ${denunciaId} copiada a histórico (clienteId: ${clienteId})`
       );
 
       return null;

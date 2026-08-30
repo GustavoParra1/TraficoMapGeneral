@@ -694,6 +694,7 @@ class ClientesManager {
       document.getElementById('editPlanCliente').value = cliente.plan || '';
       document.getElementById('editDominioCliente').value = cliente.ciudad || '';
       document.getElementById('editTelefonoCliente').value = cliente.telefono || '';
+      await poblarSelectBarrios(document.getElementById('editBarrioCliente'), cliente.barrio_slug || '');
       
       // Mostrar modal de edición
       const modal = new bootstrap.Modal(document.getElementById('modalEditarCliente'));
@@ -712,6 +713,10 @@ class ClientesManager {
     try {
       console.log(`💾 [handleGuardarEdicion] Guardando cambios para: ${clienteId}`);
       
+      const selectBarrio = document.getElementById('editBarrioCliente');
+      const opcionBarrio = selectBarrio.selectedOptions[0];
+      const slugBarrio = (opcionBarrio && opcionBarrio.dataset.slug) || '';
+
       const datosActualizados = {
         nombre: document.getElementById('editNombreCliente').value,
         plan: document.getElementById('editPlanCliente').value,
@@ -719,6 +724,12 @@ class ClientesManager {
         telefono: document.getElementById('editTelefonoCliente').value,
         updated_at: new Date().toISOString()
       };
+
+      // Solo tocamos barrio_slug si se eligió algo en el select (para no
+      // pisar con '' el de clientes que ya lo tenían bien y no se editó acá)
+      if (slugBarrio) {
+        datosActualizados.barrio_slug = slugBarrio;
+      }
       
       // Validar campos requeridos (sin email, ya que no se puede cambiar)
       if (!datosActualizados.nombre || !datosActualizados.plan) {
