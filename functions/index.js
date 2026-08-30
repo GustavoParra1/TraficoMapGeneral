@@ -1512,6 +1512,64 @@ exports.criarClienteAdmin = functions.https.onCall(async (data, context) => {
 // ============================================================================
 // Cloud Function Callable: ELIMINAR CLIENTE COMPLETAMENTE
 // ============================================================================
+// ============================================================================
+// actualizarClienteAdmin — actualiza campos de un cliente existente desde
+// el panel admin (nombre, plan, ciudad, teléfono, barrio_slug). Existe porque
+// firestore.rules tiene `match /clientes/{clienteId} { allow write: if false; }`
+// a propósito — todo cambio a un cliente debe pasar por una Cloud Function con
+// permisos de servidor, nunca escribirse directo desde el navegador.
+// ============================================================================
+exports.actualizarClienteAdmin = functions.https.onCall(async (data, context) => {
+  try {
+    if (!context.auth || context.auth.token.role !== 'superadmin') {
+      throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede editar clientes');
+    }
+
+    const {
+      clienteId,
+      nombre,
+      plan,
+      ciudad = '',
+      telefono = '',
+      barrioOficial = ''
+    } = data || {};
+
+    if (!clienteId || !nombre || !plan) {
+      throw new functions.https.HttpsError('invalid-argument', 'Faltan datos requeridos (clienteId, nombre, plan)');
+    }
+
+    const clienteRef = db.collection('clientes').doc(clienteId);
+    const clienteSnap = await clienteRef.get();
+    if (!clienteSnap.exists) {
+      throw new functions.https.HttpsError('not-found', 'Cliente no encontrado');
+    }
+
+    const datosActualizados = {
+      nombre: nombre,
+      plan: plan,
+      ciudad: ciudad || '',
+      telefono: telefono || '',
+      updated_at: new Date().toISOString()
+    };
+
+    // Solo tocamos barrio_slug si se eligió algo en el select (para no pisar
+    // con '' el de clientes que ya lo tenían bien y no se editó en esta pasada).
+    if (barrioOficial) {
+      datosActualizados.barrio_slug = normalizarSlugBarrio(barrioOficial);
+    }
+
+    await clienteRef.update(datosActualizados);
+    console.log(`✅ [actualizarClienteAdmin] Cliente ${clienteId} actualizado:`, datosActualizados);
+
+    return { success: true, mensaje: 'Cliente actualizado exitosamente' };
+
+  } catch (error) {
+    console.error('❌ [actualizarClienteAdmin] Error:', error);
+    if (error instanceof functions.https.HttpsError) throw error;
+    throw new functions.https.HttpsError('internal', 'Error al actualizar cliente: ' + error.message);
+  }
+});
+
 exports.eliminarCliente = functions.https.onCall(async (data, context) => {
   try {
     // Validar autenticación Y rol — antes solo pedía estar logueado con

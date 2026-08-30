@@ -716,29 +716,31 @@ class ClientesManager {
       const selectBarrio = document.getElementById('editBarrioCliente');
       const opcionBarrio = selectBarrio.selectedOptions[0];
       const slugBarrio = (opcionBarrio && opcionBarrio.dataset.slug) || '';
+      const barrioOficial = (opcionBarrio && opcionBarrio.value) || '';
 
-      const datosActualizados = {
-        nombre: document.getElementById('editNombreCliente').value,
-        plan: document.getElementById('editPlanCliente').value,
-        ciudad: document.getElementById('editDominioCliente').value,
-        telefono: document.getElementById('editTelefonoCliente').value,
-        updated_at: new Date().toISOString()
-      };
+      const nombre = document.getElementById('editNombreCliente').value;
+      const plan = document.getElementById('editPlanCliente').value;
+      const ciudad = document.getElementById('editDominioCliente').value;
+      const telefono = document.getElementById('editTelefonoCliente').value;
 
-      // Solo tocamos barrio_slug si se eligió algo en el select (para no
-      // pisar con '' el de clientes que ya lo tenían bien y no se editó acá)
-      if (slugBarrio) {
-        datosActualizados.barrio_slug = slugBarrio;
-      }
-      
       // Validar campos requeridos (sin email, ya que no se puede cambiar)
-      if (!datosActualizados.nombre || !datosActualizados.plan) {
-        showError('Completa los campos requeridos');
+      if (!nombre || !plan) {
+        this.showError('Completa los campos requeridos');
         return;
       }
-      
-      // Actualizar en Firestore
-      await db.collection('clientes').doc(clienteId).update(datosActualizados);
+
+      // 🆕 firestore.rules tiene `allow write: if false` en /clientes/{clienteId}
+      // a propósito — hay que pasar por una Cloud Function con permisos de
+      // servidor, nunca escribir directo desde el navegador.
+      const actualizarClienteAdmin = firebase.functions().httpsCallable('actualizarClienteAdmin');
+      await actualizarClienteAdmin({
+        clienteId,
+        nombre,
+        plan,
+        ciudad,
+        telefono,
+        barrioOficial: slugBarrio ? barrioOficial : ''
+      });
       console.log('✅ Cliente actualizado exitosamente');
       
       // Cerrar modal
@@ -751,7 +753,7 @@ class ClientesManager {
       
     } catch (error) {
       console.error('❌ Error guardando edición:', error);
-      showError('Error al guardar: ' + error.message);
+      this.showError('Error al guardar: ' + error.message);
     }
   }
 
