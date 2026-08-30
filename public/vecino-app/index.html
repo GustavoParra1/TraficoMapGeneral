@@ -1,358 +1,300 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>  
+<head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-
-<meta property="og:title" content="Sumate a tu comunidad - Vecino Denuncias">
-<meta property="og:description" content="Denuncias vecinales y botón de pánico, todo desde tu celular.">
-<meta property="og:image" content="https://trafico-map-general-v2.web.app/registro/og-image.png">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://trafico-map-general-v2.web.app/registro/">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registrate - TraficoMap</title>
+<title>Vecino - Denuncias</title>
+<link rel="apple-touch-icon" href="icon-512.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Denuncias">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { min-height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #1e293b; }
-.app-header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 20px; text-align: center; }
+html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #1e293b; display: flex; flex-direction: column; }
+.app-header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
 .app-header h1 { font-size: 20px; font-weight: 700; }
-.app-header p { font-size: 13px; color: #94a3b8; margin-top: 4px; }
-.header-brand { display: flex; align-items: center; justify-content: center; gap: 14px; }
-.header-logo { width: 52px; height: 52px; border-radius: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.35); flex-shrink: 0; }
-.header-text { text-align: left; }
-.container { max-width: 460px; margin: 0 auto; padding: 16px; }
-.card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.card h2 { font-size: 16px; margin-bottom: 14px; color: #0f172a; }
-.step-indicator { display: flex; gap: 6px; margin-bottom: 16px; }
-.step-dot { flex: 1; height: 4px; border-radius: 2px; background: #e2e8f0; }
-.step-dot.done, .step-dot.active { background: #0ea5e9; }
+.btn-logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+.container { flex: 1; overflow-y: auto; padding: 16px; }
+.card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.card h2 { font-size: 16px; margin-bottom: 12px; color: #0f172a; }
 label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #475569; }
-input, select { width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 15px; margin-bottom: 14px; background: #f8fafc; }
-input:focus, select:focus { outline: none; border-color: #0ea5e9; }
-.btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+select, textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 14px; margin-bottom: 14px; background: #f8fafc; }
+textarea { min-height: 90px; resize: vertical; }
+.btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
 .btn-primary { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-link { background: none; color: #0ea5e9; font-weight: 600; padding: 8px; margin-top: 4px; font-size: 13px; }
-.msg { font-size: 13px; padding: 10px 12px; border-radius: 8px; margin-bottom: 14px; display: none; }
-.msg.show { display: block; }
-.msg.error { background: #fef2f2; color: #dc2626; }
-.msg.info { background: #e0f2fe; color: #0369a1; }
-.msg.success { background: #f0fdf4; color: #16a34a; }
-.hint { font-size: 12px; color: #94a3b8; margin-top: -8px; margin-bottom: 14px; }
-.step { display: none; }
-.step.active { display: block; }
-.success-icon { font-size: 48px; text-align: center; margin-bottom: 10px; }
-.success-card { text-align: center; }
-.spinner-inline { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: girar 0.7s linear infinite; margin-right: 8px; vertical-align: -2px; }
+.btn-secondary { background: #8b5cf6; color: white; margin-bottom: 10px; }
+#foto-preview img { max-width: 100%; border-radius: 8px; margin-bottom: 10px; }
+.denuncia-item { border-left: 4px solid #0ea5e9; }
+.denuncia-cat { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+.denuncia-fecha { font-size: 11px; color: #94a3b8; }
+.chat-box { margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+.msg { padding: 6px 10px; border-radius: 8px; font-size: 13px; margin-bottom: 6px; max-width: 85%; }
+.msg.mine { background: #0ea5e9; color: white; margin-left: auto; }
+.msg.theirs { background: #e0e7ff; color: #1e293b; }
+.chat-input-row { display: flex; gap: 6px; margin-top: 8px; }
+.chat-input-row input { flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; margin: 0; }
+.chat-input-row button { padding: 8px 14px; border: none; border-radius: 8px; background: #0ea5e9; color: white; cursor: pointer; }
+.empty { color: #94a3b8; text-align: center; padding: 20px; font-size: 14px; }
+.input-group { position: relative; display: flex; gap: 8px; align-items: flex-end; margin-bottom: 14px; }
+.input-group textarea { flex: 1; margin: 0; }
+.btn-voice { padding: 10px 12px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 6px; }
+.btn-voice:hover { transform: scale(1.05); box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3); }
+.btn-voice:active { transform: scale(0.98); }
+.btn-voice.listening { animation: pulse-voice 1.2s infinite; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+@keyframes pulse-voice { 0%, 100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.6); } 50% { box-shadow: 0 0 0 8px rgba(236, 72, 153, 0); } }
+.voice-status { font-size: 12px; color: #64748b; margin-top: 6px; min-height: 18px; }
+.debug-panel { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: #e2e8f0; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 11px; border-top: 2px solid #475569; z-index: 9999; display: none; }
+.debug-panel.show { display: block; }
+.debug-log { padding: 4px 8px; border-bottom: 1px solid #334155; }
+.debug-log.error { color: #ef4444; }
+.debug-log.success { color: #22c55e; }
+.debug-log.warning { color: #eab308; }
+.debug-log.info { color: #0ea5e9; }
+.btn-debug { position: fixed; bottom: 10px; right: 10px; background: #334155; color: white; border: 1px solid #475569; padding: 6px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; z-index: 10000; }
+.btn-panico {
+  width: 100%;
+  padding: 18px;
+  border: none;
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  background: #dc2626;
+  cursor: pointer;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 14px rgba(220,38,38,0.4);
+  animation: pulso 1.6s infinite;
+}
+.btn-panico:active { transform: scale(0.97); }
+@keyframes pulso {
+  0%   { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
+  70%  { box-shadow: 0 0 0 14px rgba(220,38,38,0); }
+  100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+}
+#loading-overlay {
+  position: fixed; inset: 0; background: #0f172a; color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; z-index: 99999; transition: opacity 0.3s ease;
+}
+#loading-overlay .spinner {
+  width: 42px; height: 42px; border: 4px solid rgba(255,255,255,0.2);
+  border-top-color: #0ea5e9; border-radius: 50%; animation: girar 0.8s linear infinite;
+}
+#loading-overlay-text { font-size: 14px; color: #cbd5e1; }
 @keyframes girar { to { transform: rotate(360deg); } }
-#recaptcha-container { margin-bottom: 10px; }
+.panico-cercano {
+  border-left: 5px solid #dc2626;
+  background: #fef2f2;
+  animation: pulso-tarjeta 1.6s infinite;
+}
+@keyframes pulso-tarjeta {
+  0%, 100% { box-shadow: 0 2px 8px rgba(220,38,38,0.15); }
+  50% { box-shadow: 0 2px 16px rgba(220,38,38,0.5); }
+}
+.banner-instalar {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  position: relative;
+}
+.banner-instalar strong { display: block; font-size: 14px; margin-bottom: 4px; }
+.banner-instalar .cerrar-banner {
+  position: absolute; top: 8px; right: 10px;
+  background: rgba(255,255,255,0.2); border: none; color: white;
+  width: 22px; height: 22px; border-radius: 50%; cursor: pointer; font-size: 13px; line-height: 1;
+}
+.banner-instalar code {
+  background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 4px;
+}
+.category-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  text-align: center;
+}
+.category-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.category-btn.active {
+  border-width: 2px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.category-btn .cat-icon {
+  font-size: 24px;
+}
+.category-btn .cat-label {
+  font-size: 11px;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.main-category-btn {
+  min-width: 100px;
+}
+.sub-category-btn {
+  min-width: 110px;
+}
+/* 🆕 Ubicación: GPS (default) vs marcar en el mapa */
+.ubicacion-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.ubicacion-opcion {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  transition: all 0.15s ease;
+}
+.ubicacion-opcion.active {
+  border-color: #0ea5e9;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+#ubicacion-mapa-container {
+  display: none;
+  margin-bottom: 14px;
+}
+#ubicacion-mapa-container.show { display: block; }
+#ubicacion-mini-mapa {
+  width: 100%;
+  height: 220px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid #cbd5e1;
+}
+.ubicacion-ayuda {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 6px;
+  text-align: center;
+}
+.ubicacion-confirmada {
+  font-size: 12px;
+  color: #0369a1;
+  background: #e0f2fe;
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin-top: 6px;
+  text-align: center;
+  font-weight: 600;
+}
 </style>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
+<!-- Leaflet: usado para el mini-mapa de "marcar ubicación a mano" -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </head>
 <body>
-
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div id="loading-overlay-text">Cargando...</div>
+</div>
 <div class="app-header">
-  <div class="header-brand">
-    <img src="icon-192.png" alt="Vecino Denuncias" class="header-logo">
-    <div class="header-text">
-      <h1>Sumate a tu comunidad</h1>
-      <p>Denuncias vecinales y botón de pánico</p>
-    </div>
-  </div>
+  <h1>📢 Denuncias Vecino</h1>
+  <button class="btn-logout" onclick="logout()">Salir</button>
 </div>
-
 <div class="container">
-
-  <div class="step-indicator">
-    <div class="step-dot" id="dot-1"></div>
-    <div class="step-dot" id="dot-2"></div>
-    <div class="step-dot" id="dot-3"></div>
+  <div id="banner-instalar-container"></div>
+  <button class="btn-panico" id="btn-panico" onclick="enviarPanico()">🚨 EMERGENCIA</button>
+  <button class="btn btn-secondary" id="btn-ver-mapa" style="margin-bottom: 16px;">🗺️ Ver mapa de mi ciudad</button>
+  <div class="card">
+    <h2>🚨 Alertas Cercanas</h2>
+    <div id="lista-alertas-cercanas"><div class="empty">Buscando alertas cerca tuyo...</div></div>
   </div>
+  <div class="card">
+    <h2>Nueva Denuncia</h2>
+    
+    <!-- Nueva interfaz jerárquica -->
+    <label>¿Qué querés reportar?</label>
+    <div id="main-categories-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 16px;"></div>
+    
+    <label style="margin-top: 14px; display: block;">Selecciona el tipo específico</label>
+    <div id="sub-categories-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 16px;"></div>
+    
+    <!-- Fallback a select antigua para compatibilidad -->
+    <select id="categoria" style="display: none;">
+      <option value="luminarias">💡 Luminarias</option>
+      <option value="semaforos">🚦 Semáforos</option>
+      <option value="baches">🕳️ Baches</option>
+      <option value="sospechosos">👤 Sospechosos</option>
+      <option value="robos">🔓 Robos</option>
+      <option value="choques">💥 Choques</option>
+    </select>
 
-  <div class="msg" id="msg-box"></div>
-
-  <!-- PASO 1: Teléfono -->
-  <div class="step active" id="step-1">
-    <div class="card">
-      <h2>1. Verificá tu celular</h2>
-      <label for="telefono">Número de celular</label>
-      <input type="tel" id="telefono" placeholder="+54 9 223 1234567" autocomplete="tel">
-      <div class="hint">Incluí código de país y de área. Te vamos a mandar un código por SMS.</div>
-      <div id="recaptcha-container"></div>
-      <button class="btn btn-primary" id="btn-enviar-sms">Enviar código por SMS</button>
+    <!-- 🆕 Ubicación: GPS automático (default) o marcar a mano en el mapa -->
+    <label>Ubicación</label>
+    <div class="ubicacion-toggle">
+      <button type="button" class="ubicacion-opcion active" id="ubicacion-opcion-gps">📍 Mi ubicación (GPS)</button>
+      <button type="button" class="ubicacion-opcion" id="ubicacion-opcion-mapa">🗺️ Marcar en el mapa</button>
     </div>
-  </div>
-
-  <!-- PASO 2: Código SMS -->
-  <div class="step" id="step-2">
-    <div class="card">
-      <h2>2. Ingresá el código</h2>
-      <label for="codigo-sms">Código de 6 dígitos</label>
-      <input type="tel" id="codigo-sms" placeholder="123456" maxlength="6" inputmode="numeric">
-      <button class="btn btn-primary" id="btn-verificar-codigo">Verificar código</button>
-      <button class="btn btn-link" id="btn-reenviar-sms">¿No te llegó? Reenviar código</button>
+    <div id="ubicacion-mapa-container">
+      <div id="ubicacion-mini-mapa"></div>
+      <div class="ubicacion-ayuda">Tocá el mapa para fijar la ubicación. Podés arrastrar el pin para ajustarla.</div>
+      <div class="ubicacion-confirmada" id="ubicacion-confirmada-msg" style="display:none;"></div>
     </div>
-  </div>
-
-  <!-- PASO 3: Datos + barrio -->
-  <div class="step" id="step-3">
-    <div class="card">
-      <h2>3. Completá tus datos</h2>
-      <label for="nombre-vecino">Nombre y apellido</label>
-      <input type="text" id="nombre-vecino" placeholder="Juan Pérez" autocomplete="name">
-      <label for="barrio-nombre">Tu barrio</label>
-      <select id="barrio-nombre" required>
-        <option value="">Cargando barrios...</option>
-      </select>
-      <div class="hint">Si tu barrio ya está en TraficoMap, te sumás a esa comunidad. Si es el primero, la creamos para ustedes.</div>
-      <label for="direccion">Dirección (opcional)</label>
-      <input type="text" id="direccion" placeholder="Calle y número" autocomplete="street-address">
-      <button class="btn btn-primary" id="btn-registrar">Registrarme</button>
+    
+    <label>Descripción</label>
+    <div class="input-group">
+      <textarea id="texto" placeholder="Describí la situación..."></textarea>
+      <button class="btn-voice" id="btn-voice" title="Grabar descripción con voz">🎤 Voz</button>
     </div>
+    <div class="voice-status" id="voice-status"></div>
+    <div id="foto-preview"></div>
+    <button class="btn btn-secondary" onclick="document.getElementById('file-camara').click()">📷 Tomar foto</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('file-foto').click()">🖼️ Adjuntar de galería</button>
+    <input type="file" id="file-camara" accept="image/*" capture="environment" style="display:none;">
+    <input type="file" id="file-foto" accept="image/*" style="display:none;">
+    <button class="btn btn-primary" id="btn-enviar">Enviar Denuncia</button>
   </div>
-
-  <!-- PASO 4: Éxito -->
-  <div class="step" id="step-4">
-    <div class="card success-card">
-      <div class="success-icon">✅</div>
-      <h2 id="exito-titulo">¡Listo!</h2>
-      <p id="exito-texto" style="font-size:14px; color:#475569; margin-bottom:16px;"></p>
-      <button class="btn btn-primary" id="btn-ir-app">Ir a la app de vecino</button>
-    </div>
+  <div class="card">
+    <h2>Mis Denuncias</h2>
+    <div id="lista-denuncias"><div class="empty">Cargando...</div></div>
   </div>
-
 </div>
-
+<div class="debug-panel" id="debug-panel"></div>
+<button class="btn-debug" onclick="document.getElementById('debug-panel').classList.toggle('show')">🔧 Debug</button>
+<script src="../js/categories-taxonomy.js?v=20260821004"></script>
+<script src="../js/vecino-app.js?v=20260825001"></script>
 <script>
-// ============================================================================
-// Firebase config — mismo proyecto único multi-tenant que usa el resto de
-// TraficoMap (public/index.html, login.html). El aislamiento entre
-// municipios/barrios es por custom claim cliente_id, no por proyecto.
-// ============================================================================
-var firebaseConfig = {
-  apiKey: "AIzaSyCkYYx5n-gKaKtTqOv2R1Glz1D_TA_Y5KA",
-  authDomain: "trafico-map-general-v2.firebaseapp.com",
-  projectId: "trafico-map-general-v2",
-  storageBucket: "trafico-map-general-v2.firebasestorage.app",
-  messagingSenderId: "540631719751",
-  appId: "1:540631719751:web:bd410f1bbee18e9fabb662",
-  databaseURL: "https://trafico-map-general-v2-default-rtdb.firebaseio.com"
-};
-
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-
-const auth = firebase.auth();
-const functions = firebase.app().functions('us-central1');
-
-// IMPORTANTE: esta pestaña usa persistencia de SESIÓN, no LOCAL.
-// Si no hacemos esto, y el vecino (o vos probando) tiene otra pestaña
-// abierta con sesión de admin/otro rol en el mismo proyecto Firebase,
-// esa sesión "pisa" la del vecino recién verificado por SMS acá,
-// porque Firebase sincroniza el estado de auth entre pestañas por default.
-auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
-
-let confirmationResult = null;
-let recaptchaVerifier = null;
-
-// ------------------------------------------------------------------
-// Cargar barrios oficiales de Mar del Plata en el <select>
-// ------------------------------------------------------------------
-async function cargarBarriosOficiales() {
-  const select = document.getElementById('barrio-nombre');
-  try {
-    const res = await fetch('https://trafico-map-general-v2.web.app/data/barrios.json');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const geojson = await res.json();
-
-    const nombres = new Set();
-    geojson.features.forEach(f => {
-      const p = f.properties || {};
-      const nombre = p.nombre || p.soc_fomen;
-      if (nombre) nombres.add(nombre);
-    });
-
-    const ordenados = Array.from(nombres).sort((a, b) => a.localeCompare(b, 'es'));
-
-    select.innerHTML = '<option value="">Seleccioná tu barrio...</option>';
-    ordenados.forEach(nombre => {
-      const opt = document.createElement('option');
-      opt.value = nombre;
-      opt.textContent = nombre;
-      select.appendChild(opt);
-    });
-  } catch (err) {
-    console.error('❌ No se pudo cargar la lista de barrios:', err);
-    // Fallback: si falla la carga, no bloqueamos el registro — convertimos
-    // el select en un input editable a mano para no dejar a nadie afuera.
-    select.outerHTML = '<input type="text" id="barrio-nombre" placeholder="Ej: Florentino Ameghino" autocomplete="off">';
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW no registrado:', e));
   }
-}
-cargarBarriosOficiales();
-
-// ------------------------------------------------------------------
-// Helpers UI
-// ------------------------------------------------------------------
-function irAPaso(n) {
-  document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
-  document.getElementById('step-' + n).classList.add('active');
-  for (let i = 1; i <= 3; i++) {
-    const dot = document.getElementById('dot-' + i);
-    dot.classList.remove('active', 'done');
-    if (i < n) dot.classList.add('done');
-    if (i === n) dot.classList.add('active');
-  }
-}
-
-function mostrarMensaje(texto, tipo) {
-  const box = document.getElementById('msg-box');
-  box.textContent = texto;
-  box.className = 'msg show ' + tipo;
-}
-
-function ocultarMensaje() {
-  const box = document.getElementById('msg-box');
-  box.className = 'msg';
-}
-
-function setCargando(btn, cargando, textoOriginal) {
-  btn.disabled = cargando;
-  btn.innerHTML = cargando ? '<span class="spinner-inline"></span>Un momento...' : textoOriginal;
-}
-
-// ------------------------------------------------------------------
-// Recaptcha invisible (requerido por Firebase Phone Auth)
-// ------------------------------------------------------------------
-function getRecaptcha() {
-  if (!recaptchaVerifier) {
-    recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-      size: 'invisible'
-    });
-  }
-  return recaptchaVerifier;
-}
-
-// ------------------------------------------------------------------
-// PASO 1 → Enviar SMS
-// ------------------------------------------------------------------
-document.getElementById('btn-enviar-sms').addEventListener('click', async () => {
-  ocultarMensaje();
-  const btn = document.getElementById('btn-enviar-sms');
-  const telefono = document.getElementById('telefono').value.trim();
-
-  if (!/^\+\d{8,15}$/.test(telefono.replace(/\s+/g, ''))) {
-    mostrarMensaje('Ingresá el celular completo con código de país, ej: +5492231234567', 'error');
-    return;
-  }
-
-  setCargando(btn, true, 'Enviar código por SMS');
-  try {
-    const telefonoLimpio = telefono.replace(/\s+/g, '');
-    confirmationResult = await auth.signInWithPhoneNumber(telefonoLimpio, getRecaptcha());
-    mostrarMensaje('Te enviamos un código por SMS.', 'info');
-    irAPaso(2);
-  } catch (error) {
-    console.error('Error enviando SMS:', error);
-    mostrarMensaje('No pudimos enviar el SMS: ' + (error.message || 'intentá de nuevo'), 'error');
-    // Resetear recaptcha para permitir reintentar
-    if (recaptchaVerifier) {
-      recaptchaVerifier.render().then(widgetId => {
-        if (window.grecaptcha) window.grecaptcha.reset(widgetId);
-      });
-    }
-  } finally {
-    setCargando(btn, false, 'Enviar código por SMS');
-  }
-});
-
-// ------------------------------------------------------------------
-// PASO 2 → Verificar código
-// ------------------------------------------------------------------
-document.getElementById('btn-verificar-codigo').addEventListener('click', async () => {
-  ocultarMensaje();
-  const btn = document.getElementById('btn-verificar-codigo');
-  const codigo = document.getElementById('codigo-sms').value.trim();
-
-  if (!/^\d{6}$/.test(codigo)) {
-    mostrarMensaje('El código son 6 dígitos.', 'error');
-    return;
-  }
-  if (!confirmationResult) {
-    mostrarMensaje('Volvé a pedir el código, esta sesión expiró.', 'error');
-    irAPaso(1);
-    return;
-  }
-
-  setCargando(btn, true, 'Verificar código');
-  try {
-    await confirmationResult.confirm(codigo);
-    // Ya estamos autenticados de verdad como el vecino (no hay riesgo de que
-    // nos pise otra pestaña). Migramos a persistencia LOCAL para que
-    // vecino-app.js (que usa el default LOCAL) reconozca esta sesión al
-    // redirigir en el paso 4.
-    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-    ocultarMensaje();
-    irAPaso(3);
-  } catch (error) {
-    console.error('Error verificando código:', error);
-    mostrarMensaje('Código incorrecto o vencido. Probá de nuevo.', 'error');
-  } finally {
-    setCargando(btn, false, 'Verificar código');
-  }
-});
-
-document.getElementById('btn-reenviar-sms').addEventListener('click', () => {
-  ocultarMensaje();
-  irAPaso(1);
-});
-
-// ------------------------------------------------------------------
-// PASO 3 → Registrar vecino (llama a la Cloud Function)
-// ------------------------------------------------------------------
-document.getElementById('btn-registrar').addEventListener('click', async () => {
-  ocultarMensaje();
-  const btn = document.getElementById('btn-registrar');
-  const nombreVecino = document.getElementById('nombre-vecino').value.trim();
-  const barrioNombre = document.getElementById('barrio-nombre').value.trim();
-  const direccion = document.getElementById('direccion').value.trim();
-
-  if (!nombreVecino) {
-    mostrarMensaje('Falta tu nombre y apellido.', 'error');
-    return;
-  }
-  if (!barrioNombre) {
-    mostrarMensaje('Falta el nombre de tu barrio.', 'error');
-    return;
-  }
-
-  setCargando(btn, true, 'Registrarme');
-  try {
-    const registrar = functions.httpsCallable('registrarVecinoAutoservicio');
-    const resultado = await registrar({ nombreVecino, barrioNombre, direccion });
-    const datos = resultado.data;
-
-    document.getElementById('exito-texto').textContent = datos.mensaje || 'Te registraste correctamente.';
-    irAPaso(4);
-  } catch (error) {
-    console.error('Error en registrarVecinoAutoservicio:', error);
-    mostrarMensaje('No pudimos completar el registro: ' + (error.message || 'intentá de nuevo'), 'error');
-  } finally {
-    setCargando(btn, false, 'Registrarme');
-  }
-});
-
-// ------------------------------------------------------------------
-// PASO 4 → Ir a la app de vecino
-// ------------------------------------------------------------------
-document.getElementById('btn-ir-app').addEventListener('click', () => {
-  window.location.href = '../vecino-app/';
-});
 </script>
 </body>
 </html>
