@@ -106,7 +106,9 @@ input:focus, select:focus { outline: none; border-color: #0ea5e9; }
       <label for="nombre-vecino">Nombre y apellido</label>
       <input type="text" id="nombre-vecino" placeholder="Juan Pérez" autocomplete="name">
       <label for="barrio-nombre">Tu barrio</label>
-      <input type="text" id="barrio-nombre" placeholder="Ej: Florentino Ameghino" autocomplete="off">
+      <select id="barrio-nombre" required>
+        <option value="">Cargando barrios...</option>
+      </select>
       <div class="hint">Si tu barrio ya está en TraficoMap, te sumás a esa comunidad. Si es el primero, la creamos para ustedes.</div>
       <label for="direccion">Dirección (opcional)</label>
       <input type="text" id="direccion" placeholder="Calle y número" autocomplete="street-address">
@@ -158,6 +160,41 @@ auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
 
 let confirmationResult = null;
 let recaptchaVerifier = null;
+
+// ------------------------------------------------------------------
+// Cargar barrios oficiales de Mar del Plata en el <select>
+// ------------------------------------------------------------------
+async function cargarBarriosOficiales() {
+  const select = document.getElementById('barrio-nombre');
+  try {
+    const res = await fetch('https://trafico-map-general-v2.web.app/data/barrios.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const geojson = await res.json();
+
+    const nombres = new Set();
+    geojson.features.forEach(f => {
+      const p = f.properties || {};
+      const nombre = p.nombre || p.soc_fomen;
+      if (nombre) nombres.add(nombre);
+    });
+
+    const ordenados = Array.from(nombres).sort((a, b) => a.localeCompare(b, 'es'));
+
+    select.innerHTML = '<option value="">Seleccioná tu barrio...</option>';
+    ordenados.forEach(nombre => {
+      const opt = document.createElement('option');
+      opt.value = nombre;
+      opt.textContent = nombre;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error('❌ No se pudo cargar la lista de barrios:', err);
+    // Fallback: si falla la carga, no bloqueamos el registro — convertimos
+    // el select en un input editable a mano para no dejar a nadie afuera.
+    select.outerHTML = '<input type="text" id="barrio-nombre" placeholder="Ej: Florentino Ameghino" autocomplete="off">';
+  }
+}
+cargarBarriosOficiales();
 
 // ------------------------------------------------------------------
 // Helpers UI
