@@ -1519,6 +1519,70 @@ exports.criarClienteAdmin = functions.https.onCall(async (data, context) => {
 // a propósito — todo cambio a un cliente debe pasar por una Cloud Function con
 // permisos de servidor, nunca escribirse directo desde el navegador.
 // ============================================================================
+// ============================================================================
+// generarAccesoClienteExistente — para clientes que ya existen en Firestore
+// (creados por vías viejas/manuales) pero nunca tuvieron usuario Auth +
+// credenciales generadas (email_admin: "Sin generar"). Replica el PASO 2 de
+// criarClienteAdmin (crear usuario Auth + custom claims) sin tocar el resto
+// del documento del cliente ni sus subcolecciones existentes.
+// ============================================================================
+exports.generarAccesoClienteExistente = functions.https.onCall(async (data, context) => {
+  try {
+    if (!context.auth || context.auth.token.role !== 'superadmin') {
+      throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede generar accesos');
+    }
+
+    const { clienteId, email } = data || {};
+    if (!clienteId || !email) {
+      throw new functions.https.HttpsError('invalid-argument', 'Faltan clienteId o email');
+    }
+
+    const clienteRef = db.collection('clientes').doc(clienteId);
+    const clienteSnap = await clienteRef.get();
+    if (!clienteSnap.exists) {
+      throw new functions.https.HttpsError('not-found', 'Cliente no encontrado');
+    }
+
+    const passwordAdmin = generateSecurePassword();
+    let userAdmin;
+    try {
+      userAdmin = await auth.createUser({
+        email: email,
+        password: passwordAdmin,
+        displayName: `Admin - ${clienteSnap.data().nombre || clienteId}`,
+        disabled: false
+      });
+      await auth.setCustomUserClaims(userAdmin.uid, { role: 'admin', cliente_id: clienteId });
+      console.log(`✅ [generarAccesoClienteExistente] Usuario admin creado: ${email}`);
+    } catch (error) {
+      if (error.code === 'auth/email-already-exists') {
+        console.log('⚠️ [generarAccesoClienteExistente] Usuario ya existe, actualizando custom claims...');
+        const existingUser = await auth.getUserByEmail(email);
+        await auth.setCustomUserClaims(existingUser.uid, { role: 'admin', cliente_id: clienteId });
+        userAdmin = existingUser;
+      } else {
+        throw error;
+      }
+    }
+
+    await clienteRef.update({
+      email: email,
+      email_admin: email,
+      password: passwordAdmin,
+      contraseña: passwordAdmin,
+      updated_at: new Date().toISOString()
+    });
+
+    console.log(`✅ [generarAccesoClienteExistente] Acceso generado para ${clienteId}`);
+    return { success: true, email, password: passwordAdmin, mensaje: 'Acceso generado exitosamente' };
+
+  } catch (error) {
+    console.error('❌ [generarAccesoClienteExistente] Error:', error);
+    if (error instanceof functions.https.HttpsError) throw error;
+    throw new functions.https.HttpsError('internal', 'Error al generar acceso: ' + error.message);
+  }
+});
+
 exports.actualizarClienteAdmin = functions.https.onCall(async (data, context) => {
   try {
     if (!context.auth || context.auth.token.role !== 'superadmin') {
