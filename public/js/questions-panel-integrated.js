@@ -5,10 +5,21 @@ class QuestionsPanelIntegrated {
   constructor() {
     this.questions = {};
     this.isOpen = false;
+    // 🆕 Título/ícono configurables (2026-08): por defecto sigue diciendo
+    // "Preguntas Frecuentes" (para no cambiarle nada a los clientes que ya
+    // lo tenían así, como La Plata/Córdoba) — Mar del Plata lo pisa con
+    // "Medidas de Prevención" vía setTitulo(), ver app.js.
+    this.titulo = 'Preguntas Frecuentes';
+    this.icono = '❓';
   }
 
   setQuestions(questions) {
     this.questions = questions;
+  }
+
+  setTitulo(titulo, icono) {
+    if (titulo) this.titulo = titulo;
+    if (icono) this.icono = icono;
   }
 
   /**
@@ -85,8 +96,8 @@ class QuestionsPanelIntegrated {
           font-family: inherit;
         ">
           <span style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 14px;">❓</span>
-            <span>Preguntas Frecuentes</span>
+            <span style="font-size: 14px;">${this.icono}</span>
+            <span>${this.titulo}</span>
           </span>
           <span id="toggle-arrow" style="
             display: inline-block;

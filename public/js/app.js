@@ -2008,15 +2008,47 @@ auth.onAuthStateChanged((user) => {
                 { emoji: '🎯', text: 'Estrategia de cobertura óptima' },
                 { emoji: '🔍', text: 'Expansión en zonas críticas' },
                 { emoji: '📱', text: 'Integración de alertas automáticas' }
+              ],
+              // 🆕 Mismas 10 Medidas de Prevención que Mar del Plata —
+              // Córdoba también usa datos reales de siniestros/robos, así
+              // que estas funciones aplican igual.
+              '🛡️ Medidas de Prevención': [
+                { emoji: '🔥', text: 'Zonas calientes (mayor concentración de delitos)' },
+                { emoji: '⏰', text: 'Horarios de mayor riesgo' },
+                { emoji: '💡', text: 'Factores de riesgo (luminarias, cámaras, visibilidad)' },
+                { emoji: '👥', text: 'Vecinos conectados cerca mío' },
+                { emoji: '⚠️', text: 'Alertas preventivas activas' },
+                { emoji: '🏍️', text: 'Robo de motos y vehículos' },
+                { emoji: '📹', text: 'Cobertura de cámaras' },
+                { emoji: '🎯', text: 'Índice de riesgo por cuadra' },
+                { emoji: '📊', text: '¿Qué está pasando en mi barrio?' },
+                { emoji: '🛡️', text: 'Armar un plan de prevención' }
               ]
             }
           };
 
           const questionsData = questionsByMunicipio[municipio] || {
             '🎯 Análisis de Datos': [
-              { emoji: '�', text: '¿Zonas con mayor cantidad de Siniestros?' },
+              { emoji: '🔥', text: '¿Zonas con mayor cantidad de Siniestros?' },
               { emoji: '🚗', text: 'Top 5 calles más peligrosas' },
               { emoji: '📈', text: 'Tendencia de accidentes por mes' }
+            ],
+            // 🆕 Medidas de Prevención (2026-08): "¿qué podemos hacer ANTES
+            // de que ocurra un delito?" — 10 funciones a implementar de a
+            // una. Por ahora cada botón muestra un aviso de "en
+            // desarrollo"; ver handleQuestionFn más abajo para ir
+            // reemplazando cada rama por la función real.
+            '🛡️ Medidas de Prevención': [
+              { emoji: '🔥', text: 'Zonas calientes (mayor concentración de delitos)' },
+              { emoji: '⏰', text: 'Horarios de mayor riesgo' },
+              { emoji: '💡', text: 'Factores de riesgo (luminarias, cámaras, visibilidad)' },
+              { emoji: '👥', text: 'Vecinos conectados cerca mío' },
+              { emoji: '⚠️', text: 'Alertas preventivas activas' },
+              { emoji: '🏍️', text: 'Robo de motos y vehículos' },
+              { emoji: '📹', text: 'Cobertura de cámaras' },
+              { emoji: '🎯', text: 'Índice de riesgo por cuadra' },
+              { emoji: '📊', text: '¿Qué está pasando en mi barrio?' },
+              { emoji: '🛡️', text: 'Armar un plan de prevención' }
             ]
           };
 
@@ -2273,10 +2305,45 @@ auth.onAuthStateChanged((user) => {
                 );
               }
             }
+
+            // 🆕 Medidas de Prevención (2026-08): 10 funciones a implementar
+            // de a una — por ahora cada una muestra un aviso de "en
+            // desarrollo" en vez de romper silenciosamente al no tener
+            // ninguna rama que la atienda. A medida que se vaya
+            // construyendo cada función real, reemplazar el bloque
+            // FloatingWindow.show correspondiente por la lógica real.
+            const medidasPendientes = [
+              'Zonas calientes (mayor concentración de delitos)',
+              'Horarios de mayor riesgo',
+              'Factores de riesgo (luminarias, cámaras, visibilidad)',
+              'Vecinos conectados cerca mío',
+              'Alertas preventivas activas',
+              'Robo de motos y vehículos',
+              'Cobertura de cámaras',
+              'Índice de riesgo por cuadra',
+              '¿Qué está pasando en mi barrio?',
+              'Armar un plan de prevención'
+            ];
+            if (medidasPendientes.includes(question)) {
+              FloatingWindow.show(
+                '🚧 En desarrollo',
+                `<p><strong>${question}</strong></p>
+                 <p style="color: #666; font-size: 13px; margin-top: 8px;">
+                   Esta función todavía no está construida — la estamos armando de a una.
+                 </p>`
+              );
+            }
           };
 
           // Inicializar el panel integrado
           initQuestionsPanelIntegrated(questionsData, handleQuestionFn);
+
+          // 🆕 Título del panel: Mar del Plata (caso "por defecto") y
+          // Córdoba usan el título nuevo "Medidas de Prevención" — 'laplata'
+          // queda con "Preguntas Frecuentes" de siempre, sin tocar.
+          if (municipio !== 'laplata' && questionsPanelIntegrated) {
+            questionsPanelIntegrated.setTitulo('Medidas de Prevención', '🛡️');
+          }
 
           // Renderizar el panel en el sidebar
           const questionsSection = document.getElementById('questions-section');
