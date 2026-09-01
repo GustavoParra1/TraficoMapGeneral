@@ -1993,11 +1993,6 @@ auth.onAuthStateChanged((user) => {
               ]
             },
             'cordoba': {
-              '🎯 Análisis de Datos': [
-                { emoji: '🔥', text: '¿Zonas con mayor cantidad de Siniestros?' },
-                { emoji: '🚗', text: 'Top 5 avenidas más peligrosas' },
-                { emoji: '📈', text: 'Tendencia de accidentes por mes' }
-              ],
               '📷 Infraestructura de Cámaras': [
                 { emoji: '🗺️', text: 'Mapa de cámaras por zona' },
                 { emoji: '⚠️', text: 'Identificar puntos ciegos' },
@@ -2028,11 +2023,6 @@ auth.onAuthStateChanged((user) => {
           };
 
           const questionsData = questionsByMunicipio[municipio] || {
-            '🎯 Análisis de Datos': [
-              { emoji: '🔥', text: '¿Zonas con mayor cantidad de Siniestros?' },
-              { emoji: '🚗', text: 'Top 5 calles más peligrosas' },
-              { emoji: '📈', text: 'Tendencia de accidentes por mes' }
-            ],
             // 🆕 Medidas de Prevención (2026-08): "¿qué podemos hacer ANTES
             // de que ocurra un delito?" — 10 funciones a implementar de a
             // una. Por ahora cada botón muestra un aviso de "en

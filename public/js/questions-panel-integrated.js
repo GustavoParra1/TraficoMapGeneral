@@ -28,9 +28,41 @@ class QuestionsPanelIntegrated {
    */
   renderHTML() {
     let questionsHTML = '';
-    
-    if (Object.keys(this.questions).length > 0) {
-      for (const [category, items] of Object.entries(this.questions)) {
+    const categorias = Object.entries(this.questions);
+
+    // 🆕 Botón de pregunta, factorizado (2026-08): se usa tanto en el caso
+    // de una sola categoría (sin el <details> anidado) como en el de
+    // varias categorías (con el <details> de siempre) — antes estaba
+    // duplicado en dos lugares del archivo.
+    const renderBoton = (q) => `
+      <button class="question-btn-integrated" data-question="${q.text}" style="
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        border: none;
+        background: transparent;
+        color: #bbb;
+        text-align: left;
+        cursor: pointer;
+        font-size: 11px;
+        transition: background-color 0.15s;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-family: inherit;
+      ">
+        ${q.emoji} ${q.text}
+      </button>
+    `;
+
+    if (categorias.length === 1) {
+      // 🆕 Una sola categoría: mostrarla sin el <details> anidado, porque
+      // su nombre suele repetir el título del panel (ej: panel "Medidas
+      // de Prevención" con una única categoría también llamada "Medidas
+      // de Prevención") — un desplegable adentro de otro decía lo mismo
+      // dos veces y sumaba un click extra sin aportar nada.
+      const [, items] = categorias[0];
+      questionsHTML = `<div style="background: rgba(0, 0, 0, 0.2); border-radius: 4px; overflow: hidden;">${items.map(renderBoton).join('')}</div>`;
+    } else if (categorias.length > 1) {
+      for (const [category, items] of categorias) {
         questionsHTML += `
           <details style="
             margin-bottom: 8px;
@@ -49,24 +81,7 @@ class QuestionsPanelIntegrated {
               font-size: 12px;
             ">${category}</summary>
             <div style="background: rgba(0, 0, 0, 0.2);">
-              ${items.map(q => `
-                <button class="question-btn-integrated" data-question="${q.text}" style="
-                  display: block;
-                  width: 100%;
-                  padding: 8px 12px;
-                  border: none;
-                  background: transparent;
-                  color: #bbb;
-                  text-align: left;
-                  cursor: pointer;
-                  font-size: 11px;
-                  transition: background-color 0.15s;
-                  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                  font-family: inherit;
-                ">
-                  ${q.emoji} ${q.text}
-                </button>
-              `).join('')}
+              ${items.map(renderBoton).join('')}
             </div>
           </details>
         `;
