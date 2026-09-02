@@ -2296,6 +2296,127 @@ auth.onAuthStateChanged((user) => {
               }
             }
 
+            // 🆕 Zonas calientes (2026-09): análisis DENTRO del barrio del
+            // cliente (no comparación entre barrios) — 5 vistas: robo
+            // automotor, robos a personas, siniestros viales, combinado
+            // ponderado, y zonas más seguras. Ver calcularse los pesos y
+            // la grilla de zonas seguras en zona-riesgo-layer.js.
+            if (question.includes('Zonas calientes')) {
+              try {
+                if (typeof ZonaRiesgoLayer === 'undefined') {
+                  FloatingWindow.show(
+                    '⚠️ No disponible',
+                    '<p>Esta función necesita que la capa de zona de riesgo esté cargada.</p>'
+                  );
+                  return;
+                }
+
+                let capaActiva = null; // L.heatLayer o L.layerGroup (zonas seguras)
+
+                const limpiarCapaActiva = () => {
+                  if (capaActiva && map.hasLayer(capaActiva)) {
+                    map.removeLayer(capaActiva);
+                  }
+                  capaActiva = null;
+                };
+
+                const mostrarHeatmap = (datos, gradient) => {
+                  limpiarCapaActiva();
+                  if (!datos || datos.length === 0) return false;
+                  capaActiva = L.heatLayer(datos, {
+                    radius: 25,
+                    blur: 20,
+                    maxZoom: 17,
+                    gradient: gradient || {
+                      0.0: '#1f77b4', 0.25: '#2ca02c', 0.5: '#ffdd57', 0.75: '#ff7f0e', 1.0: '#d62728'
+                    }
+                  });
+                  capaActiva.addTo(map);
+                  return true;
+                };
+
+                const mostrarZonasSeguras = () => {
+                  limpiarCapaActiva();
+                  const celdas = ZonaRiesgoLayer.getZonasMasSeguras(10);
+                  if (celdas.length === 0) return false;
+                  const grupo = L.layerGroup();
+                  const maxPeso = Math.max(...celdas.map((c) => c.peso));
+                  celdas.forEach((c) => {
+                    const intensidad = maxPeso > 0 ? c.peso / maxPeso : 0;
+                    // Dentro de este top-10 "más seguro", el de MENOR peso
+                    // se pinta más sólido (más confianza), el de mayor peso
+                    // relativo (dentro del top) más tenue.
+                    const opacidad = Math.max(0.55 - intensidad * 0.35, 0.15);
+                    L.rectangle(
+                      [[c.latMin, c.lngMin], [c.latMax, c.lngMax]],
+                      { color: '#16a34a', weight: 1, fillColor: '#22c55e', fillOpacity: opacidad }
+                    ).bindTooltip(`${c.eventos} evento(s) · peso ${c.peso.toFixed(1)}`).addTo(grupo);
+                  });
+                  grupo.addTo(map);
+                  capaActiva = grupo;
+                  return true;
+                };
+
+                const botones = [
+                  { id: 'zc-auto', label: '🚗 Robo automotor', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapRoboAutomotor()) },
+                  { id: 'zc-personas', label: '🚷 Robos a personas', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapPersonas()) },
+                  { id: 'zc-siniestros', label: '⚠️ Siniestros viales', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapSiniestrosViales()) },
+                  { id: 'zc-combinado', label: '🔥 Combinado (todo ponderado)', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapCombinado()) },
+                  { id: 'zc-seguras', label: '🟢 Zonas más seguras', accion: () => mostrarZonasSeguras() }
+                ];
+
+                const botonesHtml = botones.map((b) => `
+                  <button id="${b.id}" style="
+                    display: block; width: 100%; padding: 10px 12px; margin-bottom: 6px;
+                    border: 1px solid #ddd; border-radius: 6px; background: #fff;
+                    text-align: left; cursor: pointer; font-size: 13px; color: #333;
+                  ">${b.label}</button>
+                `).join('');
+
+                FloatingWindow.show(
+                  '🔥 Zonas calientes de mi barrio',
+                  `<div>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 12px;">
+                      Elegí qué mostrar en el mapa. Se muestra una capa a la vez — al elegir otra, se reemplaza.
+                    </p>
+                    <div id="zc-botones">${botonesHtml}</div>
+                    <p id="zc-sin-datos" style="display:none; font-size: 12px; color: #dc2626; margin-top: 8px;">
+                      No hay eventos suficientes para mostrar esta capa.
+                    </p>
+                  </div>`,
+                  {
+                    width: '320px',
+                    onClose: limpiarCapaActiva
+                  }
+                );
+
+                // Pequeño delay para que exista el DOM recién insertado por
+                // FloatingWindow.show antes de engancharle los listeners.
+                setTimeout(() => {
+                  botones.forEach((b) => {
+                    const btn = document.getElementById(b.id);
+                    if (!btn) return;
+                    btn.addEventListener('click', () => {
+                      botones.forEach((otro) => {
+                        const otroBtn = document.getElementById(otro.id);
+                        if (otroBtn) { otroBtn.style.background = '#fff'; otroBtn.style.borderColor = '#ddd'; }
+                      });
+                      btn.style.background = '#eff6ff';
+                      btn.style.borderColor = '#3b82f6';
+
+                      const huboDatos = b.accion();
+                      const avisoSinDatos = document.getElementById('zc-sin-datos');
+                      if (avisoSinDatos) avisoSinDatos.style.display = huboDatos ? 'none' : 'block';
+                    });
+                  });
+                }, 50);
+
+              } catch (error) {
+                console.error('❌ Error en Zonas calientes:', error);
+                FloatingWindow.show('⚠️ Error', `<p style="color: #dc2626;">${error.message}</p>`);
+              }
+            }
+
             // 🆕 Medidas de Prevención (2026-08): 10 funciones a implementar
             // de a una — por ahora cada una muestra un aviso de "en
             // desarrollo" en vez de romper silenciosamente al no tener
@@ -2303,7 +2424,6 @@ auth.onAuthStateChanged((user) => {
             // construyendo cada función real, reemplazar el bloque
             // FloatingWindow.show correspondiente por la lógica real.
             const medidasPendientes = [
-              'Zonas calientes (mayor concentración de delitos)',
               'Horarios de mayor riesgo',
               'Factores de riesgo (luminarias, cámaras, visibilidad)',
               'Vecinos conectados cerca mío',

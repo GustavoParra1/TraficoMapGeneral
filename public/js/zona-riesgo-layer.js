@@ -66,6 +66,15 @@ window.ZonaRiesgoLayer = (() => {
   let clickHandlerAttached = false;
   let barriosGeoJson = null;
   let barrioHighlight = null;
+  // 🆕 Zonas calientes (2026-09): polígono oficial (del catastro de 124
+  // barrios de Mar del Plata) que corresponde al barrio_slug del CLIENTE
+  // actual — no confundir con `barriosGeoJson` de arriba, que sale de
+  // clientes/{id}/barrios (subcolección optativa, suele estar vacía) y se
+  // usa para otra cosa. Este es el que filtra "Zonas calientes" para que
+  // solo cuente eventos DENTRO del barrio real del cliente — sin esto,
+  // colecciones importadas a nivel ciudad (como pasa con varios clientes
+  // viejos) muestran eventos de toda Mar del Plata, no solo del barrio.
+  let barrioOficialFeature = null;
 
   // 🆕 Filtro global de barrio (2026-08): mismo bug que tenía RoboLayer —
   // el heatmap mostraba SIEMPRE todos los eventos de la ciudad, sin
@@ -82,7 +91,8 @@ window.ZonaRiesgoLayer = (() => {
     siniestros_oficial: [],
     robos_oficial: [],
     siniestros_vecino: [],
-    robos_vecino: []
+    robos_vecino: [],
+    denuncias_amplias: []
   };
 
   function init(leafletMap) {
@@ -232,6 +242,13 @@ window.ZonaRiesgoLayer = (() => {
   function setDenunciasVecinos(denuncias) {
     const siniestrosVecino = [];
     const robosVecino = [];
+    // 🆕 Zonas calientes (2026-09): conjunto ampliado, guardado APARTE de
+    // siniestros_vecino/robos_vecino para no tocar el conteo que ya usan
+    // el popup de riesgo y "Comparar Zona" — esos dos siguen viendo
+    // exactamente lo mismo que antes. Acá guardamos categoria/subcategoria
+    // de TODA denuncia con coordenadas, salvo 'infraestructura' (reservada
+    // para la pregunta de "Factores de riesgo", no es sobre delitos).
+    const denunciasAmplias = [];
 
     (denuncias || []).forEach((d) => {
       if (typeof d.lat !== 'number' || typeof d.lng !== 'number') return;
@@ -242,10 +259,21 @@ window.ZonaRiesgoLayer = (() => {
       } else if (d.categoria === 'vehiculos' && ROBOS_SUBCATEGORIAS.includes(d.subcategoria)) {
         robosVecino.push({ lat: d.lat, lng: d.lng, tipo: 'robo_vecino', fecha });
       }
+
+      if (d.categoria && d.categoria !== 'infraestructura') {
+        denunciasAmplias.push({
+          lat: d.lat,
+          lng: d.lng,
+          categoria: d.categoria,
+          subcategoria: d.subcategoria || null,
+          fecha
+        });
+      }
     });
 
     fuentes.siniestros_vecino = siniestrosVecino;
     fuentes.robos_vecino = robosVecino;
+    fuentes.denuncias_amplias = denunciasAmplias;
     render();
   }
 
@@ -780,6 +808,159 @@ window.ZonaRiesgoLayer = (() => {
     attachHandlers();
   }
 
+  // ==========================================================================
+  // 🆕 Zonas calientes (2026-09) — análisis dentro del propio barrio del
+  // cliente, no comparación entre barrios distintos.
+  //
+  // Pesos por categoría (definidos con el cliente, "fijate vos" para
+  // infraestructura → queda en 0/excluida acá: es para la pregunta de
+  // "Factores de riesgo", no para "concentración de delitos"):
+  //   emergencias 5 · personas 4 · vehiculos 3 · propiedad 2 ·
+  //   accidentes 2 · seguridad 1.5
+  // El histórico OFICIAL de robo automotor no distingue auto/moto/bici
+  // (confirmado revisando robo-layer.js: una sola categoría "Robo
+  // Automotor", sin ese dato) — por eso el botón "Robo automotor" no se
+  // puede separar por tipo de vehículo en la parte oficial, solo en las
+  // denuncias de vecinos, que sí traen subcategoría.
+  // ==========================================================================
+  const PESOS_CATEGORIA = {
+    emergencias: 5,
+    personas: 4,
+    vehiculos: 3,
+    propiedad: 2,
+    accidentes: 2,
+    seguridad: 1.5
+  };
+  const PESO_MAXIMO = 5; // usado para normalizar intensidad de heatmap 0-1
+
+  function setBarrioOficial(feature) {
+    barrioOficialFeature = feature || null;
+  }
+
+  function tieneBarrioOficial() {
+    return !!barrioOficialFeature;
+  }
+
+  /**
+   * Filtra puntos para que solo queden los que caen DENTRO del barrio
+   * oficial del cliente. Si todavía no se cargó el polígono oficial
+   * (setBarrioOficial nunca se llamó, o no hubo match en el catastro),
+   * devuelve los puntos sin filtrar — mejor mostrar de más que ocultar
+   * todo, pero la UI avisa cuando pasa esto (ver sinBarrioOficial en cada
+   * resultado).
+   */
+  function filtrarPorBarrioOficial(puntos) {
+    if (!barrioOficialFeature) return puntos;
+    return puntos.filter((p) => puntoEnAlgunPoligono(p, [barrioOficialFeature]));
+  }
+
+  function pesoDePunto(p) {
+    if (p.tipo === 'robo_oficial') return PESOS_CATEGORIA.vehiculos;
+    if (p.tipo === 'siniestro_oficial') return PESOS_CATEGORIA.accidentes;
+    if (p.categoria) return PESOS_CATEGORIA[p.categoria] || 1;
+    return 1;
+  }
+
+  /**
+   * Formato [lat, lng, intensidad 0-1] que espera L.heatLayer.
+   * @param {boolean} intensidadPareja - true: todos los puntos pesan igual
+   *   (heatmaps de una sola categoría, donde ponderar no aporta nada). 
+   *   false: usa el peso real de cada punto (Combinado/Zonas más seguras).
+   */
+  function aFormatoHeat(puntos, intensidadPareja) {
+    return puntos.map((p) => [p.lat, p.lng, intensidadPareja ? 0.5 : (pesoDePunto(p) / PESO_MAXIMO)]);
+  }
+
+  function getHeatmapRoboAutomotor() {
+    const vecinos = fuentes.denuncias_amplias.filter(
+      (p) => p.categoria === 'vehiculos' && ROBOS_SUBCATEGORIAS.includes(p.subcategoria)
+    );
+    const puntos = filtrarPorBarrioOficial([...fuentes.robos_oficial, ...vecinos]);
+    return { datos: aFormatoHeat(puntos, true), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
+  }
+
+  function getHeatmapPersonas() {
+    const vecinos = fuentes.denuncias_amplias.filter((p) => p.categoria === 'personas');
+    const puntos = filtrarPorBarrioOficial(vecinos);
+    return { datos: aFormatoHeat(puntos, true), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
+  }
+
+  function getHeatmapSiniestrosViales() {
+    const vecinos = fuentes.denuncias_amplias.filter((p) => p.categoria === 'accidentes');
+    const puntos = filtrarPorBarrioOficial([...fuentes.siniestros_oficial, ...vecinos]);
+    return { datos: aFormatoHeat(puntos, true), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
+  }
+
+  function getTodosLosPuntosPonderables() {
+    return filtrarPorBarrioOficial([
+      ...fuentes.siniestros_oficial,
+      ...fuentes.robos_oficial,
+      ...fuentes.denuncias_amplias
+    ]);
+  }
+
+  function getHeatmapCombinado() {
+    const puntos = getTodosLosPuntosPonderables();
+    return { datos: aFormatoHeat(puntos, false), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
+  }
+
+  /**
+   * Zonas más seguras: grilla sobre el rectángulo que envuelve los eventos
+   * YA filtrados al barrio oficial (o, si no hay barrio oficial cargado,
+   * sobre todo lo que haya, con el aviso correspondiente en la UI). El
+   * tamaño de grilla se adapta a la cantidad de puntos — con pocos eventos,
+   * una grilla 8x8 fragmenta demasiado y casi todas las celdas quedan con
+   * 0 o 1 evento, sin decir nada útil.
+   */
+  function getZonasMasSeguras(cantidadCeldas) {
+    const N = Number.isFinite(cantidadCeldas) && cantidadCeldas > 0 ? cantidadCeldas : 10;
+    const puntos = getTodosLosPuntosPonderables();
+    const sinBarrioOficial = !barrioOficialFeature;
+    if (puntos.length < 2) return { celdas: [], total: puntos.length, sinBarrioOficial };
+
+    let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+    puntos.forEach((p) => {
+      if (p.lat < minLat) minLat = p.lat;
+      if (p.lat > maxLat) maxLat = p.lat;
+      if (p.lng < minLng) minLng = p.lng;
+      if (p.lng > maxLng) maxLng = p.lng;
+    });
+
+    const LADO = Math.max(3, Math.min(8, Math.round(Math.sqrt(puntos.length))));
+    const pasoLat = (maxLat - minLat) / LADO || 0.001;
+    const pasoLng = (maxLng - minLng) / LADO || 0.001;
+
+    const celdas = [];
+    for (let fila = 0; fila < LADO; fila++) {
+      for (let col = 0; col < LADO; col++) {
+        const latMin = minLat + fila * pasoLat;
+        const lngMin = minLng + col * pasoLng;
+        celdas.push({
+          latMin, latMax: latMin + pasoLat,
+          lngMin, lngMax: lngMin + pasoLng,
+          peso: 0, eventos: 0
+        });
+      }
+    }
+
+    puntos.forEach((p) => {
+      const celda = celdas.find(
+        (c) => p.lat >= c.latMin && p.lat < c.latMax && p.lng >= c.lngMin && p.lng < c.lngMax
+      );
+      if (celda) {
+        celda.peso += pesoDePunto(p);
+        celda.eventos++;
+      }
+    });
+
+    const topCeldas = celdas
+      .filter((c) => c.eventos > 0)
+      .sort((a, b) => a.peso - b.peso)
+      .slice(0, N);
+
+    return { celdas: topCeldas, total: puntos.length, sinBarrioOficial };
+  }
+
   function getMetadata() {
     return {
       name: 'Zona de Riesgo',
@@ -799,6 +980,13 @@ window.ZonaRiesgoLayer = (() => {
     setFilter,
     toggle,
     toggleComparador,
+    setBarrioOficial,
+    tieneBarrioOficial,
+    getHeatmapRoboAutomotor,
+    getHeatmapPersonas,
+    getHeatmapSiniestrosViales,
+    getHeatmapCombinado,
+    getZonasMasSeguras,
     getMetadata,
     isVisible: () => isVisible,
     mostrarPopupRiesgo
