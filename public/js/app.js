@@ -2320,8 +2320,9 @@ auth.onAuthStateChanged((user) => {
                   capaActiva = null;
                 };
 
-                const mostrarHeatmap = (datos, gradient) => {
+                const mostrarHeatmap = (resultado, gradient) => {
                   limpiarCapaActiva();
+                  const datos = resultado ? resultado.datos : null;
                   if (!datos || datos.length === 0) return false;
                   capaActiva = L.heatLayer(datos, {
                     radius: 25,
@@ -2337,8 +2338,9 @@ auth.onAuthStateChanged((user) => {
 
                 const mostrarZonasSeguras = () => {
                   limpiarCapaActiva();
-                  const celdas = ZonaRiesgoLayer.getZonasMasSeguras(10);
-                  if (celdas.length === 0) return false;
+                  const resultado = ZonaRiesgoLayer.getZonasMasSeguras(10);
+                  const celdas = resultado ? resultado.celdas : [];
+                  if (!celdas || celdas.length === 0) return false;
                   const grupo = L.layerGroup();
                   const maxPeso = Math.max(...celdas.map((c) => c.peso));
                   celdas.forEach((c) => {
