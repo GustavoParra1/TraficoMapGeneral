@@ -2359,7 +2359,9 @@ auth.onAuthStateChanged((user) => {
                 const mostrarHeatmap = (resultado, gradient) => {
                   limpiarCapaActiva();
                   const datos = resultado ? resultado.datos : null;
-                  if (!datos || datos.length === 0) return false;
+                  if (!datos || datos.length === 0) {
+                    return { ok: false, total: resultado ? resultado.total : 0, sinBarrioOficial: resultado ? resultado.sinBarrioOficial : true };
+                  }
                   capaActiva = L.heatLayer(datos, {
                     radius: 25,
                     blur: 20,
@@ -2369,14 +2371,16 @@ auth.onAuthStateChanged((user) => {
                     }
                   });
                   capaActiva.addTo(map);
-                  return true;
+                  return { ok: true, total: resultado.total, sinBarrioOficial: resultado.sinBarrioOficial };
                 };
 
                 const mostrarZonasSeguras = () => {
                   limpiarCapaActiva();
                   const resultado = ZonaRiesgoLayer.getZonasMasSeguras(10);
                   const celdas = resultado ? resultado.celdas : [];
-                  if (!celdas || celdas.length === 0) return false;
+                  if (!celdas || celdas.length === 0) {
+                    return { ok: false, total: resultado ? resultado.total : 0, sinBarrioOficial: resultado ? resultado.sinBarrioOficial : true };
+                  }
                   const grupo = L.layerGroup();
                   const maxPeso = Math.max(...celdas.map((c) => c.peso));
                   celdas.forEach((c) => {
@@ -2392,15 +2396,29 @@ auth.onAuthStateChanged((user) => {
                   });
                   grupo.addTo(map);
                   capaActiva = grupo;
-                  return true;
+                  return { ok: true, total: resultado.total, sinBarrioOficial: resultado.sinBarrioOficial };
                 };
 
+                const LEYENDA_HEATMAP = `
+                  <div style="display:flex; align-items:center; gap:4px; margin-top:6px; font-size:11px; color:#666;">
+                    <span>Menor</span>
+                    <div style="flex:1; height:8px; border-radius:4px; background: linear-gradient(to right, #1f77b4, #2ca02c, #ffdd57, #ff7f0e, #d62728);"></div>
+                    <span>Mayor</span>
+                  </div>
+                `;
+                const LEYENDA_SEGURAS = `
+                  <div style="display:flex; align-items:center; gap:6px; margin-top:6px; font-size:11px; color:#666;">
+                    <span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:#22c55e; border:1px solid #16a34a;"></span>
+                    <span>Zonas con menor concentración de eventos dentro del barrio</span>
+                  </div>
+                `;
+
                 const botones = [
-                  { id: 'zc-auto', label: '🚗 Robo automotor', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapRoboAutomotor()) },
-                  { id: 'zc-personas', label: '🚷 Robos a personas', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapPersonas()) },
-                  { id: 'zc-siniestros', label: '⚠️ Siniestros viales', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapSiniestrosViales()) },
-                  { id: 'zc-combinado', label: '🔥 Combinado (todo ponderado)', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapCombinado()) },
-                  { id: 'zc-seguras', label: '🟢 Zonas más seguras', accion: () => mostrarZonasSeguras() }
+                  { id: 'zc-auto', label: '🚗 Robo automotor', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapRoboAutomotor()), descripcion: 'Mapa de calor de robos de vehículos (oficiales + denuncias vecinales de esa categoría).', leyenda: LEYENDA_HEATMAP },
+                  { id: 'zc-personas', label: '🚷 Robos a personas', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapPersonas()), descripcion: 'Mapa de calor de denuncias vecinales de robos a personas (no incluye robo automotor).', leyenda: LEYENDA_HEATMAP },
+                  { id: 'zc-siniestros', label: '⚠️ Siniestros viales', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapSiniestrosViales()), descripcion: 'Mapa de calor de siniestros viales (oficiales + denuncias vecinales de accidentes).', leyenda: LEYENDA_HEATMAP },
+                  { id: 'zc-combinado', label: '🔥 Combinado (todo ponderado)', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapCombinado()), descripcion: 'Combina las tres categorías anteriores, ponderando cada evento por su gravedad relativa.', leyenda: LEYENDA_HEATMAP },
+                  { id: 'zc-seguras', label: '🟢 Zonas más seguras', accion: () => mostrarZonasSeguras(), descripcion: 'Las 10 celdas de la grilla del barrio con MENOR peso combinado de eventos (más sólido = más confianza).', leyenda: LEYENDA_SEGURAS }
                 ];
 
                 const botonesHtml = botones.map((b) => `
@@ -2418,6 +2436,12 @@ auth.onAuthStateChanged((user) => {
                       Elegí qué mostrar en el mapa. Se muestra una capa a la vez — al elegir otra, se reemplaza.
                     </p>
                     <div id="zc-botones">${botonesHtml}</div>
+                    <div id="zc-detalle" style="display:none; margin-top:10px; padding:10px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
+                      <p id="zc-detalle-desc" style="margin:0 0 6px 0; font-size:12px; color:#333;"></p>
+                      <p id="zc-detalle-total" style="margin:0; font-size:12px; color:#555; font-weight:600;"></p>
+                      <p id="zc-detalle-barrio" style="display:none; margin:6px 0 0 0; font-size:11px; color:#b45309;"></p>
+                      <div id="zc-detalle-leyenda"></div>
+                    </div>
                     <p id="zc-sin-datos" style="display:none; font-size: 12px; color: #dc2626; margin-top: 8px;">
                       No hay eventos suficientes para mostrar esta capa.
                     </p>
@@ -2442,9 +2466,39 @@ auth.onAuthStateChanged((user) => {
                       btn.style.background = '#eff6ff';
                       btn.style.borderColor = '#3b82f6';
 
-                      const huboDatos = b.accion();
+                      const resultado = b.accion();
+                      const huboDatos = resultado.ok;
+
                       const avisoSinDatos = document.getElementById('zc-sin-datos');
                       if (avisoSinDatos) avisoSinDatos.style.display = huboDatos ? 'none' : 'block';
+
+                      // ✅ NUEVO: panel explicativo debajo de los botones — qué
+                      // significa esta capa, cuántos eventos tiene, si se está
+                      // recortando al barrio oficial o mostrando de más, y la
+                      // leyenda de colores correspondiente.
+                      const detalle = document.getElementById('zc-detalle');
+                      const detalleDesc = document.getElementById('zc-detalle-desc');
+                      const detalleTotal = document.getElementById('zc-detalle-total');
+                      const detalleBarrio = document.getElementById('zc-detalle-barrio');
+                      const detalleLeyenda = document.getElementById('zc-detalle-leyenda');
+                      if (detalle) {
+                        detalle.style.display = 'block';
+                        if (detalleDesc) detalleDesc.textContent = b.descripcion || '';
+                        if (detalleTotal) {
+                          detalleTotal.textContent = huboDatos
+                            ? `${resultado.total} evento(s) analizados`
+                            : `${resultado.total} evento(s) encontrados (no alcanza para mostrar la capa)`;
+                        }
+                        if (detalleBarrio) {
+                          if (resultado.sinBarrioOficial) {
+                            detalleBarrio.style.display = 'block';
+                            detalleBarrio.textContent = '⚠️ No se encontró el barrio oficial del cliente: se están mostrando eventos de toda la zona disponible, sin recortar.';
+                          } else {
+                            detalleBarrio.style.display = 'none';
+                          }
+                        }
+                        if (detalleLeyenda) detalleLeyenda.innerHTML = huboDatos ? (b.leyenda || '') : '';
+                      }
                     });
                   });
                 }, 50);
