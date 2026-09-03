@@ -137,6 +137,39 @@ class ClientAuth {
     }
   }
 
+  // ✅ NUEVO: establece una sesión REAL de Firebase Auth en el proyecto
+  // principal. Es necesaria porque firestore.rules exige request.auth != null
+  // con los custom claims (role, cliente_id) para poder leer barrios,
+  // siniestros, cámaras, históricos, etc. Antes SOLO client-dashboard.js
+  // (el panel de administración) hacía este signIn — map.html nunca lo
+  // llamaba, por eso el mapa del cliente quedaba "logueado" para el JS
+  // (según sessionStorage) pero anónimo para Firestore, y todo fallaba con
+  // "Missing or insufficient permissions".
+  async ensureFirebaseSession() {
+    if (firebase.auth().currentUser) {
+      console.log('✅ Ya hay sesión de Firebase Auth activa:', firebase.auth().currentUser.email);
+      return firebase.auth().currentUser;
+    }
+
+    const email = sessionStorage.getItem('email_acceso')
+      || (this.clientData && (this.clientData.email_admin || this.clientData.email));
+    const password = this.clientData && (this.clientData.contraseña || this.clientData.password);
+
+    if (!email || !password) {
+      console.warn('⚠️ No hay credenciales guardadas para re-autenticar en Firebase Auth. Las lecturas que exigen login van a fallar con "Missing or insufficient permissions".');
+      return null;
+    }
+
+    try {
+      const cred = await firebase.auth().signInWithEmailAndPassword(email, password);
+      console.log('✅ Sesión de Firebase Auth establecida:', cred.user.email);
+      return cred.user;
+    } catch (err) {
+      console.error('❌ No se pudo establecer la sesión de Firebase Auth:', err.message);
+      return null;
+    }
+  }
+
   async onClientAuthenticated(clienteId, clienteData) {
     console.log("✅ Cliente autenticado:", clienteData.nombre);
     // Agregar el ID del cliente a los datos

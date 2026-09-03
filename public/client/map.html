@@ -499,17 +499,29 @@ if (isClientMode) {
   }
 }
 
-// Require authentication to access main map (excepto en modo cliente o si hay sesión restaurada)
+// ✅ window.clientAuthReady: promesa que resuelven todos los scripts que
+// necesitan leer Firestore (app.js, las capas históricas) ANTES de hacer
+// su primera consulta. Reemplaza el bypass viejo que confiaba ciegamente
+// en sessionStorage sin verificar que hubiera una sesión real de
+// Firebase Auth (por eso las reglas rechazaban todo con
+// "Missing or insufficient permissions" pese a que el JS se creía logueado).
+let _resolveClientAuthReady;
+window.clientAuthReady = new Promise((resolve) => { _resolveClientAuthReady = resolve; });
+
 if (!isClientMode && !isClientSessionRestored) {
   auth.onAuthStateChanged((user) => {
     if (!user) {
       console.warn('⚠️ No authenticated user. Redirecting to login...');
       window.location.href = '/login.html';
+    } else {
+      _resolveClientAuthReady(user);
     }
   });
 } else {
-  console.log('🔓 Modo cliente o sesión restaurada: Permitiendo acceso sin autenticación');
-  // En modo cliente, NO ejecutar onAuthStateChanged - simplemente permite acceso
+  console.log('🔐 Modo cliente: se establecerá una sesión real de Firebase Auth antes de leer datos (ver initializeClientFirebase más abajo).');
+  // Se resuelve un poco más abajo, dentro de initializeClientFirebase(),
+  // una vez que clientAuth.ensureFirebaseSession() termine (con éxito o no).
+  window._resolveClientAuthReady = _resolveClientAuthReady;
 }
 </script>
 
@@ -529,6 +541,26 @@ async function initializeClientFirebase() {
   console.log('🔧 Inicializando Firebase del cliente si está en modo cliente...');
   
   if (window.isClientMode) {
+    // ✅ PRIMERO que nada: establecer sesión REAL de Firebase Auth (no solo
+    // sessionStorage) para que firestore.rules deje pasar las lecturas de
+    // barrios/siniestros/cámaras/históricos que vienen después. Sin esto,
+    // request.auth queda null y todo falla con "Missing or insufficient
+    // permissions" aunque sessionStorage diga que hay un cliente restaurado.
+    if (typeof clientAuth !== 'undefined') {
+      if (!clientAuth.clientData) clientAuth.clientData = window.restoredClienteData;
+      try {
+        await clientAuth.ensureFirebaseSession();
+      } catch (err) {
+        console.error('❌ Error estableciendo sesión de Firebase Auth en map.html:', err.message);
+      }
+    } else {
+      console.warn('⚠️ clientAuth no está definido (¿no se cargó client-auth.js?) - no se pudo establecer sesión real.');
+    }
+    if (window._resolveClientAuthReady) {
+      window._resolveClientAuthReady();
+      window._resolveClientAuthReady = null;
+    }
+
     // En modo cliente, necesitamos obtener los datos COMPLETOS del cliente desde Firestore (incluyendo firebase_cliente)
     let clienteData = window.restoredClienteData;
     let clienteId = window.restoredClienteId;

@@ -839,6 +839,15 @@ let checkboxLocks = {};
 async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
   console.log(`📍 INICIO: Cargando datos para ciudad: ${cityId}`);
   console.log(`🔍 Modo cliente: ${window.isClientMode}, clienteId: ${window.restoredClienteId}`);
+
+  // ✅ Esperar a que map.html haya terminado de establecer (o intentar
+  // establecer) la sesión real de Firebase Auth. Sin este await, esta
+  // función podía arrancar a leer Firestore antes de que el signIn
+  // terminara, y las reglas rechazaban todo con "Missing or insufficient
+  // permissions" aunque el fix de auth ya estuviera en camino.
+  if (window.isClientMode && window.clientAuthReady) {
+    await window.clientAuthReady;
+  }
   
   // Deshabilitar checkbox de aforos durante carga
   const aforosCheckbox = document.getElementById('aforos-checkbox');
