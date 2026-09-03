@@ -565,7 +565,34 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
         console.log(`  ✓ ${bariosGeoJson.features.length} barrios cargados`);
         GeoLayers.loadEmbeddedGeoJson('Zonas / Barrios', bariosGeoJson, true);
         SiniestrosLayer.setBarriosGeoJson(bariosGeoJson);
-        if (typeof ZonaRiesgoLayer !== 'undefined') ZonaRiesgoLayer.setBarriosGeoJson(bariosGeoJson);
+        if (typeof ZonaRiesgoLayer !== 'undefined') {
+          ZonaRiesgoLayer.setBarriosGeoJson(bariosGeoJson);
+
+          // 🆕 FIX (2026-09): nadie estaba llamando a setBarrioOficial(), así
+          // que Zonas calientes siempre mostraba TODO Mar del Plata (2802
+          // robos) en vez de recortar al barrio propio del cliente. Acá
+          // buscamos, entre los barrios ya cargados, el que coincide con el
+          // nombre del cliente (ej. "Constitucion") y se lo pasamos.
+          const normalizar = (s) => (s || '')
+            .toString()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // saca acentos
+            .trim()
+            .toUpperCase();
+          const nombreCliente = normalizar(window.clientCityName);
+          const barrioOficial = nombreCliente
+            ? bariosGeoJson.features.find((f) => {
+                const nombreBarrio = normalizar(f.properties?.nombre || f.properties?.soc_fomen);
+                return nombreBarrio === nombreCliente || nombreBarrio.includes(nombreCliente) || nombreCliente.includes(nombreBarrio);
+              })
+            : null;
+
+          if (barrioOficial) {
+            ZonaRiesgoLayer.setBarrioOficial(barrioOficial);
+            console.log(`✅ Barrio oficial del cliente encontrado y configurado en ZonaRiesgoLayer: "${barrioOficial.properties?.nombre || barrioOficial.properties?.soc_fomen}"`);
+          } else {
+            console.warn(`⚠️ No se encontró un barrio que coincida con "${window.clientCityName}" entre los ${bariosGeoJson.features.length} barrios cargados. Zonas calientes va a seguir mostrando TODA la zona (sin recortar), avisando "sinBarrioOficial" en la UI.`);
+          }
+        }
       } else {
         console.log(`  ℹ️ No hay barrios en la base de datos del cliente`);
       }
