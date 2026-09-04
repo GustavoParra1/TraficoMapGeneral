@@ -2413,12 +2413,50 @@ auth.onAuthStateChanged((user) => {
                   </div>
                 `;
 
+                const formatearDesgloseHorario = (desglose) => {
+                  if (!desglose || desglose.total === 0) return '';
+                  const { horas, sinHora, total } = desglose;
+                  const maxHora = Math.max(...horas);
+                  const conHora = total - sinHora;
+
+                  if (conHora === 0) {
+                    return `<p style="margin:4px 0 0 0; font-size:11px; color:#888;">Ninguno de estos ${total} evento(s) tiene hora registrada (son datos oficiales importados en lote, sin horario) — no se puede calcular en qué franja horaria ocurren más.</p>`;
+                  }
+
+                  // Top 3 horas con más eventos (excluyendo las que están en 0)
+                  const top3 = horas
+                    .map((cantidad, hora) => ({ hora, cantidad }))
+                    .filter((h) => h.cantidad > 0)
+                    .sort((a, b) => b.cantidad - a.cantidad)
+                    .slice(0, 3);
+
+                  const listaTop3 = top3.map((h) => `
+                    <div style="display:flex; align-items:center; gap:6px; margin-top:3px;">
+                      <span style="font-size:11px; color:#333; width:48px;">${String(h.hora).padStart(2, '0')}:00 hs</span>
+                      <div style="flex:1; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+                        <div style="height:100%; width:${(h.cantidad / maxHora) * 100}%; background:#3b82f6;"></div>
+                      </div>
+                      <span style="font-size:11px; color:#555; width:20px; text-align:right;">${h.cantidad}</span>
+                    </div>
+                  `).join('');
+
+                  const notaSinHora = sinHora > 0
+                    ? `<p style="margin:6px 0 0 0; font-size:10px; color:#888;">(${sinHora} evento(s) sin hora registrada, no incluido(s) arriba — son datos oficiales importados en lote.)</p>`
+                    : '';
+
+                  return `
+                    <p style="margin:0 0 2px 0; font-size:11px; color:#333; font-weight:600;">⏰ Horarios con más eventos (de ${conHora} con hora registrada):</p>
+                    ${listaTop3}
+                    ${notaSinHora}
+                  `;
+                };
+
                 const botones = [
-                  { id: 'zc-auto', label: '🚗 Robo automotor', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapRoboAutomotor()), descripcion: 'Mapa de calor de robos de vehículos (oficiales + denuncias vecinales de esa categoría).', leyenda: LEYENDA_HEATMAP },
-                  { id: 'zc-personas', label: '🚷 Robos a personas', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapPersonas()), descripcion: 'Mapa de calor de denuncias vecinales de robos a personas (no incluye robo automotor).', leyenda: LEYENDA_HEATMAP },
-                  { id: 'zc-siniestros', label: '⚠️ Siniestros viales', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapSiniestrosViales()), descripcion: 'Mapa de calor de siniestros viales (oficiales + denuncias vecinales de accidentes).', leyenda: LEYENDA_HEATMAP },
-                  { id: 'zc-combinado', label: '🔥 Combinado (todo ponderado)', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapCombinado()), descripcion: 'Combina las tres categorías anteriores, ponderando cada evento por su gravedad relativa.', leyenda: LEYENDA_HEATMAP },
-                  { id: 'zc-seguras', label: '🟢 Zonas más seguras', accion: () => mostrarZonasSeguras(), descripcion: 'Las 10 celdas de la grilla del barrio con MENOR peso combinado de eventos (más sólido = más confianza).', leyenda: LEYENDA_SEGURAS }
+                  { id: 'zc-auto', label: '🚗 Robo automotor', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapRoboAutomotor()), descripcion: 'Mapa de calor de robos de vehículos (oficiales + denuncias vecinales de esa categoría).', leyenda: LEYENDA_HEATMAP, horario: () => ZonaRiesgoLayer.getDesgloseHorarioRoboAutomotor() },
+                  { id: 'zc-personas', label: '🚷 Robos a personas', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapPersonas()), descripcion: 'Mapa de calor de denuncias vecinales de robos a personas (no incluye robo automotor).', leyenda: LEYENDA_HEATMAP, horario: () => ZonaRiesgoLayer.getDesgloseHorarioPersonas() },
+                  { id: 'zc-siniestros', label: '⚠️ Siniestros viales', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapSiniestrosViales()), descripcion: 'Mapa de calor de siniestros viales (oficiales + denuncias vecinales de accidentes).', leyenda: LEYENDA_HEATMAP, horario: () => ZonaRiesgoLayer.getDesgloseHorarioSiniestrosViales() },
+                  { id: 'zc-combinado', label: '🔥 Combinado (todo ponderado)', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapCombinado()), descripcion: 'Combina las tres categorías anteriores, ponderando cada evento por su gravedad relativa.', leyenda: LEYENDA_HEATMAP, horario: () => ZonaRiesgoLayer.getDesgloseHorarioCombinado() },
+                  { id: 'zc-seguras', label: '🟢 Zonas más seguras', accion: () => mostrarZonasSeguras(), descripcion: 'Las 10 celdas de la grilla del barrio con MENOR peso combinado de eventos (más sólido = más confianza).', leyenda: LEYENDA_SEGURAS, horario: null }
                 ];
 
                 const botonesHtml = botones.map((b) => `
@@ -2441,6 +2479,7 @@ auth.onAuthStateChanged((user) => {
                       <p id="zc-detalle-total" style="margin:0; font-size:12px; color:#555; font-weight:600;"></p>
                       <p id="zc-detalle-barrio" style="display:none; margin:6px 0 0 0; font-size:11px; color:#b45309;"></p>
                       <div id="zc-detalle-leyenda"></div>
+                      <div id="zc-detalle-horario" style="margin-top:8px;"></div>
                     </div>
                     <p id="zc-sin-datos" style="display:none; font-size: 12px; color: #dc2626; margin-top: 8px;">
                       No hay eventos suficientes para mostrar esta capa.
@@ -2498,6 +2537,11 @@ auth.onAuthStateChanged((user) => {
                           }
                         }
                         if (detalleLeyenda) detalleLeyenda.innerHTML = huboDatos ? (b.leyenda || '') : '';
+
+                        const detalleHorario = document.getElementById('zc-detalle-horario');
+                        if (detalleHorario) {
+                          detalleHorario.innerHTML = (huboDatos && b.horario) ? formatearDesgloseHorario(b.horario()) : '';
+                        }
                       }
                     });
                   });

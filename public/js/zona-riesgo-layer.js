@@ -220,6 +220,20 @@ window.ZonaRiesgoLayer = (() => {
     render();
   }
 
+  /**
+   * 🆕 Desglose por hora (2026-09): indica si un evento tiene HORA real
+   * conocida, no solo fecha. Los datos oficiales (lista masiva) solo traen
+   * "dd/mm/yyyy" — sin hora — así que Date() los deja siempre en medianoche.
+   * Si tratáramos eso como "ocurrió a las 00:00" el desglose por hora
+   * mentiría (todo apilado a la madrugada). Los reportes de vecinos sí
+   * tienen hora real porque timestamp/created_at guardan el momento exacto
+   * en que se cargó la denuncia.
+   */
+  function tieneHoraReal(obj) {
+    if (!obj) return false;
+    return !!(obj.timestamp || obj.created_at);
+  }
+
   function extraerPuntosDeGeoJson(geojson, tipo) {
     if (!geojson || !Array.isArray(geojson.features)) return [];
     return geojson.features
@@ -228,7 +242,8 @@ window.ZonaRiesgoLayer = (() => {
         lat: f.geometry.coordinates[1],
         lng: f.geometry.coordinates[0],
         tipo,
-        fecha: getFechaOficial(f.properties)
+        fecha: getFechaOficial(f.properties),
+        horaValida: false // dato oficial masivo: solo día, nunca hora real
       }))
       .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
   }
@@ -266,7 +281,8 @@ window.ZonaRiesgoLayer = (() => {
           lng: d.lng,
           categoria: d.categoria,
           subcategoria: d.subcategoria || null,
-          fecha
+          fecha,
+          horaValida: tieneHoraReal(d)
         });
       }
     });
@@ -871,23 +887,35 @@ window.ZonaRiesgoLayer = (() => {
     return puntos.map((p) => [p.lat, p.lng, intensidadPareja ? 0.5 : (pesoDePunto(p) / PESO_MAXIMO)]);
   }
 
-  function getHeatmapRoboAutomotor() {
+  function puntosRoboAutomotor() {
     const vecinos = fuentes.denuncias_amplias.filter(
       (p) => p.categoria === 'vehiculos' && ROBOS_SUBCATEGORIAS.includes(p.subcategoria)
     );
-    const puntos = filtrarPorBarrioOficial([...fuentes.robos_oficial, ...vecinos]);
+    return filtrarPorBarrioOficial([...fuentes.robos_oficial, ...vecinos]);
+  }
+
+  function puntosPersonas() {
+    const vecinos = fuentes.denuncias_amplias.filter((p) => p.categoria === 'personas');
+    return filtrarPorBarrioOficial(vecinos);
+  }
+
+  function puntosSiniestrosViales() {
+    const vecinos = fuentes.denuncias_amplias.filter((p) => p.categoria === 'accidentes');
+    return filtrarPorBarrioOficial([...fuentes.siniestros_oficial, ...vecinos]);
+  }
+
+  function getHeatmapRoboAutomotor() {
+    const puntos = puntosRoboAutomotor();
     return { datos: aFormatoHeat(puntos, true), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
   }
 
   function getHeatmapPersonas() {
-    const vecinos = fuentes.denuncias_amplias.filter((p) => p.categoria === 'personas');
-    const puntos = filtrarPorBarrioOficial(vecinos);
+    const puntos = puntosPersonas();
     return { datos: aFormatoHeat(puntos, true), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
   }
 
   function getHeatmapSiniestrosViales() {
-    const vecinos = fuentes.denuncias_amplias.filter((p) => p.categoria === 'accidentes');
-    const puntos = filtrarPorBarrioOficial([...fuentes.siniestros_oficial, ...vecinos]);
+    const puntos = puntosSiniestrosViales();
     return { datos: aFormatoHeat(puntos, true), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
   }
 
@@ -902,6 +930,41 @@ window.ZonaRiesgoLayer = (() => {
   function getHeatmapCombinado() {
     const puntos = getTodosLosPuntosPonderables();
     return { datos: aFormatoHeat(puntos, false), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
+  }
+
+  /**
+   * 🆕 Desglose por hora (2026-09): cuenta eventos por hora del día (0-23),
+   * pero SOLO entre los que tienen horaValida=true (ver tieneHoraReal más
+   * arriba). Los que no tienen hora real quedan aparte en "sinHora" — no se
+   * inventan ni se apilan en medianoche.
+   */
+  function getDesgloseHorario(puntos) {
+    const horas = new Array(24).fill(0);
+    let sinHora = 0;
+    puntos.forEach((p) => {
+      if (p.horaValida && p.fecha instanceof Date && !isNaN(p.fecha)) {
+        horas[p.fecha.getHours()]++;
+      } else {
+        sinHora++;
+      }
+    });
+    return { horas, sinHora, total: puntos.length };
+  }
+
+  function getDesgloseHorarioRoboAutomotor() {
+    return getDesgloseHorario(puntosRoboAutomotor());
+  }
+
+  function getDesgloseHorarioPersonas() {
+    return getDesgloseHorario(puntosPersonas());
+  }
+
+  function getDesgloseHorarioSiniestrosViales() {
+    return getDesgloseHorario(puntosSiniestrosViales());
+  }
+
+  function getDesgloseHorarioCombinado() {
+    return getDesgloseHorario(getTodosLosPuntosPonderables());
   }
 
   /**
@@ -986,6 +1049,10 @@ window.ZonaRiesgoLayer = (() => {
     getHeatmapPersonas,
     getHeatmapSiniestrosViales,
     getHeatmapCombinado,
+    getDesgloseHorarioRoboAutomotor,
+    getDesgloseHorarioPersonas,
+    getDesgloseHorarioSiniestrosViales,
+    getDesgloseHorarioCombinado,
     getZonasMasSeguras,
     getMetadata,
     isVisible: () => isVisible,
