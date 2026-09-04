@@ -65,6 +65,7 @@ function iniciarMapa() {
   ['ColectivosLayer', () => ColectivosLayer.init(map)],
   ['HeatmapLayer', () => heatmapLayer.init()],
   ['ZonaRiesgoLayer', () => typeof ZonaRiesgoLayer !== 'undefined' && ZonaRiesgoLayer.init(map)],
+  ['FactoresRiesgoLayer', () => typeof FactoresRiesgoLayer !== 'undefined' && FactoresRiesgoLayer.init(map)],
   ['AforosLayer', () => typeof AforosLayer !== 'undefined' && AforosLayer.init(map)],
   ['RoboLayer', () => typeof RoboLayer !== 'undefined' && RoboLayer.init(map)],
   ['SiniestrosHistoricoLayer', () => typeof SiniestrosHistoricoLayer !== 'undefined' && SiniestrosHistoricoLayer.init(map)],
@@ -2647,8 +2648,163 @@ auth.onAuthStateChanged((user) => {
             // ninguna rama que la atienda. A medida que se vaya
             // construyendo cada función real, reemplazar el bloque
             // FloatingWindow.show correspondiente por la lógica real.
+            // 🆕 Factores de riesgo (luminarias, cámaras, visibilidad) (2026-09):
+            // combina denuncias de infraestructura que ya cargan los
+            // vecinos (solo 'luminarias' tiene relación directa con esta
+            // pregunta; el resto de tipos se muestran aparte para no
+            // perder el dato) con observaciones de campo que carga el
+            // admin a mano (cámaras visibles, visibilidad — datos que los
+            // vecinos no reportan).
+            if (question.includes('Factores de riesgo')) {
+              try {
+                if (typeof FactoresRiesgoLayer === 'undefined' || typeof ZonaRiesgoLayer === 'undefined') {
+                  FloatingWindow.show('⚠️ Error', '<p>FactoresRiesgoLayer/ZonaRiesgoLayer no están cargados.</p>');
+                  return;
+                }
+
+                const ETIQUETAS_TIPO = {
+                  luminarias: '💡 Luminarias',
+                  semaforos: '🚦 Semáforos',
+                  baches: '🕳️ Baches',
+                  pozo: '🕳️ Pozos',
+                  carril_bloqueado: '🚧 Carril bloqueado',
+                  otro: '❓ Otro'
+                };
+
+                const renderPanel = () => {
+                  const resumen = FactoresRiesgoLayer.getResumen();
+                  const { admin, vecinos, sinBarrioOficial } = resumen;
+
+                  const filasVecinos = Object.entries(vecinos.porTipo || {})
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([tipo, cantidad]) => `
+                      <div style="display:flex; justify-content:space-between; font-size:12px; padding:3px 0;">
+                        <span>${ETIQUETAS_TIPO[tipo] || `❓ ${tipo}`}</span>
+                        <span style="font-weight:600;">${cantidad}</span>
+                      </div>
+                    `).join('') || '<p style="font-size:12px; color:#888;">Sin denuncias de infraestructura en esta zona.</p>';
+
+                  const promedioTexto = admin.total > 0
+                    ? `${admin.promedioPuntaje.toFixed(1)} / 4`
+                    : 'Sin observaciones cargadas todavía';
+
+                  const avisoBarrio = sinBarrioOficial
+                    ? `<p style="margin:8px 0 0 0; font-size:10px; color:#b45309;">⚠️ Sin barrio oficial detectado — datos de toda la zona disponible, sin recortar.</p>`
+                    : '';
+
+                  return `
+                    <div style="margin-bottom:14px;">
+                      <strong style="font-size:13px; color:#1a1a1a;">👥 Reportado por vecinos</strong>
+                      <p style="font-size:11px; color:#888; margin:2px 0 6px 0;">Denuncias de infraestructura cargadas desde la app vecinal.</p>
+                      ${filasVecinos}
+                    </div>
+                    <div style="border-top:1px solid #eee; padding-top:12px;">
+                      <strong style="font-size:13px; color:#1a1a1a;">🛡️ Observado por el municipio</strong>
+                      <p style="font-size:11px; color:#888; margin:2px 0 6px 0;">Iluminación, cámaras visibles y visibilidad, cargado a mano en el mapa.</p>
+                      <div style="display:flex; justify-content:space-between; font-size:12px;">
+                        <span>Observaciones cargadas</span><span style="font-weight:600;">${admin.total}</span>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; font-size:12px;">
+                        <span>Puntaje de riesgo promedio</span><span style="font-weight:600;">${promedioTexto}</span>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; font-size:12px;">
+                        <span>Puntos con algún problema</span><span style="font-weight:600;">${admin.conProblemas}</span>
+                      </div>
+                      ${avisoBarrio}
+                    </div>
+                    <button id="fr-cargar-btn" style="margin-top:14px; width:100%; padding:10px; background:#4f46e5; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px;">
+                      ➕ Cargar observación en el mapa
+                    </button>
+                    <p id="fr-cargar-hint" style="display:none; margin-top:8px; font-size:11px; color:#4f46e5; text-align:center;">
+                      👆 Hacé click en cualquier punto del mapa para marcar la observación.
+                    </p>
+                  `;
+                };
+
+                FactoresRiesgoLayer.mostrarMarcadores();
+
+                const win = FloatingWindow.show('🔦 Factores de riesgo', renderPanel(), {
+                  width: '360px',
+                  onClose: () => {
+                    FactoresRiesgoLayer.cancelarCargaObservacion();
+                    FactoresRiesgoLayer.ocultarMarcadores();
+                  }
+                });
+
+                const cargarBtn = document.getElementById('fr-cargar-btn');
+                const cargarHint = document.getElementById('fr-cargar-hint');
+                if (cargarBtn) {
+                  cargarBtn.addEventListener('click', () => {
+                    if (FactoresRiesgoLayer.isEnModoCarga()) return;
+                    cargarHint.style.display = 'block';
+                    cargarBtn.disabled = true;
+                    cargarBtn.style.opacity = '0.6';
+
+                    FactoresRiesgoLayer.iniciarCargaObservacion((lat, lng) => {
+                      cargarHint.style.display = 'none';
+                      cargarBtn.disabled = false;
+                      cargarBtn.style.opacity = '1';
+
+                      const formHtml = `
+                        <label style="display:block; font-size:12px; margin-bottom:4px; font-weight:600;">Iluminación</label>
+                        <select id="fr-iluminacion" style="width:100%; padding:6px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;">
+                          <option value="buena">Buena</option>
+                          <option value="regular">Regular</option>
+                          <option value="mala">Mala</option>
+                        </select>
+                        <label style="display:block; font-size:12px; margin-bottom:4px; font-weight:600;">¿Hay cámaras visibles?</label>
+                        <select id="fr-camaras" style="width:100%; padding:6px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;">
+                          <option value="si">Sí</option>
+                          <option value="no">No</option>
+                        </select>
+                        <label style="display:block; font-size:12px; margin-bottom:4px; font-weight:600;">Visibilidad</label>
+                        <select id="fr-visibilidad" style="width:100%; padding:6px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;">
+                          <option value="sin_problemas">Sin obstrucciones</option>
+                          <option value="con_problemas">Con obstrucciones (árboles, carteles, etc.)</option>
+                        </select>
+                        <label style="display:block; font-size:12px; margin-bottom:4px; font-weight:600;">Nota (opcional)</label>
+                        <textarea id="fr-nota" rows="2" style="width:100%; padding:6px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px; font-family:inherit;"></textarea>
+                        <button id="fr-guardar-btn" style="width:100%; padding:10px; background:#16a34a; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px;">
+                          Guardar observación
+                        </button>
+                        <p id="fr-guardar-error" style="display:none; color:#dc2626; font-size:11px; margin-top:6px;"></p>
+                      `;
+                      FloatingWindow.show('📍 Nueva observación', formHtml, { width: '300px' });
+
+                      const guardarBtn = document.getElementById('fr-guardar-btn');
+                      guardarBtn.addEventListener('click', async () => {
+                        guardarBtn.disabled = true;
+                        guardarBtn.textContent = 'Guardando...';
+                        try {
+                          await FactoresRiesgoLayer.guardarObservacion(lat, lng, {
+                            iluminacion: document.getElementById('fr-iluminacion').value,
+                            camaras: document.getElementById('fr-camaras').value,
+                            visibilidad: document.getElementById('fr-visibilidad').value,
+                            nota: document.getElementById('fr-nota').value
+                          });
+                          FloatingWindow.show('✅ Guardado', '<p>La observación se guardó correctamente.</p>');
+                        } catch (error) {
+                          console.error('❌ Error guardando observación:', error);
+                          const errEl = document.getElementById('fr-guardar-error');
+                          if (errEl) {
+                            errEl.textContent = error.message;
+                            errEl.style.display = 'block';
+                          }
+                          guardarBtn.disabled = false;
+                          guardarBtn.textContent = 'Guardar observación';
+                        }
+                      });
+                    });
+                  });
+                }
+              } catch (error) {
+                console.error('❌ Error en Factores de riesgo:', error);
+                FloatingWindow.show('⚠️ Error', `<p style="color: #dc2626;">${error.message}</p>`);
+              }
+              return;
+            }
+
             const medidasPendientes = [
-              'Factores de riesgo (luminarias, cámaras, visibilidad)',
               'Vecinos conectados cerca mío',
               'Alertas preventivas activas',
               'Robo de motos y vehículos',
