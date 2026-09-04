@@ -199,6 +199,42 @@ window.ZonaRiesgoLayer = (() => {
   }
 
   /**
+   * 🐛 Fix (2026-09): esta función replica EXACTAMENTE la misma lógica de
+   * extracción de hora que ya usa siniestros-layer.js (normalizeFilterProps),
+   * porque confirmamos que los siniestros oficiales SÍ traen una columna de
+   * hora real (ej. "07:52:00") — el error anterior fue asumir que NINGÚN
+   * dato oficial tenía hora y descartarla siempre. Los robos oficiales, en
+   * cambio, no tienen esta columna en el archivo que se importa hoy — si
+   * en el futuro se agrega, esta misma función la va a levantar sola sin
+   * tocar nada más.
+   * Devuelve la hora (0-23) como número, o null si no hay ninguna fuente
+   * de hora real disponible en las propiedades del feature.
+   */
+  function getHoraOficial(properties) {
+    if (!properties) return null;
+    const horaProp = getPropFlexible(properties, ['hora', 'Hora', 'HORA']);
+    if (horaProp) {
+      const hourStr = horaProp.toString().split(':')[0];
+      const hour = parseInt(hourStr, 10);
+      if (Number.isFinite(hour) && hour >= 0 && hour <= 23) return hour;
+    }
+    // Igual que siniestros-layer.js: si no hay columna 'hora' separada,
+    // intentar extraerla de 'timestamp' (formato "2026-05-09T09:38:28...").
+    if (properties.timestamp) {
+      try {
+        const timePart = properties.timestamp.toString().split('T')[1];
+        if (timePart) {
+          const hour = parseInt(timePart.split(':')[0], 10);
+          if (Number.isFinite(hour) && hour >= 0 && hour <= 23) return hour;
+        }
+      } catch (e) {
+        // silenciosamente ignorar, igual que en siniestros-layer.js
+      }
+    }
+    return null;
+  }
+
+  /**
    * Carga los siniestros oficiales (GeoJSON, mismo formato que usa
    * SiniestrosLayer/heatmapLayer). Se llama desde app.js cada vez que se
    * cargan/recargan los siniestros del cliente.
@@ -220,16 +256,42 @@ window.ZonaRiesgoLayer = (() => {
     render();
   }
 
+  /**
+   * 🆕 Desglose por hora (2026-09): indica si un evento tiene HORA real
+   * conocida, no solo fecha. Para denuncias de vecinos, viene de
+   * timestamp/created_at (momento real de la carga). Para datos oficiales,
+   * viene de getHoraOficial() arriba — el campo 'hora' del archivo
+   * importado, cuando existe.
+   */
+  function tieneHoraReal(obj) {
+    if (!obj) return false;
+    return !!(obj.timestamp || obj.created_at);
+  }
+
   function extraerPuntosDeGeoJson(geojson, tipo) {
     if (!geojson || !Array.isArray(geojson.features)) return [];
     return geojson.features
       .filter((f) => f.geometry && Array.isArray(f.geometry.coordinates))
-      .map((f) => ({
-        lat: f.geometry.coordinates[1],
-        lng: f.geometry.coordinates[0],
-        tipo,
-        fecha: getFechaOficial(f.properties)
-      }))
+      .map((f) => {
+        const fecha = getFechaOficial(f.properties);
+        const horaOficial = getHoraOficial(f.properties);
+        // Si hay fecha (día) Y hora real disponibles, combinamos ambas en
+        // un solo Date para que getDesgloseHorario() pueda usar .getHours().
+        let fechaFinal = fecha;
+        let horaValida = false;
+        if (fecha && horaOficial !== null) {
+          fechaFinal = new Date(fecha);
+          fechaFinal.setHours(horaOficial, 0, 0, 0);
+          horaValida = true;
+        }
+        return {
+          lat: f.geometry.coordinates[1],
+          lng: f.geometry.coordinates[0],
+          tipo,
+          fecha: fechaFinal,
+          horaValida
+        };
+      })
       .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
   }
 
@@ -266,7 +328,8 @@ window.ZonaRiesgoLayer = (() => {
           lng: d.lng,
           categoria: d.categoria,
           subcategoria: d.subcategoria || null,
-          fecha
+          fecha,
+          horaValida: tieneHoraReal(d)
         });
       }
     });
@@ -871,23 +934,35 @@ window.ZonaRiesgoLayer = (() => {
     return puntos.map((p) => [p.lat, p.lng, intensidadPareja ? 0.5 : (pesoDePunto(p) / PESO_MAXIMO)]);
   }
 
-  function getHeatmapRoboAutomotor() {
+  function puntosRoboAutomotor() {
     const vecinos = fuentes.denuncias_amplias.filter(
       (p) => p.categoria === 'vehiculos' && ROBOS_SUBCATEGORIAS.includes(p.subcategoria)
     );
-    const puntos = filtrarPorBarrioOficial([...fuentes.robos_oficial, ...vecinos]);
+    return filtrarPorBarrioOficial([...fuentes.robos_oficial, ...vecinos]);
+  }
+
+  function puntosPersonas() {
+    const vecinos = fuentes.denuncias_amplias.filter((p) => p.categoria === 'personas');
+    return filtrarPorBarrioOficial(vecinos);
+  }
+
+  function puntosSiniestrosViales() {
+    const vecinos = fuentes.denuncias_amplias.filter((p) => p.categoria === 'accidentes');
+    return filtrarPorBarrioOficial([...fuentes.siniestros_oficial, ...vecinos]);
+  }
+
+  function getHeatmapRoboAutomotor() {
+    const puntos = puntosRoboAutomotor();
     return { datos: aFormatoHeat(puntos, true), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
   }
 
   function getHeatmapPersonas() {
-    const vecinos = fuentes.denuncias_amplias.filter((p) => p.categoria === 'personas');
-    const puntos = filtrarPorBarrioOficial(vecinos);
+    const puntos = puntosPersonas();
     return { datos: aFormatoHeat(puntos, true), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
   }
 
   function getHeatmapSiniestrosViales() {
-    const vecinos = fuentes.denuncias_amplias.filter((p) => p.categoria === 'accidentes');
-    const puntos = filtrarPorBarrioOficial([...fuentes.siniestros_oficial, ...vecinos]);
+    const puntos = puntosSiniestrosViales();
     return { datos: aFormatoHeat(puntos, true), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
   }
 
@@ -902,6 +977,41 @@ window.ZonaRiesgoLayer = (() => {
   function getHeatmapCombinado() {
     const puntos = getTodosLosPuntosPonderables();
     return { datos: aFormatoHeat(puntos, false), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
+  }
+
+  /**
+   * 🆕 Desglose por hora (2026-09): cuenta eventos por hora del día (0-23),
+   * pero SOLO entre los que tienen horaValida=true (ver tieneHoraReal más
+   * arriba). Los que no tienen hora real quedan aparte en "sinHora" — no se
+   * inventan ni se apilan en medianoche.
+   */
+  function getDesgloseHorario(puntos) {
+    const horas = new Array(24).fill(0);
+    let sinHora = 0;
+    puntos.forEach((p) => {
+      if (p.horaValida && p.fecha instanceof Date && !isNaN(p.fecha)) {
+        horas[p.fecha.getHours()]++;
+      } else {
+        sinHora++;
+      }
+    });
+    return { horas, sinHora, total: puntos.length };
+  }
+
+  function getDesgloseHorarioRoboAutomotor() {
+    return getDesgloseHorario(puntosRoboAutomotor());
+  }
+
+  function getDesgloseHorarioPersonas() {
+    return getDesgloseHorario(puntosPersonas());
+  }
+
+  function getDesgloseHorarioSiniestrosViales() {
+    return getDesgloseHorario(puntosSiniestrosViales());
+  }
+
+  function getDesgloseHorarioCombinado() {
+    return getDesgloseHorario(getTodosLosPuntosPonderables());
   }
 
   /**
@@ -986,6 +1096,10 @@ window.ZonaRiesgoLayer = (() => {
     getHeatmapPersonas,
     getHeatmapSiniestrosViales,
     getHeatmapCombinado,
+    getDesgloseHorarioRoboAutomotor,
+    getDesgloseHorarioPersonas,
+    getDesgloseHorarioSiniestrosViales,
+    getDesgloseHorarioCombinado,
     getZonasMasSeguras,
     getMetadata,
     isVisible: () => isVisible,
