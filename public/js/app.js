@@ -2564,6 +2564,83 @@ auth.onAuthStateChanged((user) => {
               }
             }
 
+            // 🆕 Horarios de mayor riesgo (2026-09): mismo motor de datos que
+            // Zonas calientes (ZonaRiesgoLayer, ya filtrado al barrio
+            // oficial del cliente), pero acá el foco es el horario, no el
+            // mapa — un desglose separado por categoría, cada una con su
+            // propia franja pico.
+            if (question.includes('Horarios de mayor riesgo')) {
+              try {
+                if (typeof ZonaRiesgoLayer === 'undefined') {
+                  FloatingWindow.show('⚠️ Error', '<p>ZonaRiesgoLayer no está cargado.</p>');
+                  return;
+                }
+
+                const formatearCategoriaHorario = (nombreCategoria, emoji, desglose) => {
+                  const { horas, sinHora, total, sinBarrioOficial } = desglose;
+                  const conHora = total - sinHora;
+                  const maxHora = Math.max(...horas);
+
+                  let cuerpoHtml;
+                  if (total === 0) {
+                    cuerpoHtml = `<p style="margin:4px 0 0 0; font-size:12px; color:#888;">No hay eventos de esta categoría en la zona.</p>`;
+                  } else if (conHora === 0) {
+                    cuerpoHtml = `<p style="margin:4px 0 0 0; font-size:12px; color:#888;">${total} evento(s), pero ninguno tiene hora registrada — no se puede calcular franja horaria.</p>`;
+                  } else {
+                    const top3 = horas
+                      .map((cantidad, hora) => ({ hora, cantidad }))
+                      .filter((h) => h.cantidad > 0)
+                      .sort((a, b) => b.cantidad - a.cantidad)
+                      .slice(0, 3);
+                    const pico = top3[0];
+                    const listaTop3 = top3.map((h) => `
+                      <div style="display:flex; align-items:center; gap:6px; margin-top:3px;">
+                        <span style="font-size:11px; color:#333; width:48px;">${String(h.hora).padStart(2, '0')}:00 hs</span>
+                        <div style="flex:1; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+                          <div style="height:100%; width:${(h.cantidad / maxHora) * 100}%; background:#3b82f6;"></div>
+                        </div>
+                        <span style="font-size:11px; color:#555; width:20px; text-align:right;">${h.cantidad}</span>
+                      </div>
+                    `).join('');
+                    cuerpoHtml = `
+                      <p style="margin:4px 0 2px 0; font-size:12px; color:#1a1a1a;">
+                        🔺 Pico: <strong>${String(pico.hora).padStart(2, '0')}:00 hs</strong> (${pico.cantidad} evento(s))
+                      </p>
+                      ${listaTop3}
+                      <p style="margin:4px 0 0 0; font-size:10px; color:#999;">Sobre ${conHora} de ${total} evento(s) con hora registrada${sinHora > 0 ? ` (${sinHora} sin hora, excluido(s))` : ''}.</p>
+                    `;
+                  }
+
+                  const avisoBarrio = sinBarrioOficial
+                    ? `<p style="margin:4px 0 0 0; font-size:10px; color:#b45309;">⚠️ Sin barrio oficial detectado — datos de toda la zona disponible.</p>`
+                    : '';
+
+                  return `
+                    <div style="margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid #eee;">
+                      <strong style="font-size:13px; color:#1a1a1a;">${emoji} ${nombreCategoria}</strong>
+                      ${cuerpoHtml}
+                      ${avisoBarrio}
+                    </div>
+                  `;
+                };
+
+                const contenidoHtml = `
+                  <p style="font-size:12px; color:#666; margin-bottom:12px;">
+                    Franja horaria con más eventos, por categoría (solo entre los eventos que tienen hora real registrada).
+                  </p>
+                  ${formatearCategoriaHorario('Robo automotor', '🚗', ZonaRiesgoLayer.getDesgloseHorarioRoboAutomotor())}
+                  ${formatearCategoriaHorario('Robos a personas', '🚷', ZonaRiesgoLayer.getDesgloseHorarioPersonas())}
+                  ${formatearCategoriaHorario('Siniestros viales', '⚠️', ZonaRiesgoLayer.getDesgloseHorarioSiniestrosViales())}
+                `;
+
+                FloatingWindow.show('⏰ Horarios de mayor riesgo', contenidoHtml, { width: '380px' });
+              } catch (error) {
+                console.error('❌ Error en Horarios de mayor riesgo:', error);
+                FloatingWindow.show('⚠️ Error', `<p style="color: #dc2626;">${error.message}</p>`);
+              }
+              return;
+            }
+
             // 🆕 Medidas de Prevención (2026-08): 10 funciones a implementar
             // de a una — por ahora cada una muestra un aviso de "en
             // desarrollo" en vez de romper silenciosamente al no tener
@@ -2571,7 +2648,6 @@ auth.onAuthStateChanged((user) => {
             // construyendo cada función real, reemplazar el bloque
             // FloatingWindow.show correspondiente por la lógica real.
             const medidasPendientes = [
-              'Horarios de mayor riesgo',
               'Factores de riesgo (luminarias, cámaras, visibilidad)',
               'Vecinos conectados cerca mío',
               'Alertas preventivas activas',

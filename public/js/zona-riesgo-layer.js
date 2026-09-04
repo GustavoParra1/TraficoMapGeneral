@@ -995,7 +995,7 @@ window.ZonaRiesgoLayer = (() => {
         sinHora++;
       }
     });
-    return { horas, sinHora, total: puntos.length };
+    return { horas, sinHora, total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
   }
 
   function getDesgloseHorarioRoboAutomotor() {
