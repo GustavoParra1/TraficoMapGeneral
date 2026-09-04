@@ -30,3 +30,11 @@ service-account-key.json
 trafico-map-general-v2-firebase-adminsdk-key.json
 *-firebase-adminsdk*.json
 .~lock.*#
+# Archivos locales que no deben subirse al repo (agregado 2026-09)
+analizar-datos.cjs
+cambios_recientes.txt
+dir
+public/client/js/public/
+public/data/ROBOSFINAL.xlsx
+public/data/linea525.zip
+public/js/Este equipo - Acceso directo.lnk

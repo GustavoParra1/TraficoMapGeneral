@@ -573,15 +573,26 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
           // robos) en vez de recortar al barrio propio del cliente. Acá
           // buscamos, entre los barrios ya cargados, el que coincide con el
           // nombre del cliente (ej. "Constitucion") y se lo pasamos.
+          //
+          // 🐛 Fix (2026-09, v2): la primera versión de esta comparación
+          // solo sacaba tildes/mayúsculas, pero no ignoraba espacios ni
+          // guiones — así que un cliente como "Parque Montemar - El Gro"
+          // (nombre guardado truncado, con espacios extra alrededor del
+          // guion) nunca calzaba contra el barrio real del catastro
+          // "PARQUE MONTEMAR-EL GROSELLAR". Ahora comparamos dejando SOLO
+          // letras/números (sacando espacios, guiones y puntuación), así
+          // "PARQUEMONTEMARELGRO" sí matchea como prefijo de
+          // "PARQUEMONTEMARELGROSELLAR".
           const normalizar = (s) => (s || '')
             .toString()
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // saca acentos
-            .trim()
-            .toUpperCase();
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, ''); // deja solo letras/números
           const nombreCliente = normalizar(window.clientCityName);
-          const barrioOficial = nombreCliente
+          const barrioOficial = (nombreCliente && nombreCliente.length >= 4)
             ? bariosGeoJson.features.find((f) => {
                 const nombreBarrio = normalizar(f.properties?.nombre || f.properties?.soc_fomen);
+                if (!nombreBarrio) return false;
                 return nombreBarrio === nombreCliente || nombreBarrio.includes(nombreCliente) || nombreCliente.includes(nombreBarrio);
               })
             : null;
