@@ -1591,22 +1591,41 @@ auth.onAuthStateChanged((user) => {
     // Usuario autenticado O cliente con sesión válida
     if (true) {  // ← GENERAR SIDEBAR SIEMPRE, para user auth O cliente
       // Mostrar panel de usuario autenticado
-    // Obtener nombre de ciudad para modo cliente
+    // Obtener nombre de ciudad para modo cliente. Ya NO depende de
+    // isUserAuthenticated (antes, si había una sesión de Firebase Auth
+    // vieja de OTRO cliente, esto se saltaba y cityDisplay se quedaba en
+    // 'Modo Cliente' en vez del nombre real).
     let cityDisplay = 'Modo Cliente';
-    if (!isUserAuthenticated && window.restoredClienteData) {
+    if (window.restoredClienteData) {
       cityDisplay = window.restoredClienteData.nombre || 'Modo Cliente';
-    } else if (!isUserAuthenticated && window.clientCityName) {
+    } else if (window.clientCityName) {
       cityDisplay = window.clientCityName;
     }
-    
+
+    // 🐛 Fix (2026-09): Firebase Auth persiste la sesión por NAVEGADOR, no
+    // por pestaña ni por URL. Si el admin entró antes al panel de OTRO
+    // cliente (ej. "Villa Primera") y después abre el link de este cliente
+    // sin cerrar sesión, `user` acá adentro sigue siendo el de Villa
+    // Primera — y sin este chequeo, el panel mostraba ese email viejo en
+    // vez del nombre/email del cliente actual (Constitución). Solo se
+    // confía en `user.email` si coincide con el patrón esperado para ESTE
+    // cliente (admin.<clienteId-de-la-URL>@traficomap.local); si no
+    // coincide, se trata como sesión ajena y se muestra cityDisplay.
+    const emailEsperadoClienteActual = window.restoredClienteId
+      ? `admin.${window.restoredClienteId}@traficomap.local`.toLowerCase()
+      : null;
+    const emailPerteneceAlClienteActual = !window.isClientMode
+      || (isUserAuthenticated && emailEsperadoClienteActual && user.email.toLowerCase() === emailEsperadoClienteActual);
+    const mostrarEmailDeUsuario = isUserAuthenticated && emailPerteneceAlClienteActual;
+
     sidebar.innerHTML = `
       <div id="logo">🗺️ TraficoMap - ${cityDisplay}</div>
       <div class="sidebar-section">
         <div class="sidebar-title">Usuario</div>
         <div style="font-size: 12px; margin-bottom: 10px;">
-          ${isUserAuthenticated ? user.email : cityDisplay}
+          ${mostrarEmailDeUsuario ? user.email : cityDisplay}
         </div>
-        ${isUserAuthenticated ? `<button id="logout-btn">Cerrar Sesión</button>` : ''}
+        ${mostrarEmailDeUsuario ? `<button id="logout-btn">Cerrar Sesión</button>` : ''}
       </div>
       
       <div class="sidebar-section">
