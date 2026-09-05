@@ -585,12 +585,21 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
           // letras/números (sacando espacios, guiones y puntuación), así
           // "PARQUEMONTEMARELGRO" sí matchea como prefijo de
           // "PARQUEMONTEMARELGROSELLAR".
+          // 🐛 Fix (2026-09, v3): la comparación usaba window.clientCityName
+          // (el nombre "de fantasía" del cliente, ej. "Caisamar y Estrada"),
+          // que puede no tener nada que ver con el nombre real del barrio en
+          // el catastro (ej. "ESTRADA JOSE MANUEL"). Cada cliente además
+          // guarda un campo `barrio_slug` con el identificador preciso del
+          // barrio real (ej. "estrada-jose-manuel") — lo priorizamos, y solo
+          // si no está cargado caemos al nombre de fantasía como antes.
           const normalizar = (s) => (s || '')
             .toString()
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // saca acentos
             .toUpperCase()
             .replace(/[^A-Z0-9]/g, ''); // deja solo letras/números
-          const nombreCliente = normalizar(window.clientCityName);
+
+          const barrioSlugCliente = window.restoredClienteData?.barrio_slug;
+          const nombreCliente = normalizar(barrioSlugCliente || window.clientCityName);
           const barrioOficial = (nombreCliente && nombreCliente.length >= 4)
             ? bariosGeoJson.features.find((f) => {
                 const nombreBarrio = normalizar(f.properties?.nombre || f.properties?.soc_fomen);
@@ -603,7 +612,7 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
             ZonaRiesgoLayer.setBarrioOficial(barrioOficial);
             console.log(`✅ Barrio oficial del cliente encontrado y configurado en ZonaRiesgoLayer: "${barrioOficial.properties?.nombre || barrioOficial.properties?.soc_fomen}"`);
           } else {
-            console.warn(`⚠️ No se encontró un barrio que coincida con "${window.clientCityName}" entre los ${bariosGeoJson.features.length} barrios cargados. Zonas calientes va a seguir mostrando TODA la zona (sin recortar), avisando "sinBarrioOficial" en la UI.`);
+            console.warn(`⚠️ No se encontró un barrio que coincida con "${barrioSlugCliente || window.clientCityName}" entre los ${bariosGeoJson.features.length} barrios cargados. Zonas calientes va a seguir mostrando TODA la zona (sin recortar), avisando "sinBarrioOficial" en la UI.`);
           }
         }
       } else {
