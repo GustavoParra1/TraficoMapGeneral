@@ -231,6 +231,18 @@ const FactoresRiesgoLayer = (() => {
     };
   }
 
+  /**
+   * 🆕 Observaciones del admin recortadas al barrio oficial, SIN agregar
+   * (a diferencia de getResumen, que ya las promedia). Insumo para cruzar
+   * celda por celda contra ZonaRiesgoLayer.getZonasCalientes() en el
+   * ranking "Índice de riesgo por cuadra" (ver app.js).
+   */
+  function getObservacionesFiltradas() {
+    return (typeof ZonaRiesgoLayer !== 'undefined')
+      ? ZonaRiesgoLayer.filtrarPorBarrioOficialExterno(observaciones)
+      : observaciones;
+  }
+
   return {
     init,
     iniciarCargaObservacion,
@@ -240,6 +252,7 @@ const FactoresRiesgoLayer = (() => {
     mostrarMarcadores,
     ocultarMarcadores,
     getResumen,
+    getObservacionesFiltradas,
     isEnModoCarga: () => modoCarga
   };
 })();

@@ -2805,6 +2805,323 @@ auth.onAuthStateChanged((user) => {
               return;
             }
 
+            // 🆕 Índice de riesgo por cuadra (2026-09): ranking de
+            // intervención prioritaria. Cruza la grilla de zonas
+            // calientes de ZonaRiesgoLayer (robos + siniestros ya
+            // ponderados, top N celdas por peso) con las observaciones
+            // de FactoresRiesgoLayer (iluminación/cámaras/visibilidad que
+            // carga el admin) y las denuncias de infraestructura que ya
+            // cargan los vecinos. Objetivo: decirle al vecino en qué
+            // cuadra conviene pedir una intervención primero — la que es
+            // peligrosa Y está mal iluminada/sin cámaras — no solo dónde
+            // hay más delitos.
+            if (question.includes('Índice de riesgo por cuadra')) {
+              try {
+                if (typeof ZonaRiesgoLayer === 'undefined' || typeof FactoresRiesgoLayer === 'undefined') {
+                  FloatingWindow.show('⚠️ Error', '<p>ZonaRiesgoLayer/FactoresRiesgoLayer no están cargados.</p>');
+                  return;
+                }
+
+                let capaActiva = null;
+                const limpiarCapaActiva = () => {
+                  if (capaActiva && map.hasLayer(capaActiva)) map.removeLayer(capaActiva);
+                  capaActiva = null;
+                };
+
+                const enCelda = (p, c) => p.lat >= c.latMin && p.lat < c.latMax && p.lng >= c.lngMin && p.lng < c.lngMax;
+
+                // Grilla amplia (15) para tener margen antes de recortar
+                // al top 10 ya combinado con factores de riesgo.
+                const resultadoGrilla = ZonaRiesgoLayer.getZonasCalientes(15);
+                const celdasCalientes = resultadoGrilla.celdas || [];
+
+                if (celdasCalientes.length === 0) {
+                  FloatingWindow.show(
+                    '🎯 Índice de riesgo por cuadra',
+                    '<p style="font-size:12px; color:#666;">No hay eventos suficientes en el barrio para armar un ranking por cuadra todavía.</p>'
+                  );
+                  return;
+                }
+
+                const observacionesAdmin = FactoresRiesgoLayer.getObservacionesFiltradas();
+                const infraVecinos = ZonaRiesgoLayer.getFactoresRiesgoVecinos().puntos || [];
+                const maxPeso = Math.max(...celdasCalientes.map((c) => c.peso));
+
+                const filas = celdasCalientes.map((c) => {
+                  const obsEnCelda = observacionesAdmin.filter((o) => enCelda(o, c));
+                  const infraEnCelda = infraVecinos.filter((p) => enCelda(p, c));
+                  const tieneObs = obsEnCelda.length > 0;
+                  const puntajeFactores = tieneObs
+                    ? obsEnCelda.reduce((acc, o) => acc + o.puntaje, 0) / obsEnCelda.length
+                    : 0;
+
+                  const pesoNormalizado = maxPeso > 0 ? c.peso / maxPeso : 0;
+                  const factoresNormalizado = puntajeFactores / 4; // puntaje admin va de 0 a 4
+                  // Los delitos pesan más que la infraestructura (0.65 vs
+                  // 0.35): sin observación de iluminación en la celda, el
+                  // ranking sigue reflejando solo el riesgo delictivo — no
+                  // se inventa un puntaje de infraestructura que no existe.
+                  const prioridad = pesoNormalizado * 0.65 + factoresNormalizado * 0.35;
+
+                  return { celda: c, obsEnCelda, infraEnCelda, tieneObs, puntajeFactores, prioridad };
+                });
+
+                filas.sort((a, b) => b.prioridad - a.prioridad);
+                const top10 = filas.slice(0, 10);
+
+                const grupo = L.layerGroup();
+                top10.forEach((f, i) => {
+                  const c = f.celda;
+                  const color = f.prioridad >= 0.66 ? '#dc2626' : f.prioridad >= 0.33 ? '#f59e0b' : '#3b82f6';
+                  L.rectangle(
+                    [[c.latMin, c.lngMin], [c.latMax, c.lngMax]],
+                    { color, weight: 2, fillColor: color, fillOpacity: 0.25 }
+                  ).bindTooltip(`#${i + 1} · ${c.eventos} evento(s) · prioridad ${(f.prioridad * 100).toFixed(0)}%`).addTo(grupo);
+                });
+                grupo.addTo(map);
+                capaActiva = grupo;
+
+                const filasHtml = top10.map((f, i) => {
+                  const c = f.celda;
+                  const badgeColor = f.prioridad >= 0.66 ? '#dc2626' : f.prioridad >= 0.33 ? '#f59e0b' : '#3b82f6';
+                  const badgeTexto = f.prioridad >= 0.66 ? 'Alta' : f.prioridad >= 0.33 ? 'Media' : 'Baja';
+
+                  const infraTexto = f.infraEnCelda.length > 0
+                    ? `${f.infraEnCelda.length} denuncia(s) de infraestructura de vecinos`
+                    : 'Sin denuncias de infraestructura de vecinos';
+
+                  const factoresTexto = f.tieneObs
+                    ? `Puntaje de factores de riesgo: ${f.puntajeFactores.toFixed(1)} / 4`
+                    : 'Sin observación de iluminación/cámaras cargada';
+
+                  return `
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:8px 10px; margin-bottom:8px;">
+                      <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="font-size:12px;">#${i + 1} · ${c.eventos} evento(s)</strong>
+                        <span style="background:${badgeColor}; color:white; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600;">${badgeTexto}</span>
+                      </div>
+                      <p style="margin:4px 0 0 0; font-size:11px; color:#555;">${factoresTexto}</p>
+                      <p style="margin:2px 0 0 0; font-size:11px; color:#555;">${infraTexto}</p>
+                    </div>
+                  `;
+                }).join('');
+
+                const avisoBarrio = resultadoGrilla.sinBarrioOficial
+                  ? '<p style="margin:8px 0 0 0; font-size:10px; color:#b45309;">⚠️ Sin barrio oficial detectado — datos de toda la zona disponible, sin recortar.</p>'
+                  : '';
+
+                FloatingWindow.show(
+                  '🎯 Índice de riesgo por cuadra',
+                  `<div>
+                    <p style="font-size:12px; color:#666; margin-bottom:10px;">
+                      Ranking de las cuadras donde una intervención (luz, cámara, poda) tiene más impacto: cruza dónde hay más delitos con dónde falta iluminación o cámaras. Se dibujó en el mapa.
+                    </p>
+                    ${filasHtml}
+                    ${avisoBarrio}
+                  </div>`,
+                  {
+                    width: '340px',
+                    onClose: limpiarCapaActiva
+                  }
+                );
+              } catch (error) {
+                console.error('❌ Error en Índice de riesgo por cuadra:', error);
+                FloatingWindow.show('⚠️ Error', `<p style="color: #dc2626;">${error.message}</p>`);
+              }
+              return;
+            }
+
+            // 🆕 Robo de motos y vehículos (2026-09): a diferencia de
+            // "Zonas calientes > Robo automotor" (que combina oficial +
+            // vecinal SIN poder separar por tipo, porque el histórico
+            // oficial no distingue auto/moto/bici), acá se abre por
+            // subcategoría usando SOLO denuncias vecinales, que sí
+            // guardan esa distinción. Mismo patrón de botones/leyenda/
+            // horario que "Zonas calientes".
+            if (question.includes('Robo de motos y vehículos')) {
+              try {
+                if (typeof ZonaRiesgoLayer === 'undefined') {
+                  FloatingWindow.show(
+                    '⚠️ No disponible',
+                    '<p>Esta función necesita que la capa de zona de riesgo esté cargada.</p>'
+                  );
+                  return;
+                }
+
+                let capaActiva = null;
+                const limpiarCapaActiva = () => {
+                  if (capaActiva && map.hasLayer(capaActiva)) map.removeLayer(capaActiva);
+                  capaActiva = null;
+                };
+
+                const mostrarHeatmap = (resultado) => {
+                  limpiarCapaActiva();
+                  const datos = resultado ? resultado.datos : null;
+                  if (!datos || datos.length === 0) {
+                    return { ok: false, total: resultado ? resultado.total : 0, sinBarrioOficial: resultado ? resultado.sinBarrioOficial : true };
+                  }
+                  capaActiva = L.heatLayer(datos, {
+                    radius: 25,
+                    blur: 20,
+                    maxZoom: 17,
+                    gradient: { 0.0: '#1f77b4', 0.25: '#2ca02c', 0.5: '#ffdd57', 0.75: '#ff7f0e', 1.0: '#d62728' }
+                  });
+                  capaActiva.addTo(map);
+                  return { ok: true, total: resultado.total, sinBarrioOficial: resultado.sinBarrioOficial };
+                };
+
+                const LEYENDA_HEATMAP = `
+                  <div style="display:flex; align-items:center; gap:4px; margin-top:6px; font-size:11px; color:#666;">
+                    <span>Menor</span>
+                    <div style="flex:1; height:8px; border-radius:4px; background: linear-gradient(to right, #1f77b4, #2ca02c, #ffdd57, #ff7f0e, #d62728);"></div>
+                    <span>Mayor</span>
+                  </div>
+                `;
+
+                const formatearDesgloseHorario = (desglose) => {
+                  if (!desglose || desglose.total === 0) return '';
+                  const { horas, sinHora, total } = desglose;
+                  const maxHora = Math.max(...horas);
+                  const conHora = total - sinHora;
+                  if (conHora === 0) {
+                    return `<p style="margin:4px 0 0 0; font-size:11px; color:#888;">Ninguno de estos ${total} evento(s) tiene hora registrada.</p>`;
+                  }
+                  const top3 = horas
+                    .map((cantidad, hora) => ({ hora, cantidad }))
+                    .filter((h) => h.cantidad > 0)
+                    .sort((a, b) => b.cantidad - a.cantidad)
+                    .slice(0, 3);
+                  const listaTop3 = top3.map((h) => `
+                    <div style="display:flex; align-items:center; gap:6px; margin-top:3px;">
+                      <span style="font-size:11px; color:#333; width:48px;">${String(h.hora).padStart(2, '0')}:00 hs</span>
+                      <div style="flex:1; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+                        <div style="height:100%; width:${(h.cantidad / maxHora) * 100}%; background:#3b82f6;"></div>
+                      </div>
+                      <span style="font-size:11px; color:#555; width:20px; text-align:right;">${h.cantidad}</span>
+                    </div>
+                  `).join('');
+                  const notaSinHora = sinHora > 0
+                    ? `<p style="margin:6px 0 0 0; font-size:10px; color:#888;">(${sinHora} evento(s) sin hora registrada.)</p>`
+                    : '';
+                  return `
+                    <p style="margin:0 0 2px 0; font-size:11px; color:#333; font-weight:600;">⏰ Horarios con más eventos (de ${conHora} con hora registrada):</p>
+                    ${listaTop3}
+                    ${notaSinHora}
+                  `;
+                };
+
+                const resumen = ZonaRiesgoLayer.getResumenSubcategoriasVehiculos();
+                const tablaResumen = `
+                  <div style="display:flex; justify-content:space-between; font-size:12px; padding:2px 0;">
+                    <span>🏍️ Motos (solo denuncias vecinales)</span><span style="font-weight:600;">${resumen.porTipo.robo_moto}</span>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; font-size:12px; padding:2px 0;">
+                    <span>🚗 Autos (solo denuncias vecinales)</span><span style="font-weight:600;">${resumen.porTipo.robo_auto}</span>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; font-size:12px; padding:2px 0;">
+                    <span>🚲 Bicicletas (solo denuncias vecinales)</span><span style="font-weight:600;">${resumen.porTipo.robo_bicicleta}</span>
+                  </div>
+                  <p style="margin:6px 0 0 0; font-size:10px; color:#888;">
+                    El histórico oficial de robo automotor no distingue auto/moto/bici, por eso esta tabla es solo de denuncias cargadas por vecinos.
+                  </p>
+                `;
+
+                const botones = [
+                  { id: 'rmv-moto', label: '🏍️ Motos', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapRoboMoto()), descripcion: 'Mapa de calor de denuncias vecinales de robo de motos.', horario: () => ZonaRiesgoLayer.getDesgloseHorarioRoboMoto() },
+                  { id: 'rmv-auto', label: '🚗 Autos', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapRoboAuto()), descripcion: 'Mapa de calor de denuncias vecinales de robo de autos.', horario: () => ZonaRiesgoLayer.getDesgloseHorarioRoboAuto() },
+                  { id: 'rmv-bici', label: '🚲 Bicicletas', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapRoboBicicleta()), descripcion: 'Mapa de calor de denuncias vecinales de robo de bicicletas.', horario: () => ZonaRiesgoLayer.getDesgloseHorarioRoboBicicleta() },
+                  { id: 'rmv-todos', label: '🔥 Todos combinados (oficial + vecinal)', accion: () => mostrarHeatmap(ZonaRiesgoLayer.getHeatmapRoboAutomotor()), descripcion: 'Combina el histórico oficial (sin distinguir tipo) con todas las denuncias vecinales de vehículos.', horario: () => ZonaRiesgoLayer.getDesgloseHorarioRoboAutomotor() }
+                ];
+
+                const botonesHtml = botones.map((b) => `
+                  <button id="${b.id}" style="
+                    display: block; width: 100%; padding: 10px 12px; margin-bottom: 6px;
+                    border: 1px solid #ddd; border-radius: 6px; background: #fff;
+                    text-align: left; cursor: pointer; font-size: 13px; color: #333;
+                  ">${b.label}</button>
+                `).join('');
+
+                FloatingWindow.show(
+                  '🏍️ Robo de motos y vehículos',
+                  `<div>
+                    <div style="margin-bottom:12px; padding:8px 10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
+                      ${tablaResumen}
+                    </div>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 12px;">
+                      Elegí qué mostrar en el mapa. Se muestra una capa a la vez.
+                    </p>
+                    <div id="rmv-botones">${botonesHtml}</div>
+                    <div id="rmv-detalle" style="display:none; margin-top:10px; padding:10px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
+                      <p id="rmv-detalle-desc" style="margin:0 0 6px 0; font-size:12px; color:#333;"></p>
+                      <p id="rmv-detalle-total" style="margin:0; font-size:12px; color:#555; font-weight:600;"></p>
+                      <p id="rmv-detalle-barrio" style="display:none; margin:6px 0 0 0; font-size:11px; color:#b45309;"></p>
+                      <div id="rmv-detalle-leyenda">${LEYENDA_HEATMAP}</div>
+                      <div id="rmv-detalle-horario" style="margin-top:8px;"></div>
+                    </div>
+                    <p id="rmv-sin-datos" style="display:none; font-size: 12px; color: #dc2626; margin-top: 8px;">
+                      No hay denuncias suficientes para mostrar esta capa.
+                    </p>
+                  </div>`,
+                  {
+                    width: '340px',
+                    onClose: limpiarCapaActiva
+                  }
+                );
+
+                setTimeout(() => {
+                  botones.forEach((b) => {
+                    const btn = document.getElementById(b.id);
+                    if (!btn) return;
+                    btn.addEventListener('click', () => {
+                      botones.forEach((otro) => {
+                        const otroBtn = document.getElementById(otro.id);
+                        if (otroBtn) { otroBtn.style.background = '#fff'; otroBtn.style.borderColor = '#ddd'; }
+                      });
+                      btn.style.background = '#eff6ff';
+                      btn.style.borderColor = '#3b82f6';
+
+                      const resultado = b.accion();
+                      const huboDatos = resultado.ok;
+
+                      const avisoSinDatos = document.getElementById('rmv-sin-datos');
+                      if (avisoSinDatos) avisoSinDatos.style.display = huboDatos ? 'none' : 'block';
+
+                      const detalle = document.getElementById('rmv-detalle');
+                      const detalleDesc = document.getElementById('rmv-detalle-desc');
+                      const detalleTotal = document.getElementById('rmv-detalle-total');
+                      const detalleBarrio = document.getElementById('rmv-detalle-barrio');
+                      if (detalle) {
+                        detalle.style.display = 'block';
+                        if (detalleDesc) detalleDesc.textContent = b.descripcion || '';
+                        if (detalleTotal) {
+                          detalleTotal.textContent = huboDatos
+                            ? `${resultado.total} evento(s) analizados`
+                            : `${resultado.total} evento(s) encontrados (no alcanza para mostrar la capa)`;
+                        }
+                        if (detalleBarrio) {
+                          if (resultado.sinBarrioOficial) {
+                            detalleBarrio.style.display = 'block';
+                            detalleBarrio.textContent = '⚠️ No se encontró el barrio oficial del cliente: se están mostrando eventos de toda la zona disponible, sin recortar.';
+                          } else {
+                            detalleBarrio.style.display = 'none';
+                          }
+                        }
+                        const detalleHorario = document.getElementById('rmv-detalle-horario');
+                        if (detalleHorario) {
+                          detalleHorario.innerHTML = huboDatos ? formatearDesgloseHorario(b.horario()) : '';
+                        }
+                      }
+                    });
+                  });
+                }, 50);
+
+              } catch (error) {
+                console.error('❌ Error en Robo de motos y vehículos:', error);
+                FloatingWindow.show('⚠️ Error', `<p style="color: #dc2626;">${error.message}</p>`);
+              }
+              return;
+            }
+
             // 🆕 Alertas preventivas activas (2026-09): combina pánicos
             // activos de vecinos (dato existente, categoria === 'panico'
             // en clientes/{clienteId}/denuncias, alimentado por
@@ -3045,9 +3362,7 @@ auth.onAuthStateChanged((user) => {
             }
 
             const medidasPendientes = [
-              'Robo de motos y vehículos',
               'Cobertura de cámaras',
-              'Índice de riesgo por cuadra',
               '¿Qué está pasando en mi barrio?',
               'Armar un plan de prevención'
             ];

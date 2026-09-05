@@ -1061,8 +1061,14 @@ window.ZonaRiesgoLayer = (() => {
    * una grilla 8x8 fragmenta demasiado y casi todas las celdas quedan con
    * 0 o 1 evento, sin decir nada útil.
    */
-  function getZonasMasSeguras(cantidadCeldas) {
-    const N = Number.isFinite(cantidadCeldas) && cantidadCeldas > 0 ? cantidadCeldas : 10;
+  /**
+   * Arma la grilla sobre el rectángulo que envuelve los eventos YA
+   * filtrados al barrio oficial, con celdas={latMin,latMax,lngMin,lngMax,
+   * peso,eventos}. Devuelve SOLO las celdas con al menos un evento, sin
+   * ordenar ni recortar a N — eso lo decide cada función que la consume
+   * (getZonasMasSeguras ordena ascendente, getZonasCalientes descendente).
+   */
+  function construirGrillaEventos() {
     const puntos = getTodosLosPuntosPonderables();
     const sinBarrioOficial = !barrioOficialFeature;
     if (puntos.length < 2) return { celdas: [], total: puntos.length, sinBarrioOficial };
@@ -1102,12 +1108,86 @@ window.ZonaRiesgoLayer = (() => {
       }
     });
 
-    const topCeldas = celdas
-      .filter((c) => c.eventos > 0)
-      .sort((a, b) => a.peso - b.peso)
-      .slice(0, N);
+    return { celdas: celdas.filter((c) => c.eventos > 0), total: puntos.length, sinBarrioOficial };
+  }
 
-    return { celdas: topCeldas, total: puntos.length, sinBarrioOficial };
+  function getZonasMasSeguras(cantidadCeldas) {
+    const N = Number.isFinite(cantidadCeldas) && cantidadCeldas > 0 ? cantidadCeldas : 10;
+    const { celdas, total, sinBarrioOficial } = construirGrillaEventos();
+    const topCeldas = celdas.slice().sort((a, b) => a.peso - b.peso).slice(0, N);
+    return { celdas: topCeldas, total, sinBarrioOficial };
+  }
+
+  /**
+   * 🆕 "Índice de riesgo por cuadra" (2026-09): misma grilla que
+   * getZonasMasSeguras, pero devuelve las celdas de MAYOR peso combinado
+   * (zonas calientes). Es el insumo que se cruza en app.js con las
+   * observaciones de FactoresRiesgoLayer (iluminación/cámaras) para armar
+   * el ranking de intervención prioritaria.
+   */
+  function getZonasCalientes(cantidadCeldas) {
+    const N = Number.isFinite(cantidadCeldas) && cantidadCeldas > 0 ? cantidadCeldas : 10;
+    const { celdas, total, sinBarrioOficial } = construirGrillaEventos();
+    const topCeldas = celdas.slice().sort((a, b) => b.peso - a.peso).slice(0, N);
+    return { celdas: topCeldas, total, sinBarrioOficial };
+  }
+
+  function puntosPorSubcategoriaVehiculo(subcategoria) {
+    const vecinos = fuentes.denuncias_amplias.filter(
+      (p) => p.categoria === 'vehiculos' && p.subcategoria === subcategoria
+    );
+    return filtrarPorBarrioOficial(vecinos);
+  }
+
+  /**
+   * 🆕 Heatmaps por tipo de vehículo (2026-09, "Robo de motos y
+   * vehículos"): SOLO denuncias vecinales, porque el histórico oficial de
+   * robo automotor no distingue auto/moto/bici (ver nota en
+   * PESOS_CATEGORIA más arriba, "el botón 'Robo automotor' no se separa
+   * por subcategoría"). Complementa a getHeatmapRoboAutomotor, que sí
+   * combina oficial+vecino pero sin poder abrir por tipo.
+   */
+  function getHeatmapRoboMoto() {
+    const puntos = puntosPorSubcategoriaVehiculo('robo_moto');
+    return { datos: aFormatoHeat(puntos, true), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
+  }
+
+  function getHeatmapRoboAuto() {
+    const puntos = puntosPorSubcategoriaVehiculo('robo_auto');
+    return { datos: aFormatoHeat(puntos, true), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
+  }
+
+  function getHeatmapRoboBicicleta() {
+    const puntos = puntosPorSubcategoriaVehiculo('robo_bicicleta');
+    return { datos: aFormatoHeat(puntos, true), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
+  }
+
+  function getDesgloseHorarioRoboMoto() {
+    return getDesgloseHorario(puntosPorSubcategoriaVehiculo('robo_moto'));
+  }
+
+  function getDesgloseHorarioRoboAuto() {
+    return getDesgloseHorario(puntosPorSubcategoriaVehiculo('robo_auto'));
+  }
+
+  function getDesgloseHorarioRoboBicicleta() {
+    return getDesgloseHorario(puntosPorSubcategoriaVehiculo('robo_bicicleta'));
+  }
+
+  /**
+   * 🆕 Resumen por tipo (2026-09): cuántas denuncias vecinales hay de cada
+   * subcategoría de 'vehiculos', recortado al barrio oficial. Para la
+   * tabla resumen del botón "Robo de motos y vehículos" en app.js.
+   */
+  function getResumenSubcategoriasVehiculos() {
+    const vecinos = filtrarPorBarrioOficial(
+      fuentes.denuncias_amplias.filter((p) => p.categoria === 'vehiculos')
+    );
+    const porTipo = { robo_auto: 0, robo_moto: 0, robo_bicicleta: 0 };
+    vecinos.forEach((p) => {
+      if (porTipo[p.subcategoria] !== undefined) porTipo[p.subcategoria]++;
+    });
+    return { porTipo, total: vecinos.length, sinBarrioOficial: !barrioOficialFeature };
   }
 
   function getMetadata() {
@@ -1140,10 +1220,18 @@ window.ZonaRiesgoLayer = (() => {
     getDesgloseHorarioSiniestrosViales,
     getDesgloseHorarioCombinado,
     getFactoresRiesgoVecinos,
+    getHeatmapRoboMoto,
+    getHeatmapRoboAuto,
+    getHeatmapRoboBicicleta,
+    getDesgloseHorarioRoboMoto,
+    getDesgloseHorarioRoboAuto,
+    getDesgloseHorarioRoboBicicleta,
+    getResumenSubcategoriasVehiculos,
     // 🆕 Reutilizable por otros módulos (ej. factores-riesgo-layer.js) para
     // no duplicar la lógica de "está adentro del barrio oficial o no".
     filtrarPorBarrioOficialExterno: (puntos) => filtrarPorBarrioOficial(puntos),
     getZonasMasSeguras,
+    getZonasCalientes,
     getMetadata,
     isVisible: () => isVisible,
     mostrarPopupRiesgo
