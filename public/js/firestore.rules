@@ -118,9 +118,28 @@ service cloud.firestore {
       // "allow read, write: if false" del final del archivo, por eso
       // tiraba "Missing or insufficient permissions" al leerla desde
       // denuncias-historico-layer.js.
+      // 🐛 Fix (2026-09): esta regla solo dejaba pasar a staff, por eso
+      // "Ver mapa de mi ciudad" desde la app de vecino dejó de mostrar los
+      // pines de denuncias (con foto) apenas empezamos a exigir una
+      // sesión real de Firebase Auth — antes "funcionaba" solo porque no
+      // había ninguna verificación real. La colección /denuncias en vivo
+      // YA es visible para cualquier vecino del mismo cliente (ver
+      // match /denuncias/{denunciaId} más abajo), así que agregar
+      // isVecinoDeCliente acá no expone nada nuevo, solo empareja el
+      // mismo nivel de acceso para el histórico permanente.
       match /denuncias_historico/{docId} {
-        allow read: if isStaffDeCliente(clienteId);
+        allow read: if isStaffDeCliente(clienteId) || isVecinoDeCliente(clienteId);
         allow write: if isClienteAdmin(clienteId);
+      }
+
+      // 🆕 Factores de riesgo (2026-09): observaciones de campo del admin
+      // (iluminación, cámaras visibles, visibilidad). Mismo criterio que
+      // el resto de las subcolecciones de datos: staff lee y escribe.
+      match /factores_riesgo_admin/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow create: if isStaffDeCliente(clienteId);
+        allow update: if isStaffDeCliente(clienteId);
+        allow delete: if isStaffDeCliente(clienteId);
       }
 
       // Patrullas: el admin las gestiona; cada patrulla actualiza su propia
