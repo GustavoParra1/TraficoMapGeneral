@@ -2739,6 +2739,58 @@ auth.onAuthStateChanged((user) => {
                       <div style="display:flex; justify-content:space-between; font-size:12px;">
                         <span>Puntos con algún problema</span><span style="font-weight:600;">${admin.conProblemas}</span>
                       </div>
+
+                      <details style="margin-top:8px;">
+                        <summary style="font-size:11px; color:#4f46e5; cursor:pointer;">❓ ¿Qué significa esto?</summary>
+                        <div style="margin-top:8px; padding:8px 10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;">
+                          <p style="margin:0 0 6px 0; font-size:11px; color:#333;">
+                            Cada vez que el municipio carga una observación, completa 3 datos del punto: iluminación, si hay cámaras visibles, y si la visibilidad tiene obstrucciones. Con eso se calcula un <strong>puntaje de 0 a 4</strong>:
+                          </p>
+                          <table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:8px;">
+                            <thead>
+                              <tr style="border-bottom:1px solid #e2e8f0;">
+                                <th style="text-align:left; padding:3px 4px; color:#555;">Factor</th>
+                                <th style="text-align:right; padding:3px 4px; color:#555;">Puntos</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:3px 4px;">💡 Iluminación mala</td>
+                                <td style="text-align:right; padding:3px 4px; font-weight:600;">+2</td>
+                              </tr>
+                              <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:3px 4px;">💡 Iluminación regular</td>
+                                <td style="text-align:right; padding:3px 4px; font-weight:600;">+1</td>
+                              </tr>
+                              <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:3px 4px;">📷 Sin cámaras visibles</td>
+                                <td style="text-align:right; padding:3px 4px; font-weight:600;">+1</td>
+                              </tr>
+                              <tr>
+                                <td style="padding:3px 4px;">👁️ Visibilidad con obstrucciones</td>
+                                <td style="text-align:right; padding:3px 4px; font-weight:600;">+1</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          <p style="margin:0 0 6px 0; font-size:11px; color:#333;"><strong>El puntaje total de cada punto se interpreta así:</strong></p>
+                          <div style="display:flex; align-items:center; gap:6px; font-size:11px; margin-bottom:3px;">
+                            <span style="width:10px; height:10px; border-radius:50%; background:#22c55e; display:inline-block;"></span>
+                            <span>0-1: riesgo bajo</span>
+                          </div>
+                          <div style="display:flex; align-items:center; gap:6px; font-size:11px; margin-bottom:3px;">
+                            <span style="width:10px; height:10px; border-radius:50%; background:#f59e0b; display:inline-block;"></span>
+                            <span>2-3: riesgo medio</span>
+                          </div>
+                          <div style="display:flex; align-items:center; gap:6px; font-size:11px; margin-bottom:6px;">
+                            <span style="width:10px; height:10px; border-radius:50%; background:#dc2626; display:inline-block;"></span>
+                            <span>4: riesgo alto</span>
+                          </div>
+                          <p style="margin:0; font-size:11px; color:#333;">
+                            El <strong>promedio</strong> de arriba es el promedio de esos puntajes entre todas las observaciones cargadas en tu barrio. "Puntos con algún problema" cuenta cuántas observaciones tienen puntaje 1 o más (o sea, ninguna está "limpia").
+                          </p>
+                        </div>
+                      </details>
+
                       ${avisoBarrio}
                     </div>
                     <button id="fr-cargar-btn" style="margin-top:14px; width:100%; padding:10px; background:#4f46e5; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px;">
