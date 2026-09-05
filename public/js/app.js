@@ -2910,11 +2910,18 @@ auth.onAuthStateChanged((user) => {
                         guardarBtn.disabled = true;
                         guardarBtn.textContent = 'Guardando...';
                         try {
+                          // 🐛 Fix (2026-09): new Date('2026-09-05') se
+                          // interpreta como medianoche UTC, que en UTC-3
+                          // cae a las 21:00 del día ANTERIOR — el aviso
+                          // nacía vencido y el filtro de
+                          // AlertasPreventivasLayer lo descartaba de
+                          // inmediato. Agregamos T23:59:59 para que se
+                          // interprete como fin de ese día en hora local.
                           const vigenciaValor = document.getElementById('ap-vigencia').value;
                           await AlertasPreventivasLayer.guardarAviso(lat, lng, {
                             categoria: document.getElementById('ap-categoria').value,
                             descripcion: document.getElementById('ap-descripcion').value,
-                            vigenciaHasta: vigenciaValor ? new Date(vigenciaValor) : null
+                            vigenciaHasta: vigenciaValor ? new Date(vigenciaValor + 'T23:59:59') : null
                           });
                           FloatingWindow.show('✅ Guardado', '<p>El aviso se guardó correctamente.</p>');
                         } catch (error) {
