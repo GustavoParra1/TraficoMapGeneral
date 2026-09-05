@@ -92,7 +92,14 @@ window.ZonaRiesgoLayer = (() => {
     robos_oficial: [],
     siniestros_vecino: [],
     robos_vecino: [],
-    denuncias_amplias: []
+    denuncias_amplias: [],
+    // 🆕 Factores de riesgo (2026-09): denuncias de categoría
+    // 'infraestructura' que antes se descartaban por completo. Se usan
+    // para la pregunta "Factores de riesgo (luminarias, cámaras,
+    // visibilidad)" — el tipo 'luminarias' es el que más se relaciona con
+    // esa pregunta, pero guardamos todos los tipos para tener el dato
+    // completo disponible.
+    infraestructura: []
   };
 
   function init(leafletMap) {
@@ -311,6 +318,9 @@ window.ZonaRiesgoLayer = (() => {
     // de TODA denuncia con coordenadas, salvo 'infraestructura' (reservada
     // para la pregunta de "Factores de riesgo", no es sobre delitos).
     const denunciasAmplias = [];
+    // 🆕 Factores de riesgo (2026-09): denuncias de infraestructura
+    // (luminarias, semáforos, baches, pozo, carril bloqueado, otro).
+    const infraestructuraVecinos = [];
 
     (denuncias || []).forEach((d) => {
       if (typeof d.lat !== 'number' || typeof d.lng !== 'number') return;
@@ -331,12 +341,26 @@ window.ZonaRiesgoLayer = (() => {
           fecha,
           horaValida: tieneHoraReal(d)
         });
+      } else if (d.categoria === 'infraestructura') {
+        // 🆕 Factores de riesgo: antes esta rama no existía y estos datos
+        // se perdían. tipo_especifico es el nombre que usa el formulario
+        // de la app de vecinos; subcategoria es el nombre que usan el
+        // resto de las categorías en este mismo módulo — soportamos los
+        // dos por si el documento vino de un lado o del otro.
+        infraestructuraVecinos.push({
+          lat: d.lat,
+          lng: d.lng,
+          tipo: d.tipo_especifico || d.subcategoria || 'otro',
+          fecha,
+          nota: d.descripcion || d.nota || null
+        });
       }
     });
 
     fuentes.siniestros_vecino = siniestrosVecino;
     fuentes.robos_vecino = robosVecino;
     fuentes.denuncias_amplias = denunciasAmplias;
+    fuentes.infraestructura = infraestructuraVecinos;
     render();
   }
 
@@ -1015,6 +1039,21 @@ window.ZonaRiesgoLayer = (() => {
   }
 
   /**
+   * 🆕 Factores de riesgo (2026-09): denuncias de infraestructura de
+   * vecinos, agrupadas por tipo y recortadas al barrio oficial (mismo
+   * filtrarPorBarrioOficial que usa todo lo demás en este módulo).
+   */
+  function getFactoresRiesgoVecinos() {
+    const puntos = filtrarPorBarrioOficial(fuentes.infraestructura);
+    const porTipo = {};
+    puntos.forEach((p) => {
+      const tipo = p.tipo || 'otro';
+      porTipo[tipo] = (porTipo[tipo] || 0) + 1;
+    });
+    return { puntos, porTipo, total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
+  }
+
+  /**
    * Zonas más seguras: grilla sobre el rectángulo que envuelve los eventos
    * YA filtrados al barrio oficial (o, si no hay barrio oficial cargado,
    * sobre todo lo que haya, con el aviso correspondiente en la UI). El
@@ -1100,6 +1139,10 @@ window.ZonaRiesgoLayer = (() => {
     getDesgloseHorarioPersonas,
     getDesgloseHorarioSiniestrosViales,
     getDesgloseHorarioCombinado,
+    getFactoresRiesgoVecinos,
+    // 🆕 Reutilizable por otros módulos (ej. factores-riesgo-layer.js) para
+    // no duplicar la lógica de "está adentro del barrio oficial o no".
+    filtrarPorBarrioOficialExterno: (puntos) => filtrarPorBarrioOficial(puntos),
     getZonasMasSeguras,
     getMetadata,
     isVisible: () => isVisible,
