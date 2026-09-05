@@ -66,6 +66,7 @@ function iniciarMapa() {
   ['HeatmapLayer', () => heatmapLayer.init()],
   ['ZonaRiesgoLayer', () => typeof ZonaRiesgoLayer !== 'undefined' && ZonaRiesgoLayer.init(map)],
   ['FactoresRiesgoLayer', () => typeof FactoresRiesgoLayer !== 'undefined' && FactoresRiesgoLayer.init(map)],
+  ['AlertasPreventivasLayer', () => typeof AlertasPreventivasLayer !== 'undefined' && AlertasPreventivasLayer.init(map)],
   ['AforosLayer', () => typeof AforosLayer !== 'undefined' && AforosLayer.init(map)],
   ['RoboLayer', () => typeof RoboLayer !== 'undefined' && RoboLayer.init(map)],
   ['SiniestrosHistoricoLayer', () => typeof SiniestrosHistoricoLayer !== 'undefined' && SiniestrosHistoricoLayer.init(map)],
@@ -2804,6 +2805,139 @@ auth.onAuthStateChanged((user) => {
               return;
             }
 
+            // 🆕 Alertas preventivas activas (2026-09): combina pánicos
+            // activos de vecinos (dato existente, categoria === 'panico'
+            // en clientes/{clienteId}/denuncias, alimentado por
+            // AlertasPreventivasLayer.setPanicosVecinos — ver nota aparte
+            // sobre dónde se llama) con avisos preventivos que carga el
+            // municipio a mano (dato nuevo, colección
+            // avisos_preventivos_admin, mismo patrón que
+            // factores_riesgo_admin).
+            if (question.includes('Alertas preventivas')) {
+              try {
+                if (typeof AlertasPreventivasLayer === 'undefined') {
+                  FloatingWindow.show('⚠️ Error', '<p>AlertasPreventivasLayer no está cargado.</p>');
+                  return;
+                }
+
+                const ETIQUETAS_CATEGORIA = {
+                  corte_calle: '🚧 Corte de calle',
+                  operativo: '👮 Operativo de seguridad',
+                  clima: '🌩️ Alerta climática',
+                  otro: '❓ Otro'
+                };
+
+                const renderPanel = () => {
+                  const resumen = AlertasPreventivasLayer.getResumen();
+                  const { panicosActivos, avisosAdmin } = resumen;
+
+                  const filasAvisos = Object.entries(avisosAdmin.porCategoria || {})
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([categoria, cantidad]) => `
+                      <div style="display:flex; justify-content:space-between; font-size:12px; padding:3px 0;">
+                        <span>${ETIQUETAS_CATEGORIA[categoria] || `❓ ${categoria}`}</span>
+                        <span style="font-weight:600;">${cantidad}</span>
+                      </div>
+                    `).join('') || '<p style="font-size:12px; color:#888;">Sin avisos preventivos cargados todavía.</p>';
+
+                  return `
+                    <div style="margin-bottom:14px;">
+                      <strong style="font-size:13px; color:#1a1a1a;">🚨 Pánicos activos de vecinos</strong>
+                      <p style="font-size:11px; color:#888; margin:2px 0 6px 0;">Alertas de emergencia disparadas desde la app vecinal, todavía sin cerrar.</p>
+                      <div style="display:flex; justify-content:space-between; font-size:12px;">
+                        <span>Activos ahora</span><span style="font-weight:600;">${panicosActivos}</span>
+                      </div>
+                    </div>
+                    <div style="border-top:1px solid #eee; padding-top:12px;">
+                      <strong style="font-size:13px; color:#1a1a1a;">📢 Avisos del municipio</strong>
+                      <p style="font-size:11px; color:#888; margin:2px 0 6px 0;">Cortes, operativos y alertas cargadas a mano en el mapa.</p>
+                      ${filasAvisos}
+                    </div>
+                    <button id="ap-cargar-btn" style="margin-top:14px; width:100%; padding:10px; background:#4f46e5; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px;">
+                      ➕ Cargar aviso preventivo en el mapa
+                    </button>
+                    <p id="ap-cargar-hint" style="display:none; margin-top:8px; font-size:11px; color:#4f46e5; text-align:center;">
+                      👆 Hacé click en cualquier punto del mapa para marcar el aviso.
+                    </p>
+                  `;
+                };
+
+                AlertasPreventivasLayer.mostrarMarcadores();
+
+                const win = FloatingWindow.show('⚠️ Alertas preventivas activas', renderPanel(), {
+                  width: '360px',
+                  onClose: () => {
+                    AlertasPreventivasLayer.cancelarCargaAviso();
+                    AlertasPreventivasLayer.ocultarMarcadores();
+                  }
+                });
+
+                const cargarBtn = document.getElementById('ap-cargar-btn');
+                const cargarHint = document.getElementById('ap-cargar-hint');
+                if (cargarBtn) {
+                  cargarBtn.addEventListener('click', () => {
+                    if (AlertasPreventivasLayer.isEnModoCarga()) return;
+                    cargarHint.style.display = 'block';
+                    cargarBtn.disabled = true;
+                    cargarBtn.style.opacity = '0.6';
+
+                    AlertasPreventivasLayer.iniciarCargaAviso((lat, lng) => {
+                      cargarHint.style.display = 'none';
+                      cargarBtn.disabled = false;
+                      cargarBtn.style.opacity = '1';
+
+                      const formHtml = `
+                        <label style="display:block; font-size:12px; margin-bottom:4px; font-weight:600;">Categoría</label>
+                        <select id="ap-categoria" style="width:100%; padding:6px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;">
+                          <option value="corte_calle">Corte de calle</option>
+                          <option value="operativo">Operativo de seguridad</option>
+                          <option value="clima">Alerta climática</option>
+                          <option value="otro">Otro</option>
+                        </select>
+                        <label style="display:block; font-size:12px; margin-bottom:4px; font-weight:600;">Descripción</label>
+                        <textarea id="ap-descripcion" rows="2" style="width:100%; padding:6px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px; font-family:inherit;"></textarea>
+                        <label style="display:block; font-size:12px; margin-bottom:4px; font-weight:600;">Vigente hasta (opcional)</label>
+                        <input id="ap-vigencia" type="date" style="width:100%; padding:6px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;" />
+                        <button id="ap-guardar-btn" style="width:100%; padding:10px; background:#16a34a; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px;">
+                          Guardar aviso
+                        </button>
+                        <p id="ap-guardar-error" style="display:none; color:#dc2626; font-size:11px; margin-top:6px;"></p>
+                      `;
+                      FloatingWindow.show('📍 Nuevo aviso preventivo', formHtml, { width: '300px' });
+
+                      const guardarBtn = document.getElementById('ap-guardar-btn');
+                      guardarBtn.addEventListener('click', async () => {
+                        guardarBtn.disabled = true;
+                        guardarBtn.textContent = 'Guardando...';
+                        try {
+                          const vigenciaValor = document.getElementById('ap-vigencia').value;
+                          await AlertasPreventivasLayer.guardarAviso(lat, lng, {
+                            categoria: document.getElementById('ap-categoria').value,
+                            descripcion: document.getElementById('ap-descripcion').value,
+                            vigenciaHasta: vigenciaValor ? new Date(vigenciaValor) : null
+                          });
+                          FloatingWindow.show('✅ Guardado', '<p>El aviso se guardó correctamente.</p>');
+                        } catch (error) {
+                          console.error('❌ Error guardando aviso:', error);
+                          const errEl = document.getElementById('ap-guardar-error');
+                          if (errEl) {
+                            errEl.textContent = error.message;
+                            errEl.style.display = 'block';
+                          }
+                          guardarBtn.disabled = false;
+                          guardarBtn.textContent = 'Guardar aviso';
+                        }
+                      });
+                    });
+                  });
+                }
+              } catch (error) {
+                console.error('❌ Error en Alertas preventivas activas:', error);
+                FloatingWindow.show('⚠️ Error', `<p style="color: #dc2626;">${error.message}</p>`);
+              }
+              return;
+            }
+
             // 🆕 Vecinos conectados cerca mío (2026-09): usa el campo real
             // 'ubicacion_actualizada_en' que ya escribe vecino-app.js cada
             // ~30s mientras el vecino tiene la app abierta con GPS activo
@@ -2904,7 +3038,6 @@ auth.onAuthStateChanged((user) => {
             }
 
             const medidasPendientes = [
-              'Alertas preventivas activas',
               'Robo de motos y vehículos',
               'Cobertura de cámaras',
               'Índice de riesgo por cuadra',

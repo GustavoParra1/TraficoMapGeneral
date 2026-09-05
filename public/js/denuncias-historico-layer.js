@@ -139,6 +139,14 @@ window.DenunciasHistoricoLayer = (() => {
             if (typeof ZonaRiesgoLayer !== 'undefined') {
               ZonaRiesgoLayer.setDenunciasVecinos(denunciasData);
             }
+            // 🆕 Alertas preventivas activas (2026-09): misma fuente cruda
+            // (denunciasData), AlertasPreventivasLayer filtra internamente
+            // los pánicos activos (categoria === 'panico' && estado !==
+            // 'cerrada'). Se llama en cada actualización del snapshot, así
+            // el panel de pánicos activos queda al día solo.
+            if (typeof AlertasPreventivasLayer !== 'undefined') {
+              AlertasPreventivasLayer.setPanicosVecinos(denunciasData);
+            }
           },
           (error) => {
             console.error('❌ Error escuchando denuncias históricas:', error);

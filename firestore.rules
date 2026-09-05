@@ -142,6 +142,19 @@ service cloud.firestore {
         allow delete: if isStaffDeCliente(clienteId);
       }
 
+      // 🆕 Alertas preventivas activas (2026-09): avisos preventivos que
+      // carga el municipio a mano (corte de calle, operativo, alerta
+      // climática). Mismo criterio que factores_riesgo_admin: staff lee y
+      // escribe. Los pánicos de vecinos (la otra fuente que combina esta
+      // feature) ya están cubiertos por la regla /denuncias de más abajo,
+      // no necesitan una regla nueva.
+      match /avisos_preventivos_admin/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow create: if isStaffDeCliente(clienteId);
+        allow update: if isStaffDeCliente(clienteId);
+        allow delete: if isStaffDeCliente(clienteId);
+      }
+
       // Patrullas: el admin las gestiona; cada patrulla actualiza su propia
       // ubicación en vivo (map.html).
       match /patrullas/{patrullaId} {
