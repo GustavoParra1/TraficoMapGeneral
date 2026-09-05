@@ -3921,38 +3921,53 @@ auth.onAuthStateChanged((user) => {
                     <button id="pp-copiar-btn" style="margin-top:14px; width:100%; padding:10px; background:#4f46e5; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px;">
                       📋 Copiar plan como texto
                     </button>
+                    <a id="pp-whatsapp-btn" href="#" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; margin-top:8px; width:100%; padding:10px; background:#25D366; color:white; border-radius:6px; font-weight:500; font-size:12px; box-sizing:border-box;">
+                      💬 Compartir por WhatsApp
+                    </a>
                     <p id="pp-copiado-msg" style="display:none; margin-top:6px; font-size:11px; color:#16a34a; text-align:center;">✅ Copiado — pegalo en WhatsApp o donde quieras compartirlo.</p>
                   </div>`,
                   { width: '380px' }
                 );
 
-                setTimeout(() => {
-                  const btn = document.getElementById('pp-copiar-btn');
-                  if (!btn) return;
-                  btn.addEventListener('click', () => {
-                    const textoPlano = [
-                      `📋 PLAN DE PREVENCIÓN — ${nombreBarrio}`,
-                      '',
-                      `🔍 DIAGNÓSTICO`,
-                      `El problema más frecuente es ${categoriaTop.label} (${categoriaTop.total} de ${totalGeneral} eventos registrados), con más casos alrededor de las ${horaTexto}.`,
-                      zonaTop ? `La cuadra con más casos tuvo ${zonaTop.eventos} evento(s)${zonaTopSinCobertura ? ', sin ninguna cámara a menos de 100m' : ''}.` : '',
-                      '',
-                      `💡 QUÉ PUEDEN ORGANIZAR LOS VECINOS`,
-                      ...accionesVecinales.map((a, i) => `${i + 1}. ${a}`),
-                      '',
-                      `📢 QUÉ RECLAMAR AL MUNICIPIO`,
-                      ...reclamosMunicipio.map((a, i) => `${i + 1}. ${a}`),
-                      '',
-                      'Generado con datos reales del barrio desde TraficoMap.'
-                    ].filter((l) => l !== '').join('\n');
+                // Texto plano compartido por los botones de copiar y WhatsApp
+                const textoPlano = [
+                  `📋 PLAN DE PREVENCIÓN — ${nombreBarrio}`,
+                  '',
+                  `🔍 DIAGNÓSTICO`,
+                  `El problema más frecuente es ${categoriaTop.label} (${categoriaTop.total} de ${totalGeneral} eventos registrados), con más casos alrededor de las ${horaTexto}.`,
+                  zonaTop ? `La cuadra con más casos tuvo ${zonaTop.eventos} evento(s)${zonaTopSinCobertura ? ', sin ninguna cámara a menos de 100m' : ''}.` : '',
+                  '',
+                  `💡 QUÉ PUEDEN ORGANIZAR LOS VECINOS`,
+                  ...accionesVecinales.map((a, i) => `${i + 1}. ${a}`),
+                  '',
+                  `📢 QUÉ RECLAMAR AL MUNICIPIO`,
+                  ...reclamosMunicipio.map((a, i) => `${i + 1}. ${a}`),
+                  '',
+                  'Generado con datos reales del barrio desde TraficoMap.'
+                ].filter((l) => l !== '').join('\n');
 
-                    navigator.clipboard.writeText(textoPlano).then(() => {
-                      const msg = document.getElementById('pp-copiado-msg');
-                      if (msg) msg.style.display = 'block';
-                    }).catch((err) => {
-                      console.error('❌ Error copiando plan al portapapeles:', err);
+                setTimeout(() => {
+                  const btnCopiar = document.getElementById('pp-copiar-btn');
+                  if (btnCopiar) {
+                    btnCopiar.addEventListener('click', () => {
+                      navigator.clipboard.writeText(textoPlano).then(() => {
+                        const msg = document.getElementById('pp-copiado-msg');
+                        if (msg) msg.style.display = 'block';
+                      }).catch((err) => {
+                        console.error('❌ Error copiando plan al portapapeles:', err);
+                      });
                     });
-                  });
+                  }
+
+                  // wa.me abre WhatsApp con el texto ya cargado; el vecino
+                  // elige a quién mandárselo (persona o grupo) — no es un
+                  // broadcast automático a todos, eso requiere WhatsApp
+                  // Business API (backend aparte, no algo que se resuelva
+                  // desde acá).
+                  const btnWhatsapp = document.getElementById('pp-whatsapp-btn');
+                  if (btnWhatsapp) {
+                    btnWhatsapp.href = `https://wa.me/?text=${encodeURIComponent(textoPlano)}`;
+                  }
                 }, 50);
 
               } catch (error) {
