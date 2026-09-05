@@ -145,10 +145,35 @@ class ClientAuth {
   // llamaba, por eso el mapa del cliente quedaba "logueado" para el JS
   // (según sessionStorage) pero anónimo para Firestore, y todo fallaba con
   // "Missing or insufficient permissions".
+  /**
+   * 🐛 Fix (2026-09): antes chequeábamos firebase.auth().currentUser de
+   * forma sincrónica, apenas cargaba la página. El problema: Firebase
+   * Auth restaura una sesión persistida (ej. la de un VECINO que ya
+   * estaba logueado en vecino-app.js) de forma ASÍNCRONA — el chequeo
+   * sincrónico casi siempre llegaba antes de que esa restauración
+   * terminara, veía `null`, y asumía "no hay sesión" aunque sí la había.
+   * Eso rompía "Ver mapa de mi ciudad" para vecinos: nunca se detectaba
+   * su sesión real, y como un vecino no tiene usuario/contraseña de admin
+   * guardados, todas las lecturas de Firestore fallaban con
+   * "Missing or insufficient permissions".
+   * Ahora esperamos explícitamente a que Firebase resuelva el estado
+   * inicial (primer disparo de onAuthStateChanged) antes de decidir si
+   * hay o no una sesión activa.
+   */
+  esperarEstadoAuthInicial() {
+    return new Promise((resolve) => {
+      const unsub = firebase.auth().onAuthStateChanged((user) => {
+        unsub();
+        resolve(user);
+      });
+    });
+  }
+
   async ensureFirebaseSession() {
-    if (firebase.auth().currentUser) {
-      console.log('✅ Ya hay sesión de Firebase Auth activa:', firebase.auth().currentUser.email);
-      return firebase.auth().currentUser;
+    const usuarioActual = await this.esperarEstadoAuthInicial();
+    if (usuarioActual) {
+      console.log('✅ Ya hay sesión de Firebase Auth activa:', usuarioActual.email);
+      return usuarioActual;
     }
 
     const email = sessionStorage.getItem('email_acceso')
