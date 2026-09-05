@@ -3190,21 +3190,30 @@ auth.onAuthStateChanged((user) => {
 
                 const grupo = L.layerGroup();
 
-                // Cámaras existentes en el barrio (puntos de referencia)
+                // Cobertura REAL de cada cámara: círculo de 100m (mismo
+                // criterio que usa el resto del mapa), no un rectángulo de
+                // la grilla — así se ve el alcance real, no una aproximación.
                 camarasEnBarrio.forEach((cam) => {
+                  L.circle([cam.lat, cam.lng], {
+                    radius: RADIO_COBERTURA_M,
+                    color: '#0ea5e9', weight: 1, fillColor: '#0ea5e9', fillOpacity: 0.12
+                  }).addTo(grupo);
                   L.circleMarker([cam.lat, cam.lng], {
                     radius: 5, color: '#0ea5e9', weight: 1, fillColor: '#0ea5e9', fillOpacity: 0.9
                   }).bindTooltip('📹 Cámara').addTo(grupo);
                 });
 
-                // Celdas calientes: rojo = sin cobertura, azul = con cobertura
+                // Celdas calientes: el rectángulo es la zona con más
+                // delitos (grilla de ZonaRiesgoLayer, no el alcance de una
+                // cámara) — rojo = ninguna cámara a menos de 100m de su
+                // centro, azul = sí hay alguna cerca.
                 filas.forEach((f) => {
                   const c = f.celda;
                   const color = f.sinCobertura ? '#dc2626' : '#3b82f6';
                   const etiquetaDistancia = Number.isFinite(f.distanciaMin) ? `${Math.round(f.distanciaMin)}m a la cámara más cercana` : 'sin cámaras en el barrio';
                   L.rectangle(
                     [[c.latMin, c.lngMin], [c.latMax, c.lngMax]],
-                    { color, weight: 2, fillColor: color, fillOpacity: 0.2 }
+                    { color, weight: 2, fillColor: 'transparent', fillOpacity: 0 }
                   ).bindTooltip(`${c.eventos} evento(s) · ${etiquetaDistancia}`).addTo(grupo);
                 });
 
@@ -3239,7 +3248,7 @@ auth.onAuthStateChanged((user) => {
                   '📹 Cobertura de cámaras',
                   `<div>
                     <p style="font-size:12px; color:#666; margin-bottom:6px;">
-                      ${camarasEnBarrio.length} cámara(s) (públicas + privadas) detectadas en el barrio. Se marcan en el mapa las cuadras con más delitos que NO tienen ninguna a menos de ${RADIO_COBERTURA_M}m (rojo) vs. las que sí (azul).
+                      ${camarasEnBarrio.length} cámara(s) (públicas + privadas) detectadas en el barrio. Los <strong>círculos celestes</strong> son la cobertura real de cada cámara (${RADIO_COBERTURA_M}m). Los <strong>rectángulos</strong> marcan las cuadras con más delitos: rojo = ninguna cámara cerca, azul = sí la hay.
                     </p>
                     ${filasHtml}
                     ${sinDatosHtml}
