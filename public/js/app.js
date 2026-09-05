@@ -3122,6 +3122,141 @@ auth.onAuthStateChanged((user) => {
               return;
             }
 
+            // 🆕 Cobertura de cámaras (2026-09): cruza la grilla de zonas
+            // calientes de ZonaRiesgoLayer (robos + siniestros ya
+            // ponderados) con la posición real de las cámaras (públicas +
+            // privadas, vía CamerasLayer/PrivateCamerasLayer.getAll()) para
+            // detectar qué cuadras peligrosas NO tienen ninguna cámara
+            // cerca. RADIO_COBERTURA_M = 100m, mismo radio de cobertura
+            // por cámara que se usa en el resto del mapa.
+            if (question.includes('Cobertura de cámaras')) {
+              try {
+                if (typeof ZonaRiesgoLayer === 'undefined' || typeof CamerasLayer === 'undefined') {
+                  FloatingWindow.show('⚠️ Error', '<p>ZonaRiesgoLayer/CamerasLayer no están cargados.</p>');
+                  return;
+                }
+
+                const RADIO_COBERTURA_M = 100; // mismo radio de cobertura que usa el resto del mapa
+
+                const distanciaMetros = (lat1, lng1, lat2, lng2) => {
+                  const R = 6371000;
+                  const dLat = (lat2 - lat1) * Math.PI / 180;
+                  const dLng = (lng2 - lng1) * Math.PI / 180;
+                  const a = Math.sin(dLat / 2) ** 2 +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+                  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+                };
+
+                const featuresACoords = (features) => (features || [])
+                  .filter((f) => f.geometry && Array.isArray(f.geometry.coordinates) && f.geometry.coordinates.length === 2)
+                  .map((f) => ({ lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0] }));
+
+                const camarasPublicas = featuresACoords(CamerasLayer.getAll());
+                const camarasPrivadas = typeof PrivateCamerasLayer !== 'undefined' ? featuresACoords(PrivateCamerasLayer.getAll()) : [];
+                const todasLasCamaras = [...camarasPublicas, ...camarasPrivadas];
+                const camarasEnBarrio = ZonaRiesgoLayer.filtrarPorBarrioOficialExterno(todasLasCamaras);
+
+                const resultadoGrilla = ZonaRiesgoLayer.getZonasCalientes(15);
+                const celdasCalientes = resultadoGrilla.celdas || [];
+
+                if (celdasCalientes.length === 0) {
+                  FloatingWindow.show(
+                    '📹 Cobertura de cámaras',
+                    '<p style="font-size:12px; color:#666;">No hay eventos suficientes en el barrio para cruzar con la cobertura de cámaras todavía.</p>'
+                  );
+                  return;
+                }
+
+                let capaActiva = null;
+                const limpiarCapaActiva = () => {
+                  if (capaActiva && map.hasLayer(capaActiva)) map.removeLayer(capaActiva);
+                  capaActiva = null;
+                };
+
+                const filas = celdasCalientes.map((c) => {
+                  const centroLat = (c.latMin + c.latMax) / 2;
+                  const centroLng = (c.lngMin + c.lngMax) / 2;
+                  let distanciaMin = Infinity;
+                  camarasEnBarrio.forEach((cam) => {
+                    const d = distanciaMetros(centroLat, centroLng, cam.lat, cam.lng);
+                    if (d < distanciaMin) distanciaMin = d;
+                  });
+                  const sinCobertura = !Number.isFinite(distanciaMin) || distanciaMin > RADIO_COBERTURA_M;
+                  return { celda: c, distanciaMin, sinCobertura };
+                });
+
+                const sinCobertura = filas.filter((f) => f.sinCobertura).sort((a, b) => b.celda.peso - a.celda.peso);
+                const top10 = sinCobertura.slice(0, 10);
+
+                const grupo = L.layerGroup();
+
+                // Cámaras existentes en el barrio (puntos de referencia)
+                camarasEnBarrio.forEach((cam) => {
+                  L.circleMarker([cam.lat, cam.lng], {
+                    radius: 5, color: '#0ea5e9', weight: 1, fillColor: '#0ea5e9', fillOpacity: 0.9
+                  }).bindTooltip('📹 Cámara').addTo(grupo);
+                });
+
+                // Celdas calientes: rojo = sin cobertura, azul = con cobertura
+                filas.forEach((f) => {
+                  const c = f.celda;
+                  const color = f.sinCobertura ? '#dc2626' : '#3b82f6';
+                  const etiquetaDistancia = Number.isFinite(f.distanciaMin) ? `${Math.round(f.distanciaMin)}m a la cámara más cercana` : 'sin cámaras en el barrio';
+                  L.rectangle(
+                    [[c.latMin, c.lngMin], [c.latMax, c.lngMax]],
+                    { color, weight: 2, fillColor: color, fillOpacity: 0.2 }
+                  ).bindTooltip(`${c.eventos} evento(s) · ${etiquetaDistancia}`).addTo(grupo);
+                });
+
+                grupo.addTo(map);
+                capaActiva = grupo;
+
+                const filasHtml = top10.map((f, i) => {
+                  const c = f.celda;
+                  const distanciaTexto = Number.isFinite(f.distanciaMin)
+                    ? `Cámara más cercana a ${Math.round(f.distanciaMin)}m`
+                    : 'No hay ninguna cámara registrada en el barrio';
+                  return `
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:8px 10px; margin-bottom:8px;">
+                      <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="font-size:12px;">#${i + 1} · ${c.eventos} evento(s)</strong>
+                        <span style="background:#dc2626; color:white; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600;">Sin cobertura</span>
+                      </div>
+                      <p style="margin:4px 0 0 0; font-size:11px; color:#555;">${distanciaTexto}</p>
+                    </div>
+                  `;
+                }).join('');
+
+                const sinDatosHtml = top10.length === 0
+                  ? '<p style="font-size:12px; color:#16a34a;">✅ Todas las zonas calientes analizadas tienen una cámara a menos de 300m.</p>'
+                  : '';
+
+                const avisoBarrio = resultadoGrilla.sinBarrioOficial
+                  ? '<p style="margin:8px 0 0 0; font-size:10px; color:#b45309;">⚠️ Sin barrio oficial detectado — datos de toda la zona disponible, sin recortar.</p>'
+                  : '';
+
+                FloatingWindow.show(
+                  '📹 Cobertura de cámaras',
+                  `<div>
+                    <p style="font-size:12px; color:#666; margin-bottom:6px;">
+                      ${camarasEnBarrio.length} cámara(s) (públicas + privadas) detectadas en el barrio. Se marcan en el mapa las cuadras con más delitos que NO tienen ninguna a menos de ${RADIO_COBERTURA_M}m (rojo) vs. las que sí (azul).
+                    </p>
+                    ${filasHtml}
+                    ${sinDatosHtml}
+                    ${avisoBarrio}
+                  </div>`,
+                  {
+                    width: '340px',
+                    onClose: limpiarCapaActiva
+                  }
+                );
+              } catch (error) {
+                console.error('❌ Error en Cobertura de cámaras:', error);
+                FloatingWindow.show('⚠️ Error', `<p style="color: #dc2626;">${error.message}</p>`);
+              }
+              return;
+            }
+
             // 🆕 Alertas preventivas activas (2026-09): combina pánicos
             // activos de vecinos (dato existente, categoria === 'panico'
             // en clientes/{clienteId}/denuncias, alimentado por
@@ -3362,7 +3497,6 @@ auth.onAuthStateChanged((user) => {
             }
 
             const medidasPendientes = [
-              'Cobertura de cámaras',
               '¿Qué está pasando en mi barrio?',
               'Armar un plan de prevención'
             ];
