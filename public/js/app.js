@@ -3761,17 +3761,205 @@ auth.onAuthStateChanged((user) => {
               return;
             }
 
-            const medidasPendientes = [
-              'Armar un plan de prevención'
-            ];
-            if (medidasPendientes.includes(question)) {
-              FloatingWindow.show(
-                '🚧 En desarrollo',
-                `<p><strong>${question}</strong></p>
-                 <p style="color: #666; font-size: 13px; margin-top: 8px;">
-                   Esta función todavía no está construida — la estamos armando de a una.
-                 </p>`
-              );
+            // 🆕 Armar un plan de prevención (2026-09): a diferencia de
+            // "¿Qué está pasando en mi barrio?" (que solo informa), este
+            // botón arma un plan de ACCIÓN: qué pueden organizar los
+            // vecinos ELLOS MISMOS (no solo reclamos al municipio), a
+            // partir de qué tipo de evento predomina en el barrio (robo
+            // automotor / robos a personas / siniestros viales), en qué
+            // horario, y en qué cuadra. Todo reutiliza funciones ya
+            // existentes — no hay cálculos nuevos, solo una nueva forma
+            // de presentarlos como plan accionable + texto copiable.
+            if (question.includes('Armar un plan de prevención')) {
+              try {
+                if (typeof ZonaRiesgoLayer === 'undefined') {
+                  FloatingWindow.show('⚠️ Error', '<p>ZonaRiesgoLayer no está cargado.</p>');
+                  return;
+                }
+
+                // --- Diagnóstico: qué tipo de evento predomina ---
+                const totalAutomotor = ZonaRiesgoLayer.getHeatmapRoboAutomotor().total || 0;
+                const totalPersonas = ZonaRiesgoLayer.getHeatmapPersonas().total || 0;
+                const totalSiniestros = ZonaRiesgoLayer.getHeatmapSiniestrosViales().total || 0;
+                const totalGeneral = totalAutomotor + totalPersonas + totalSiniestros;
+
+                if (totalGeneral === 0) {
+                  FloatingWindow.show(
+                    '🛡️ Armar un plan de prevención',
+                    '<p style="font-size:12px; color:#666;">No hay eventos suficientes en el barrio todavía para armar un plan con datos reales.</p>'
+                  );
+                  return;
+                }
+
+                const categorias = [
+                  { id: 'automotor', label: 'robo automotor (autos, motos, bicicletas)', total: totalAutomotor, desglose: ZonaRiesgoLayer.getDesgloseHorarioRoboAutomotor() },
+                  { id: 'personas', label: 'robos a personas', total: totalPersonas, desglose: ZonaRiesgoLayer.getDesgloseHorarioPersonas() },
+                  { id: 'siniestros', label: 'siniestros viales', total: totalSiniestros, desglose: ZonaRiesgoLayer.getDesgloseHorarioSiniestrosViales() }
+                ].sort((a, b) => b.total - a.total);
+                const categoriaTop = categorias[0];
+
+                let horaTop = null;
+                if (categoriaTop.desglose && categoriaTop.desglose.horas) {
+                  const maxCantidad = Math.max(...categoriaTop.desglose.horas);
+                  if (maxCantidad > 0) horaTop = categoriaTop.desglose.horas.indexOf(maxCantidad);
+                }
+
+                // Dentro de robo automotor, ver qué vehículo predomina en
+                // las denuncias vecinales (dato adicional, no reemplaza el
+                // total combinado oficial+vecino de arriba).
+                let subtipoVehiculoTop = null;
+                if (categoriaTop.id === 'automotor' && typeof ZonaRiesgoLayer.getResumenSubcategoriasVehiculos === 'function') {
+                  const resumenVeh = ZonaRiesgoLayer.getResumenSubcategoriasVehiculos();
+                  const entradas = Object.entries(resumenVeh.porTipo || {}).sort((a, b) => b[1] - a[1]);
+                  if (entradas.length > 0 && entradas[0][1] > 0) subtipoVehiculoTop = entradas[0][0];
+                }
+
+                // --- Cuadra más caliente + cobertura de cámara ---
+                const resultadoGrilla = ZonaRiesgoLayer.getZonasCalientes(1);
+                const zonaTop = (resultadoGrilla.celdas || [])[0] || null;
+                let zonaTopSinCobertura = null;
+                if (zonaTop && typeof CamerasLayer !== 'undefined') {
+                  const RADIO_COBERTURA_M = 100;
+                  const distanciaMetros = (lat1, lng1, lat2, lng2) => {
+                    const R = 6371000;
+                    const dLat = (lat2 - lat1) * Math.PI / 180;
+                    const dLng = (lng2 - lng1) * Math.PI / 180;
+                    const a = Math.sin(dLat / 2) ** 2 +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+                    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+                  };
+                  const featuresACoords = (features) => (features || [])
+                    .filter((f) => f.geometry && Array.isArray(f.geometry.coordinates) && f.geometry.coordinates.length === 2)
+                    .map((f) => ({ lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0] }));
+                  const camarasPublicas = featuresACoords(CamerasLayer.getAll());
+                  const camarasPrivadas = typeof PrivateCamerasLayer !== 'undefined' ? featuresACoords(PrivateCamerasLayer.getAll()) : [];
+                  const camarasEnBarrio = ZonaRiesgoLayer.filtrarPorBarrioOficialExterno([...camarasPublicas, ...camarasPrivadas]);
+                  const centroLat = (zonaTop.latMin + zonaTop.latMax) / 2;
+                  const centroLng = (zonaTop.lngMin + zonaTop.lngMax) / 2;
+                  const distanciaMin = camarasEnBarrio.reduce(
+                    (min, cam) => Math.min(min, distanciaMetros(centroLat, centroLng, cam.lat, cam.lng)),
+                    Infinity
+                  );
+                  zonaTopSinCobertura = !Number.isFinite(distanciaMin) || distanciaMin > RADIO_COBERTURA_M;
+                }
+
+                const factoresResumen = (typeof FactoresRiesgoLayer !== 'undefined')
+                  ? FactoresRiesgoLayer.getResumen()
+                  : { admin: { conProblemas: 0 } };
+
+                const nombreBarrio = window.restoredClienteData?.nombre || window.clientCityName || 'tu barrio';
+                const horaTexto = horaTop !== null ? `${String(horaTop).padStart(2, '0')}:00 hs` : 'sin un horario claramente predominante';
+
+                // --- Acciones ORGANIZADAS POR VECINOS, según categoría dominante ---
+                const ETIQUETAS_VEHICULO = { robo_auto: 'autos', robo_moto: 'motos', robo_bicicleta: 'bicicletas' };
+
+                const accionesVecinalesPorCategoria = {
+                  automotor: [
+                    `Armar un grupo de WhatsApp de la cuadra para avisar en el momento si ven a alguien merodeando ${subtipoVehiculoTop ? `cerca de ${ETIQUETAS_VEHICULO[subtipoVehiculoTop]} estacionados` : 'vehículos estacionados'}, sobre todo cerca de las ${horaTexto}.`,
+                    'Ponerse de acuerdo entre vecinos para estacionar en tramos con más luz y, si se puede, frente a una casa con cámara (propia o del vecino) en vez de dispersos.',
+                    'Si alguien tiene cámara propia apuntando a la calle, sumarla al mapa como cámara privada — ayuda a todos, no solo a esa casa.',
+                    subtipoVehiculoTop === 'robo_moto' ? 'Para motos: usar doble traba (disco + cadena) y evitar dejarlas toda la noche en la vía pública si hay dónde guardarlas adentro.' : null
+                  ].filter(Boolean),
+                  personas: [
+                    `Armar una red vecinal de alerta (WhatsApp o la función "Alertas preventivas" de este mapa) para avisar rápido si pasa algo, en especial cerca de las ${horaTexto}, que es el horario más pesado.`,
+                    'Coordinar con los vecinos de la cuadra más caliente para no circular solos en ese horario — organizar salir/volver acompañados aunque sea informalmente.',
+                    'Entre vecinos, encender la luz del frente de casa durante ese horario, sobre todo los que están sobre la cuadra más caliente.',
+                    'Difundir entre vecinos nuevos (mudanzas recientes) cuáles son las cuadras y horarios de más riesgo, para que no las agarre de sorpresa.'
+                  ],
+                  siniestros: [
+                    `Organizar entre vecinos un aviso compartido (WhatsApp) de baches, semáforos rotos o señalización caída, para no depender de que cada uno lo note por separado.`,
+                    `Coordinar con otros vecinos —sobre todo padres— turnos para acompañar cruces peligrosos en el horario más pesado (${horaTexto}), mientras se gestiona una solución de fondo.`,
+                    'Si hay una esquina puntual muy conflictiva, juntar firmas o fotos entre varios vecinos para el reclamo formal — un reclamo grupal con evidencia pesa más que uno individual.'
+                  ]
+                };
+
+                const accionesVecinales = accionesVecinalesPorCategoria[categoriaTop.id] || [];
+
+                // --- Reclamos concretos al municipio (más breve, ya cubierto por otros paneles) ---
+                const reclamosMunicipio = [];
+                if (zonaTop && zonaTopSinCobertura) {
+                  reclamosMunicipio.push('Pedir la instalación de una cámara en la cuadra con más eventos registrados (marcada en "Cobertura de cámaras").');
+                }
+                if (factoresResumen.admin.conProblemas > 0) {
+                  reclamosMunicipio.push(`Reclamar los ${factoresResumen.admin.conProblemas} punto(s) ya reportados con mala iluminación o visibilidad obstruida (ver "Factores de riesgo").`);
+                }
+                if (categoriaTop.id === 'siniestros') {
+                  reclamosMunicipio.push('Pedir reductores de velocidad o mejor señalización en la cuadra con más siniestros.');
+                }
+                if (reclamosMunicipio.length === 0) {
+                  reclamosMunicipio.push('Por ahora no hay puntos débiles de infraestructura cargados — si detectan alguno, cárguenlo en "Factores de riesgo" para que quede documentado.');
+                }
+
+                // --- HTML del panel ---
+                const listaAcciones = (items) => items.map((a) => `<li style="margin-bottom:6px;">${a}</li>`).join('');
+
+                const zonaTopTexto = zonaTop
+                  ? `La cuadra con más casos tuvo <strong>${zonaTop.eventos} evento(s)</strong>${zonaTopSinCobertura ? ', sin ninguna cámara a menos de 100m' : ''}.`
+                  : '';
+
+                FloatingWindow.show(
+                  '🛡️ Armar un plan de prevención',
+                  `<div>
+                    <div style="padding:10px 12px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; margin-bottom:12px;">
+                      <p style="margin:0; font-size:12px; color:#1e3a8a; line-height:1.5;">
+                        En <strong>${nombreBarrio}</strong>, el problema más frecuente es <strong>${categoriaTop.label}</strong> (${categoriaTop.total} de ${totalGeneral} eventos), con más casos alrededor de las <strong>${horaTexto}</strong>. ${zonaTopTexto}
+                      </p>
+                    </div>
+
+                    <strong style="font-size:13px; color:#1a1a1a;">💡 Qué pueden organizar los vecinos (sin esperar al municipio)</strong>
+                    <ul style="margin:6px 0 14px 0; padding-left:18px; font-size:12px; color:#333;">
+                      ${listaAcciones(accionesVecinales)}
+                    </ul>
+
+                    <div style="border-top:1px solid #eee; padding-top:12px;">
+                      <strong style="font-size:13px; color:#1a1a1a;">📢 Qué reclamar al municipio</strong>
+                      <ul style="margin:6px 0 0 0; padding-left:18px; font-size:12px; color:#333;">
+                        ${listaAcciones(reclamosMunicipio)}
+                      </ul>
+                    </div>
+
+                    <button id="pp-copiar-btn" style="margin-top:14px; width:100%; padding:10px; background:#4f46e5; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px;">
+                      📋 Copiar plan como texto
+                    </button>
+                    <p id="pp-copiado-msg" style="display:none; margin-top:6px; font-size:11px; color:#16a34a; text-align:center;">✅ Copiado — pegalo en WhatsApp o donde quieras compartirlo.</p>
+                  </div>`,
+                  { width: '380px' }
+                );
+
+                setTimeout(() => {
+                  const btn = document.getElementById('pp-copiar-btn');
+                  if (!btn) return;
+                  btn.addEventListener('click', () => {
+                    const textoPlano = [
+                      `📋 PLAN DE PREVENCIÓN — ${nombreBarrio}`,
+                      '',
+                      `🔍 DIAGNÓSTICO`,
+                      `El problema más frecuente es ${categoriaTop.label} (${categoriaTop.total} de ${totalGeneral} eventos registrados), con más casos alrededor de las ${horaTexto}.`,
+                      zonaTop ? `La cuadra con más casos tuvo ${zonaTop.eventos} evento(s)${zonaTopSinCobertura ? ', sin ninguna cámara a menos de 100m' : ''}.` : '',
+                      '',
+                      `💡 QUÉ PUEDEN ORGANIZAR LOS VECINOS`,
+                      ...accionesVecinales.map((a, i) => `${i + 1}. ${a}`),
+                      '',
+                      `📢 QUÉ RECLAMAR AL MUNICIPIO`,
+                      ...reclamosMunicipio.map((a, i) => `${i + 1}. ${a}`),
+                      '',
+                      'Generado con datos reales del barrio desde TraficoMap.'
+                    ].filter((l) => l !== '').join('\n');
+
+                    navigator.clipboard.writeText(textoPlano).then(() => {
+                      const msg = document.getElementById('pp-copiado-msg');
+                      if (msg) msg.style.display = 'block';
+                    }).catch((err) => {
+                      console.error('❌ Error copiando plan al portapapeles:', err);
+                    });
+                  });
+                }, 50);
+
+              } catch (error) {
+                console.error('❌ Error en Armar un plan de prevención:', error);
+                FloatingWindow.show('⚠️ Error', `<p style="color: #dc2626;">${error.message}</p>`);
+              }
+              return;
             }
           };
 
