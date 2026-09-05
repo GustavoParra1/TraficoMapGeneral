@@ -3505,8 +3505,183 @@ auth.onAuthStateChanged((user) => {
               return;
             }
 
+            // 🆕 ¿Qué está pasando en mi barrio? (2026-09): resumen
+            // ejecutivo que junta números ya calculados por los otros
+            // botones de "Medidas de Prevención" en un solo panel, más un
+            // mensaje corto en texto armado con esos mismos datos (sin
+            // direcciones/calles: no hay geocodificación inversa en el
+            // proyecto, así que no se inventan nombres de calle). Cada
+            // fila tiene un botón que abre el panel de detalle real,
+            // llamando a handleQuestionFn con el mismo texto de pregunta.
+            if (question.includes('Qué está pasando en mi barrio')) {
+              try {
+                if (typeof ZonaRiesgoLayer === 'undefined') {
+                  FloatingWindow.show('⚠️ Error', '<p>ZonaRiesgoLayer no está cargado.</p>');
+                  return;
+                }
+
+                FloatingWindow.show('📊 ¿Qué está pasando en mi barrio?', '<p style="font-size:12px; color:#666;">Cargando resumen...</p>', { width: '360px' });
+
+                // --- Recolectar datos (todo reutilizado, nada nuevo) ---
+                const combinado = ZonaRiesgoLayer.getHeatmapCombinado();
+                const totalEventos = combinado.total || 0;
+
+                const desgloseHorario = ZonaRiesgoLayer.getDesgloseHorarioCombinado();
+                let horaTop = null;
+                if (desgloseHorario && desgloseHorario.horas) {
+                  const maxCantidad = Math.max(...desgloseHorario.horas);
+                  if (maxCantidad > 0) horaTop = desgloseHorario.horas.indexOf(maxCantidad);
+                }
+
+                const resultadoGrilla = ZonaRiesgoLayer.getZonasCalientes(1);
+                const zonaTop = (resultadoGrilla.celdas || [])[0] || null;
+
+                let zonaTopSinCobertura = null;
+                if (zonaTop && typeof CamerasLayer !== 'undefined') {
+                  const RADIO_COBERTURA_M = 100;
+                  const distanciaMetros = (lat1, lng1, lat2, lng2) => {
+                    const R = 6371000;
+                    const dLat = (lat2 - lat1) * Math.PI / 180;
+                    const dLng = (lng2 - lng1) * Math.PI / 180;
+                    const a = Math.sin(dLat / 2) ** 2 +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+                    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+                  };
+                  const featuresACoords = (features) => (features || [])
+                    .filter((f) => f.geometry && Array.isArray(f.geometry.coordinates) && f.geometry.coordinates.length === 2)
+                    .map((f) => ({ lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0] }));
+                  const camarasPublicas = featuresACoords(CamerasLayer.getAll());
+                  const camarasPrivadas = typeof PrivateCamerasLayer !== 'undefined' ? featuresACoords(PrivateCamerasLayer.getAll()) : [];
+                  const camarasEnBarrio = ZonaRiesgoLayer.filtrarPorBarrioOficialExterno([...camarasPublicas, ...camarasPrivadas]);
+                  const centroLat = (zonaTop.latMin + zonaTop.latMax) / 2;
+                  const centroLng = (zonaTop.lngMin + zonaTop.lngMax) / 2;
+                  const distanciaMin = camarasEnBarrio.reduce(
+                    (min, cam) => Math.min(min, distanciaMetros(centroLat, centroLng, cam.lat, cam.lng)),
+                    Infinity
+                  );
+                  zonaTopSinCobertura = !Number.isFinite(distanciaMin) || distanciaMin > RADIO_COBERTURA_M;
+                }
+
+                const factoresResumen = (typeof FactoresRiesgoLayer !== 'undefined')
+                  ? FactoresRiesgoLayer.getResumen()
+                  : { admin: { total: 0, conProblemas: 0 }, vecinos: { total: 0 } };
+
+                const alertasResumen = (typeof AlertasPreventivasLayer !== 'undefined')
+                  ? AlertasPreventivasLayer.getResumen()
+                  : { panicosActivos: 0 };
+
+                // Vecinos conectados: consulta puntual (sin listener en
+                // tiempo real, para no dejar una conexión abierta detrás
+                // de este resumen).
+                let vecinosConectados = 0;
+                try {
+                  const dbVecinos = window.clientDb || window.db;
+                  const clienteIdVecinos = window.restoredClienteId;
+                  if (dbVecinos && clienteIdVecinos) {
+                    const UMBRAL_MINUTOS = 5;
+                    const snapshot = await dbVecinos.collection(`clientes/${clienteIdVecinos}/vecinos`).get();
+                    const ahora = Date.now();
+                    const todos = snapshot.docs.map((doc) => {
+                      const d = doc.data();
+                      const ts = (d.ubicacion_actualizada_en && d.ubicacion_actualizada_en.toDate)
+                        ? d.ubicacion_actualizada_en.toDate()
+                        : null;
+                      return { lat: d.lat, lng: d.lng, ts };
+                    }).filter((v) =>
+                      typeof v.lat === 'number' && typeof v.lng === 'number' &&
+                      v.ts && (ahora - v.ts.getTime()) <= UMBRAL_MINUTOS * 60000
+                    );
+                    vecinosConectados = ZonaRiesgoLayer.filtrarPorBarrioOficialExterno(todos).length;
+                  }
+                } catch (errVecinos) {
+                  console.warn('⚠️ No se pudo consultar vecinos conectados para el resumen:', errVecinos);
+                }
+
+                // --- Armar mensaje narrativo (sin nombres de calle: no hay
+                // geocodificación inversa en el proyecto) ---
+                const partes = [];
+                partes.push(totalEventos > 0
+                  ? `En tu barrio se registraron <strong>${totalEventos} evento(s)</strong> entre robos y siniestros.`
+                  : 'No hay eventos registrados en tu barrio todavía.');
+
+                if (horaTop !== null) {
+                  partes.push(`El horario de mayor riesgo es alrededor de las <strong>${String(horaTop).padStart(2, '0')}:00 hs</strong>.`);
+                }
+
+                if (zonaTop) {
+                  const textoCobertura = zonaTopSinCobertura === true
+                    ? ', y no tiene ninguna cámara a menos de 100m'
+                    : (zonaTopSinCobertura === false ? ', y sí tiene una cámara cerca' : '');
+                  partes.push(`La cuadra más caliente tuvo <strong>${zonaTop.eventos} evento(s)</strong>${textoCobertura}.`);
+                }
+
+                if (factoresResumen.admin.conProblemas > 0) {
+                  partes.push(`Hay <strong>${factoresResumen.admin.conProblemas} punto(s)</strong> reportados con mala iluminación, sin cámaras o con visibilidad obstruida.`);
+                }
+
+                partes.push(alertasResumen.panicosActivos > 0
+                  ? `⚠️ Hay <strong>${alertasResumen.panicosActivos} alerta(s) de pánico</strong> activas ahora mismo.`
+                  : 'No hay alertas de pánico activas en este momento.');
+
+                partes.push(`<strong>${vecinosConectados} vecino(s)</strong> conectado(s) ahora mismo cerca tuyo.`);
+
+                const mensajeNarrativo = partes.join(' ');
+
+                // --- Tabla de números con botón "Ver detalle" por fila ---
+                const filas = [
+                  { label: '🔥 Total de eventos (robos + siniestros)', valor: totalEventos, pregunta: 'Zonas calientes (mayor concentración de delitos)' },
+                  { label: '⏰ Horario de mayor riesgo', valor: horaTop !== null ? `${String(horaTop).padStart(2, '0')}:00 hs` : 'Sin datos', pregunta: 'Horarios de mayor riesgo' },
+                  { label: '🎯 Eventos en la cuadra más caliente', valor: zonaTop ? zonaTop.eventos : 'Sin datos', pregunta: 'Índice de riesgo por cuadra' },
+                  { label: '💡 Puntos con problemas de iluminación/cámaras', valor: factoresResumen.admin.conProblemas, pregunta: 'Factores de riesgo (luminarias, cámaras, visibilidad)' },
+                  { label: '📹 Cobertura de cámaras', valor: zonaTopSinCobertura === true ? 'Zona más caliente sin cobertura' : 'OK', pregunta: 'Cobertura de cámaras' },
+                  { label: '⚠️ Alertas preventivas activas', valor: alertasResumen.panicosActivos, pregunta: 'Alertas preventivas activas' },
+                  { label: '👥 Vecinos conectados ahora', valor: vecinosConectados, pregunta: 'Vecinos conectados cerca mío' },
+                  { label: '🏍️ Robo de motos y vehículos', valor: 'Ver detalle', pregunta: 'Robo de motos y vehículos' }
+                ];
+
+                const filasHtml = filas.map((f, i) => `
+                  <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f1f5f9;">
+                    <div>
+                      <p style="margin:0; font-size:12px; color:#333;">${f.label}</p>
+                      <p style="margin:2px 0 0 0; font-size:13px; font-weight:600; color:#1a1a1a;">${f.valor}</p>
+                    </div>
+                    <button id="qp-detalle-${i}" style="padding:6px 10px; border:1px solid #4f46e5; color:#4f46e5; background:#fff; border-radius:6px; cursor:pointer; font-size:11px; white-space:nowrap;">
+                      Ver detalle
+                    </button>
+                  </div>
+                `).join('');
+
+                const avisoBarrio = !ZonaRiesgoLayer.tieneBarrioOficial()
+                  ? '<p style="margin-top:10px; font-size:10px; color:#b45309;">⚠️ Sin barrio oficial detectado — datos de toda la zona disponible, sin recortar.</p>'
+                  : '';
+
+                FloatingWindow.show(
+                  '📊 ¿Qué está pasando en mi barrio?',
+                  `<div>
+                    <div style="padding:10px 12px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; margin-bottom:12px;">
+                      <p style="margin:0; font-size:12px; color:#1e3a8a; line-height:1.5;">${mensajeNarrativo}</p>
+                    </div>
+                    <div>${filasHtml}</div>
+                    ${avisoBarrio}
+                  </div>`,
+                  { width: '360px' }
+                );
+
+                setTimeout(() => {
+                  filas.forEach((f, i) => {
+                    const btn = document.getElementById(`qp-detalle-${i}`);
+                    if (btn) btn.addEventListener('click', () => handleQuestionFn(f.pregunta));
+                  });
+                }, 50);
+
+              } catch (error) {
+                console.error('❌ Error en ¿Qué está pasando en mi barrio?:', error);
+                FloatingWindow.show('⚠️ Error', `<p style="color: #dc2626;">${error.message}</p>`);
+              }
+              return;
+            }
+
             const medidasPendientes = [
-              '¿Qué está pasando en mi barrio?',
               'Armar un plan de prevención'
             ];
             if (medidasPendientes.includes(question)) {
