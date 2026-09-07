@@ -549,6 +549,25 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
       hasImage: false,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
+
+    // 🆕 (2026-09) "¿Cuándo pasó?" — si el vecino cambió la fecha (por
+    // ejemplo, se enteró unos días después por una noticia), guardamos esa
+    // fecha por separado en fechaHecho. `timestamp` sigue siendo SIEMPRE
+    // la fecha/hora real de carga (útil para ordenar "Mis Denuncias" y
+    // para el chat); fechaHecho es la fecha real del hecho, la que usa el
+    // mapa para heatmaps y desgloses. Si coincide con hoy, no hace falta
+    // guardarla aparte (timestamp ya alcanza).
+    const fechaHechoInput = document.getElementById('fecha-hecho')?.value; // "YYYY-MM-DD"
+    if (fechaHechoInput) {
+      const hoyStr = new Date().toISOString().split('T')[0];
+      if (fechaHechoInput !== hoyStr) {
+        // Mediodía para evitar corrimientos de día por zona horaria al
+        // convertir de vuelta a Date en el mapa.
+        denuncia.fechaHecho = firebase.firestore.Timestamp.fromDate(
+          new Date(`${fechaHechoInput}T12:00:00`)
+        );
+      }
+    }
     
     // 🆕 Ubicación: si el vecino marcó el punto a mano en el mini-mapa, usar
     // esas coordenadas tal cual (es intencional, no hace falta ir a
@@ -591,6 +610,8 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
     await db.collection(`clientes/${clienteId}/denuncias`).add(denuncia);
     console.log('✅ Denuncia enviada');
     document.getElementById('texto').value = '';
+    const fechaHechoEl = document.getElementById('fecha-hecho');
+    if (fechaHechoEl) fechaHechoEl.value = new Date().toISOString().split('T')[0];
     fotoSeleccionada = null;
     document.getElementById('foto-preview').innerHTML = '';
     selectedMainCategory = null;

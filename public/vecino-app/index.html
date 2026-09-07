@@ -210,6 +210,14 @@ textarea { min-height: 90px; resize: vertical; }
   text-align: center;
   font-weight: 600;
 }
+/* 🆕 (2026-09) "¿Cuándo pasó?" — fecha real del hecho, distinta de la
+   fecha de carga (por si el vecino se entera unos días después). */
+.fecha-hecho-ayuda {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: -8px;
+  margin-bottom: 14px;
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -268,7 +276,15 @@ textarea { min-height: 90px; resize: vertical; }
       <div class="ubicacion-ayuda">Tocá el mapa para fijar la ubicación. Podés arrastrar el pin para ajustarla.</div>
       <div class="ubicacion-confirmada" id="ubicacion-confirmada-msg" style="display:none;"></div>
     </div>
-    
+
+    <!-- 🆕 (2026-09) ¿Cuándo pasó? — por defecto hoy, pero editable para
+         cuando el vecino se entera del hecho unos días después (por
+         ejemplo, por una noticia) y no quiere que quede mal registrado
+         con la fecha de hoy. -->
+    <label>¿Cuándo pasó?</label>
+    <input type="date" id="fecha-hecho">
+    <div class="fecha-hecho-ayuda">Si te enteraste hace unos días de algo que ya pasó, cambiá la fecha acá para que quede bien registrado.</div>
+
     <label>Descripción</label>
     <div class="input-group">
       <textarea id="texto" placeholder="Describí la situación..."></textarea>
@@ -295,6 +311,15 @@ textarea { min-height: 90px; resize: vertical; }
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW no registrado:', e));
   }
+  // 🆕 (2026-09) Inicializar el input de fecha: default = hoy, máximo = hoy
+  // (no tiene sentido reportar algo que "va a pasar").
+  (function inicializarFechaHecho() {
+    const input = document.getElementById('fecha-hecho');
+    if (!input) return;
+    const hoy = new Date().toISOString().split('T')[0];
+    input.value = hoy;
+    input.max = hoy;
+  })();
 </script>
 </body>
 </html>
