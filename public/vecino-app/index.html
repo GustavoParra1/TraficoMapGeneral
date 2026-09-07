@@ -212,11 +212,17 @@ textarea { min-height: 90px; resize: vertical; }
 }
 /* 🆕 (2026-09) "¿Cuándo pasó?" — fecha real del hecho, distinta de la
    fecha de carga (por si el vecino se entera unos días después). */
+#fecha-hecho {
+  margin-bottom: 6px;
+}
 .fecha-hecho-ayuda {
   font-size: 11px;
   color: #64748b;
-  margin-top: -8px;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
+  line-height: 1.4;
+}
+label[for="fecha-hecho"], .label-fecha-hecho {
+  margin-top: 18px;
 }
 </style>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -281,7 +287,7 @@ textarea { min-height: 90px; resize: vertical; }
          cuando el vecino se entera del hecho unos días después (por
          ejemplo, por una noticia) y no quiere que quede mal registrado
          con la fecha de hoy. -->
-    <label>¿Cuándo pasó?</label>
+    <label for="fecha-hecho">¿Cuándo pasó?</label>
     <input type="date" id="fecha-hecho">
     <div class="fecha-hecho-ayuda">Si te enteraste hace unos días de algo que ya pasó, cambiá la fecha acá para que quede bien registrado.</div>
 
