@@ -1325,6 +1325,54 @@ exports.backfillVecinosManualesSinHabilitar = functions.https.onCall(async (data
   return { success: true, total: actualizados.length, actualizados };
 });
 
+/**
+ * Lista (sin modificar nada) las denuncias que quedaron guardadas sin
+ * lat/lng — típicamente por una falla de GPS antes del fix de vecino-app.js
+ * (2026-09) que ahora obliga a marcar el punto a mano si el GPS falla.
+ *
+ * Recorremos cliente por cliente (mismo motivo que en los otros backfills:
+ * no depender de un índice de collection group).
+ *
+ * Uso desde la consola del navegador logueado como superadmin:
+ *   firebase.functions().httpsCallable('listarDenunciasSinUbicacion')()
+ *     .then(r => console.table(r.data.denuncias));
+ */
+exports.listarDenunciasSinUbicacion = functions.https.onCall(async (data, context) => {
+  if (!context.auth || context.auth.token.role !== 'superadmin') {
+    throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede ejecutar este listado');
+  }
+
+  const sinUbicacion = [];
+  const porCliente = {};
+  const clientesSnap = await db.collection('clientes').get();
+
+  for (const clienteDoc of clientesSnap.docs) {
+    const denunciasSnap = await clienteDoc.ref.collection('denuncias').get();
+
+    for (const doc of denunciasSnap.docs) {
+      const d = doc.data();
+      if (d.lat && d.lng) continue; // tiene ubicación, no nos interesa
+
+      sinUbicacion.push({
+        id: doc.id,
+        clienteId: clienteDoc.id,
+        vecino: d.vecino || d.vecinoEmail || '',
+        categoria: d.categoria || '',
+        texto: (d.texto || '').slice(0, 80),
+        fecha: d.fecha || '',
+        // FieldValue.serverTimestamp() se serializa como Timestamp; toDate() para que sea legible en console.table
+        creado: d.timestamp && d.timestamp.toDate ? d.timestamp.toDate().toISOString() : (d.created_at && d.created_at.toDate ? d.created_at.toDate().toISOString() : '')
+      });
+      porCliente[clienteDoc.id] = (porCliente[clienteDoc.id] || 0) + 1;
+    }
+  }
+
+  console.log(`📍 [listarDenunciasSinUbicacion] ${sinUbicacion.length} denuncia(s) sin lat/lng`, porCliente);
+
+  return { success: true, total: sinUbicacion.length, porCliente, denuncias: sinUbicacion };
+});
+
+
 // ============================================================================
 // FUNCIÓN 1: CREAR CLIENTE (callable - sin CORS)
 // ============================================================================
