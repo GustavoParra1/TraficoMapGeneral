@@ -1615,7 +1615,7 @@ auth.onAuthStateChanged((user) => {
       ? `admin.${window.restoredClienteId}@traficomap.local`.toLowerCase()
       : null;
     const emailPerteneceAlClienteActual = !window.isClientMode
-      || (isUserAuthenticated && emailEsperadoClienteActual && user.email.toLowerCase() === emailEsperadoClienteActual);
+      || (isUserAuthenticated && emailEsperadoClienteActual && !!user.email && user.email.toLowerCase() === emailEsperadoClienteActual);
     const mostrarEmailDeUsuario = isUserAuthenticated && emailPerteneceAlClienteActual;
 
     sidebar.innerHTML = `
