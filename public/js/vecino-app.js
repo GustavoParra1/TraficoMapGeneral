@@ -583,7 +583,22 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
         const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 15000 }));
         denuncia.lat = pos.coords.latitude;
         denuncia.lng = pos.coords.longitude;
-      } catch (e) { console.warn('Sin GPS'); }
+      } catch (e) {
+        // 🆕 Antes esto seguía de largo y guardaba la denuncia sin lat/lng
+        // (quedaba invisible para siempre en el mapa del vecino y en el del
+        // admin, que descartan silenciosamente todo doc sin coordenadas).
+        // Ahora frenamos acá y mandamos al vecino a marcar el punto a mano,
+        // igual que cuando elige "Marcar en el mapa" explícitamente.
+        console.warn('Sin GPS', e);
+        alert('No pudimos obtener tu ubicación por GPS. Marcá en el mapa dónde pasó para poder enviar la denuncia.');
+        ubicacionModo = 'mapa';
+        actualizarBotonesUbicacion();
+        inicializarMiniMapaSiHaceFalta();
+        setTimeout(() => miniMapa && miniMapa.invalidateSize(), 50);
+        btn.disabled = false;
+        btn.textContent = 'Enviar Denuncia';
+        return;
+      }
     }
     
     // Subir foto si hay
