@@ -328,6 +328,13 @@ window.DenunciasHistoricoLayer = (() => {
       });
 
       const marker = L.marker([denuncia.lat, denuncia.lng], { icon: divIcon });
+      // 🆕 A diferencia de L.circleMarker (Path), acá "bubblingMouseEvents" no
+      // existe como opción: el ícono es un <div> real y el click burbujea por
+      // el DOM nativo hasta el contenedor del mapa, disparando el listener
+      // global de ZonaRiesgoLayer (map.on('click', onMapClick)), que abre su
+      // propio popup en las mismas coordenadas y cierra este popup recién
+      // abierto. Se corta la propagación nativa acá.
+      marker.on('click', (e) => L.DomEvent.stopPropagation(e));
 
       // Popup con información
       const popupContent = `

@@ -485,7 +485,12 @@ const RoboLayer = (() => {
         weight: 1,
         opacity: 1,
         fillOpacity: 0.7,
-        interactive: true
+        interactive: true,
+        // 🆕 Sin esto, el click burbujea al mapa (default de los Path de Leaflet)
+        // y dispara el listener global de ZonaRiesgoLayer (map.on('click', onMapClick)),
+        // que abre su propio popup en las mismas coordenadas y cierra este popup
+        // recién abierto — por eso a veces "no abría" o había que tocar varias veces.
+        bubblingMouseEvents: false
       });
       // Popup con información del robo
       const popupContent = `

@@ -838,7 +838,12 @@ const SiniestrosLayer = (() => {
           color: '#1a1a1a',
           weight: 2,
           opacity: 0.9,
-          fillOpacity: 0.85
+          fillOpacity: 0.85,
+          // 🆕 Sin esto, el click burbujea al mapa (default de los Path de Leaflet)
+          // y dispara el listener global de ZonaRiesgoLayer (map.on('click', onMapClick)),
+          // que abre su propio popup en las mismas coordenadas y cierra este popup
+          // recién abierto — por eso a veces "no abría" o había que tocar varias veces.
+          bubblingMouseEvents: false
         });
 
         // Extraer categorías generales de participantes
