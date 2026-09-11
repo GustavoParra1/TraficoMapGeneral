@@ -28,7 +28,8 @@ const StreetViewLayer = (() => {
       overflow: hidden !important;
       visibility: hidden;
       opacity: 0;
-      display: flex !important;
+      display: none !important;
+      pointer-events: none !important;
       flex-direction: column !important;
       transition: opacity 0.3s ease !important;
     `;
@@ -135,6 +136,7 @@ const StreetViewLayer = (() => {
     panelElement.style.visibility = 'visible';
     panelElement.style.opacity = '1';
     panelElement.style.display = 'flex';
+    panelElement.style.pointerEvents = 'auto';
 
     // PASO 1B: Hacer visible el panorama también
     const panoramaDiv = document.getElementById('street-view-panorama');
@@ -336,6 +338,13 @@ const StreetViewLayer = (() => {
     
     panelElement.style.visibility = 'hidden';
     panelElement.style.opacity = '0';
+    // 🆕 Sin esto, el panel quedaba invisible pero seguía en el layout
+    // (display seguía en 'flex' desde el init) y el div interno del
+    // panorama fuerza su propio visibility:visible !important, así que
+    // aunque no se viera, seguía recibiendo touch/click y tapaba parte
+    // del mapa (sobre todo cerca de la esquina superior derecha).
+    panelElement.style.display = 'none';
+    panelElement.style.pointerEvents = 'none';
     console.log(`❌ Street View ocultado`);
   };
 
