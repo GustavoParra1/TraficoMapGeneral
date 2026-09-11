@@ -15,6 +15,10 @@ window.DenunciasHistoricoLayer = (() => {
   let isVisible = false;
   let barriosGeoJson = null;
   let unsubscribe = null;
+  // 🆕 (2026-09) Ver comentario en el onSnapshot: colapsa varios rebuilds
+  // seguidos (ráfaga de escrituras en Firestore) en uno solo.
+  let renderDebounceTimer = null;
+  const RENDER_DEBOUNCE_MS = 400;
 
   // Mapa de colores por categoría principal
   const categoriasColores = {
@@ -128,14 +132,28 @@ window.DenunciasHistoricoLayer = (() => {
             // performance sin beneficio (y explicaba buena parte de los
             // cientos de mensajes en consola que se veían en mobile).
 
-            // Obtener filtros disponibles
-            updateDenunciasFilters();
-            applyFilters();
+            // 🆕 (2026-09) Antes esto llamaba a updateDenunciasFilters()+
+            // applyFilters() directo acá, y applyFilters() termina en
+            // renderDenuncias(), que hace denunciasLayer.clearLayers() y
+            // reconstruye TODOS los íconos desde cero. Cualquier escritura en
+            // la colección (una denuncia nueva de otro vecino, o sobre todo
+            // una importación masiva que escribe muchos documentos seguidos)
+            // disparaba este onSnapshot una y otra vez, así que los íconos se
+            // destruían y recreaban constantemente — si el usuario tocaba uno
+            // justo en ese momento, el toque caía sobre un <div> que Leaflet
+            // acababa de eliminar y el evento se perdía sin ningún error
+            // visible (parecía "a veces no abre", en cualquier parte del
+            // mapa, según qué tan seguido estuviera pasando esto). Se
+            // debounce acá: varios onSnapshot seguidos dentro de la ventana
+            // colapsan en un solo rebuild real, usando siempre los datos más
+            // recientes.
+            scheduleRender();
 
             // 🚨 Alimentar el heatmap de ZonaRiesgoLayer con las denuncias
             // de vecinos (filtra internamente siniestros/robos y descarta
             // el resto). Se llama en cada actualización del snapshot, así
-            // que el heatmap queda al día con cada denuncia nueva.
+            // que el heatmap queda al día con cada denuncia nueva. No toca
+            // los íconos de Denuncias, así que no necesita el debounce.
             if (typeof ZonaRiesgoLayer !== 'undefined') {
               ZonaRiesgoLayer.setDenunciasVecinos(denunciasData);
             }
@@ -232,6 +250,19 @@ window.DenunciasHistoricoLayer = (() => {
       }
     }
     return categoria || 'Sin categoría';
+  }
+
+  /**
+   * 🆕 (2026-09) Debounce del rebuild de marcadores — ver comentario en el
+   * onSnapshot de loadDenunciasFromFirestore() para el porqué.
+   */
+  function scheduleRender() {
+    if (renderDebounceTimer) clearTimeout(renderDebounceTimer);
+    renderDebounceTimer = setTimeout(() => {
+      renderDebounceTimer = null;
+      updateDenunciasFilters();
+      applyFilters();
+    }, RENDER_DEBOUNCE_MS);
   }
 
   /**
