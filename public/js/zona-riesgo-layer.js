@@ -54,6 +54,14 @@ window.ZonaRiesgoLayer = (() => {
   // ruido, no una tendencia real.
   const MUESTRA_MINIMA_CONFIABLE = 6;
 
+  // 🆕 (2026-09) Un robo a una persona (entradera, asalto, robo a mano
+  // armada) es más peligroso que un robo de bicicleta, así que pesa más
+  // al decidir el nivel de riesgo (Baja/Media/Alta) de la zona — aunque
+  // en el número de "Robos" que se MUESTRA en el popup siga contando
+  // como 1 evento, igual que cualquier otro robo, para no confundir al
+  // vecino con una cifra que no coincide con lo que puede contar a ojo.
+  const PESO_EXTRA_PERSONAS = 2;
+
   // Subcategorías de 'vehiculos' que cuentan como robo (mismo criterio que
   // ROBOS_SUBCATEGORIAS en robos-historico-layer.js).
   const ROBOS_SUBCATEGORIAS = ['robo_auto', 'robo_moto', 'robo_bicicleta'];
@@ -328,6 +336,14 @@ window.ZonaRiesgoLayer = (() => {
   function setDenunciasVecinos(denuncias) {
     const siniestrosVecino = [];
     const robosVecino = [];
+    // 🆕 FIX (2026-09): antes las denuncias de categoría 'personas'
+    // (entradera, asalto, robo a mano armada, arrebato) quedaban
+    // completamente afuera del conteo de "Robos" del popup de Zona de
+    // Riesgo y del heatmap principal — solo se usaban en "Zonas
+    // calientes". Ahora también entran acá, en un bucket separado para
+    // poder pesarlas distinto en clasificarRiesgo() sin tocar el conteo
+    // visible de robo_vecino (vehículos).
+    const robosPersonasVecino = [];
     // 🆕 Zonas calientes (2026-09): conjunto ampliado, guardado APARTE de
     // siniestros_vecino/robos_vecino para no tocar el conteo que ya usan
     // el popup de riesgo y "Comparar Zona" — esos dos siguen viendo
@@ -347,6 +363,12 @@ window.ZonaRiesgoLayer = (() => {
         siniestrosVecino.push({ lat: d.lat, lng: d.lng, tipo: 'siniestro_vecino', fecha });
       } else if (d.categoria === 'vehiculos' && ROBOS_SUBCATEGORIAS.includes(d.subcategoria)) {
         robosVecino.push({ lat: d.lat, lng: d.lng, tipo: 'robo_vecino', fecha });
+      } else if (d.categoria === 'personas') {
+        // Entradera, asalto, robo a mano armada, arrebato, etc. — todo lo
+        // que el vecino carga bajo la categoría 'personas'. Se cuenta
+        // como robo (igual que antes se contaban robo_auto/moto/bici) y
+        // además pesa más en clasificarRiesgo() por ser más peligroso.
+        robosPersonasVecino.push({ lat: d.lat, lng: d.lng, tipo: 'robo_vecino_personas', fecha });
       }
 
       if (d.categoria && d.categoria !== 'infraestructura') {
@@ -376,6 +398,7 @@ window.ZonaRiesgoLayer = (() => {
 
     fuentes.siniestros_vecino = siniestrosVecino;
     fuentes.robos_vecino = robosVecino;
+    fuentes.robos_personas_vecino = robosPersonasVecino;
     fuentes.denuncias_amplias = denunciasAmplias;
     fuentes.infraestructura = infraestructuraVecinos;
     render();
@@ -386,7 +409,8 @@ window.ZonaRiesgoLayer = (() => {
       ...fuentes.siniestros_oficial,
       ...fuentes.robos_oficial,
       ...fuentes.siniestros_vecino,
-      ...fuentes.robos_vecino
+      ...fuentes.robos_vecino,
+      ...fuentes.robos_personas_vecino
     ];
 
     // 🆕 Filtro global de barrio: si hay uno seleccionado (!= 'all') y
@@ -508,7 +532,8 @@ window.ZonaRiesgoLayer = (() => {
       siniestro_oficial: 0,
       robo_oficial: 0,
       siniestro_vecino: 0,
-      robo_vecino: 0
+      robo_vecino: 0,
+      robo_vecino_personas: 0
     };
     getTodosLosPuntos().forEach((p) => {
       if (distanciaMetros(lat, lng, p.lat, p.lng) <= RADIO_CONSULTA_M) {
@@ -536,8 +561,8 @@ window.ZonaRiesgoLayer = (() => {
     const diasAntes = diasDespues;
     const inicioAntes = new Date(fechaCorte.getTime() - diasAntes * msPorDia);
 
-    const antes = { siniestro_oficial: 0, robo_oficial: 0, siniestro_vecino: 0, robo_vecino: 0 };
-    const despues = { siniestro_oficial: 0, robo_oficial: 0, siniestro_vecino: 0, robo_vecino: 0 };
+    const antes = { siniestro_oficial: 0, robo_oficial: 0, siniestro_vecino: 0, robo_vecino: 0, robo_vecino_personas: 0 };
+    const despues = { siniestro_oficial: 0, robo_oficial: 0, siniestro_vecino: 0, robo_vecino: 0, robo_vecino_personas: 0 };
     let sinFecha = 0;
 
     puntos.forEach((p) => {
@@ -720,9 +745,21 @@ window.ZonaRiesgoLayer = (() => {
   function mostrarPopupRiesgo(lat, lng, featureBarrioConocido) {
     const conteo = contarEnRadio(lat, lng);
     const totalSiniestros = conteo.siniestro_oficial + conteo.siniestro_vecino;
-    const totalRobos = conteo.robo_oficial + conteo.robo_vecino;
-    const total = totalSiniestros + totalRobos;
-    const riesgo = clasificarRiesgo(total);
+    // "Robos" que se muestra en pantalla: cuenta parejo, 1 evento = 1,
+    // igual que antes — incluye ahora también entraderas/asaltos/robo a
+    // mano armada reportados por vecinos (categoría 'personas'), que
+    // antes quedaban afuera de este número.
+    const totalRobos = conteo.robo_oficial + conteo.robo_vecino + conteo.robo_vecino_personas;
+    // Para decidir el NIVEL de riesgo (no para lo que se muestra), un
+    // robo a una persona pesa PESO_EXTRA_PERSONAS veces más que un robo
+    // "normal" — así una zona con varias entraderas puede llegar a
+    // "Riesgo Alta" con menos eventos que una zona con la misma cantidad
+    // de robos de bicicleta.
+    const totalParaClasificar = totalSiniestros
+      + conteo.robo_oficial
+      + conteo.robo_vecino
+      + (conteo.robo_vecino_personas * PESO_EXTRA_PERSONAS);
+    const riesgo = clasificarRiesgo(totalParaClasificar);
 
     let featureBarrio = featureBarrioConocido || null;
     if (!featureBarrio && barriosGeoJson && Array.isArray(barriosGeoJson.features)) {
