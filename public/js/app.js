@@ -552,20 +552,35 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
       };
     };
 
-    // 🆕 En modo vecino (?vista=vecino) no cargamos barrios ni semáforos:
-    // no tienen botón en el panel lateral y el vecino no debe ver esos datos
-    // en esta pantalla.
+    // 🆕 En modo vecino (?vista=vecino) NO mostramos la capa visual
+    // "Zonas / Barrios" en el panel (no tiene botón ahí y el vecino no debe
+    // verla) pero SÍ necesitamos seguir calculando bariosGeoJson y
+    // barrioOficial en AMBOS modos, porque ZonaRiesgoLayer los usa para el
+    // nombre del barrio en el popup de "Zona de Riesgo" y para recortar
+    // "Zonas calientes" / "Comparar zona" al barrio del cliente.
+    //
+    // 🐛 FIX (2026-09): antes TODO este bloque —incluido el cálculo de
+    // barrioOficial— estaba adentro de `if (!esVecino)`, así que en modo
+    // vecino nunca se llamaba a ZonaRiesgoLayer.setBarriosGeoJson() ni a
+    // setBarrioOficial(). Ahora esas dos llamadas se hacen siempre; lo
+    // único que sigue siendo exclusivo del admin es pintar la capa en el
+    // panel (GeoLayers.loadEmbeddedGeoJson).
     const esVecino = new URLSearchParams(window.location.search).get('vista') === 'vecino';
 
-    // CARGAR BARRIOS
-    if (!esVecino) {
+    // CARGAR BARRIOS (siempre — en ambos modos)
     try {
       console.log(`📍 Cargando barrios del cliente...`);
       const barrios = await clientDb.collection(`clientes/${clienteId}/barrios`).get();
       if (barrios.size > 0) {
         bariosGeoJson = firestoreColToGeoJSON(barrios.docs);
         console.log(`  ✓ ${bariosGeoJson.features.length} barrios cargados`);
-        GeoLayers.loadEmbeddedGeoJson('Zonas / Barrios', bariosGeoJson, true);
+
+        // Pintar la capa "Zonas / Barrios" en el panel solo en modo admin:
+        // el vecino no tiene ese checkbox y no debe ver esta capa.
+        if (!esVecino) {
+          GeoLayers.loadEmbeddedGeoJson('Zonas / Barrios', bariosGeoJson, true);
+        }
+
         SiniestrosLayer.setBarriosGeoJson(bariosGeoJson);
         if (typeof ZonaRiesgoLayer !== 'undefined') {
           ZonaRiesgoLayer.setBarriosGeoJson(bariosGeoJson);
@@ -592,6 +607,10 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
           // guarda un campo `barrio_slug` con el identificador preciso del
           // barrio real (ej. "estrada-jose-manuel") — lo priorizamos, y solo
           // si no está cargado caemos al nombre de fantasía como antes.
+          // 🐛 Fix (2026-09, v4): esta sección completa antes se saltaba en
+          // modo vecino (?vista=vecino) porque estaba adentro de un
+          // `if (!esVecino)` que envolvía toda la carga de barrios. Se movió
+          // afuera para que setBarrioOficial() se llame en ambos modos.
           const normalizar = (s) => (s || '')
             .toString()
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // saca acentos
@@ -620,9 +639,6 @@ async function cargarDatosFromClienteFirestore(clienteId, clientDb) {
       }
     } catch (error) {
       console.warn(`⚠️ Error cargando barrios:`, error.message);
-    }
-    } else {
-      console.log('📱 Modo vecino: se omite carga de barrios');
     }
     
     // CARGAR SINIESTROS
