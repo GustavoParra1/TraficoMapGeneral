@@ -64,7 +64,10 @@ service cloud.firestore {
       allow write: if false;
 
       match /barrios/{docId} {
-        allow read: if isStaffDeCliente(clienteId);
+        // 🐛 Fix (2026-09): el vecino no podía leer esta colección, así que
+        // ZonaRiesgoLayer nunca recibía barrioOficial en modo vecino y el
+        // popup de "Zona de Riesgo" no mostraba el nombre del barrio.
+        allow read: if isStaffDeCliente(clienteId) || isVecinoDeCliente(clienteId);
         allow write: if isClienteAdmin(clienteId);
       }
       match /cameras/{docId} {
@@ -92,7 +95,11 @@ service cloud.firestore {
         allow write: if isClienteAdmin(clienteId);
       }
       match /robo/{docId} {
-        allow read: if isStaffDeCliente(clienteId);
+        // 🐛 Fix (2026-09): el vecino no podía leer la lista OFICIAL de
+        // robos, así que el conteo de "Robos" en el popup de Zona de
+        // Riesgo salía en 0 (o solo con lo cargado por vecinos vía
+        // denuncias_historico, que es una colección distinta).
+        allow read: if isStaffDeCliente(clienteId) || isVecinoDeCliente(clienteId);
         allow write: if isClienteAdmin(clienteId);
       }
       match /semaforos/{docId} {
@@ -100,7 +107,11 @@ service cloud.firestore {
         allow write: if isClienteAdmin(clienteId);
       }
       match /siniestros/{docId} {
-        allow read: if isStaffDeCliente(clienteId);
+        // 🐛 Fix (2026-09): mismo problema que /robo — el vecino no podía
+        // leer la lista OFICIAL de siniestros, así que el conteo de
+        // "Siniestros" en el popup de Zona de Riesgo salía en 0 aunque el
+        // admin sí viera el número real (ej. 32).
+        allow read: if isStaffDeCliente(clienteId) || isVecinoDeCliente(clienteId);
         allow write: if isClienteAdmin(clienteId);
       }
 
@@ -136,6 +147,19 @@ service cloud.firestore {
       // (iluminación, cámaras visibles, visibilidad). Mismo criterio que
       // el resto de las subcolecciones de datos: staff lee y escribe.
       match /factores_riesgo_admin/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow create: if isStaffDeCliente(clienteId);
+        allow update: if isStaffDeCliente(clienteId);
+        allow delete: if isStaffDeCliente(clienteId);
+      }
+
+      // 🆕 Alertas preventivas activas (2026-09): avisos preventivos que
+      // carga el municipio a mano (corte de calle, operativo, alerta
+      // climática). Mismo criterio que factores_riesgo_admin: staff lee y
+      // escribe. Los pánicos de vecinos (la otra fuente que combina esta
+      // feature) ya están cubiertos por la regla /denuncias de más abajo,
+      // no necesitan una regla nueva.
+      match /avisos_preventivos_admin/{docId} {
         allow read: if isStaffDeCliente(clienteId);
         allow create: if isStaffDeCliente(clienteId);
         allow update: if isStaffDeCliente(clienteId);
