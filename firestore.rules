@@ -64,7 +64,10 @@ service cloud.firestore {
       allow write: if false;
 
       match /barrios/{docId} {
-        allow read: if isStaffDeCliente(clienteId);
+        // 🐛 Fix (2026-09): el vecino no podía leer esta colección, así que
+        // ZonaRiesgoLayer nunca recibía barrioOficial en modo vecino y el
+        // popup de "Zona de Riesgo" no mostraba el nombre del barrio.
+        allow read: if isStaffDeCliente(clienteId) || isVecinoDeCliente(clienteId);
         allow write: if isClienteAdmin(clienteId);
       }
       match /cameras/{docId} {
@@ -92,7 +95,11 @@ service cloud.firestore {
         allow write: if isClienteAdmin(clienteId);
       }
       match /robo/{docId} {
-        allow read: if isStaffDeCliente(clienteId);
+        // 🐛 Fix (2026-09): el vecino no podía leer la lista OFICIAL de
+        // robos, así que el conteo de "Robos" en el popup de Zona de
+        // Riesgo salía en 0 (o solo con lo cargado por vecinos vía
+        // denuncias_historico, que es una colección distinta).
+        allow read: if isStaffDeCliente(clienteId) || isVecinoDeCliente(clienteId);
         allow write: if isClienteAdmin(clienteId);
       }
       match /semaforos/{docId} {
@@ -100,7 +107,11 @@ service cloud.firestore {
         allow write: if isClienteAdmin(clienteId);
       }
       match /siniestros/{docId} {
-        allow read: if isStaffDeCliente(clienteId);
+        // 🐛 Fix (2026-09): mismo problema que /robo — el vecino no podía
+        // leer la lista OFICIAL de siniestros, así que el conteo de
+        // "Siniestros" en el popup de Zona de Riesgo salía en 0 aunque el
+        // admin sí viera el número real (ej. 32).
+        allow read: if isStaffDeCliente(clienteId) || isVecinoDeCliente(clienteId);
         allow write: if isClienteAdmin(clienteId);
       }
 
