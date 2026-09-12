@@ -400,6 +400,16 @@ window.ZonaRiesgoLayer = (() => {
     fuentes.robos_vecino = robosVecino;
     fuentes.robos_personas_vecino = robosPersonasVecino;
     fuentes.denuncias_amplias = denunciasAmplias;
+    // 🔧 DEBUG (temporal, sacar cuando esté confirmado): para verificar
+    // que las denuncias de "entradera/asalto" realmente llegan con
+    // categoria === 'personas' y coordenadas válidas.
+    const categoriasVistas = {};
+    (denuncias || []).forEach((d) => {
+      const key = `${d.categoria || 'SIN_CATEGORIA'} / ${d.subcategoria || 'sin_subcategoria'}`;
+      categoriasVistas[key] = (categoriasVistas[key] || 0) + 1;
+    });
+    console.log('🔧 DEBUG ZonaRiesgoLayer: categorías/subcategorías vistas en denuncias_historico:', categoriasVistas);
+    console.log(`🔧 DEBUG ZonaRiesgoLayer: robos_personas_vecino cargados: ${robosPersonasVecino.length}`, robosPersonasVecino);
     fuentes.infraestructura = infraestructuraVecinos;
     render();
   }
