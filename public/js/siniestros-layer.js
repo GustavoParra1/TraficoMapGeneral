@@ -88,23 +88,6 @@ const SiniestrosLayer = (() => {
   }
 
   /**
-   * 🆕 Normaliza un nombre de barrio para comparar (mayúsculas, sin tildes,
-   * sin espacios extra). Sin esto, "Constitución" (como viene del CSV) nunca
-   * coincidía con "CONSTITUCION" (el value del <select> de filtro global),
-   * porque la comparación de abajo era exacta y case-sensitive — por eso el
-   * conteo se iba a 0 apenas se elegía un barrio.
-   */
-  function normalizarBarrio(str) {
-    if (!str) return '';
-    return str
-      .toString()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .trim()
-      .toUpperCase();
-  }
-
-  /**
    * Normaliza un código de causa a su categoría general
    */
   function normalizeCause(cause) {
@@ -597,10 +580,8 @@ const SiniestrosLayer = (() => {
           }
           debugCount++;
           
-          // 🆕 Comparar normalizado (mayúsculas, sin tildes) — antes era
-          // exacto/case-sensitive y por eso nunca coincidía "Constitución"
-          // (CSV) contra "CONSTITUCION" (value del select).
-          if (normalizarBarrio(barrioDelSiniestro) !== normalizarBarrio(filters.globalBarrio)) {
+          // Comparar EXACTAMENTE (case-sensitive)
+          if (barrioDelSiniestro !== filters.globalBarrio) {
             return false;
           }
           // ✅ Coincide, continuar con próximos filtros
@@ -621,7 +602,7 @@ const SiniestrosLayer = (() => {
             
             if (debugCount < 3) {
               console.log(`   Resultado de getBarrioForPoint: "${sinBarrio}"`);
-              console.log(`   ¿Coincide? ${normalizarBarrio(sinBarrio) === normalizarBarrio(filters.globalBarrio)}`);
+              console.log(`   ¿Coincide? ${sinBarrio === filters.globalBarrio}`);
               if (sinBarrio === null) {
                 console.warn(`   ⚠️ PUNTO ESTÁ FUERA DE TODOS LOS BARRIOS`);
               }
@@ -634,8 +615,8 @@ const SiniestrosLayer = (() => {
               return false;
             }
             
-            // 🆕 Mismo fix: comparar normalizado, no exacto.
-            if (normalizarBarrio(sinBarrio) !== normalizarBarrio(filters.globalBarrio)) {
+            // Si el barrio no coincide, excluirlo
+            if (sinBarrio !== filters.globalBarrio) {
               return false;
             }
           } else {
@@ -857,7 +838,12 @@ const SiniestrosLayer = (() => {
           color: '#1a1a1a',
           weight: 2,
           opacity: 0.9,
-          fillOpacity: 0.85
+          fillOpacity: 0.85,
+          // 🆕 Sin esto, el click burbujea al mapa (default de los Path de Leaflet)
+          // y dispara el listener global de ZonaRiesgoLayer (map.on('click', onMapClick)),
+          // que abre su propio popup en las mismas coordenadas y cierra este popup
+          // recién abierto — por eso a veces "no abría" o había que tocar varias veces.
+          bubblingMouseEvents: false
         });
 
         // Extraer categorías generales de participantes
