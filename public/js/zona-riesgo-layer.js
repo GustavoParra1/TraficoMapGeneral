@@ -316,12 +316,22 @@ window.ZonaRiesgoLayer = (() => {
           fechaFinal.setHours(horaOficial, 0, 0, 0);
           horaValida = true;
         }
+        // 🔧 FIX: guardamos el barrio TAL COMO viene en la planilla
+        // ('BARRIOS'/'Barrio' primero, igual criterio y orden que en
+        // siniestros-layer.js) para poder respetarlo en getTodosLosPuntos()
+        // en vez de depender únicamente de point-in-polygon contra
+        // barriosGeoJson — sin esto, un punto en el límite de dos barrios
+        // (ej. sobre Avenida Constitución) podía quedar afuera del conteo
+        // del filtro global aunque la planilla dijera claramente a qué
+        // barrio pertenece.
+        const barrio = getPropFlexible(f.properties, ['BARRIOS', 'Barrio', 'barrios', 'barrio', 'zona', 'Zona']);
         return {
           lat: f.geometry.coordinates[1],
           lng: f.geometry.coordinates[0],
           tipo,
           fecha: fechaFinal,
-          horaValida
+          horaValida,
+          barrio: barrio || null
         };
       })
       .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
@@ -414,6 +424,22 @@ window.ZonaRiesgoLayer = (() => {
     render();
   }
 
+  /**
+   * 🔧 Normaliza un nombre de barrio para comparar (mayúsculas, sin tildes,
+   * sin espacios extra) — mismo criterio que normalizarBarrio() en
+   * siniestros-layer.js, para que "Constitución" (CSV) matchee contra
+   * "CONSTITUCION" (value del <select> de filtro global).
+   */
+  function normalizarBarrioTexto(str) {
+    if (!str) return '';
+    return str
+      .toString()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toUpperCase();
+  }
+
   function getTodosLosPuntos() {
     const todos = [
       ...fuentes.siniestros_oficial,
@@ -423,18 +449,33 @@ window.ZonaRiesgoLayer = (() => {
       ...fuentes.robos_personas_vecino
     ];
 
-    // 🆕 Filtro global de barrio: si hay uno seleccionado (!= 'all') y
-    // tenemos el GeoJSON de barrios cargado, nos quedamos solo con los
-    // puntos que caen dentro del polígono de ese barrio.
-    if (filters.globalBarrio === 'all' || !barriosGeoJson || !Array.isArray(barriosGeoJson.features)) {
+    // 🆕 Filtro global de barrio: si hay uno seleccionado (!= 'all'), nos
+    // quedamos solo con los puntos de ESE barrio.
+    if (filters.globalBarrio === 'all') {
       return todos;
     }
-    const featuresBarrio = barriosGeoJson.features.filter(
-      (f) => getNombreBarrio(f) === filters.globalBarrio
-    );
-    if (featuresBarrio.length === 0) return todos; // no matcheó ningún polígono, mejor mostrar todo que mostrar nada por un nombre que no coincide
 
-    return todos.filter((p) => puntoEnAlgunPoligono(p, featuresBarrio));
+    const filtroNormalizado = normalizarBarrioTexto(filters.globalBarrio);
+    const featuresBarrio =
+      barriosGeoJson && Array.isArray(barriosGeoJson.features)
+        ? barriosGeoJson.features.filter((f) => getNombreBarrio(f) === filters.globalBarrio)
+        : [];
+
+    return todos.filter((p) => {
+      // 🔧 FIX: si el punto trae su propio barrio (de la planilla, ver
+      // extraerPuntosDeGeoJson), respetarlo SIEMPRE en vez de recalcularlo
+      // por geometría — mismo criterio que ya usa siniestros-layer.js.
+      // Esto evita que un siniestro justo en el límite entre dos barrios
+      // (ej. sobre una avenida divisoria) desaparezca del conteo del popup
+      // de riesgo aunque la planilla diga claramente a qué barrio pertenece.
+      if (p.barrio) {
+        return normalizarBarrioTexto(p.barrio) === filtroNormalizado;
+      }
+      // FALLBACK: sin barrio propio (típico de denuncias de vecinos, que no
+      // vienen de una planilla), usar point-in-polygon como antes.
+      if (featuresBarrio.length === 0) return true; // no matcheó ningún polígono, mejor mostrar que ocultar por un nombre que no coincide
+      return puntoEnAlgunPoligono(p, featuresBarrio);
+    });
   }
 
   // 🆕 setFilter: mismo patrón que usan SiniestrosLayer/RoboLayer/etc. para
