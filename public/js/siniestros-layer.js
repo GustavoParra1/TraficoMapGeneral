@@ -88,6 +88,23 @@ const SiniestrosLayer = (() => {
   }
 
   /**
+   * 🆕 Normaliza un nombre de barrio para comparar (mayúsculas, sin tildes,
+   * sin espacios extra). Sin esto, "Constitución" (como viene del CSV) nunca
+   * coincidía con "CONSTITUCION" (el value del <select> de filtro global),
+   * porque la comparación de abajo era exacta y case-sensitive — por eso el
+   * conteo se iba a 0 apenas se elegía un barrio.
+   */
+  function normalizarBarrio(str) {
+    if (!str) return '';
+    return str
+      .toString()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toUpperCase();
+  }
+
+  /**
    * Normaliza un código de causa a su categoría general
    */
   function normalizeCause(cause) {
@@ -155,7 +172,12 @@ const SiniestrosLayer = (() => {
     normalized.calle = getProp(props, ['direccion', 'Calle', 'calle', 'DIRECCIÓN SINIESTRO', 'DIRECCION SINIESTRO', 'DIRECCI\uFFFDN SINIESTRO']);
     
     // Obtener barrio (NUEVO: leer field barrio si existe en el CSV)
-    normalized.barrio = getProp(props, ['barrio', 'Barrio', 'BARRIOS', 'barrios', 'zona', 'Zona']);
+    // 🔧 FIX: 'BARRIOS'/'Barrio' (el dato real de la planilla) van PRIMERO.
+    // Antes 'barrio' (minúscula) se buscaba primero, y si un documento tenía
+    // guardado un 'barrio' suelto (calculado por geometría en algún momento,
+    // fuera de este parser) ese valor le ganaba siempre al dato real de la
+    // planilla en 'BARRIOS' — aunque este último existiera y fuera correcto.
+    normalized.barrio = getProp(props, ['BARRIOS', 'Barrio', 'barrios', 'barrio', 'zona', 'Zona']);
     
     return normalized;
   }
@@ -580,8 +602,10 @@ const SiniestrosLayer = (() => {
           }
           debugCount++;
           
-          // Comparar EXACTAMENTE (case-sensitive)
-          if (barrioDelSiniestro !== filters.globalBarrio) {
+          // 🆕 Comparar normalizado (mayúsculas, sin tildes) — antes era
+          // exacto/case-sensitive y por eso nunca coincidía "Constitución"
+          // (CSV) contra "CONSTITUCION" (value del select).
+          if (normalizarBarrio(barrioDelSiniestro) !== normalizarBarrio(filters.globalBarrio)) {
             return false;
           }
           // ✅ Coincide, continuar con próximos filtros
@@ -602,7 +626,7 @@ const SiniestrosLayer = (() => {
             
             if (debugCount < 3) {
               console.log(`   Resultado de getBarrioForPoint: "${sinBarrio}"`);
-              console.log(`   ¿Coincide? ${sinBarrio === filters.globalBarrio}`);
+              console.log(`   ¿Coincide? ${normalizarBarrio(sinBarrio) === normalizarBarrio(filters.globalBarrio)}`);
               if (sinBarrio === null) {
                 console.warn(`   ⚠️ PUNTO ESTÁ FUERA DE TODOS LOS BARRIOS`);
               }
@@ -615,8 +639,8 @@ const SiniestrosLayer = (() => {
               return false;
             }
             
-            // Si el barrio no coincide, excluirlo
-            if (sinBarrio !== filters.globalBarrio) {
+            // 🆕 Mismo fix: comparar normalizado, no exacto.
+            if (normalizarBarrio(sinBarrio) !== normalizarBarrio(filters.globalBarrio)) {
               return false;
             }
           } else {
@@ -781,7 +805,10 @@ const SiniestrosLayer = (() => {
       }
       
       // Mapear barrio
-      const barrio = getProp(['barrio', 'Barrio', 'Barrio/Zona', 'BARRIOS', 'barrios']);
+      // 🔧 FIX: mismo criterio que en normalizeFilterProps — 'BARRIOS'/'Barrio'
+      // (el dato real de la planilla) primero, 'barrio' suelto en minúscula
+      // al final, solo como último recurso.
+      const barrio = getProp(['BARRIOS', 'Barrio', 'Barrio/Zona', 'barrios', 'barrio']);
       if (barrio && !normalized.barrio) {
         normalized.barrio = barrio;
       }
@@ -838,12 +865,7 @@ const SiniestrosLayer = (() => {
           color: '#1a1a1a',
           weight: 2,
           opacity: 0.9,
-          fillOpacity: 0.85,
-          // 🆕 Sin esto, el click burbujea al mapa (default de los Path de Leaflet)
-          // y dispara el listener global de ZonaRiesgoLayer (map.on('click', onMapClick)),
-          // que abre su propio popup en las mismas coordenadas y cierra este popup
-          // recién abierto — por eso a veces "no abría" o había que tocar varias veces.
-          bubblingMouseEvents: false
+          fillOpacity: 0.85
         });
 
         // Extraer categorías generales de participantes
