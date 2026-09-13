@@ -809,7 +809,16 @@ const SiniestrosLayer = (() => {
       // (el dato real de la planilla) primero, 'barrio' suelto en minúscula
       // al final, solo como último recurso.
       const barrio = getProp(['BARRIOS', 'Barrio', 'Barrio/Zona', 'barrios', 'barrio']);
-      if (barrio && !normalized.barrio) {
+      // 🔧 FIX #2: antes acá se chequeaba "!normalized.barrio" antes de asignar,
+      // pero como 'normalized' arranca como {...props}, si el documento de
+      // Firestore ya traía un campo 'barrio' suelto (minúscula, calculado por
+      // geometría en algún momento fuera de este código), ESE valor quedaba
+      // copiado en normalized.barrio DESDE ANTES de esta línea — entonces la
+      // condición daba false y el resultado bueno de getProp() (que ya
+      // prioriza 'BARRIOS'/'Barrio') nunca se aplicaba. Por eso el filtro
+      // global contaba bien pero el popup individual seguía mostrando el
+      // barrio viejo. Ahora, si getProp encontró algo, gana siempre.
+      if (barrio) {
         normalized.barrio = barrio;
       }
       
