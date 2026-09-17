@@ -2622,7 +2622,7 @@ auth.onAuthStateChanged((user) => {
                   return;
                 }
 
-                const formatearCategoriaHorario = (nombreCategoria, emoji, desglose) => {
+                const formatearCategoriaHorario = (nombreCategoria, emoji, desglose, referencia) => {
                   const { horas, sinHora, total, sinBarrioOficial } = desglose;
                   const conHora = total - sinHora;
                   const maxHora = Math.max(...horas);
@@ -2650,7 +2650,7 @@ auth.onAuthStateChanged((user) => {
                     `).join('');
                     cuerpoHtml = `
                       <p style="margin:4px 0 2px 0; font-size:12px; color:#1a1a1a;">
-                        🔺 Pico: <strong>${String(pico.hora).padStart(2, '0')}:00 hs</strong> (${pico.cantidad} evento(s))
+                        🔺 Pico en tu barrio: <strong>${String(pico.hora).padStart(2, '0')}:00 hs</strong> (${pico.cantidad} evento(s))
                       </p>
                       ${listaTop3}
                       <p style="margin:4px 0 0 0; font-size:10px; color:#999;">Sobre ${conHora} de ${total} evento(s) con hora registrada${sinHora > 0 ? ` (${sinHora} sin hora, excluido(s))` : ''}.</p>
@@ -2661,11 +2661,21 @@ auth.onAuthStateChanged((user) => {
                     ? `<p style="margin:4px 0 0 0; font-size:10px; color:#b45309;">⚠️ Sin barrio oficial detectado — datos de toda la zona disponible.</p>`
                     : '';
 
+                  // 🆕 (2026-09) Referencia de ciudad: dato fijo tomado de la
+                  // "Guía de Seguridad Personal y Familiar" (fuente CeMAED /
+                  // prensa local, ver notas al pie del documento), para que
+                  // el admin vea si su barrio coincide o no con el patrón
+                  // general de Mar del Plata — no es un cálculo, es texto fijo.
+                  const referenciaHtml = referencia
+                    ? `<p style="margin:6px 0 0 0; padding-top:6px; border-top:1px dashed #e2e8f0; font-size:10px; color:#64748b;">📊 Referencia ciudad: ${referencia}</p>`
+                    : '';
+
                   return `
                     <div style="margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid #eee;">
                       <strong style="font-size:13px; color:#1a1a1a;">${emoji} ${nombreCategoria}</strong>
                       ${cuerpoHtml}
                       ${avisoBarrio}
+                      ${referenciaHtml}
                     </div>
                   `;
                 };
@@ -2674,8 +2684,14 @@ auth.onAuthStateChanged((user) => {
                   <p style="font-size:12px; color:#666; margin-bottom:12px;">
                     Franja horaria con más eventos, por categoría (solo entre los eventos que tienen hora real registrada).
                   </p>
-                  ${formatearCategoriaHorario('Robo automotor', '🚗', ZonaRiesgoLayer.getDesgloseHorarioRoboAutomotor())}
-                  ${formatearCategoriaHorario('Robos a personas', '🚷', ZonaRiesgoLayer.getDesgloseHorarioPersonas())}
+                  ${formatearCategoriaHorario(
+                    'Robo automotor', '🚗', ZonaRiesgoLayer.getDesgloseHorarioRoboAutomotor(),
+                    'pico 19-21 hs, más miércoles y sábados (≈13 vehículos/día, 3er trim. 2025 — CeMAED)'
+                  )}
+                  ${formatearCategoriaHorario(
+                    'Robos a personas', '🚷', ZonaRiesgoLayer.getDesgloseHorarioPersonas(),
+                    'se concentran al caer la tarde y la noche, sobre todo fines de semana (CeMAED / prensa local)'
+                  )}
                   ${formatearCategoriaHorario('Siniestros viales', '⚠️', ZonaRiesgoLayer.getDesgloseHorarioSiniestrosViales())}
                 `;
 
@@ -3601,96 +3617,6 @@ auth.onAuthStateChanged((user) => {
               return;
             }
 
-            // 🆕 Lista detallada de eventos (2026-09): desglose evento por
-            // evento del mismo conjunto que usa el total del panel
-            // "¿Qué está pasando en mi barrio?" (ZonaRiesgoLayer.getListaEventos(),
-            // que reutiliza getTodosLosPuntosPonderables() — el mismo array
-            // que arma getHeatmapCombinado()/totalEventos, así el número de
-            // arriba y la cantidad de filas de esta tabla SIEMPRE coinciden).
-            // Filtro simple por tipo de evento, sin filtro de fecha (no hay
-            // muchos casos con miles de eventos en un solo barrio como para
-            // que haga falta paginar por ahora).
-            if (question.includes('Lista detallada de eventos')) {
-              try {
-                if (typeof ZonaRiesgoLayer === 'undefined' || !ZonaRiesgoLayer.getListaEventos) {
-                  FloatingWindow.show('⚠️ Error', '<p>ZonaRiesgoLayer.getListaEventos no está disponible.</p>');
-                  return;
-                }
-
-                const { eventos, total, sinBarrioOficial } = ZonaRiesgoLayer.getListaEventos();
-
-                const categoriasPresentes = [...new Set(eventos.map((e) => e.categoria))];
-                const ETIQUETAS_FILTRO = {
-                  siniestro_oficial: '🚦 Siniestros (oficial)',
-                  robo_oficial: '🚗 Robos (oficial)',
-                  accidentes: '🚦 Siniestros (vecinal)',
-                  vehiculos: '🚗 Robo de vehículo (vecinal)',
-                  personas: '🚷 Robo a persona (vecinal)',
-                  otro: '❓ Otros'
-                };
-
-                const opcionesFiltro = categoriasPresentes
-                  .map((cat) => `<option value="${cat}">${ETIQUETAS_FILTRO[cat] || cat}</option>`)
-                  .join('');
-
-                const filaHtml = (e) => `
-                  <tr data-cat="${e.categoria}" style="border-bottom:1px solid #f1f5f9;">
-                    <td style="padding:6px 4px; font-size:11px; color:#333;">${e.etiqueta}</td>
-                    <td style="padding:6px 4px; font-size:11px; color:#666; white-space:nowrap;">${e.fechaTexto}</td>
-                    <td style="padding:6px 4px; font-size:10px; color:#999; white-space:nowrap;">${e.lat.toFixed(4)}, ${e.lng.toFixed(4)}</td>
-                  </tr>
-                `;
-
-                const filasHtml = eventos.map(filaHtml).join('') ||
-                  '<tr><td colspan="3" style="padding:10px; font-size:12px; color:#888; text-align:center;">Sin eventos en esta zona.</td></tr>';
-
-                const avisoBarrio = sinBarrioOficial
-                  ? '<p style="margin-top:10px; font-size:10px; color:#b45309;">⚠️ Sin barrio oficial detectado — datos de toda la zona disponible, sin recortar.</p>'
-                  : '';
-
-                FloatingWindow.show(
-                  `📋 Lista detallada de eventos (${total})`,
-                  `<div>
-                    <select id="lde-filtro-tipo" style="width:100%; padding:6px; font-size:12px; margin-bottom:10px; border:1px solid #ddd; border-radius:6px;">
-                      <option value="all">Todos los tipos (${total})</option>
-                      ${opcionesFiltro}
-                    </select>
-                    <div style="max-height:320px; overflow-y:auto;">
-                      <table style="width:100%; border-collapse:collapse;">
-                        <thead>
-                          <tr style="border-bottom:2px solid #e2e8f0; text-align:left;">
-                            <th style="padding:6px 4px; font-size:10px; color:#888;">Tipo</th>
-                            <th style="padding:6px 4px; font-size:10px; color:#888;">Fecha</th>
-                            <th style="padding:6px 4px; font-size:10px; color:#888;">Coordenadas</th>
-                          </tr>
-                        </thead>
-                        <tbody id="lde-tbody">${filasHtml}</tbody>
-                      </table>
-                    </div>
-                    ${avisoBarrio}
-                  </div>`,
-                  { width: '420px' }
-                );
-
-                setTimeout(() => {
-                  const select = document.getElementById('lde-filtro-tipo');
-                  if (select) {
-                    select.addEventListener('change', (e) => {
-                      const valor = e.target.value;
-                      document.querySelectorAll('#lde-tbody tr[data-cat]').forEach((tr) => {
-                        tr.style.display = (valor === 'all' || tr.getAttribute('data-cat') === valor) ? '' : 'none';
-                      });
-                    });
-                  }
-                }, 50);
-
-              } catch (error) {
-                console.error('❌ Error en Lista detallada de eventos:', error);
-                FloatingWindow.show('⚠️ Error', `<p style="color: #dc2626;">${error.message}</p>`);
-              }
-              return;
-            }
-
             // 🆕 ¿Qué está pasando en mi barrio? (2026-09): resumen
             // ejecutivo que junta números ya calculados por los otros
             // botones de "Medidas de Prevención" en un solo panel, más un
@@ -3787,7 +3713,7 @@ auth.onAuthStateChanged((user) => {
                 // geocodificación inversa en el proyecto) ---
                 const partes = [];
                 partes.push(totalEventos > 0
-                  ? `En tu barrio se registraron <strong>${totalEventos} evento(s)</strong> entre siniestros, robos y denuncias vecinales.`
+                  ? `En tu barrio se registraron <strong>${totalEventos} evento(s)</strong> entre robos y siniestros.`
                   : 'No hay eventos registrados en tu barrio todavía.');
 
                 if (horaTop !== null) {
@@ -3815,7 +3741,7 @@ auth.onAuthStateChanged((user) => {
 
                 // --- Tabla de números con botón "Ver detalle" por fila ---
                 const filas = [
-                  { label: '🔥 Total de eventos (robos + siniestros)', valor: totalEventos, pregunta: 'Lista detallada de eventos' },
+                  { label: '🔥 Total de eventos (robos + siniestros)', valor: totalEventos, pregunta: 'Zonas calientes (mayor concentración de delitos)' },
                   { label: '⏰ Horario de mayor riesgo', valor: horaTop !== null ? `${String(horaTop).padStart(2, '0')}:00 hs` : 'Sin datos', pregunta: 'Horarios de mayor riesgo' },
                   { label: '🎯 Eventos en la cuadra más caliente', valor: zonaTop ? zonaTop.eventos : 'Sin datos', pregunta: 'Índice de riesgo por cuadra' },
                   { label: '💡 Puntos con problemas de iluminación/cámaras', valor: factoresResumen.admin.conProblemas, pregunta: 'Factores de riesgo (luminarias, cámaras, visibilidad)' },
