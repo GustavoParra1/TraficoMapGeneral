@@ -47,7 +47,14 @@ window.ZonaRiesgoLayer = (() => {
   // vista admin y la vista vecino, con zooms/pantallas distintas), el
   // click se "engancha" al punto con más eventos acumulados que tenga
   // cerca, en vez de usarse tal cual. Ver buscarPuntoCalienteCercano().
-  const RADIO_ENGANCHE_M = 40; // distancia máxima para engancharse a un punto caliente
+  const RADIO_ENGANCHE_M = 100; // 🆕 (2026-09) subido de 40 a 100: con 40m, dos
+  // puntos calientes cercanos (~50-70m entre sí, común en una cuadra densa)
+  // podían "pelearse" el click y dar resultados muy distintos por unos
+  // pocos metros de diferencia al tocar. Con 100m, el mismo click cae
+  // dentro del radio de enganche de forma más consistente. Ver también:
+  // esto también agranda el tamaño de celda que usa calcularPuntosCalientes()
+  // para agrupar eventos cercanos (usa esta misma constante), así que
+  // agrupa clusters un poco más grandes que antes — es lo esperado.
   const MIN_EVENTOS_PUNTO_CALIENTE = 3; // mínimo de eventos agrupados para contar como "caliente"
 
   // Umbrales de cantidad de eventos dentro del radio de consulta para
