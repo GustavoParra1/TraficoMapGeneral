@@ -2060,7 +2060,22 @@ auth.onAuthStateChanged((user) => {
     
     // 🎯 INICIALIZAR PANEL DE PREGUNTAS INTEGRADO PARA MODO CLIENTE
     if (window.isClientMode && typeof initQuestionsPanelIntegrated === 'function') {
-      setTimeout(() => {
+      // 🐛 FIX (2026-09): antes esto arrancaba con un setTimeout fijo de
+      // 500ms. Con la ventana flotante ya abierta hace rato (restoredClienteData
+      // ya resuelto) esos 500ms alcanzaban de sobra. Pero en pestaña nueva /
+      // incógnito, restoredClienteData se puebla recién cuando termina el
+      // fetch async a Firestore en map.html (que en el peor caso espera varios
+      // segundos al fallback vía Cloud Function). Si los 500ms se cumplían
+      // antes de que llegara el dato, "municipio" caía al fallback 'laplata'
+      // y el panel quedaba con el título viejo "Preguntas Frecuentes" en vez
+      // de "Medidas de Prevención". Ahora se espera activamente (polling) a
+      // que restoredClienteData exista, con un tope de 5s, antes de calcular
+      // municipio y renderizar el panel.
+      const esperarClienteDataYRenderizarPanel = (intentosRestantes = 50) => {
+        if (!window.restoredClienteData && intentosRestantes > 0) {
+          setTimeout(() => esperarClienteDataYRenderizarPanel(intentosRestantes - 1), 100);
+          return;
+        }
         try {
           // Obtener municipio del cliente
           const municipio = window.restoredClienteData?.nombre?.toLowerCase() || 'laplata';
@@ -4123,7 +4138,8 @@ auth.onAuthStateChanged((user) => {
         } catch (error) {
           console.error('❌ Error inicializando panel de preguntas:', error);
         }
-      }, 500);
+      };
+      esperarClienteDataYRenderizarPanel();
     }
     
     // Adjuntar listener al checkbox de heatmap
