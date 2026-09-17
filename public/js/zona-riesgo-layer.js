@@ -1195,6 +1195,54 @@ window.ZonaRiesgoLayer = (() => {
     return { datos: aFormatoHeat(puntos, false), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
   }
 
+  // 🆕 Lista detallada de eventos (2026-09): mismo conjunto EXACTO que usa
+  // getHeatmapCombinado()/el total del panel "¿Qué está pasando en mi
+  // barrio?", así el número de arriba y la cantidad de filas de la tabla
+  // siempre coinciden. Le agrega una etiqueta legible y una fecha
+  // formateada a cada punto para mostrar en una tabla, sin tocar los
+  // objetos originales de "fuentes".
+  const ETIQUETAS_CATEGORIA = {
+    accidentes: 'Siniestro (denuncia vecinal)',
+    vehiculos: 'Robo de vehículo (denuncia vecinal)',
+    personas: 'Robo a persona (denuncia vecinal)'
+  };
+
+  function etiquetaEvento(p) {
+    // Puntos oficiales (extraerPuntosDeGeoJson): tienen tipo
+    // 'siniestro_oficial' / 'robo_oficial'.
+    if (p.tipo === 'siniestro_oficial') return 'Siniestro (lista oficial)';
+    if (p.tipo === 'robo_oficial') return 'Robo (lista oficial)';
+    // Puntos de denunciasAmplias: tienen categoria/subcategoria en vez de tipo.
+    if (p.categoria) {
+      const base = ETIQUETAS_CATEGORIA[p.categoria] || `Denuncia vecinal (${p.categoria})`;
+      return p.subcategoria ? `${base} — ${p.subcategoria}` : base;
+    }
+    return 'Evento sin categorizar';
+  }
+
+  function getListaEventos() {
+    const puntos = getTodosLosPuntosPonderables();
+    const lista = puntos.map((p) => ({
+      lat: p.lat,
+      lng: p.lng,
+      etiqueta: etiquetaEvento(p),
+      categoria: p.categoria || (p.tipo === 'siniestro_oficial' ? 'siniestro_oficial' : p.tipo === 'robo_oficial' ? 'robo_oficial' : 'otro'),
+      fecha: p.fecha instanceof Date && !isNaN(p.fecha) ? p.fecha : null,
+      fechaTexto: (p.fecha instanceof Date && !isNaN(p.fecha))
+        ? p.fecha.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : 'Sin fecha',
+      horaValida: !!p.horaValida
+    }));
+    // Más recientes primero; los sin fecha, al final.
+    lista.sort((a, b) => {
+      if (!a.fecha && !b.fecha) return 0;
+      if (!a.fecha) return 1;
+      if (!b.fecha) return -1;
+      return b.fecha - a.fecha;
+    });
+    return { eventos: lista, total: lista.length, sinBarrioOficial: !barrioOficialFeature };
+  }
+
   /**
    * 🆕 Desglose por hora (2026-09): cuenta eventos por hora del día (0-23),
    * pero SOLO entre los que tienen horaValida=true (ver tieneHoraReal más
@@ -1407,6 +1455,7 @@ window.ZonaRiesgoLayer = (() => {
     getHeatmapPersonas,
     getHeatmapSiniestrosViales,
     getHeatmapCombinado,
+    getListaEventos,
     getDesgloseHorarioRoboAutomotor,
     getDesgloseHorarioPersonas,
     getDesgloseHorarioSiniestrosViales,
