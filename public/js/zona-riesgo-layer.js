@@ -41,6 +41,15 @@
 window.ZonaRiesgoLayer = (() => {
   const RADIO_CONSULTA_M = 300; // metros para el conteo al tocar el mapa
 
+  // 🆕 (2026-09) "Puntos calientes": para que el popup de Zona de Riesgo
+  // dé el MISMO resultado sin importar si el click cae 30-50m a un lado
+  // u otro de una esquina conflictiva (algo que pasaba seguido entre la
+  // vista admin y la vista vecino, con zooms/pantallas distintas), el
+  // click se "engancha" al punto con más eventos acumulados que tenga
+  // cerca, en vez de usarse tal cual. Ver buscarPuntoCalienteCercano().
+  const RADIO_ENGANCHE_M = 40; // distancia máxima para engancharse a un punto caliente
+  const MIN_EVENTOS_PUNTO_CALIENTE = 3; // mínimo de eventos agrupados para contar como "caliente"
+
   // Umbrales de cantidad de eventos dentro del radio de consulta para
   // clasificar el nivel de riesgo. Son un punto de partida razonable;
   // conviene ajustarlos con el volumen real de datos de cada ciudad una
@@ -73,6 +82,10 @@ window.ZonaRiesgoLayer = (() => {
   let modoComparador = false;
   let clickHandlerAttached = false;
   let barriosGeoJson = null;
+  // 🆕 (2026-09) Cache de puntos calientes — se recalcula solo cuando
+  // cambian los datos (ver puntosCalientesDirty), no en cada click.
+  let puntosCalientes = null;
+  let puntosCalientesDirty = true;
   let barrioHighlight = null;
   // 🆕 Zonas calientes (2026-09): polígono oficial (del catastro de 124
   // barrios de Mar del Plata) que corresponde al barrio_slug del CLIENTE
@@ -269,6 +282,7 @@ window.ZonaRiesgoLayer = (() => {
     fuentes.siniestros_oficial = extraerPuntosDeGeoJson(geojson, 'siniestro_oficial');
     const conFecha = fuentes.siniestros_oficial.filter((p) => p.fecha).length;
     console.log(`🚨🔥 ZonaRiesgoLayer: siniestros oficiales con fecha reconocida: ${conFecha}/${fuentes.siniestros_oficial.length}`);
+    puntosCalientesDirty = true;
     render();
   }
 
@@ -279,6 +293,7 @@ window.ZonaRiesgoLayer = (() => {
     fuentes.robos_oficial = extraerPuntosDeGeoJson(geojson, 'robo_oficial');
     const conFecha = fuentes.robos_oficial.filter((p) => p.fecha).length;
     console.log(`🚨🔥 ZonaRiesgoLayer: robos oficiales con fecha reconocida: ${conFecha}/${fuentes.robos_oficial.length}`);
+    puntosCalientesDirty = true;
     render();
   }
 
@@ -400,6 +415,7 @@ window.ZonaRiesgoLayer = (() => {
     fuentes.robos_vecino = robosVecino;
     fuentes.robos_personas_vecino = robosPersonasVecino;
     fuentes.denuncias_amplias = denunciasAmplias;
+    puntosCalientesDirty = true;
     // 🔧 DEBUG (temporal, sacar cuando esté confirmado): para verificar
     // que las denuncias de "entradera/asalto" realmente llegan con
     // categoria === 'personas' y coordenadas válidas.
@@ -752,7 +768,7 @@ window.ZonaRiesgoLayer = (() => {
   // buscarlo de nuevo acá por punto-en-polígono). Si no se pasa ningún
   // feature (click en el mapa vacío, fuera de cualquier barrio dibujado),
   // se sigue usando la búsqueda por punto-en-polígono de siempre.
-  function mostrarPopupRiesgo(lat, lng, featureBarrioConocido) {
+  function mostrarPopupRiesgo(lat, lng, featureBarrioConocido, fueEnganchado) {
     const conteo = contarEnRadio(lat, lng);
     const totalSiniestros = conteo.siniestro_oficial + conteo.siniestro_vecino;
     // "Robos" que se muestra en pantalla: cuenta parejo, 1 evento = 1,
@@ -810,9 +826,110 @@ window.ZonaRiesgoLayer = (() => {
         <div style="font-size: 10px; color: #999; margin-top: 2px;">
           📌 ${lat.toFixed(4)}, ${lng.toFixed(4)}
         </div>
+        ${fueEnganchado ? `
+        <div style="font-size: 10px; color: #0369a1; margin-top: 4px;">
+          🧲 Ajustado al punto de referencia más cercano, para que el resultado no cambie según dónde toques exactamente.
+        </div>` : ''}
       </div>
     `;
     clickMarker.bindPopup(popupContent).openPopup();
+  }
+
+  // 🆕 (2026-09) Agrupa TODOS los eventos (oficiales + de vecinos) por
+  // cercanía geográfica, usando una grilla para no tener que comparar
+  // cada punto contra todos los demás (con miles de eventos, comparar
+  // todos-contra-todos sería demasiado lento en el navegador).
+  //
+  // Cada celda de la grilla mide RADIO_ENGANCHE_M metros. Para cada
+  // punto, solo se compara contra los demás puntos de su misma celda y
+  // las 8 celdas vecinas — suficiente porque dos puntos a menos de
+  // RADIO_ENGANCHE_M SIEMPRE caen en la misma celda o en una adyacente.
+  function calcularPuntosCalientes() {
+    const todos = getTodosLosPuntos();
+    if (todos.length === 0) {
+      puntosCalientes = [];
+      puntosCalientesDirty = false;
+      return;
+    }
+
+    // Conversión aproximada lat/lng -> metros (válida para distancias
+    // chicas como estas, no hace falta más precisión que esto).
+    const latRef = todos[0].lat;
+    const metrosPorGradoLat = 111320;
+    const metrosPorGradoLng = 111320 * Math.cos((latRef * Math.PI) / 180);
+    const aX = (p) => p.lng * metrosPorGradoLng;
+    const aY = (p) => p.lat * metrosPorGradoLat;
+
+    const celdas = new Map(); // "cx,cy" -> [indices]
+    const claveCelda = (x, y) => `${Math.floor(x / RADIO_ENGANCHE_M)},${Math.floor(y / RADIO_ENGANCHE_M)}`;
+
+    const coords = todos.map((p) => ({ x: aX(p), y: aY(p) }));
+    coords.forEach((c, i) => {
+      const clave = claveCelda(c.x, c.y);
+      if (!celdas.has(clave)) celdas.set(clave, []);
+      celdas.get(clave).push(i);
+    });
+
+    const usados = new Array(todos.length).fill(false);
+    const grupos = [];
+
+    for (let i = 0; i < todos.length; i++) {
+      if (usados[i]) continue;
+      const cx = Math.floor(coords[i].x / RADIO_ENGANCHE_M);
+      const cy = Math.floor(coords[i].y / RADIO_ENGANCHE_M);
+      const grupo = [i];
+      usados[i] = true;
+
+      // Revisar la celda propia + las 8 vecinas
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+          const vecinos = celdas.get(`${cx + dx},${cy + dy}`);
+          if (!vecinos) continue;
+          for (const j of vecinos) {
+            if (usados[j]) continue;
+            const dist = Math.hypot(coords[j].x - coords[i].x, coords[j].y - coords[i].y);
+            if (dist <= RADIO_ENGANCHE_M) {
+              grupo.push(j);
+              usados[j] = true;
+            }
+          }
+        }
+      }
+
+      if (grupo.length >= MIN_EVENTOS_PUNTO_CALIENTE) {
+        const lat = grupo.reduce((s, idx) => s + todos[idx].lat, 0) / grupo.length;
+        const lng = grupo.reduce((s, idx) => s + todos[idx].lng, 0) / grupo.length;
+        const peso = grupo.reduce((s, idx) => s + pesoDePunto(todos[idx]), 0);
+        grupos.push({ lat, lng, cantidad: grupo.length, peso });
+      }
+    }
+
+    puntosCalientes = grupos;
+    puntosCalientesDirty = false;
+    console.log(`🌡️ ZonaRiesgoLayer: ${grupos.length} puntos calientes calculados (≥${MIN_EVENTOS_PUNTO_CALIENTE} eventos en ${RADIO_ENGANCHE_M}m)`);
+  }
+
+  // Busca, entre los puntos calientes ya calculados, el de MAYOR peso
+  // que esté a menos de RADIO_ENGANCHE_M del punto clickeado. Si hay
+  // varios candidatos cerca, se prioriza el más "caliente" (más peso),
+  // no el más cercano — la idea es enganchar a la esquina más relevante,
+  // no a la que por casualidad está unos metros más cerca.
+  function buscarPuntoCalienteCercano(lat, lng) {
+    if (puntosCalientesDirty || puntosCalientes === null) {
+      calcularPuntosCalientes();
+    }
+    if (!puntosCalientes || puntosCalientes.length === 0) return null;
+
+    let mejor = null;
+    for (const punto of puntosCalientes) {
+      const dist = distanciaMetros(lat, lng, punto.lat, punto.lng);
+      if (dist <= RADIO_ENGANCHE_M) {
+        if (!mejor || punto.peso > mejor.peso) {
+          mejor = punto;
+        }
+      }
+    }
+    return mejor;
   }
 
   function onMapClick(e) {
@@ -830,7 +947,15 @@ window.ZonaRiesgoLayer = (() => {
     }
     if (!isVisible) return;
 
-    mostrarPopupRiesgo(e.latlng.lat, e.latlng.lng, null);
+    // 🆕 Enganchar al punto caliente más cercano (si hay uno a menos de
+    // RADIO_ENGANCHE_M), para que el resultado no dependa de si el click
+    // cayó unos metros de un lado u otro de una esquina conflictiva.
+    const puntoCaliente = buscarPuntoCalienteCercano(e.latlng.lat, e.latlng.lng);
+    if (puntoCaliente) {
+      mostrarPopupRiesgo(puntoCaliente.lat, puntoCaliente.lng, null, true);
+    } else {
+      mostrarPopupRiesgo(e.latlng.lat, e.latlng.lng, null, false);
+    }
   }
 
   function renderResultadoComparador(r, ambitoTexto) {
@@ -1070,54 +1195,6 @@ window.ZonaRiesgoLayer = (() => {
     return { datos: aFormatoHeat(puntos, false), total: puntos.length, sinBarrioOficial: !barrioOficialFeature };
   }
 
-  // 🆕 Lista detallada de eventos (2026-09): mismo conjunto EXACTO que usa
-  // getHeatmapCombinado()/el total del panel "¿Qué está pasando en mi
-  // barrio?", así el número de arriba y la cantidad de filas de la tabla
-  // siempre coinciden. Le agrega una etiqueta legible y una fecha
-  // formateada a cada punto para mostrar en una tabla, sin tocar los
-  // objetos originales de "fuentes".
-  const ETIQUETAS_CATEGORIA = {
-    accidentes: 'Siniestro (denuncia vecinal)',
-    vehiculos: 'Robo de vehículo (denuncia vecinal)',
-    personas: 'Robo a persona (denuncia vecinal)'
-  };
-
-  function etiquetaEvento(p) {
-    // Puntos oficiales (extraerPuntosDeGeoJson): tienen tipo
-    // 'siniestro_oficial' / 'robo_oficial'.
-    if (p.tipo === 'siniestro_oficial') return 'Siniestro (lista oficial)';
-    if (p.tipo === 'robo_oficial') return 'Robo (lista oficial)';
-    // Puntos de denunciasAmplias: tienen categoria/subcategoria en vez de tipo.
-    if (p.categoria) {
-      const base = ETIQUETAS_CATEGORIA[p.categoria] || `Denuncia vecinal (${p.categoria})`;
-      return p.subcategoria ? `${base} — ${p.subcategoria}` : base;
-    }
-    return 'Evento sin categorizar';
-  }
-
-  function getListaEventos() {
-    const puntos = getTodosLosPuntosPonderables();
-    const lista = puntos.map((p) => ({
-      lat: p.lat,
-      lng: p.lng,
-      etiqueta: etiquetaEvento(p),
-      categoria: p.categoria || (p.tipo === 'siniestro_oficial' ? 'siniestro_oficial' : p.tipo === 'robo_oficial' ? 'robo_oficial' : 'otro'),
-      fecha: p.fecha instanceof Date && !isNaN(p.fecha) ? p.fecha : null,
-      fechaTexto: (p.fecha instanceof Date && !isNaN(p.fecha))
-        ? p.fecha.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-        : 'Sin fecha',
-      horaValida: !!p.horaValida
-    }));
-    // Más recientes primero; los sin fecha, al final.
-    lista.sort((a, b) => {
-      if (!a.fecha && !b.fecha) return 0;
-      if (!a.fecha) return 1;
-      if (!b.fecha) return -1;
-      return b.fecha - a.fecha;
-    });
-    return { eventos: lista, total: lista.length, sinBarrioOficial: !barrioOficialFeature };
-  }
-
   /**
    * 🆕 Desglose por hora (2026-09): cuenta eventos por hora del día (0-23),
    * pero SOLO entre los que tienen horaValida=true (ver tieneHoraReal más
@@ -1330,7 +1407,6 @@ window.ZonaRiesgoLayer = (() => {
     getHeatmapPersonas,
     getHeatmapSiniestrosViales,
     getHeatmapCombinado,
-    getListaEventos,
     getDesgloseHorarioRoboAutomotor,
     getDesgloseHorarioPersonas,
     getDesgloseHorarioSiniestrosViales,
