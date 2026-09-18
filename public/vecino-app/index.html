@@ -74,6 +74,26 @@ textarea { min-height: 90px; resize: vertical; }
   70%  { box-shadow: 0 0 0 14px rgba(220,38,38,0); }
   100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
 }
+/* 🆕 (2026-09) Alarma vecinal — aviso NO urgente de movimiento sospechoso.
+   Naranja, sin el pulso agresivo del botón de pánico, para que no se
+   confunda con una emergencia real. */
+.btn-alerta-vecinal {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  background: #ea580c;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+.btn-alerta-vecinal:active { transform: scale(0.98); }
+.alerta-vecinal-cercana {
+  border-left: 4px solid #ea580c;
+  background: #fff7ed;
+}
 #loading-overlay {
   position: fixed; inset: 0; background: #0f172a; color: #fff;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -246,6 +266,7 @@ label[for="fecha-hecho"], .label-fecha-hecho {
 <div class="container">
   <div id="banner-instalar-container"></div>
   <button class="btn-panico" id="btn-panico" onclick="enviarPanico()">🚨 EMERGENCIA</button>
+  <button class="btn-alerta-vecinal" id="btn-alerta-vecinal" onclick="enviarAlertaVecinal()">🔔 Alerta de movimiento sospechoso</button>
   <button class="btn btn-secondary" id="btn-ver-mapa" style="margin-bottom: 16px;">🗺️ Ver mapa de mi ciudad</button>
   <div class="card">
     <h2>🚨 Alertas Cercanas</h2>
@@ -312,7 +333,7 @@ label[for="fecha-hecho"], .label-fecha-hecho {
 <div class="debug-panel" id="debug-panel"></div>
 <button class="btn-debug" onclick="document.getElementById('debug-panel').classList.toggle('show')">🔧 Debug</button>
 <script src="../js/categories-taxonomy.js?v=20260821004"></script>
-<script src="../js/vecino-app.js?v=20260825001"></script>
+<script src="../js/vecino-app.js?v=20260918001"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW no registrado:', e));

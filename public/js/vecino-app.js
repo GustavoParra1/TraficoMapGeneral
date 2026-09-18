@@ -353,6 +353,7 @@ async function initFirebase() {
       iniciarTrackingUbicacion();
       configurarNotificaciones();
       cargarAlertasCercanas();
+      cargarAlertasVecinalesCercanas();
       mostrarBannerInstalacion();
 
       // 🆕 NUEVO: Botón "Ver mapa de mi ciudad" — abre el mapa (mismo
@@ -549,25 +550,6 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
       hasImage: false,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
-
-    // 🆕 (2026-09) "¿Cuándo pasó?" — si el vecino cambió la fecha (por
-    // ejemplo, se enteró unos días después por una noticia), guardamos esa
-    // fecha por separado en fechaHecho. `timestamp` sigue siendo SIEMPRE
-    // la fecha/hora real de carga (útil para ordenar "Mis Denuncias" y
-    // para el chat); fechaHecho es la fecha real del hecho, la que usa el
-    // mapa para heatmaps y desgloses. Si coincide con hoy, no hace falta
-    // guardarla aparte (timestamp ya alcanza).
-    const fechaHechoInput = document.getElementById('fecha-hecho')?.value; // "YYYY-MM-DD"
-    if (fechaHechoInput) {
-      const hoyStr = new Date().toISOString().split('T')[0];
-      if (fechaHechoInput !== hoyStr) {
-        // Mediodía para evitar corrimientos de día por zona horaria al
-        // convertir de vuelta a Date en el mapa.
-        denuncia.fechaHecho = firebase.firestore.Timestamp.fromDate(
-          new Date(`${fechaHechoInput}T12:00:00`)
-        );
-      }
-    }
     
     // 🆕 Ubicación: si el vecino marcó el punto a mano en el mini-mapa, usar
     // esas coordenadas tal cual (es intencional, no hace falta ir a
@@ -583,22 +565,7 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
         const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 15000 }));
         denuncia.lat = pos.coords.latitude;
         denuncia.lng = pos.coords.longitude;
-      } catch (e) {
-        // 🆕 Antes esto seguía de largo y guardaba la denuncia sin lat/lng
-        // (quedaba invisible para siempre en el mapa del vecino y en el del
-        // admin, que descartan silenciosamente todo doc sin coordenadas).
-        // Ahora frenamos acá y mandamos al vecino a marcar el punto a mano,
-        // igual que cuando elige "Marcar en el mapa" explícitamente.
-        console.warn('Sin GPS', e);
-        alert('No pudimos obtener tu ubicación por GPS. Marcá en el mapa dónde pasó para poder enviar la denuncia.');
-        ubicacionModo = 'mapa';
-        actualizarBotonesUbicacion();
-        inicializarMiniMapaSiHaceFalta();
-        setTimeout(() => miniMapa && miniMapa.invalidateSize(), 50);
-        btn.disabled = false;
-        btn.textContent = 'Enviar Denuncia';
-        return;
-      }
+      } catch (e) { console.warn('Sin GPS'); }
     }
     
     // Subir foto si hay
@@ -625,8 +592,6 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
     await db.collection(`clientes/${clienteId}/denuncias`).add(denuncia);
     console.log('✅ Denuncia enviada');
     document.getElementById('texto').value = '';
-    const fechaHechoEl = document.getElementById('fecha-hecho');
-    if (fechaHechoEl) fechaHechoEl.value = new Date().toISOString().split('T')[0];
     fotoSeleccionada = null;
     document.getElementById('foto-preview').innerHTML = '';
     selectedMainCategory = null;
@@ -788,6 +753,58 @@ function bloquearApp() {
   }
   console.warn('⛔ Vecino no habilitado — app bloqueada');
 } 
+
+// ========================================
+// 🆕 ALARMA VECINAL (movimiento sospechoso, NO es una emergencia)
+// ========================================
+async function enviarAlertaVecinal() {
+  if (!confirm('🔔 ¿Avisar a los vecinos conectados cerca tuyo sobre algo sospechoso? No reemplaza al 911 — si es una emergencia real, usá el botón de EMERGENCIA.')) return;
+  const btn = document.getElementById('btn-alerta-vecinal');
+  btn.disabled = true;
+  btn.textContent = 'Avisando...';
+  try {
+    const mensaje = (prompt('¿Qué viste? (opcional, podés dejarlo vacío)') || '').trim();
+    const denuncia = {
+      categoria: 'alerta_vecinal',
+      texto: mensaje,
+      vecino: vecinoNombre,
+      vecinoEmail: vecinoEmail,
+      estado: 'nueva',
+      emergencia: false, // 🔑 nunca tratar esto como pánico en ningún otro lado del sitio
+      leida: false,
+      hasImage: false,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    // Misma lógica de ubicación que enviarPanico(): GPS fresco si se puede,
+    // si no la última ubicación conocida.
+    try {
+      const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 8000, enableHighAccuracy: true }));
+      if (!esUbicacionInvalida(pos.coords.latitude, pos.coords.longitude)) {
+        denuncia.lat = pos.coords.latitude;
+        denuncia.lng = pos.coords.longitude;
+      }
+    } catch (e) {
+      console.warn('Sin GPS fresco para alarma vecinal, uso la última ubicación conocida:', e.message);
+    }
+    if (denuncia.lat == null && miUltimaUbicacion && !esUbicacionInvalida(miUltimaUbicacion.lat, miUltimaUbicacion.lng)) {
+      denuncia.lat = miUltimaUbicacion.lat;
+      denuncia.lng = miUltimaUbicacion.lng;
+    }
+    if (denuncia.lat == null) {
+      alert('No se pudo obtener tu ubicación — sin ubicación, los vecinos cercanos no van a poder ver la alarma. Probá de nuevo con el GPS activado.');
+      return;
+    }
+    await db.collection(`clientes/${clienteId}/denuncias`).add(denuncia);
+    console.log('🔔 Alarma vecinal enviada');
+    alert(`🔔 Aviso enviado a los vecinos conectados en ${RADIO_ALERTA_METROS}m a la redonda.`);
+  } catch (e) {
+    console.error('❌ Error enviando alarma vecinal:', e);
+    alert('Error enviando el aviso: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔔 Alerta de movimiento sospechoso';
+  }
+}
 
 function logout() {
   if (confirm('¿Cerrar sesión?')) { auth.signOut().then(() => window.location.href = '/login.html'); }
@@ -1064,6 +1081,14 @@ function distanciaMetros(lat1, lng1, lat2, lng2) {
 
 let ultimosPanicosActivos = []; // caché de los pánicos activos recibidos por Firestore
 
+// 🆕 (2026-09) "Alarma vecinal": mismo mecanismo que los pánicos (radio en
+// metros, tiempo real vía Firestore), pero para avisos NO urgentes de
+// movimiento sospechoso — inspirado en las "alarmas comunitarias
+// interconectadas" que menciona la guía de seguridad (sección XIII).
+// Ventana más corta (2 horas, no 30 días): un aviso de "vi algo raro" pierde
+// sentido mucho más rápido que una emergencia activa.
+let ultimasAlertasVecinalesActivas = [];
+
 function cargarAlertasCercanas() {
   // Solo traemos pánicos de los últimos 30 días: un pánico más viejo que eso
   // ya no tiene sentido mostrarlo como "activo", y evita que la consulta
@@ -1082,6 +1107,23 @@ function cargarAlertasCercanas() {
     }, (err) => console.error('Error cargando alertas cercanas:', err));
 }
 
+// 🆕 Alarma vecinal: mismo patrón que cargarAlertasCercanas(), categoría
+// distinta y ventana de tiempo más corta (2hs — ver comentario arriba).
+function cargarAlertasVecinalesCercanas() {
+  const hace2Horas = new Date(Date.now() - 2 * 60 * 60 * 1000);
+
+  db.collection(`clientes/${clienteId}/denuncias`)
+    .where('categoria', '==', 'alerta_vecinal')
+    .where('timestamp', '>=', hace2Horas)
+    .onSnapshot((snap) => {
+      ultimasAlertasVecinalesActivas = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(d => d.vecinoEmail !== vecinoEmail); // no mostrar la mía propia acá
+
+      renderizarAlertasCercanas();
+    }, (err) => console.error('Error cargando alarmas vecinales:', err));
+}
+
 function renderizarAlertasCercanas() {
   const cont = document.getElementById('lista-alertas-cercanas');
   if (!cont) return;
@@ -1091,18 +1133,20 @@ function renderizarAlertasCercanas() {
     return;
   }
 
-  const cercanas = ultimosPanicosActivos.filter(d => {
-    if (d.lat == null || d.lng == null) return false;
-    return distanciaMetros(miUltimaUbicacion.lat, miUltimaUbicacion.lng, d.lat, d.lng) <= RADIO_ALERTA_METROS;
-  });
+  const dentroDelRadio = (d) => d.lat != null && d.lng != null &&
+    distanciaMetros(miUltimaUbicacion.lat, miUltimaUbicacion.lng, d.lat, d.lng) <= RADIO_ALERTA_METROS;
 
-  if (cercanas.length === 0) {
+  const panicosCercanos = ultimosPanicosActivos.filter(dentroDelRadio);
+  const vecinalesCercanas = ultimasAlertasVecinalesActivas.filter(dentroDelRadio);
+
+  if (panicosCercanos.length === 0 && vecinalesCercanas.length === 0) {
     cont.innerHTML = '<div class="empty">Sin alertas activas cerca tuyo</div>';
     return;
   }
 
   cont.innerHTML = '';
-  cercanas.forEach(d => {
+
+  panicosCercanos.forEach(d => {
     const fecha = d.timestamp?.toDate ? d.timestamp.toDate().toLocaleString('es-AR') : '--';
     const dist = Math.round(distanciaMetros(miUltimaUbicacion.lat, miUltimaUbicacion.lng, d.lat, d.lng));
     const div = document.createElement('div');
@@ -1112,6 +1156,30 @@ function renderizarAlertasCercanas() {
       <span class="denuncia-cat">🚨 EMERGENCIA</span>
       <div class="denuncia-fecha">${fecha} · a ${dist}m de vos</div>
       <div><strong>${d.vecino || 'Vecino'}</strong> activó una alerta</div>
+      <div class="chat-box" id="chat-alerta-${d.id}"></div>
+      <div class="chat-input-row">
+        <input type="text" id="input-alerta-${d.id}" placeholder="Escribirle...">
+        <button onclick="enviarChatAlerta('${d.id}')">Enviar</button>
+      </div>
+    `;
+    cont.appendChild(div);
+    escucharChatAlerta(d.id);
+  });
+
+  // 🆕 Tarjetas de alarma vecinal — mismo bloque de chat, estilo naranja
+  // en vez de rojo (no es una emergencia real, ver .alerta-vecinal-cercana
+  // en el <style>).
+  vecinalesCercanas.forEach(d => {
+    const fecha = d.timestamp?.toDate ? d.timestamp.toDate().toLocaleString('es-AR') : '--';
+    const dist = Math.round(distanciaMetros(miUltimaUbicacion.lat, miUltimaUbicacion.lng, d.lat, d.lng));
+    const div = document.createElement('div');
+    div.id = `alerta-cercana-${d.id}`;
+    div.className = 'card denuncia-item alerta-vecinal-cercana';
+    div.innerHTML = `
+      <span class="denuncia-cat" style="background:#fff7ed; color:#c2410c;">🔔 Movimiento sospechoso</span>
+      <div class="denuncia-fecha">${fecha} · a ${dist}m de vos</div>
+      <div><strong>${d.vecino || 'Vecino'}</strong> avisó algo cerca tuyo</div>
+      ${d.texto ? `<div style="margin-top:4px; font-size:13px; color:#475569;">${d.texto}</div>` : ''}
       <div class="chat-box" id="chat-alerta-${d.id}"></div>
       <div class="chat-input-row">
         <input type="text" id="input-alerta-${d.id}" placeholder="Escribirle...">
