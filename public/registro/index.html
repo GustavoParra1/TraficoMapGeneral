@@ -81,7 +81,7 @@ input:focus, select:focus { outline: none; border-color: #0ea5e9; }
     <div class="card">
       <h2>1. Verificá tu celular</h2>
       <label for="telefono">Número de celular</label>
-      <input type="tel" id="telefono" placeholder="+54 9 223 1234567" autocomplete="tel">
+      <input type="tel" id="telefono" placeholder="+54 223 1234567" autocomplete="tel">
       <div class="hint">Incluí código de país y de área. Te vamos a mandar un código por SMS.</div>
       <div id="recaptcha-container"></div>
       <button class="btn btn-primary" id="btn-enviar-sms">Enviar código por SMS</button>
@@ -247,7 +247,7 @@ document.getElementById('btn-enviar-sms').addEventListener('click', async () => 
   const telefono = document.getElementById('telefono').value.trim();
 
   if (!/^\+\d{8,15}$/.test(telefono.replace(/\s+/g, ''))) {
-    mostrarMensaje('Ingresá el celular completo con código de país, ej: +5492231234567', 'error');
+    mostrarMensaje('Ingresá el celular completo con código de país, ej: +542231234567', 'error');
     return;
   }
 
