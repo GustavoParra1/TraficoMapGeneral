@@ -438,7 +438,7 @@ window.ZonaRiesgoLayer = (() => {
   }
 
   function getTodosLosPuntos() {
-    const todos = [
+    let todos = [
       ...fuentes.siniestros_oficial,
       ...fuentes.robos_oficial,
       ...fuentes.siniestros_vecino,
@@ -446,9 +446,39 @@ window.ZonaRiesgoLayer = (() => {
       ...fuentes.robos_personas_vecino
     ];
 
-    // 🆕 Filtro global de barrio: si hay uno seleccionado (!= 'all') y
-    // tenemos el GeoJSON de barrios cargado, nos quedamos solo con los
-    // puntos que caen dentro del polígono de ese barrio.
+    // 🆕 FIX (aislamiento multi-cliente / multi-vecino, 2026-09): esta
+    // función alimenta contarEnRadio() y compararZona() — el popup de
+    // "Riesgo (radio 300m)" que aparece al tocar el mapa, y el comparador
+    // por punto+radio. Hasta ahora NO aplicaban el filtro por polígono
+    // oficial del barrio (barrioOficialFeature, ver setBarrioOficial()),
+    // solo lo aplicaban los heatmaps de "Zonas calientes" a través de
+    // filtrarPorBarrioOficial(). Resultado: un vecino de un cliente
+    // (ej. Constitución) podía ver, en el círculo de 300m al tocar el
+    // mapa, siniestros/robos/denuncias que en realidad pertenecen a otro
+    // barrio/cliente vecino — porque el radio de 300m puede pisar el
+    // límite geográfico aunque el punto tocado esté bien adentro del
+    // barrio propio.
+    //
+    // barrioOficialFeature ya se configura automáticamente para CUALQUIER
+    // cliente (ver app.js: setBarrioOficial() se llama siempre, tanto en
+    // el panel admin como en la app de vecino, a partir del barrio_slug
+    // del cliente) — así que este filtro funciona sin configuración
+    // adicional para cualquier cliente/vecino que use la app.
+    //
+    // Igual que filtrarPorBarrioOficial(): si el polígono oficial todavía
+    // no se cargó (por ejemplo, un instante justo al abrir el mapa, o un
+    // cliente sin barrio_slug matcheable), no filtramos nada acá — mejor
+    // mostrar de más por un instante que ocultar todo por un fallo de
+    // carga.
+    if (barrioOficialFeature) {
+      todos = todos.filter((p) => puntoEnAlgunPoligono(p, [barrioOficialFeature]));
+    }
+
+    // Filtro global de barrio (selector del sidebar "Filtro Global por
+    // Barrio"): si hay uno seleccionado (!= 'all') y tenemos el GeoJSON
+    // de barrios cargado, nos quedamos solo con los puntos que caen
+    // dentro del polígono de ese barrio. Se aplica DESPUÉS del filtro de
+    // arriba, sobre lo que ya haya quedado.
     if (filters.globalBarrio === 'all' || !barriosGeoJson || !Array.isArray(barriosGeoJson.features)) {
       return todos;
     }
