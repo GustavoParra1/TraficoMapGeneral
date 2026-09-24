@@ -577,6 +577,125 @@ async function buscarClienteDelBarrioGeografico(lat, lng) {
   return snap.docs[0].id;
 }
 
+// ============================================================================
+// 🆕 ESPEJO HACIA EL PANEL DE CIUDAD (Mar del Plata) — 2026-09
+// ============================================================================
+/**
+ * A diferencia de buscarClienteDelBarrioGeografico (que exige que exista un
+ * cliente ACTIVO dado de alta para ese barrio puntual), esta función solo
+ * responde "¿este punto cae dentro del límite geográfico de Mar del Plata?".
+ * Se apoya en el mismo polígono (barrios.json) que ya usamos para el espejo
+ * entre barrios, así que no depende de ningún campo nuevo ni de que cada
+ * barrio tenga cliente propio: alcanza con que el punto caiga en CUALQUIERA
+ * de los polígonos de la ciudad. Nunca lanza error — ante cualquier duda,
+ * devuelve false y simplemente no se refleja en el panel de ciudad.
+ */
+async function denunciaEstaEnMarDelPlata(lat, lng) {
+  if (typeof lat !== 'number' || typeof lng !== 'number') return false;
+
+  const barriosGeoJson = await getBarriosMDP();
+  if (!barriosGeoJson || !Array.isArray(barriosGeoJson.features)) return false;
+
+  let punto;
+  try {
+    punto = turf.point([lng, lat]);
+  } catch (err) {
+    return false;
+  }
+
+  return barriosGeoJson.features.some((f) => {
+    try {
+      return turf.booleanPointInPolygon(punto, f);
+    } catch (err) {
+      return false;
+    }
+  });
+}
+
+// ============================================================================
+// 🆕 BACKFILL ÚNICO: reflejar denuncias YA EXISTENTES en el panel de ciudad
+// (Mar del Plata) — 2026-09
+// ============================================================================
+/**
+ * onDenunciaCreada (más arriba) solo refleja denuncias NUEVAS a partir del
+ * deploy. Esta función es un backfill de una sola vez para las que ya
+ * existían antes: recorre todos los clientes (menos mardelplata), lee su
+ * colección denuncias, y para cada una que caiga geográficamente dentro de
+ * Mar del Plata, la copia a clientes/mardelplata/denuncias_ciudad — usando
+ * EXACTAMENTE el mismo criterio (denunciaEstaEnMarDelPlata) que ya usa el
+ * trigger, para que el resultado sea idéntico al que hubiera quedado si el
+ * trigger hubiese existido desde siempre.
+ *
+ * Es segura de correr más de una vez (idempotente: siempre usa el mismo
+ * denunciaId como id del documento espejo, así que repetirla solo
+ * sobrescribe con los mismos datos, no duplica nada).
+ *
+ * Solo el superadmin puede invocarla. No toca ni lee nada fuera de
+ * clientes/{id}/denuncias y clientes/mardelplata/denuncias_ciudad.
+ */
+exports.backfillDenunciasCiudad = functions.https.onCall(async (data, context) => {
+  if (!context.auth || context.auth.token.role !== 'superadmin') {
+    throw new functions.https.HttpsError('permission-denied', 'Solo el superadmin puede correr el backfill');
+  }
+
+  const resumen = {
+    clientesRevisados: 0,
+    denunciasRevisadas: 0,
+    denunciasReflejadas: 0,
+    errores: []
+  };
+
+  try {
+    const clientesSnap = await db.collection('clientes').get();
+
+    for (const clienteDoc of clientesSnap.docs) {
+      const clienteId = clienteDoc.id;
+      if (clienteId === 'mardelplata') continue; // no reflejar contra sí misma
+
+      resumen.clientesRevisados++;
+
+      let denunciasSnap;
+      try {
+        denunciasSnap = await db.collection(`clientes/${clienteId}/denuncias`).get();
+      } catch (errLeer) {
+        resumen.errores.push(`Error leyendo denuncias de ${clienteId}: ${errLeer.message}`);
+        continue;
+      }
+
+      for (const denunciaDoc of denunciasSnap.docs) {
+        resumen.denunciasRevisadas++;
+        const denuncia = denunciaDoc.data();
+        const denunciaId = denunciaDoc.id;
+
+        try {
+          const enMarDelPlata = await denunciaEstaEnMarDelPlata(denuncia.lat, denuncia.lng);
+          if (!enMarDelPlata) continue;
+
+          await db
+            .collection('clientes/mardelplata/denuncias_ciudad')
+            .doc(denunciaId)
+            .set({
+              ...denuncia,
+              archivoEn: admin.firestore.FieldValue.serverTimestamp(),
+              denunciaId,
+              origenClienteId: clienteId
+            });
+
+          resumen.denunciasReflejadas++;
+        } catch (errDenuncia) {
+          resumen.errores.push(`Error con denuncia ${denunciaId} de ${clienteId}: ${errDenuncia.message}`);
+        }
+      }
+    }
+
+    console.log('✅ Backfill denuncias_ciudad completo:', resumen);
+    return resumen;
+  } catch (error) {
+    console.error('❌ Error en backfillDenunciasCiudad:', error);
+    throw new functions.https.HttpsError('internal', error.message);
+  }
+});
+
 exports.registrarVecinoAutoservicio = functions.https.onCall(async (data, context) => {
   try {
     // 1️⃣ Exigir verificación por SMS (Firebase Phone Auth) ANTES de registrar.
@@ -2978,6 +3097,37 @@ exports.onDenunciaCreada = functions.firestore
           ? `📍 Denuncia ${denunciaId} de ${clienteId} impacta SOLO en ${clienteDestino} (barrio geográfico distinto)`
           : `✅ Denuncia ${denunciaId} copiada a histórico (clienteId: ${clienteId})`
       );
+
+      // 🆕 Espejo hacia el panel de ciudad (Mar del Plata) — 2026-09.
+      // Además de todo lo anterior (que no se toca), si el punto cae dentro
+      // del límite geográfico de la ciudad, guardamos una copia liviana en
+      // clientes/mardelplata/denuncias_ciudad para que el panel de ciudad
+      // pueda mostrar TODAS las denuncias de sus barrios en un solo mapa.
+      // Esto es aditivo: no reemplaza ni interfiere con denuncias_historico
+      // de cada barrio, ni con "Mis Denuncias" del vecino (que sigue
+      // leyendo de clientes/{clienteId}/denuncias, sin cambios). Solo se
+      // salta a sí misma si el cliente que reportó YA ES mardelplata, para
+      // no duplicar contra sí mismo.
+      if (clienteId !== 'mardelplata') {
+        try {
+          const enMarDelPlata = await denunciaEstaEnMarDelPlata(denuncia.lat, denuncia.lng);
+          if (enMarDelPlata) {
+            await db
+              .collection('clientes/mardelplata/denuncias_ciudad')
+              .doc(denunciaId)
+              .set({
+                ...denuncia,
+                archivoEn: admin.firestore.FieldValue.serverTimestamp(),
+                denunciaId,
+                origenClienteId: clienteId
+              });
+            console.log(`🏙️ Denuncia ${denunciaId} reflejada en panel de ciudad (mardelplata), origen: ${clienteId}`);
+          }
+        } catch (errCiudad) {
+          // No frenar el guardado normal de la denuncia por esto.
+          console.error('❌ Error reflejando denuncia en panel de ciudad:', errCiudad);
+        }
+      }
 
       return null;
     } catch (error) {

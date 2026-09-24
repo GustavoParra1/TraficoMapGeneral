@@ -143,6 +143,20 @@ service cloud.firestore {
         allow write: if isClienteAdmin(clienteId);
       }
 
+      // 🆕 NUEVO (2026-09): Espejo de denuncias de todos los barrios hacia
+      // el panel de ciudad (hoy, en la práctica, solo se llena para
+      // clienteId == "mardelplata"). La escribe ÚNICAMENTE la Cloud
+      // Function onDenunciaCreada / backfillDenunciasCiudad, que usa el
+      // Admin SDK y por lo tanto ignora estas reglas igual — por eso
+      // "write" queda cerrado a todo el mundo desde el cliente. Solo el
+      // staff de ese cliente (en la práctica, staff de mardelplata) puede
+      // leerla. No cambia el acceso de ningún barrio individual a su
+      // propia colección /denuncias ni /denuncias_historico.
+      match /denuncias_ciudad/{docId} {
+        allow read: if isStaffDeCliente(clienteId);
+        allow write: if false;
+      }
+
       // 🆕 Factores de riesgo (2026-09): observaciones de campo del admin
       // (iluminación, cámaras visibles, visibilidad). Mismo criterio que
       // el resto de las subcolecciones de datos: staff lee y escribe.
