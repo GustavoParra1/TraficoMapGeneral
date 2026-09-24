@@ -9,6 +9,13 @@
 
 window.DenunciasHistoricoLayer = (() => {
   let denunciasData = [];
+  // 🆕 (2026-09) Espejo de denuncias de todos los barrios, exclusivo de
+  // "mardelplata" (clientes/mardelplata/denuncias_ciudad, llenada por la
+  // Cloud Function onDenunciaCreada / backfillDenunciasCiudad). Se guarda
+  // aparte de denunciasData (que sigue siendo SOLO denuncias_historico de
+  // este cliente, sin tocar) y se combinan recién al filtrar/renderizar.
+  let denunciasCiudadData = [];
+  let unsubscribeCiudad = null;
   let filteredDenuncias = [];
   let denunciasLayer = null;
   let map = null;
@@ -173,6 +180,35 @@ window.DenunciasHistoricoLayer = (() => {
     } catch (error) {
       console.error('❌ Error inicializando listener de denuncias:', error);
     }
+
+    // 🆕 (2026-09) Solo para "mardelplata": segundo listener, independiente
+    // del de arriba, sobre clientes/mardelplata/denuncias_ciudad (la copia
+    // de solo lectura que llena la Cloud Function con las denuncias de
+    // TODOS los barrios). No reemplaza ni modifica el listener de
+    // denuncias_historico de este cliente — solo suma una fuente más para
+    // el render. Para cualquier otro clienteId esto ni se ejecuta.
+    if (clienteId === 'mardelplata') {
+      try {
+        console.log('📋 DenunciasHistoricoLayer: Escuchando clientes/mardelplata/denuncias_ciudad');
+        unsubscribeCiudad = window.db
+          .collection('clientes/mardelplata/denuncias_ciudad')
+          .onSnapshot(
+            (snap) => {
+              denunciasCiudadData = [];
+              snap.forEach((doc) => {
+                denunciasCiudadData.push({ id: doc.id, ...doc.data() });
+              });
+              console.log(`📋 ${denunciasCiudadData.length} denuncias de barrios (ciudad) cargadas`);
+              scheduleRender();
+            },
+            (error) => {
+              console.error('❌ Error escuchando denuncias_ciudad:', error);
+            }
+          );
+      } catch (error) {
+        console.error('❌ Error inicializando listener de denuncias_ciudad:', error);
+      }
+    }
   }
 
   /**
@@ -269,7 +305,12 @@ window.DenunciasHistoricoLayer = (() => {
    * Aplicar filtros actuales y re-renderizar
    */
   function applyFilters() {
-    filteredDenuncias = denunciasData.filter((d) => {
+    // 🆕 (2026-09) Fuente combinada: denuncias_historico de este cliente +
+    // (solo si aplica) el espejo de todos los barrios en denuncias_ciudad.
+    // Para cualquier cliente que no sea mardelplata, denunciasCiudadData
+    // queda siempre vacío, así que el resultado es idéntico a antes.
+    const fuente = [...denunciasData, ...denunciasCiudadData];
+    filteredDenuncias = fuente.filter((d) => {
       // Filtro de categoría
       if (filters.categoria !== 'all' && d.categoria !== filters.categoria) {
         return false;
@@ -381,6 +422,11 @@ window.DenunciasHistoricoLayer = (() => {
           <div style="font-size: 10px; color: #999; margin-bottom: 4px;">
             <strong>Reportado por:</strong> ${denuncia.vecino || 'Anónimo'}
           </div>
+          ${denuncia.origenClienteId ? `
+          <div style="font-size: 10px; color: #999; margin-bottom: 4px;">
+            <strong>🏘️ Barrio:</strong> ${denuncia.origenClienteId}
+          </div>
+          ` : ''}
           <div style="font-size: 10px; color: #999; margin-bottom: 4px;">
             <strong>Fecha:</strong> ${formatDate(denuncia.timestamp)}
           </div>
@@ -495,6 +541,9 @@ window.DenunciasHistoricoLayer = (() => {
   function destroy() {
     if (unsubscribe) {
       unsubscribe();
+    }
+    if (unsubscribeCiudad) {
+      unsubscribeCiudad();
     }
     if (map && denunciasLayer) {
       map.removeLayer(denunciasLayer);
