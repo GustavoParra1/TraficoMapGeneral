@@ -374,7 +374,13 @@ window.DenunciasHistoricoLayer = (() => {
         typeof SiniestrosLayer !== 'undefined' &&
         typeof SiniestrosLayer.getBarrioForPoint === 'function'
       ) {
-        const barrioDelPunto = SiniestrosLayer.getBarrioForPoint(d.lat, d.lng);
+        // 🐛 Fix (2026-09): getBarrioForPoint espera UN solo argumento, un
+        // array [lng, lat] (mismo orden que usa GeoJSON) — no dos números
+        // sueltos. Llamarla como getBarrioForPoint(d.lat, d.lng) hacía que
+        // el destructuring interno "const [lng, lat] = point" fallara
+        // (point terminaba siendo solo d.lat, un número, no un array), así
+        // que el filtro geográfico nunca funcionó de verdad.
+        const barrioDelPunto = SiniestrosLayer.getBarrioForPoint([d.lng, d.lat]);
         if (barrioDelPunto) {
           const barrioDelPuntoNormalizado = normalizarNombreBarrio(barrioDelPunto);
           if (barrioDelPuntoNormalizado !== clientePropioBarrioSlug) {
