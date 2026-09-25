@@ -22,6 +22,40 @@ window.DenunciasHistoricoLayer = (() => {
   let isVisible = false;
   let barriosGeoJson = null;
   let unsubscribe = null;
+  // 🆕 (2026-09) Filtro geográfico propio del cliente: oculta en el mapa
+  // cualquier denuncia que geométricamente pertenezca a un barrio distinto
+  // y CONOCIDO (de los 124 polígonos del catastro, vía
+  // SiniestrosLayer.getBarrioForPoint) al del cliente logueado. Esto es
+  // necesario porque las denuncias son colaborativas: un vecino de
+  // Constitución puede estar parado en López de Gomara y cargar una
+  // denuncia ahí — si López de Gomara todavía no existe como cliente, esa
+  // denuncia queda guardada en la colección de Constitución (porque es
+  // donde el vecino está logueado), pero no le pertenece geográficamente y
+  // no debe mostrarse en el mapa de Constitución.
+  // Si el punto cae fuera de todos los polígonos conocidos, no hay certeza
+  // de nada, así que se sigue mostrando (para no ocultar de más por error).
+  // "mardelplata" queda TOTALMENTE exento de este filtro (ver
+  // esMardelplata más abajo): su función es mostrar justamente la unión de
+  // todos los barrios, así que ni siquiera se evalúa la geometría ahí.
+  let clientePropioBarrioSlug = null; // normalizado, ej: "constitucion"
+  let esMardelplata = false;
+
+  /**
+   * Normaliza un nombre de barrio para comparar de forma consistente sin
+   * importar si viene en mayúsculas, con tildes, con espacios o con
+   * guiones (ej: "CONSTITUCION", "Constitución", "constitucion",
+   * "lopez-de-gomara" y "López de Gómara" deben normalizar todos igual).
+   */
+  function normalizarNombreBarrio(nombre) {
+    if (!nombre || typeof nombre !== 'string') return '';
+    return nombre
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // saca tildes/diacríticos
+      .toLowerCase()
+      .trim()
+      .replace(/[\s_]+/g, '-') // espacios/guiones bajos -> guion
+      .replace(/-+/g, '-');
+  }
   // 🆕 (2026-09) Ver comentario en el onSnapshot: colapsa varios rebuilds
   // seguidos (ráfaga de escrituras en Firestore) en uno solo.
   let renderDebounceTimer = null;
@@ -102,6 +136,21 @@ window.DenunciasHistoricoLayer = (() => {
       console.warn('⚠️ DenunciasHistoricoLayer: id/clienteId/idl no encontrado. Estructura disponible:', Object.keys(window.restoredClienteData));
       setTimeout(loadDenunciasFromFirestore, 2000);
       return;
+    }
+
+    // 🆕 (2026-09) Barrio propio del cliente logueado (normalizado) y flag
+    // de mardelplata, para el filtro geográfico "solo mi barrio" en
+    // applyFilters(). mardelplata queda exento: su barrio_slug (si tuviera)
+    // no importa porque el filtro nuevo ni siquiera se evalúa para ese
+    // cliente.
+    esMardelplata = clienteId === 'mardelplata';
+    clientePropioBarrioSlug = normalizarNombreBarrio(
+      window.restoredClienteData.barrio_slug || ''
+    );
+    if (!esMardelplata && !clientePropioBarrioSlug) {
+      console.warn(
+        '⚠️ DenunciasHistoricoLayer: cliente sin barrio_slug propio — el filtro geográfico "solo mi barrio" queda inactivo para este cliente (se sigue mostrando todo, para no ocultar de más por error).'
+      );
     }
 
     // Esperar a que window.db esté disponible
@@ -311,6 +360,32 @@ window.DenunciasHistoricoLayer = (() => {
     // queda siempre vacío, así que el resultado es idéntico a antes.
     const fuente = [...denunciasData, ...denunciasCiudadData];
     filteredDenuncias = fuente.filter((d) => {
+      // 🆕 (2026-09) Filtro geográfico "solo mi barrio": oculta denuncias
+      // que geométricamente pertenecen a otro barrio, distinto y CONOCIDO,
+      // al del cliente logueado. No aplica a mardelplata (ve la unión de
+      // todos los barrios) ni cuando falta algún dato necesario para
+      // decidir con certeza (en esos casos se prefiere mostrar de más
+      // antes que ocultar de más por error).
+      if (
+        !esMardelplata &&
+        clientePropioBarrioSlug &&
+        d.lat &&
+        d.lng &&
+        typeof SiniestrosLayer !== 'undefined' &&
+        typeof SiniestrosLayer.getBarrioForPoint === 'function'
+      ) {
+        const barrioDelPunto = SiniestrosLayer.getBarrioForPoint(d.lat, d.lng);
+        if (barrioDelPunto) {
+          const barrioDelPuntoNormalizado = normalizarNombreBarrio(barrioDelPunto);
+          if (barrioDelPuntoNormalizado !== clientePropioBarrioSlug) {
+            return false;
+          }
+        }
+        // Si getBarrioForPoint no devuelve nada (cae fuera de los 124
+        // polígonos conocidos), no hay certeza de nada — se sigue
+        // mostrando.
+      }
+
       // Filtro de categoría
       if (filters.categoria !== 'all' && d.categoria !== filters.categoria) {
         return false;
