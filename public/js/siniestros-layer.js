@@ -456,48 +456,34 @@ const SiniestrosLayer = (() => {
    */
   function getBarrioForPoint(point) {
     if (!barriosGeoJson) {
-      console.warn('⚠️ barriosGeoJson NO ESTÁ DISPONIBLE en SiniestrosLayer');
       return null;
     }
-    
+
     const totalBarrios = barriosGeoJson.features?.length || 0;
-    
+
     if (totalBarrios === 0) {
-      console.warn('⚠️ barriosGeoJson tiene 0 features');
       return null;
     }
-    
-    // Debug CADA VEZ para ver estructura
-    console.log(`🔍 getBarrioForPoint llamado:`, {
-      point,
-      totalBarrios,
-      primerBarrio: barriosGeoJson.features[0]?.properties,
-      primerGeometry: barriosGeoJson.features[0]?.geometry?.type
-    });
-    
+
     for (let i = 0; i < totalBarrios; i++) {
       const feature = barriosGeoJson.features[i];
-      
+
       // Verificar estructura del geometry antes de pasar a pointInPolygon
       if (!feature.geometry || !feature.geometry.coordinates) {
-        console.warn(`  ⚠️ Feature [${i}] sin geometry válida`);
         continue;
       }
-      
+
       const match = pointInPolygon(point, feature.geometry);
-      
+
       if (match) {
         const barrio = feature.properties?.nombre || feature.properties?.soc_fomen;
-        console.log(`  ✅ COINCIDENCIA EN BARRIO [${i}]: "${barrio}"`);
         if (!barrio) {
-          console.warn('⚠️ Feature coincide pero sin nombre:', feature.properties);
           return 'Sin nombre';
         }
         return barrio;
       }
     }
-    
-    console.warn(`  ❌ Punto [${point[0]}, ${point[1]}] NO ESTÁ EN NINGÚN BARRIO`);
+
     return null;
   }
 
@@ -592,60 +578,46 @@ const SiniestrosLayer = (() => {
 
       // Filtro por barrio global (prioritario)
       if (filters.globalBarrio !== 'all') {
-        // PRIMERO: Chequear si el siniestro tiene un field 'barrio' definido
-        const barrioDelSiniestro = normalized.barrio;
-        
-        if (barrioDelSiniestro) {
-          // USAR EL BARRIO DEL SINIESTRO DIRECTAMENTE
-          if (debugCount < 3) {
-            console.log(`🎯 SINIESTRO [${debugCount}] tiene barrio en CSV: "${barrioDelSiniestro}" vs filtro "${filters.globalBarrio}"`);
-          }
-          debugCount++;
-          
-          // 🆕 Comparar normalizado (mayúsculas, sin tildes) — antes era
-          // exacto/case-sensitive y por eso nunca coincidía "Constitución"
-          // (CSV) contra "CONSTITUCION" (value del select).
-          if (normalizarBarrio(barrioDelSiniestro) !== normalizarBarrio(filters.globalBarrio)) {
-            return false;
-          }
-          // ✅ Coincide, continuar con próximos filtros
-        } else {
-          // FALLBACK: Si no tiene barrio en CSV, usar point-in-polygon
-          const coords = feature.geometry?.coordinates;
-          if (coords && coords.length === 2) {
-            // DEBUG: Solo para los primeros 3 siniestros, log muy detallado
-            if (debugCount < 3) {
-              console.log(`\n🔍 SINIESTRO [${debugCount}] SIN barrio en CSV, usando point-in-polygon`);
-              console.log(`   coords: [${coords[0]}, ${coords[1]}]`);
-              console.log(`   Filtro buscado: "${filters.globalBarrio}"`);
-              console.log(`   barriosGeoJson disponible: ${!!barriosGeoJson}`);
-              console.log(`   barriosGeoJson features: ${barriosGeoJson?.features?.length || 0}`);
-            }
-            
-            const sinBarrio = getBarrioForPoint(coords);
-            
-            if (debugCount < 3) {
-              console.log(`   Resultado de getBarrioForPoint: "${sinBarrio}"`);
-              console.log(`   ¿Coincide? ${normalizarBarrio(sinBarrio) === normalizarBarrio(filters.globalBarrio)}`);
-              if (sinBarrio === null) {
-                console.warn(`   ⚠️ PUNTO ESTÁ FUERA DE TODOS LOS BARRIOS`);
-              }
-              console.log(`🔍\n`);
-            }
-            debugCount++;
-            
-            // Si el punto no está en ningún barrio, excluirlo
-            if (sinBarrio === null) {
-              return false;
-            }
-            
-            // 🆕 Mismo fix: comparar normalizado, no exacto.
-            if (normalizarBarrio(sinBarrio) !== normalizarBarrio(filters.globalBarrio)) {
-              return false;
-            }
-          } else {
-            return false;
-          }
+        const coords = feature.geometry?.coordinates;
+        let barrioResuelto = null;
+
+        // 🆕 (2026-09) PRIORIDAD: geometría real (point-in-polygon) sobre el
+        // texto del CSV. El campo "barrio" del CSV suele traer sub-zonas
+        // mucho más finas que el nombre oficial del barrio (ej: "Regional",
+        // "Belisario Roldán", "Libertad") que nunca coinciden con el barrio
+        // seleccionado en el filtro (ej: "CONSTITUCION") aunque el punto
+        // esté geográficamente adentro de ese barrio.
+        const hayPoligonosDisponibles = !!(barriosGeoJson && barriosGeoJson.features?.length);
+
+        if (hayPoligonosDisponibles && coords && coords.length === 2) {
+          // 🐛 Fix (2026-09): antes, si getBarrioForPoint devolvía null (el
+          // punto geográficamente NO está en ningún barrio conocido), el
+          // código caía al texto del CSV como respaldo — y como el CSV suele
+          // traer mal geocodificados algunos registros con el nombre del
+          // barrio "a mano", puntos claramente AFUERA del polígono real se
+          // colaban igual en el conteo. Ahora: si hay polígonos cargados
+          // para este cliente, el resultado de la geometría es la ÚNICA
+          // fuente de verdad — null significa "no está en este barrio",
+          // punto. El texto del CSV ya NO se usa como respaldo en este caso.
+          barrioResuelto = getBarrioForPoint(coords);
+        } else if (!hayPoligonosDisponibles) {
+          // Sin polígonos cargados para este cliente (nunca se subió un
+          // barrios.json): único caso donde seguimos confiando en el texto
+          // del CSV, igual que el comportamiento de siempre.
+          barrioResuelto = normalized.barrio;
+        }
+
+        if (debugCount < 3) {
+          console.log(`🎯 SINIESTRO [${debugCount}] barrio resuelto: "${barrioResuelto}" (geometría disponible: ${hayPoligonosDisponibles}) vs filtro "${filters.globalBarrio}"`);
+        }
+        debugCount++;
+
+        if (!barrioResuelto) {
+          return false;
+        }
+
+        if (normalizarBarrio(barrioResuelto) !== normalizarBarrio(filters.globalBarrio)) {
+          return false;
         }
       }
 
