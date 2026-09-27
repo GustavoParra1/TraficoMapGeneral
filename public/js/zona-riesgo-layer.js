@@ -437,6 +437,27 @@ window.ZonaRiesgoLayer = (() => {
     render();
   }
 
+  // 🆕 (2026-09) Consulta de radio real (300m): a diferencia de
+  // getTodosLosPuntos(), esta función NO aplica ningún filtro de barrio —
+  // ni el barrio oficial del cliente logueado (barrioOficialFeature) ni el
+  // "Filtro Global por Barrio" del sidebar. El círculo de 300m que se
+  // dibuja al tocar el mapa es una distancia física real: si el punto
+  // tocado está cerca del límite y el radio pisa el barrio vecino, ESE
+  // evento cuenta igual, sin importar de qué barrio sea. Es información
+  // distinta y complementaria a las vistas "por barrio" (heatmap, zonas
+  // calientes), que sí siguen recortando por barrio como siempre — son dos
+  // preguntas distintas ("¿qué hay en este radio real?" vs "¿qué hay en
+  // este barrio?") y cada una usa la fuente de datos que le corresponde.
+  function getPuntosParaRadio() {
+    return [
+      ...fuentes.siniestros_oficial,
+      ...fuentes.robos_oficial,
+      ...fuentes.siniestros_vecino,
+      ...fuentes.robos_vecino,
+      ...fuentes.robos_personas_vecino
+    ];
+  }
+
   function getTodosLosPuntos() {
     let todos = [
       ...fuentes.siniestros_oficial,
@@ -598,7 +619,7 @@ window.ZonaRiesgoLayer = (() => {
       robo_vecino: 0,
       robo_vecino_personas: 0
     };
-    getTodosLosPuntos().forEach((p) => {
+    getPuntosParaRadio().forEach((p) => {
       if (distanciaMetros(lat, lng, p.lat, p.lng) <= RADIO_CONSULTA_M) {
         conteo[p.tipo]++;
       }
@@ -651,7 +672,7 @@ window.ZonaRiesgoLayer = (() => {
    * Comparador por punto + radio (el que ya existía).
    */
   function compararZona(lat, lng, fechaCorte) {
-    const puntos = getTodosLosPuntos().filter(
+    const puntos = getPuntosParaRadio().filter(
       (p) => distanciaMetros(lat, lng, p.lat, p.lng) <= RADIO_CONSULTA_M
     );
     return compararConjunto(puntos, fechaCorte);
