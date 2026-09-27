@@ -16,46 +16,18 @@ window.DenunciasHistoricoLayer = (() => {
   // este cliente, sin tocar) y se combinan recién al filtrar/renderizar.
   let denunciasCiudadData = [];
   let unsubscribeCiudad = null;
+  // 🆕 (2026-09) Filtro geográfico "solo mi barrio": el barrio_slug propio
+  // de este cliente, normalizado, y si este cliente es "mardelplata" (que
+  // queda exento, porque su función es mostrar la unión de todos los
+  // barrios). Se setean una sola vez en loadDenunciasFromFirestore().
+  let miBarrioSlugNormalizado = null;
+  let esClienteMardelplata = false;
   let filteredDenuncias = [];
   let denunciasLayer = null;
   let map = null;
   let isVisible = false;
   let barriosGeoJson = null;
   let unsubscribe = null;
-  // 🆕 (2026-09) Filtro geográfico propio del cliente: oculta en el mapa
-  // cualquier denuncia que geométricamente pertenezca a un barrio distinto
-  // y CONOCIDO (de los 124 polígonos del catastro, vía
-  // SiniestrosLayer.getBarrioForPoint) al del cliente logueado. Esto es
-  // necesario porque las denuncias son colaborativas: un vecino de
-  // Constitución puede estar parado en López de Gomara y cargar una
-  // denuncia ahí — si López de Gomara todavía no existe como cliente, esa
-  // denuncia queda guardada en la colección de Constitución (porque es
-  // donde el vecino está logueado), pero no le pertenece geográficamente y
-  // no debe mostrarse en el mapa de Constitución.
-  // Si el punto cae fuera de todos los polígonos conocidos, no hay certeza
-  // de nada, así que se sigue mostrando (para no ocultar de más por error).
-  // "mardelplata" queda TOTALMENTE exento de este filtro (ver
-  // esMardelplata más abajo): su función es mostrar justamente la unión de
-  // todos los barrios, así que ni siquiera se evalúa la geometría ahí.
-  let clientePropioBarrioSlug = null; // normalizado, ej: "constitucion"
-  let esMardelplata = false;
-
-  /**
-   * Normaliza un nombre de barrio para comparar de forma consistente sin
-   * importar si viene en mayúsculas, con tildes, con espacios o con
-   * guiones (ej: "CONSTITUCION", "Constitución", "constitucion",
-   * "lopez-de-gomara" y "López de Gómara" deben normalizar todos igual).
-   */
-  function normalizarNombreBarrio(nombre) {
-    if (!nombre || typeof nombre !== 'string') return '';
-    return nombre
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // saca tildes/diacríticos
-      .toLowerCase()
-      .trim()
-      .replace(/[\s_]+/g, '-') // espacios/guiones bajos -> guion
-      .replace(/-+/g, '-');
-  }
   // 🆕 (2026-09) Ver comentario en el onSnapshot: colapsa varios rebuilds
   // seguidos (ráfaga de escrituras en Firestore) en uno solo.
   let renderDebounceTimer = null;
@@ -92,6 +64,34 @@ window.DenunciasHistoricoLayer = (() => {
 
   function getCategoryIcon(categoria) {
     return categoriasIconos[categoria] || '📍';
+  }
+
+  // 🆕 (2026-09) Alimenta ZonaRiesgoLayer (heatmap y círculo de 300m) con la
+  // fuente COMBINADA de denuncias: las propias de este cliente
+  // (denunciasData) + el espejo de todos los barrios (denunciasCiudadData,
+  // que solo tiene contenido para "mardelplata"). Se llama desde los dos
+  // listeners (denuncias_historico propio Y denuncias_ciudad), así que
+  // ZonaRiesgoLayer queda al día sin importar cuál de las dos fuentes
+  // cambió. Para cualquier cliente que no sea mardelplata, denunciasCiudadData
+  // siempre está vacío, así que el resultado es idéntico a antes.
+  function actualizarZonaRiesgoConVecinos() {
+    if (typeof ZonaRiesgoLayer === 'undefined') return;
+    ZonaRiesgoLayer.setDenunciasVecinos([...denunciasData, ...denunciasCiudadData]);
+  }
+
+  // 🆕 (2026-09) Normaliza un nombre/slug de barrio a mayúsculas
+  // alfanuméricas puras, sin tildes/espacios/guiones, para poder comparar
+  // "CONSTITUCION" (nombre en barrios.json) contra "constitucion" o
+  // "lopez-de-gomara" (barrio_slug guardado en el cliente) como si fueran
+  // lo mismo.
+  function normalizarNombreBarrio(str) {
+    if (!str) return '';
+    return str
+      .toString()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '');
   }
 
   // Filtros activos
@@ -131,26 +131,16 @@ window.DenunciasHistoricoLayer = (() => {
 
     // El campo actual es 'id'
     const clienteId = window.restoredClienteData.id || window.restoredClienteData.clienteId || window.restoredClienteData.idl;
-    
+
+    // 🆕 (2026-09) "Solo mi barrio": guardamos el barrio_slug propio
+    // normalizado y si este cliente es mardelplata (exento del filtro).
+    esClienteMardelplata = clienteId === 'mardelplata';
+    miBarrioSlugNormalizado = normalizarNombreBarrio(window.restoredClienteData.barrio_slug);
+
     if (!clienteId) {
       console.warn('⚠️ DenunciasHistoricoLayer: id/clienteId/idl no encontrado. Estructura disponible:', Object.keys(window.restoredClienteData));
       setTimeout(loadDenunciasFromFirestore, 2000);
       return;
-    }
-
-    // 🆕 (2026-09) Barrio propio del cliente logueado (normalizado) y flag
-    // de mardelplata, para el filtro geográfico "solo mi barrio" en
-    // applyFilters(). mardelplata queda exento: su barrio_slug (si tuviera)
-    // no importa porque el filtro nuevo ni siquiera se evalúa para ese
-    // cliente.
-    esMardelplata = clienteId === 'mardelplata';
-    clientePropioBarrioSlug = normalizarNombreBarrio(
-      window.restoredClienteData.barrio_slug || ''
-    );
-    if (!esMardelplata && !clientePropioBarrioSlug) {
-      console.warn(
-        '⚠️ DenunciasHistoricoLayer: cliente sin barrio_slug propio — el filtro geográfico "solo mi barrio" queda inactivo para este cliente (se sigue mostrando todo, para no ocultar de más por error).'
-      );
     }
 
     // Esperar a que window.db esté disponible
@@ -205,14 +195,17 @@ window.DenunciasHistoricoLayer = (() => {
             // recientes.
             scheduleRender();
 
-            // 🚨 Alimentar el heatmap de ZonaRiesgoLayer con las denuncias
-            // de vecinos (filtra internamente siniestros/robos y descarta
-            // el resto). Se llama en cada actualización del snapshot, así
-            // que el heatmap queda al día con cada denuncia nueva. No toca
-            // los íconos de Denuncias, así que no necesita el debounce.
-            if (typeof ZonaRiesgoLayer !== 'undefined') {
-              ZonaRiesgoLayer.setDenunciasVecinos(denunciasData);
-            }
+            // 🚨 Alimentar el heatmap/círculo de 300m de ZonaRiesgoLayer con
+            // las denuncias de vecinos (filtra internamente siniestros/robos
+            // y descarta el resto). Se llama en cada actualización del
+            // snapshot, así que queda al día con cada denuncia nueva. No
+            // toca los íconos de Denuncias, así que no necesita el debounce.
+            // 🆕 (2026-09) Se le pasa la fuente COMBINADA (propia + espejo de
+            // ciudad si aplica) con actualizarZonaRiesgoConVecinos(), no solo
+            // denunciasData — antes, en mardelplata, el círculo de 300m solo
+            // veía sus propias denuncias (casi ninguna) aunque en el mapa sí
+            // se vieran los pines reflejados de todos los barrios.
+            actualizarZonaRiesgoConVecinos();
             // 🆕 Alertas preventivas activas (2026-09): misma fuente cruda
             // (denunciasData), AlertasPreventivasLayer filtra internamente
             // los pánicos activos (categoria === 'panico' && estado !==
@@ -249,6 +242,11 @@ window.DenunciasHistoricoLayer = (() => {
               });
               console.log(`📋 ${denunciasCiudadData.length} denuncias de barrios (ciudad) cargadas`);
               scheduleRender();
+              // 🆕 (2026-09) También refrescamos ZonaRiesgoLayer acá: si el
+              // espejo de ciudad cambió (nueva denuncia en cualquier barrio)
+              // pero denunciasData propia de mardelplata no cambió, el
+              // círculo de 300m igual tiene que verlo.
+              actualizarZonaRiesgoConVecinos();
             },
             (error) => {
               console.error('❌ Error escuchando denuncias_ciudad:', error);
@@ -360,36 +358,25 @@ window.DenunciasHistoricoLayer = (() => {
     // queda siempre vacío, así que el resultado es idéntico a antes.
     const fuente = [...denunciasData, ...denunciasCiudadData];
     filteredDenuncias = fuente.filter((d) => {
-      // 🆕 (2026-09) Filtro geográfico "solo mi barrio": oculta denuncias
-      // que geométricamente pertenecen a otro barrio, distinto y CONOCIDO,
-      // al del cliente logueado. No aplica a mardelplata (ve la unión de
-      // todos los barrios) ni cuando falta algún dato necesario para
-      // decidir con certeza (en esos casos se prefiere mostrar de más
-      // antes que ocultar de más por error).
-      if (
-        !esMardelplata &&
-        clientePropioBarrioSlug &&
-        d.lat &&
-        d.lng &&
-        typeof SiniestrosLayer !== 'undefined' &&
-        typeof SiniestrosLayer.getBarrioForPoint === 'function'
-      ) {
-        // 🐛 Fix (2026-09): getBarrioForPoint espera UN solo argumento, un
-        // array [lng, lat] (mismo orden que usa GeoJSON) — no dos números
-        // sueltos. Llamarla como getBarrioForPoint(d.lat, d.lng) hacía que
-        // el destructuring interno "const [lng, lat] = point" fallara
-        // (point terminaba siendo solo d.lat, un número, no un array), así
-        // que el filtro geográfico nunca funcionó de verdad.
-        const barrioDelPunto = SiniestrosLayer.getBarrioForPoint([d.lng, d.lat]);
-        if (barrioDelPunto) {
-          const barrioDelPuntoNormalizado = normalizarNombreBarrio(barrioDelPunto);
-          if (barrioDelPuntoNormalizado !== clientePropioBarrioSlug) {
+      // 🆕 (2026-09) "Solo mi barrio": si esta denuncia cae geográficamente
+      // adentro de un barrio CONOCIDO y DISTINTO al de este cliente, se
+      // oculta acá (aunque siga guardada en Firestore). Pasa cuando un
+      // vecino reporta desde una zona sin cliente propio dado de alta
+      // todavía (ej: alguien de Constitución reportando en López de
+      // Gomara) y el sistema, al no encontrar a quién redirigir, la deja
+      // archivada bajo el cliente de origen del vecino. mardelplata queda
+      // EXENTO de este filtro a propósito: su función es mostrar la unión
+      // de todos los barrios. Si el punto cae afuera de TODOS los
+      // polígonos conocidos (getBarrioForPoint devuelve null), no hay
+      // certeza de nada, así que por seguridad se deja pasar (comportamiento
+      // de siempre) en vez de ocultarla.
+      if (!esClienteMardelplata && miBarrioSlugNormalizado && d.lat != null && d.lng != null) {
+        if (typeof SiniestrosLayer !== 'undefined' && typeof SiniestrosLayer.getBarrioForPoint === 'function') {
+          const barrioResuelto = SiniestrosLayer.getBarrioForPoint([d.lng, d.lat]);
+          if (barrioResuelto && normalizarNombreBarrio(barrioResuelto) !== miBarrioSlugNormalizado) {
             return false;
           }
         }
-        // Si getBarrioForPoint no devuelve nada (cae fuera de los 124
-        // polígonos conocidos), no hay certeza de nada — se sigue
-        // mostrando.
       }
 
       // Filtro de categoría
