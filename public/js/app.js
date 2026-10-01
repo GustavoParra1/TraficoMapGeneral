@@ -5752,120 +5752,38 @@ auth.onAuthStateChanged((user) => {
       // ==========================================
       globalBarrioSelect = document.getElementById('global-barrio-filter');
       if (globalBarrioSelect && bariosGeoJson && bariosGeoJson.features) {
-        // 🔧 Llenar selector con los MISMOS barrios CALCULADOS que usa el filtro
-        // Usar exactamente la MISMA función que siniestros-layer.js usa
-        
-        const barrios = new Set();
-        let barriosDelGeoJSON = [];
-        
-        // PRIMERO: Obtener nombres de barrios directamente del GeoJSON
-        console.log('📍 GeoJSON features disponibles:', bariosGeoJson.features.length);
-        bariosGeoJson.features.forEach((feature, index) => {
+        // FIX: el selector se llena SOLO con los barrios del GeoJSON de la ciudad activa.
+        // Antes se llenaba desde Firestore (clientes/{clientId}/barrios y /siniestros),
+        // que no depende de la ciudad seleccionada y mezclaba barrios de otra ciudad.
+        const nombresBarrios = new Set();
+        bariosGeoJson.features.forEach((feature) => {
           const nombre = feature.properties?.nombre || feature.properties?.soc_fomen;
-          if (nombre) {
-            barriosDelGeoJSON.push(nombre);
-            console.log(`  [${index}] Barrio GeoJSON: "${nombre}"`);
-          } else {
-            console.warn(`  [${index}] ⚠️ Feature sin nombre:`, feature.properties);
-          }
+          if (nombre && String(nombre).trim()) nombresBarrios.add(String(nombre).trim());
         });
-        
-        // Cargar siniestros y calcular barrios con la MISMA lógica
-        try {
-          const clientDb = window.clientDb || firebase.firestore();
-          const clientId = window.restoredClienteId || 'laplata';
-          
-          // ========== NUEVO: Cargar barrios de la colección de Firestore ==========
-          console.log('📍 Cargando barrios desde colección Firestore...');
-          const barriosRef = clientDb.collection('clientes').doc(clientId).collection('barrios');
-          barriosRef.get().then(barriosSnap => {
-            barriosSnap.forEach(doc => {
-              const data = doc.data();
-              const nombre = data.nombre || data.propiedades?.nombre || data.properties?.nombre;
-              if (nombre) {
-                barrios.add(nombre);
-                console.log(`  ✓ Barrio Firestore: "${nombre}"`);
-              }
-            });
-            console.log(`📍 Total de barrios desde Firestore: ${barriosSnap.size}`);
-          }).catch(e => {
-            console.warn('⚠️ Error cargando barrios de Firestore:', e);
-          });
-          // ==========================================================================
-          
-          const siniestrosRef = clientDb.collection('clientes').doc(clientId).collection('siniestros');
-          
-          siniestrosRef.get().then(async siniestrosSnap => {
-            const barriosCalculados = new Map(); // Para contar ocurrencias
-            let sinBarrioCount = 0;
-            const actualizacionesPromesas = []; // Para guardar las promesas de actualización
-            
-            siniestrosSnap.forEach(doc => {
-              const data = doc.data();
-              
-              // Usar EXACTAMENTE la misma lógica que en la ventana flotante
-              let zona = data.barrio || data.zona;
-              
-              // Si no tiene barrio, calcular con point-in-polygon
-              if (!zona && data.lat && data.lng) {
-                // Usar la MISMA función que SiniestrosLayer expone
-                if (typeof SiniestrosLayer !== 'undefined' && SiniestrosLayer.getBarrioForPoint) {
-                  zona = SiniestrosLayer.getBarrioForPoint([data.lng, data.lat]);
-                }
-              }
-              
-              if (!zona) {
-                zona = 'Sin clasificar';
-                sinBarrioCount++;
-              }
-              
-              barrios.add(zona);
-              barriosCalculados.set(zona, (barriosCalculados.get(zona) || 0) + 1);
-              
-              // 💾 Guardar el barrio calculado en Firestore si no existía
-              if (!data.barrio) {
-                actualizacionesPromesas.push(
-                  doc.ref.update({ barrio: zona }).catch(e => {
-                    console.warn(`⚠️ Error actualizando barrio para doc ${doc.id}:`, e);
-                  })
-                );
-              }
-            });
-            
-            // Esperar a que todas las actualizaciones se completen
-            if (actualizacionesPromesas.length > 0) {
-              console.log(`📝 Guardando ${actualizacionesPromesas.length} barrios en Firestore...`);
-              await Promise.all(actualizacionesPromesas);
-              console.log(`✅ Todos los barrios guardados en Firestore`);
-            }
-            
-            console.log(`✓ Barrios calculados: ${Array.from(barrios).sort().join(', ')}`);
-            console.log(`✓ Siniestros sin barrio: ${sinBarrioCount}`);
-            console.log(`✓ Distribución:`, Object.fromEntries(barriosCalculados));
-            
-            // Agregar opciones de barrios CALCULADOS
-            Array.from(barrios).sort().forEach(barrio => {
-              if (barrio) { // Verificar que no sea vacío
-                const option = document.createElement('option');
-                option.value = barrio;
-                option.textContent = barrio;
-                globalBarrioSelect.appendChild(option);
-              }
-            });
-            
-            console.log(`✓ ${barrios.size} barrios cargados en selector global`);
-          }).catch(e => {
-            console.warn('❌ Error al obtener barrios calculados:', e);
-          });
-        } catch (e) {
-          console.warn('❌ Error al configurar selector de barrios:', e);
+
+        // Limpiar y dejar solo "Todos los Barrios"
+        while (globalBarrioSelect.options.length > 1) {
+          globalBarrioSelect.remove(1);
         }
+        globalBarrioSelect.value = 'all';
+
+        Array.from(nombresBarrios)
+          .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
+          .forEach((nombre) => {
+            const option = document.createElement('option');
+            option.value = nombre;
+            option.textContent = nombre;
+            globalBarrioSelect.appendChild(option);
+          });
+
+        console.log(`✓ ${nombresBarrios.size} barrios cargados en selector global (ciudad: ${currentCity})`);
       }
 
       // ==========================================
       // Evento de Selector Global de Barrio
       // ==========================================
-      if (globalBarrioSelect) {
+      if (globalBarrioSelect && !globalBarrioSelect.dataset.changeBound) {
+        globalBarrioSelect.dataset.changeBound = '1';
         globalBarrioSelect.addEventListener('change', (e) => {
           const barrio = e.target.value;
           console.log('🏘️ Barrio global seleccionado:', barrio);
