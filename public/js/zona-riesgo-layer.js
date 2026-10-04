@@ -634,6 +634,39 @@ window.ZonaRiesgoLayer = (() => {
    * ventana simétrica (misma cantidad de días de cada lado — ver nota en
    * la cabecera del archivo).
    */
+  // 🆕 (2026-10) Cobertura temporal de los datos OFICIALES. El comparador
+  // suma oficiales + denuncias de vecinos en un mismo total. Si los datos
+  // oficiales terminan antes que el período comparado (ej. robos cargados
+  // solo hasta 2024), en esa ventana solo cuentan denuncias de vecinos, y
+  // como esas crecen con la adopción de la app, el "cambio" se sobrestima.
+  // Esta función devuelve avisos para mostrarlo en el resultado.
+  function getAvisosCoberturaOficial(ahora) {
+    const msPorDia = 24 * 60 * 60 * 1000;
+    const avisos = [];
+    [
+      ['robos', fuentes.robos_oficial],
+      ['siniestros', fuentes.siniestros_oficial]
+    ].forEach(([nombre, lista]) => {
+      if (!lista || lista.length === 0) {
+        avisos.push(`No hay ${nombre} oficiales cargados: solo se cuentan denuncias de vecinos.`);
+        return;
+      }
+      let ultima = null;
+      lista.forEach((p) => {
+        if (p.fecha instanceof Date && !isNaN(p.fecha) && (!ultima || p.fecha > ultima)) {
+          ultima = p.fecha;
+        }
+      });
+      if (ultima && (ahora - ultima) > 30 * msPorDia) {
+        avisos.push(
+          `Los ${nombre} oficiales llegan hasta ${ultima.toLocaleDateString('es-AR')}: ` +
+          'después de esa fecha solo se cuentan denuncias de vecinos, así que el cambio puede estar sobrestimado.'
+        );
+      }
+    });
+    return avisos;
+  }
+
   function compararConjunto(puntos, fechaCorte) {
     const msPorDia = 24 * 60 * 60 * 1000;
     const ahora = new Date();
@@ -665,7 +698,9 @@ window.ZonaRiesgoLayer = (() => {
     const totalDespues = Object.values(despues).reduce((a, b) => a + b, 0);
     const cambioPct = totalAntes > 0 ? ((totalDespues - totalAntes) / totalAntes) * 100 : null;
 
-    return { antes, despues, diasAntes, diasDespues, totalAntes, totalDespues, cambioPct, sinFecha };
+    const avisos = getAvisosCoberturaOficial(ahora);
+
+    return { antes, despues, diasAntes, diasDespues, totalAntes, totalDespues, cambioPct, sinFecha, avisos };
   }
 
   /**
@@ -1057,6 +1092,7 @@ window.ZonaRiesgoLayer = (() => {
           Ventana de ${r.diasAntes} días antes vs ${r.diasDespues} días después de la fecha de corte, ${ambitoTexto || `en un radio de ${RADIO_CONSULTA_M}m`}.
           ${r.sinFecha > 0 ? `<br>⚠️ ${r.sinFecha} evento(s) sin fecha reconocible, no se contaron.` : ''}
         </div>
+        ${(r.avisos || []).map((a) => `<div style="font-size: 10px; color: #f59e0b; margin-top: 6px;">⚠️ ${a}</div>`).join('')}
         ${muestraChica ? `<div style="font-size: 10px; color: #f59e0b; margin-top: 6px;">⚠️ Muestra chica (${r.totalAntes + r.totalDespues} eventos en total) — tomalo como indicio, no como dato concluyente.</div>` : ''}
       </div>
     `;
