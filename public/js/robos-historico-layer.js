@@ -27,6 +27,9 @@ window.RobosHistoricoLayer = (() => {
   let isVisible = false;
   let barriosGeoJson = null;
   let unsubscribe = null;
+  // 🆕 (2026-10) Modo SUPERADMIN (mapa global, sin restoredClienteData):
+  // id del cliente (clientes/{id}) según la ciudad elegida en #city-selector.
+  let clienteSuperadmin = null;
 
   // 🆕 Renderer Canvas con "tolerance": agrega un margen invisible alrededor
   // de cada marcador que también cuenta como clickeable/tocable, sin agrandar
@@ -144,27 +147,39 @@ window.RobosHistoricoLayer = (() => {
    * Cargar robos desde Firestore en tiempo real
    */
   function loadRobosFromFirestore() {
-    if (!window.restoredClienteData) {
+    // 🆕 (2026-10) En el mapa global del superadmin no existe
+    // restoredClienteData: se usa el cliente elegido por ciudad.
+    const datosCliente = window.restoredClienteData ||
+      (clienteSuperadmin ? { id: clienteSuperadmin } : null);
+
+    if (!datosCliente) {
       console.warn('⚠️ RobosHistoricoLayer: restoredClienteData no disponible. Reintentando en 2s...');
       setTimeout(loadRobosFromFirestore, 2000);
       return;
     }
 
     // El campo actual es 'id'
-    const clienteId = window.restoredClienteData.id || window.restoredClienteData.clienteId || window.restoredClienteData.idl;
+    const clienteId = datosCliente.id || datosCliente.clienteId || datosCliente.idl;
     
     if (!clienteId) {
-      console.warn('⚠️ RobosHistoricoLayer: id/clienteId/idl no encontrado. Estructura disponible:', Object.keys(window.restoredClienteData));
+      console.warn('⚠️ RobosHistoricoLayer: id/clienteId/idl no encontrado. Estructura disponible:', Object.keys(datosCliente));
       setTimeout(loadRobosFromFirestore, 2000);
       return;
     }
 
     // Esperar a que window.db esté disponible
-    if (!window.db) {
+    // 🆕 (2026-10) En index.html (superadmin) la instancia es `const db`,
+    // que no cuelga de window: se usa como respaldo.
+    const dbRef = window.db || (typeof db !== 'undefined' ? db : null);
+    if (!dbRef) {
       console.warn('⚠️ RobosHistoricoLayer: window.db no disponible, reintentando en 1s...');
       setTimeout(loadRobosFromFirestore, 1000);
       return;
     }
+
+    // 🆕 (2026-10) Evitar listeners duplicados (reintentos pendientes o
+    // cambio de cliente en modo superadmin).
+    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
 
     try {
       // Listener en tiempo real sobre denuncias_historico, filtrando en el
@@ -172,7 +187,7 @@ window.RobosHistoricoLayer = (() => {
       // filtra en el cliente (no con .where() en la query) para no requerir
       // un índice compuesto de Firestore.
       console.log(`🚗 RobosHistoricoLayer: Escuchando clientes/${clienteId}/denuncias_historico (categoria=vehiculos, robos)`);
-      unsubscribe = window.db
+      unsubscribe = dbRef
         .collection(`clientes/${clienteId}/denuncias_historico`)
         .orderBy('timestamp', 'desc')
         .onSnapshot(
@@ -234,7 +249,7 @@ window.RobosHistoricoLayer = (() => {
    * Cargar GeoJSON de barrios
    */
   function cargarBarrios() {
-    const clienteId = window.restoredClienteData?.clienteId;
+    const clienteId = window.restoredClienteData?.clienteId || clienteSuperadmin;
     if (!clienteId) return;
 
     fetch(`/data/barrios-${clienteId}.geojson`)
@@ -530,8 +545,57 @@ window.RobosHistoricoLayer = (() => {
     }
   }
 
+  /**
+   * 🆕 (2026-10) MODO SUPERADMIN: cambia el cliente cuyos datos se escuchan
+   * (clientes/{clienteId}/denuncias_historico). Solo actúa si NO hay
+   * restoredClienteData (mapa global, no modo cliente).
+   */
+  function setClienteSuperadmin(clienteId) {
+    if (window.restoredClienteData) return;
+    if (clienteSuperadmin === clienteId) return;
+    clienteSuperadmin = clienteId || null;
+    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    robosData = [];
+    barriosGeoJson = null;
+    try { applyFilters(); } catch (e) { /* capa aún sin mapa */ }
+    if (clienteSuperadmin) {
+      console.log(`📋 RobosHistoricoLayer: modo superadmin → cliente "${clienteSuperadmin}"`);
+      loadRobosFromFirestore();
+    }
+  }
+
+  // Ciudad del selector global → id del cliente en Firestore.
+  // ⚠️ Verificar en Firestore (colección "clientes") que 'cordoba' sea el id real.
+  const CLIENTE_POR_CIUDAD = {
+    'mar-del-plata': 'mardelplata',
+    'cordoba': 'cordoba'
+  };
+
+  function aplicarCiudadSuperadmin(ciudad) {
+    if (window.restoredClienteData) return;
+    const id = CLIENTE_POR_CIUDAD[ciudad];
+    if (id) setClienteSuperadmin(id);
+  }
+
+  // Detectar la ciudad (valor inicial + cambios) sin tocar app.js.
+  document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'city-selector') {
+      aplicarCiudadSuperadmin(e.target.value);
+    }
+  });
+  (function esperarSelectorCiudad(intentos) {
+    if (window.restoredClienteData) return;
+    const sel = document.getElementById('city-selector');
+    if (sel && sel.value) {
+      aplicarCiudadSuperadmin(sel.value);
+    } else if (intentos > 0) {
+      setTimeout(() => esperarSelectorCiudad(intentos - 1), 1000);
+    }
+  })(60);
+
   // API pública
   return {
+    setClienteSuperadmin,
     init,
     loadRobosFromFirestore,
     applyFilters,
