@@ -423,6 +423,9 @@
 <!-- Leaflet Heat JS -->
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
+<!-- Turf.js (geometria; lo usa client/map.html) -->
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+
 <!-- Firebase JS (v8 Compat) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -500,14 +503,20 @@ if (!isClientMode) {
 <!-- App Scripts -->
 <script src="js/format-help.js?v=20260509001"></script>
 <script src="js/import-cities.js"></script>
+<script src="js/categories-taxonomy.js?v=202609131000"></script>
 <script src="js/geo-layers.js?v=20260509001"></script>
 <script src="js/siniestros-layer.js?v=20260509001"></script>
+<script src="js/siniestros-historico-layer.js?v=202609131000"></script>
+<script src="js/robos-historico-layer.js?v=202609131000"></script>
 <script src="js/cameras-layer.js?v=20260509001"></script>
 <script src="js/private-cameras-layer.js?v=20260509001"></script>
 <script src="js/semaforos-layer.js?v=20260509001"></script>
 <script src="js/colegios-layer.js?v=20260509001"></script>
 <script src="js/corredores-layer.js?v=20260509001"></script>
 <script src="js/heatmap-layer.js?v=20260509001"></script>
+<script src="js/zona-riesgo-layer.js?v=202609231800"></script>
+<script src="js/factores-riesgo-layer.js?v=202609131000"></script>
+<script src="js/alertas-preventivas-layer.js?v=202609131000"></script>
 <script src="js/aforos-layer.js?v=20260509001"></script>
 <script src="js/colectivos-layer.js"></script>
 <script src="js/colectivos-ui.js"></script>
@@ -515,6 +524,7 @@ if (!isClientMode) {
 <script src="js/geo-locator.js"></script>
 <script src="js/lpr-layer-v2.js"></script>
 <script src="js/robo-layer.js?v=20260420001"></script>
+<script src="js/denuncias-historico-layer.js?v=202610041200"></script>
 <script src="js/patrulla-layer.js?v=20260607001"></script>
 <script src="js/patrulla-chat.js?v=20260420001"></script>
 <script src="testing-patrullas.js?v=20260420001"></script>

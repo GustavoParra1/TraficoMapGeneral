@@ -28,6 +28,10 @@ window.DenunciasHistoricoLayer = (() => {
   let isVisible = false;
   let barriosGeoJson = null;
   let unsubscribe = null;
+  // 🆕 (2026-10) Modo SUPERADMIN (mapa global, sin restoredClienteData):
+  // id del cliente (clientes/{id}) cuyas denuncias se muestran, según la
+  // ciudad elegida en #city-selector. Ver setClienteSuperadmin() al final.
+  let clienteSuperadmin = null;
   // 🆕 (2026-09) Ver comentario en el onSnapshot: colapsa varios rebuilds
   // seguidos (ráfaga de escrituras en Firestore) en uno solo.
   let renderDebounceTimer = null;
@@ -123,37 +127,50 @@ window.DenunciasHistoricoLayer = (() => {
    * Cargar denuncias desde Firestore en tiempo real
    */
   function loadDenunciasFromFirestore() {
-    if (!window.restoredClienteData) {
+    // 🆕 (2026-10) En el mapa global del superadmin no existe
+    // restoredClienteData: se usa el cliente elegido por ciudad.
+    const datosCliente = window.restoredClienteData ||
+      (clienteSuperadmin ? { id: clienteSuperadmin } : null);
+
+    if (!datosCliente) {
       console.warn('⚠️ DenunciasHistoricoLayer: restoredClienteData no disponible. Reintentando en 2s...');
       setTimeout(loadDenunciasFromFirestore, 2000);
       return;
     }
 
     // El campo actual es 'id'
-    const clienteId = window.restoredClienteData.id || window.restoredClienteData.clienteId || window.restoredClienteData.idl;
+    const clienteId = datosCliente.id || datosCliente.clienteId || datosCliente.idl;
 
     // 🆕 (2026-09) "Solo mi barrio": guardamos el barrio_slug propio
     // normalizado y si este cliente es mardelplata (exento del filtro).
     esClienteMardelplata = clienteId === 'mardelplata';
-    miBarrioSlugNormalizado = normalizarNombreBarrio(window.restoredClienteData.barrio_slug);
+    miBarrioSlugNormalizado = normalizarNombreBarrio(datosCliente.barrio_slug);
 
     if (!clienteId) {
-      console.warn('⚠️ DenunciasHistoricoLayer: id/clienteId/idl no encontrado. Estructura disponible:', Object.keys(window.restoredClienteData));
+      console.warn('⚠️ DenunciasHistoricoLayer: id/clienteId/idl no encontrado. Estructura disponible:', Object.keys(datosCliente));
       setTimeout(loadDenunciasFromFirestore, 2000);
       return;
     }
 
     // Esperar a que window.db esté disponible
-    if (!window.db) {
+    // 🆕 (2026-10) En index.html (superadmin) la instancia es `const db`,
+    // que no cuelga de window: se usa como respaldo.
+    const dbRef = window.db || (typeof db !== 'undefined' ? db : null);
+    if (!dbRef) {
       console.warn('⚠️ DenunciasHistoricoLayer: window.db no disponible, reintentando en 1s...');
       setTimeout(loadDenunciasFromFirestore, 1000);
       return;
     }
 
+    // 🆕 (2026-10) Evitar listeners duplicados (reintentos pendientes o
+    // cambio de cliente en modo superadmin).
+    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    if (unsubscribeCiudad) { unsubscribeCiudad(); unsubscribeCiudad = null; }
+
     try {
       // Listener en tiempo real - usar window.db
       console.log(`📋 DenunciasHistoricoLayer: Escuchando clientes/${clienteId}/denuncias_historico`);
-      unsubscribe = window.db
+      unsubscribe = dbRef
         .collection(`clientes/${clienteId}/denuncias_historico`)
         .orderBy('timestamp', 'desc')
         .onSnapshot(
@@ -232,7 +249,7 @@ window.DenunciasHistoricoLayer = (() => {
     if (clienteId === 'mardelplata') {
       try {
         console.log('📋 DenunciasHistoricoLayer: Escuchando clientes/mardelplata/denuncias_ciudad');
-        unsubscribeCiudad = window.db
+        unsubscribeCiudad = dbRef
           .collection('clientes/mardelplata/denuncias_ciudad')
           .onSnapshot(
             (snap) => {
@@ -618,8 +635,58 @@ window.DenunciasHistoricoLayer = (() => {
     }
   }
 
+  /**
+   * 🆕 (2026-10) MODO SUPERADMIN: cambia el cliente cuyas denuncias se
+   * escuchan (clientes/{clienteId}/denuncias_historico). Solo actúa si NO
+   * hay restoredClienteData (o sea, en el mapa global, no en modo cliente).
+   */
+  function setClienteSuperadmin(clienteId) {
+    if (window.restoredClienteData) return;
+    if (clienteSuperadmin === clienteId) return;
+    clienteSuperadmin = clienteId || null;
+    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    if (unsubscribeCiudad) { unsubscribeCiudad(); unsubscribeCiudad = null; }
+    denunciasData = [];
+    denunciasCiudadData = [];
+    scheduleRender();
+    if (clienteSuperadmin) {
+      console.log(`📋 DenunciasHistoricoLayer: modo superadmin → cliente "${clienteSuperadmin}"`);
+      loadDenunciasFromFirestore();
+    }
+  }
+
+  // Ciudad del selector global → id del cliente en Firestore.
+  // ⚠️ Verificar en Firestore (colección "clientes") que 'cordoba' sea el id real.
+  const CLIENTE_POR_CIUDAD = {
+    'mar-del-plata': 'mardelplata',
+    'cordoba': 'cordoba'
+  };
+
+  function aplicarCiudadSuperadmin(ciudad) {
+    if (window.restoredClienteData) return;
+    const id = CLIENTE_POR_CIUDAD[ciudad];
+    if (id) setClienteSuperadmin(id);
+  }
+
+  // Detectar la ciudad (valor inicial + cambios) sin tocar app.js.
+  document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'city-selector') {
+      aplicarCiudadSuperadmin(e.target.value);
+    }
+  });
+  (function esperarSelectorCiudad(intentos) {
+    if (window.restoredClienteData) return;
+    const sel = document.getElementById('city-selector');
+    if (sel && sel.value) {
+      aplicarCiudadSuperadmin(sel.value);
+    } else if (intentos > 0) {
+      setTimeout(() => esperarSelectorCiudad(intentos - 1), 1000);
+    }
+  })(60);
+
   // API pública
   return {
+    setClienteSuperadmin,
     init,
     loadDenunciasFromFirestore,
     applyFilters,
