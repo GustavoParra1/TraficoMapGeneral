@@ -202,6 +202,16 @@ class ClientMapManager {
       panico: L.featureGroup()
     };
 
+    // 🆕 (2026-09) Capa extra SOLO para el cliente "mardelplata": muestra el
+    // espejo de denuncias de todos los barrios (clientes/mardelplata/denuncias_ciudad),
+    // que llena la Cloud Function onDenunciaCreada / backfillDenunciasCiudad.
+    // No se crea para ningún otro cliente, así que ningún barrio individual
+    // pierde ni gana nada — su mapa sigue leyendo únicamente su propia
+    // colección "denuncias", igual que siempre.
+    if (this.clientId === 'mardelplata') {
+      this.layers.denuncias_ciudad = L.featureGroup();
+    }
+
     // Agregar todas las capas al mapa por defecto
     Object.entries(this.layers).forEach(([name, layer]) => {
       layer.addTo(this.map);
@@ -243,6 +253,13 @@ class ClientMapManager {
       await this.loadMarkers('flujo', 'flujo');
       await this.loadColectivos();
       await this.loadDenuncias();
+
+      // 🆕 (2026-09) Solo para mardelplata: sumar las denuncias reflejadas
+      // de todos los barrios. Para cualquier otro cliente this.layers.denuncias_ciudad
+      // ni siquiera existe, así que esta función no se llama.
+      if (this.clientId === 'mardelplata') {
+        await this.loadDenunciasCiudad();
+      }
 
       console.log('✅ Todos los datos cargados');
       console.log('📊 Bounds actual:', this.bounds);
@@ -440,6 +457,73 @@ class ClientMapManager {
       console.log(`${count > 0 ? '✅' : '⚠️'} ${count} denuncias cargadas · ${countPanico > 0 ? '🚨' : '⚠️'} ${countPanico} alertas de pánico`);
     } catch (error) {
       console.error('❌ Error cargando denuncias:', error);
+    }
+  }
+
+  // 🆕 (2026-09) Denuncias reflejadas de TODOS los barrios de Mar del Plata,
+  // exclusivo del cliente "mardelplata". Lee clientes/mardelplata/denuncias_ciudad
+  // (llenada por la Cloud Function onDenunciaCreada / backfillDenunciasCiudad),
+  // que es una COPIA de solo lectura — nunca se escribe desde acá, así que no
+  // hay forma de que esto interfiera con la colección "denuncias" real de
+  // cada barrio ni con su propio panel. Reutiliza el mismo criterio de
+  // estilos por categoría que loadDenuncias(), y suma el nombre del barrio
+  // de origen en el popup, con link directo al panel de ESE barrio.
+  async loadDenunciasCiudad() {
+    try {
+      const colPath = `clientes/${this.clientId}/denuncias_ciudad`;
+      console.log(`🔄 Cargando denuncias de barrios (ciudad) desde: ${colPath}`);
+
+      const ref = firebase.firestore().collection(colPath);
+      const snap = await ref.get();
+
+      let count = 0;
+
+      snap.forEach(doc => {
+        const data = doc.data();
+        if (!data.lat || !data.lng) return;
+
+        const esPanico = data.emergencia === true || data.categoria === 'panico';
+        const categoriasConocidas = ['luminarias', 'semaforos', 'baches', 'sospechosos', 'robos', 'choques'];
+        const styleKey = esPanico
+          ? 'panico'
+          : (categoriasConocidas.includes(data.categoria) ? data.categoria : 'denuncia_otro');
+        const style = this.getLayerStyle(styleKey);
+
+        const marker = this.createMarker([data.lat, data.lng], {
+          title: esPanico ? '🚨 Alerta de pánico' : (data.categoria || 'Denuncia'),
+          type: styleKey,
+          icon: style.icon,
+          iconSize: style.iconSize
+        });
+
+        const fecha = this.formatDate(data.timestamp);
+        const foto = data.hasImage && data.imageUrl
+          ? `<img src="${data.imageUrl}" style="max-width:180px;border-radius:6px;margin:6px 0;display:block;" onclick="window.open('${data.imageUrl}','_blank')">`
+          : '';
+        const origenClienteId = data.origenClienteId || 'desconocido';
+        const linkPanel = `../denuncias/?cliente=${origenClienteId}#denuncia-${doc.id}`;
+
+        const popupContent = `
+          <div style="max-width: 240px; font-size: 12px;">
+            <strong>${esPanico ? '🚨 EMERGENCIA' : (data.categoria || 'Denuncia')}</strong><br>
+            <span>🏘️ Barrio: <b>${origenClienteId}</b></span><br>
+            <span>👤 ${data.vecino || 'Anónimo'}</span><br>
+            ${data.texto ? `<span>${data.texto}</span><br>` : ''}
+            ${foto}
+            <small class="text-muted">${fecha}</small><br>
+            <a href="${linkPanel}" target="_blank" style="display:inline-block;margin-top:6px;color:#667eea;font-weight:600;">Ver en el panel de ${origenClienteId} →</a>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
+
+        marker.addTo(this.layers.denuncias_ciudad);
+        count++;
+        this.expandBounds([data.lat, data.lng]);
+      });
+
+      console.log(`${count > 0 ? '✅' : '⚠️'} ${count} denuncias de barrios cargadas en el panel de ciudad`);
+    } catch (error) {
+      console.error('❌ Error cargando denuncias de ciudad:', error);
     }
   }
 
@@ -687,6 +771,13 @@ class ClientMapManager {
       '📢 Denuncias Vecinales': this.layers.denuncias,
       '🚨 Alertas de Pánico': this.layers.panico
     };
+
+    // 🆕 Solo aparece para el cliente "mardelplata" (ver init()); para
+    // cualquier otro cliente this.layers.denuncias_ciudad no existe y esta
+    // entrada simplemente no se agrega al control.
+    if (this.layers.denuncias_ciudad) {
+      overlayMaps['📢🏘️ Denuncias de Barrios (todos)'] = this.layers.denuncias_ciudad;
+    }
 
     this.layerControl = L.control.layers(null, overlayMaps, {
       position: 'topright',

@@ -3,6 +3,7 @@
     "source": "functions"
   },
   "hosting": {
+    "site": "trafico-map-general-v2",
     "public": "public",
     "ignore": [
       "firebase.json",
