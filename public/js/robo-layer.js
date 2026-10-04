@@ -615,6 +615,8 @@ const RoboLayer = (() => {
     toggle,
     setBarriosData,
     clearMarkers,
-    getVisibleRobos: () => filteredRobo
+    getVisibleRobos: () => filteredRobo,
+    // 🆕 (2026-10) Todos los robos cargados (sin filtros), para ZonaRiesgoLayer
+    getAll: () => roboData
   };
 })();

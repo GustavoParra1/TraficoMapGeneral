@@ -1263,6 +1263,21 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
           
           console.log(`       ✓ Robos cargados`);
           
+          // FIX (2026-10): en el mapa del superadmin los robos van a RoboLayer
+          // (CSV o GeoJSON) pero nunca llegaban a la Zona de Riesgo, que por eso
+          // contaba solo las denuncias de vecinos (ej. "Robos: 4").
+          if (typeof ZonaRiesgoLayer !== 'undefined' && RoboLayer.getAll) {
+            const robosParaRiesgo = {
+              type: 'FeatureCollection',
+              features: RoboLayer.getAll().map((r) => ({
+                type: 'Feature',
+                geometry: { type: 'Point', coordinates: [r.lng, r.lat] },
+                properties: { fecha: r.fecha, resultado: r.resultado, year: r.year }
+              }))
+            };
+            ZonaRiesgoLayer.setRobosOficiales(robosParaRiesgo);
+          }
+          
           // Poblar los filtros de robos
           setTimeout(() => {
             populateRoboFilters();
@@ -1270,6 +1285,9 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
         } catch (error) {
           console.warn('⚠️ Error cargando robos:', error);
         }
+      } else if (typeof ZonaRiesgoLayer !== 'undefined') {
+        // Ciudad sin capa de robos: limpiar los de la ciudad anterior.
+        ZonaRiesgoLayer.setRobosOficiales({ type: 'FeatureCollection', features: [] });
       }
       // Semáforos
       if (cityConfig.optionalLayers.semaforos) {
