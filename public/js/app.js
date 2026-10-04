@@ -1118,6 +1118,13 @@ async function cargarDatosGeograficos(cityId = 'mar-del-plata') {
       SiniestrosLayer.clearFilters();
       // Actualizar también el heatmap con los nuevos datos
       heatmapLayer.setData(sinGeoJson);
+      // FIX (2026-10): en el mapa del superadmin (carga por ciudad) la Zona
+      // de Riesgo nunca recibía los siniestros oficiales: solo los recibía el
+      // camino de modo cliente (cargarDatosFromClienteFirestore). Por eso el
+      // popup mostraba "Siniestros: 0" aunque el mapa tuviera miles.
+      if (typeof ZonaRiesgoLayer !== 'undefined') {
+        ZonaRiesgoLayer.setSiniestrosOficiales(sinGeoJson);
+      }
       // Pasar barrios al heatmap para filtrado geopolítico
       if (bariosGeoJson) {
         heatmapLayer.setBarriosGeoJson(bariosGeoJson);
