@@ -231,6 +231,52 @@ service cloud.firestore {
     }
 
     // ========================================================================
+    // VEHICULOS CON TRACKER GPS (Traccar)
+    // Coleccion propia, independiente de clientes/denuncias/patrullas.
+    // - Dueno (duenoUid): ve su auto siempre; solo puede cambiar "robado" y
+    //   "compartidoCon" (hasta 5 uids de familiares, de cualquier cliente).
+    // - Familiar (uid en compartidoCon): ve el auto siempre, solo lectura.
+    // - Admin/operario del cliente del auto y superadmin: ven el auto SOLO si
+    //   robado == true. Las patrullas no ven nada de esto.
+    // - La posicion y el historial los escribe unicamente la Cloud Function
+    //   traccarWebhook (Admin SDK, ignora estas reglas).
+    // Los datos duenoUid/clienteId los asigna el servidor; nunca el cliente.
+    // ========================================================================
+    match /vehiculos/{vehiculoId} {
+      function esDueno(v) {
+        return isSignedIn() && v.get('duenoUid', '') == request.auth.uid;
+      }
+      function esFamiliar(v) {
+        return isSignedIn() && request.auth.uid in v.get('compartidoCon', []);
+      }
+      function esCentroControl(v) {
+        return v.get('robado', false) == true
+          && (isSuperadmin()
+              || isClienteAdmin(v.get('clienteId', ''))
+              || isOperarioDeCliente(v.get('clienteId', '')));
+      }
+      function puedeVer(v) {
+        return esDueno(v) || esFamiliar(v) || esCentroControl(v);
+      }
+
+      allow read: if puedeVer(resource.data);
+
+      allow update: if esDueno(resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['robado', 'compartidoCon'])
+        && request.resource.data.get('robado', false) is bool
+        && request.resource.data.get('compartidoCon', []) is list
+        && request.resource.data.get('compartidoCon', []).size() <= 5;
+
+      allow create, delete: if false;
+
+      // Historial de recorrido (el webhook lo borra solo a los 7 dias via TTL).
+      match /recorridos/{posId} {
+        allow read: if puedeVer(get(/databases/$(database)/documents/vehiculos/$(vehiculoId)).data);
+        allow write: if false;
+      }
+    }
+
+    // ========================================================================
     // BILLING / SUSCRIPCIONES / AUDITORÍA
     // Cada admin de ciudad ve/gestiona SOLO lo de su propio cliente.
     // La escritura queda cerrada: solo Cloud Functions.

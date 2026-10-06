@@ -3213,9 +3213,14 @@ exports.onRoboCreado = functions.firestore
 
 // ============================================================================
 // WEBHOOK TRACCAR → FIRESTORE (posición de vehículos GPS)
-// Traccar reenvía cada posición acá; se guarda en clientes/{id}/vehiculos/{id}
+// Traccar reenvía cada posición acá. Se guarda en:
+//   vehiculos/{imei}                 → última posición (documento vivo)
+//   vehiculos/{imei}/recorridos/{id} → historial (se borra solo a los 7 días, TTL)
+// El webhook NUNCA toca duenoUid, robado ni compartidoCon (los maneja la app).
 // ============================================================================
 const crypto = require('crypto');
+
+const DIAS_HISTORIAL_RECORRIDO = 7;
 
 exports.traccarWebhook = functions.https.onRequest(async (req, res) => {
   try {
@@ -3235,23 +3240,41 @@ exports.traccarWebhook = functions.https.onRequest(async (req, res) => {
       return res.status(400).send('Bad payload');
     }
 
-    // A qué cliente pertenece: atributo "clienteId" del dispositivo en Traccar
+    // A qué cliente pertenece (lo ve el admin/operario de ese cliente SOLO si hay robo)
     const clienteId = (device.attributes && device.attributes.clienteId) ||
                       process.env.TRACCAR_DEFAULT_CLIENTE;
     if (!clienteId) return res.status(422).send('Dispositivo sin clienteId');
 
     const vehiculoId = String(device.uniqueId || device.id);
+    const ahora = admin.firestore.FieldValue.serverTimestamp();
+    const velocidadKmh = Math.round((position.speed || 0) * 1.852 * 10) / 10; // Traccar manda nudos
 
-    await db.collection('clientes').doc(String(clienteId))
-      .collection('vehiculos').doc(vehiculoId).set({
-        nombre: device.name || '',
-        lat: position.latitude,
-        lng: position.longitude,
-        velocidadKmh: Math.round((position.speed || 0) * 1.852 * 10) / 10, // Traccar manda nudos
-        rumbo: position.course || 0,
-        fixTime: position.fixTime || null,
-        actualizado: admin.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
+    const punto = {
+      lat: position.latitude,
+      lng: position.longitude,
+      velocidadKmh,
+      rumbo: position.course || 0,
+      fixTime: position.fixTime || null,
+    };
+
+    const ref = db.collection('vehiculos').doc(vehiculoId);
+
+    // 1) Última posición (merge: no pisa duenoUid / robado / compartidoCon)
+    await ref.set({
+      ...punto,
+      nombre: device.name || '',
+      clienteId: String(clienteId),
+      actualizado: ahora,
+    }, { merge: true });
+
+    // 2) Historial con vencimiento (TTL sobre el campo "expiraEn")
+    await ref.collection('recorridos').add({
+      ...punto,
+      creado: ahora,
+      expiraEn: admin.firestore.Timestamp.fromMillis(
+        Date.now() + DIAS_HISTORIAL_RECORRIDO * 24 * 60 * 60 * 1000
+      ),
+    });
 
     return res.status(200).send('ok');
   } catch (error) {
