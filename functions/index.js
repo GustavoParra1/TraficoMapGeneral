@@ -3209,3 +3209,53 @@ exports.onRoboCreado = functions.firestore
       return null;
     }
   });
+
+
+// ============================================================================
+// WEBHOOK TRACCAR → FIRESTORE (posición de vehículos GPS)
+// Traccar reenvía cada posición acá; se guarda en clientes/{id}/vehiculos/{id}
+// ============================================================================
+const crypto = require('crypto');
+
+exports.traccarWebhook = functions.https.onRequest(async (req, res) => {
+  try {
+    if (req.method !== 'POST') return res.status(405).send('Method not allowed');
+
+    // Clave compartida (va en la URL: ?key=...)
+    const esperado = Buffer.from(process.env.TRACCAR_SECRET || '');
+    const recibido = Buffer.from(String(req.query.key || ''));
+    if (esperado.length === 0 || esperado.length !== recibido.length ||
+        !crypto.timingSafeEqual(esperado, recibido)) {
+      return res.status(403).send('Forbidden');
+    }
+
+    const { position, device } = req.body || {};
+    if (!position || !device ||
+        typeof position.latitude !== 'number' || typeof position.longitude !== 'number') {
+      return res.status(400).send('Bad payload');
+    }
+
+    // A qué cliente pertenece: atributo "clienteId" del dispositivo en Traccar
+    const clienteId = (device.attributes && device.attributes.clienteId) ||
+                      process.env.TRACCAR_DEFAULT_CLIENTE;
+    if (!clienteId) return res.status(422).send('Dispositivo sin clienteId');
+
+    const vehiculoId = String(device.uniqueId || device.id);
+
+    await db.collection('clientes').doc(String(clienteId))
+      .collection('vehiculos').doc(vehiculoId).set({
+        nombre: device.name || '',
+        lat: position.latitude,
+        lng: position.longitude,
+        velocidadKmh: Math.round((position.speed || 0) * 1.852 * 10) / 10, // Traccar manda nudos
+        rumbo: position.course || 0,
+        fixTime: position.fixTime || null,
+        actualizado: admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+
+    return res.status(200).send('ok');
+  } catch (error) {
+    console.error('❌ Error en traccarWebhook:', error);
+    return res.status(500).send('Error');
+  }
+});
