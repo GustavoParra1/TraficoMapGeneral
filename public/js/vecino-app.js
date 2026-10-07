@@ -334,7 +334,13 @@ async function initFirebase() {
       const mesActual = new Date().toISOString().slice(0, 7); // "2026-06"
       const habilitado = datosVecino && datosVecino.habilitado === true && datosVecino.habilitado_hasta === mesActual;
       if (!habilitado) {
-        bloquearApp();
+        // 🆕 Familiar sin suscripción: puede ver los autos con GPS que le
+        // compartieron (pero nada más). Si no tiene ninguno, se bloquea igual.
+        let mostroCompartidos = false;
+        try {
+          if (typeof VehiculosGPS !== 'undefined') mostroCompartidos = await VehiculosGPS.mostrarSoloCompartidos();
+        } catch (e) { console.warn('Autos compartidos:', e); }
+        if (!mostroCompartidos) bloquearApp();
         esconderOverlayCarga();
         return;
       }
@@ -355,6 +361,11 @@ async function initFirebase() {
       cargarAlertasCercanas();
       cargarAlertasVecinalesCercanas();
       mostrarBannerInstalacion();
+
+      // 🆕 Autos con GPS (localizador): vincular, ver en vivo, compartir con
+      // familiares y marcar robo. Módulo aparte (vehiculos-vecino.js); si falla,
+      // el resto de la app sigue funcionando igual.
+      try { if (typeof VehiculosGPS !== 'undefined') VehiculosGPS.iniciar(); } catch (e) { console.warn('Autos GPS:', e); }
 
       // 🆕 NUEVO: Botón "Ver mapa de mi ciudad" — abre el mapa (mismo
       // map.html que usa el panel admin) en modo mobile simplificado
