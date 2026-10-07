@@ -3282,3 +3282,226 @@ exports.traccarWebhook = functions.https.onRequest(async (req, res) => {
     return res.status(500).send('Error');
   }
 });
+
+
+// ============================================================================
+// VINCULACIÓN Y USO COMPARTIDO DE VEHÍCULOS GPS
+// - vincularVehiculo:           el vecino ingresa IMEI + código y queda como dueño
+// - compartirVehiculo:          el dueño habilita a un familiar (máx. 5) por email
+// - dejarDeCompartirVehiculo:   el dueño le saca el acceso a un familiar
+// - salirDeVehiculoCompartido:  un familiar se saca a sí mismo
+// - listarFamiliaresVehiculo:   el dueño ve con quién lo compartió
+// - misVehiculos:               lista los autos propios y los compartidos conmigo
+// Colecciones privadas (sin reglas = cerradas a todas las apps, solo Admin SDK):
+//   vehiculos_codigos/{imei}   → hash del código de vinculación (lo crea el script)
+//   vinculacion_intentos/{uid} → contador anti fuerza bruta
+// ============================================================================
+const MAX_FAMILIARES_VEHICULO = 5;
+const MAX_INTENTOS_VINCULACION = 5;
+const VENTANA_INTENTOS_MS = 60 * 60 * 1000; // 1 hora
+
+function hashCodigoVehiculo(imei, codigo) {
+  const limpio = String(codigo || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  return crypto.createHash('sha256').update(`${imei}:${limpio}`).digest('hex');
+}
+
+function exigirVecino(context) {
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'Tenés que iniciar sesión');
+  }
+  if (context.auth.token.role !== 'vecino') {
+    throw new functions.https.HttpsError('permission-denied', 'Solo los vecinos pueden usar esta función');
+  }
+  return context.auth.uid;
+}
+
+function validarImeiVehiculo(imei) {
+  const s = String(imei || '').trim();
+  if (!/^[A-Za-z0-9_-]{4,40}$/.test(s)) {
+    throw new functions.https.HttpsError('invalid-argument', 'Identificador de vehículo inválido');
+  }
+  return s;
+}
+
+// Cuenta el intento ANTES de verificar el código (atómico), así los pedidos
+// en paralelo no se pueden saltear el límite.
+async function consumirIntentoVinculacion(uid) {
+  const ref = db.collection('vinculacion_intentos').doc(uid);
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const ahora = Date.now();
+    const d = snap.exists ? snap.data() : {};
+    const desdeMs = d.desde && d.desde.toMillis ? d.desde.toMillis() : 0;
+    if (!snap.exists || ahora - desdeMs >= VENTANA_INTENTOS_MS) {
+      tx.set(ref, { intentos: 1, desde: admin.firestore.Timestamp.fromMillis(ahora) });
+      return;
+    }
+    if ((d.intentos || 0) >= MAX_INTENTOS_VINCULACION) {
+      throw new functions.https.HttpsError('resource-exhausted',
+        'Demasiados intentos. Probá de nuevo en una hora.');
+    }
+    tx.update(ref, { intentos: (d.intentos || 0) + 1 });
+  });
+}
+
+exports.vincularVehiculo = functions.https.onCall(async (data, context) => {
+  const uid = exigirVecino(context);
+  const imei = validarImeiVehiculo(data && data.imei);
+  const codigo = String((data && data.codigo) || '');
+  if (codigo.replace(/[^A-Za-z0-9]/g, '').length < 6) {
+    throw new functions.https.HttpsError('invalid-argument', 'Ingresá el código completo');
+  }
+
+  await consumirIntentoVinculacion(uid);
+
+  const recibido = Buffer.from(hashCodigoVehiculo(imei, codigo));
+  const codigoRef = db.collection('vehiculos_codigos').doc(imei);
+  const vehiculoRef = db.collection('vehiculos').doc(imei);
+
+  const resultado = await db.runTransaction(async (tx) => {
+    const codSnap = await tx.get(codigoRef);
+    const vehSnap = await tx.get(vehiculoRef);
+    const cod = codSnap.exists ? codSnap.data() : null;
+    if (!cod || cod.usado === true || typeof cod.hash !== 'string') return { ok: false };
+
+    const esperado = Buffer.from(cod.hash);
+    if (esperado.length !== recibido.length || !crypto.timingSafeEqual(esperado, recibido)) {
+      return { ok: false };
+    }
+    const veh = vehSnap.exists ? vehSnap.data() : {};
+    if (veh.duenoUid) return { ok: false }; // ya tiene dueño
+
+    const nuevo = {
+      duenoUid: uid,
+      robado: false,
+      compartidoCon: [],
+      vinculadoEn: admin.firestore.FieldValue.serverTimestamp(),
+    };
+    if (!veh.clienteId) nuevo.clienteId = cod.clienteId; // si el webhook ya lo puso, no se toca
+    tx.set(vehiculoRef, nuevo, { merge: true });
+    tx.update(codigoRef, {
+      usado: true,
+      usadoPor: uid,
+      usadoEn: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    return { ok: true, nombre: veh.nombre || '' };
+  });
+
+  // Mismo mensaje para todas las causas de falla: no revela si el IMEI existe.
+  if (!resultado.ok) {
+    throw new functions.https.HttpsError('permission-denied', 'El código no es válido o ya fue usado');
+  }
+  await db.collection('vinculacion_intentos').doc(uid).delete().catch(() => {});
+  return { ok: true, imei, nombre: resultado.nombre };
+});
+
+// Devuelve el documento del vehículo solo si lo pide su dueño.
+async function cargarVehiculoDelDueno(uid, imeiCrudo) {
+  const imei = validarImeiVehiculo(imeiCrudo);
+  const ref = db.collection('vehiculos').doc(imei);
+  const snap = await ref.get();
+  if (!snap.exists || snap.data().duenoUid !== uid) {
+    throw new functions.https.HttpsError('permission-denied', 'Ese vehículo no es tuyo');
+  }
+  return { imei, ref, vehiculo: snap.data() };
+}
+
+exports.compartirVehiculo = functions.https.onCall(async (data, context) => {
+  const uid = exigirVecino(context);
+  const { imei, ref } = await cargarVehiculoDelDueno(uid, data && data.imei);
+
+  const email = String((data && data.email) || '').trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new functions.https.HttpsError('invalid-argument', 'Email inválido');
+  }
+
+  let familiar;
+  try {
+    familiar = await auth.getUserByEmail(email);
+  } catch (e) {
+    throw new functions.https.HttpsError('not-found',
+      'Ese email no está registrado en la app. Pedile a tu familiar que se registre primero.');
+  }
+  const claims = familiar.customClaims || {};
+  if (claims.role !== 'vecino' || familiar.disabled) {
+    throw new functions.https.HttpsError('failed-precondition',
+      'Esa cuenta no puede recibir vehículos compartidos');
+  }
+  if (familiar.uid === uid) {
+    throw new functions.https.HttpsError('invalid-argument', 'No hace falta compartirlo con vos mismo');
+  }
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const v = snap.data() || {};
+    if (v.duenoUid !== uid) {
+      throw new functions.https.HttpsError('permission-denied', 'Ese vehículo no es tuyo');
+    }
+    const lista = Array.isArray(v.compartidoCon) ? v.compartidoCon : [];
+    if (lista.includes(familiar.uid)) return;
+    if (lista.length >= MAX_FAMILIARES_VEHICULO) {
+      throw new functions.https.HttpsError('resource-exhausted',
+        `Ya compartiste este vehículo con ${MAX_FAMILIARES_VEHICULO} personas. Sacá a alguien para agregar otra.`);
+    }
+    tx.update(ref, { compartidoCon: admin.firestore.FieldValue.arrayUnion(familiar.uid) });
+  });
+
+  return { ok: true, imei, uid: familiar.uid, email: familiar.email, nombre: familiar.displayName || familiar.email };
+});
+
+exports.dejarDeCompartirVehiculo = functions.https.onCall(async (data, context) => {
+  const uid = exigirVecino(context);
+  const { imei, ref } = await cargarVehiculoDelDueno(uid, data && data.imei);
+  const quitar = String((data && data.uid) || '');
+  if (!quitar) throw new functions.https.HttpsError('invalid-argument', 'Falta el familiar');
+  await ref.update({ compartidoCon: admin.firestore.FieldValue.arrayRemove(quitar) });
+  return { ok: true, imei };
+});
+
+exports.salirDeVehiculoCompartido = functions.https.onCall(async (data, context) => {
+  const uid = exigirVecino(context);
+  const imei = validarImeiVehiculo(data && data.imei);
+  await db.collection('vehiculos').doc(imei)
+    .update({ compartidoCon: admin.firestore.FieldValue.arrayRemove(uid) })
+    .catch(() => {});
+  return { ok: true, imei };
+});
+
+exports.listarFamiliaresVehiculo = functions.https.onCall(async (data, context) => {
+  const uid = exigirVecino(context);
+  const { imei, vehiculo } = await cargarVehiculoDelDueno(uid, data && data.imei);
+  const uids = Array.isArray(vehiculo.compartidoCon) ? vehiculo.compartidoCon : [];
+  if (uids.length === 0) return { imei, familiares: [] };
+  const res = await auth.getUsers(uids.map((u) => ({ uid: u })));
+  const familiares = res.users.map((u) => ({
+    uid: u.uid,
+    email: u.email || '',
+    nombre: u.displayName || u.email || '',
+  }));
+  return { imei, familiares };
+});
+
+exports.misVehiculos = functions.https.onCall(async (data, context) => {
+  const uid = exigirVecino(context);
+  const [propios, compartidos] = await Promise.all([
+    db.collection('vehiculos').where('duenoUid', '==', uid).get(),
+    db.collection('vehiculos').where('compartidoCon', 'array-contains', uid).get(),
+  ]);
+  const nombreDe = async (duenoUid) => {
+    try { const u = await auth.getUser(duenoUid); return u.displayName || ''; } catch (e) { return ''; }
+  };
+  return {
+    propios: propios.docs.map((d) => ({
+      imei: d.id,
+      nombre: d.data().nombre || '',
+      robado: d.data().robado === true,
+      cantidadFamiliares: (d.data().compartidoCon || []).length,
+    })),
+    compartidosConmigo: await Promise.all(compartidos.docs.map(async (d) => ({
+      imei: d.id,
+      nombre: d.data().nombre || '',
+      robado: d.data().robado === true,
+      duenoNombre: await nombreDe(d.data().duenoUid),
+    }))),
+  };
+});
