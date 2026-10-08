@@ -243,12 +243,12 @@
     var h = '<div class="vgps-panel"><b style="font-size:13px">Familiares con acceso (' + lista.length + ' de ' + MAX_FAMILIARES + ')</b>';
     h += lista.length
       ? lista.map(function (f) {
-          return '<div class="vgps-fam"><span>' + esc(f.nombre) + '<br><span class="vgps-sub">' + esc(f.email) + '</span></span>' +
+          return '<div class="vgps-fam"><span>' + esc(f.nombre) + '<br><span class="vgps-sub">' + esc(f.email || f.telefono) + '</span></span>' +
             '<button data-vgps="quitar" data-imei="' + esc(imei) + '" data-uid="' + esc(f.uid) + '">Quitar</button></div>';
         }).join('')
       : '<div class="vgps-sub" style="margin:6px 0">Todavía no compartiste este auto con nadie.</div>';
     if (lista.length < MAX_FAMILIARES) {
-      h += '<div style="margin-top:10px"><input id="vgps-email" type="email" placeholder="Email de tu familiar (tiene que tener la app)" autocomplete="off">' +
+      h += '<div style="margin-top:10px"><input id="vgps-email" type="text" inputmode="email" placeholder="Email o celular de tu familiar (con código de área, sin 0 ni 15)" autocomplete="off">' +
         '<button class="btn btn-primary" data-vgps="agregar" data-imei="' + esc(imei) + '">Agregar familiar</button></div>';
     }
     h += '<div class="vgps-sub" style="margin-top:8px">Tus familiares ven el auto en todo momento, aunque no tengan la suscripción activa. Podés quitarles el acceso cuando quieras.</div></div>';
@@ -274,9 +274,9 @@
       }
       if (tipo === 'agregar') {
         var email = ($('vgps-email').value || '').trim();
-        if (!email) { aviso('Escribí el email de tu familiar.', 'error'); return; }
+        if (!email) { aviso('Escribí el email o el celular de tu familiar.', 'error'); return; }
         aviso('Agregando…', 'info');
-        var r = await fn('compartirVehiculo')({ imei: imei, email: email });
+        var r = await fn('compartirVehiculo')({ imei: imei, contacto: email, email: email });
         await cargarLista();
         await mostrarFamilia(imei, false);
         aviso('✅ ' + (r.data.nombre || email) + ' ya puede ver tu auto.', 'ok');

@@ -3406,22 +3406,77 @@ async function cargarVehiculoDelDueno(uid, imeiCrudo) {
   return { imei, ref, vehiculo: snap.data() };
 }
 
+// 🆕 (2026-10) Los vecinos que se registran solos (web de registro) entran por
+// SMS y NO tienen email en Auth (email: null). Para compartir un auto se acepta
+// email O celular. El celular se prueba con y sin el 9 de los móviles argentinos.
+function candidatosTelefono(texto) {
+  const t = String(texto || '').trim();
+  const digitos = t.replace(/\D/g, '');
+  if (digitos.length < 8) return [];
+  if (t.startsWith('+')) return ['+' + digitos];
+  const d = digitos.replace(/^0+/, '');
+  const out = [];
+  if (d.startsWith('54')) {
+    const resto = d.slice(2);
+    const sin9 = resto.startsWith('9') ? resto.slice(1) : resto;
+    out.push('+549' + sin9, '+54' + sin9);
+  } else {
+    out.push('+549' + d, '+54' + d);
+  }
+  return out.filter((v, i) => out.indexOf(v) === i);
+}
+
+async function buscarFamiliar(dato) {
+  const texto = String(dato || '').trim();
+  if (!texto) {
+    throw new functions.https.HttpsError('invalid-argument', 'Escribí el email o el celular de tu familiar');
+  }
+  if (texto.includes('@')) {
+    const email = texto.toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new functions.https.HttpsError('invalid-argument', 'Email inválido');
+    }
+    try {
+      return await auth.getUserByEmail(email);
+    } catch (e) {
+      throw new functions.https.HttpsError('not-found',
+        'Ese email no está registrado en la app. Pedile a tu familiar que se registre primero.');
+    }
+  }
+  const candidatos = candidatosTelefono(texto);
+  if (candidatos.length === 0) {
+    throw new functions.https.HttpsError('invalid-argument',
+      'Escribí un email o un celular válido (con código de área, sin 0 ni 15)');
+  }
+  for (const tel of candidatos) {
+    try {
+      return await auth.getUserByPhoneNumber(tel);
+    } catch (e) { /* probar el siguiente formato */ }
+  }
+  throw new functions.https.HttpsError('not-found',
+    'Ese celular no está registrado en la app. Pedile a tu familiar que se registre primero.');
+}
+
+// Nombre para mostrar: displayName de Auth, o el nombre guardado al registrarse
+// (clientes/{cliente_id}/vecinos/{uid}). Con conContacto=true cae a email/celular.
+async function nombreDeVecino(u, conContacto) {
+  if (u.displayName) return u.displayName;
+  try {
+    const clienteId = (u.customClaims || {}).cliente_id;
+    if (clienteId) {
+      const s = await db.collection(`clientes/${clienteId}/vecinos`).doc(u.uid).get();
+      if (s.exists && s.data().nombre) return s.data().nombre;
+    }
+  } catch (e) { /* sin nombre guardado */ }
+  return conContacto ? (u.email || u.phoneNumber || '') : '';
+}
+
 exports.compartirVehiculo = functions.https.onCall(async (data, context) => {
   const uid = exigirVecino(context);
   const { imei, ref } = await cargarVehiculoDelDueno(uid, data && data.imei);
 
-  const email = String((data && data.email) || '').trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw new functions.https.HttpsError('invalid-argument', 'Email inválido');
-  }
-
-  let familiar;
-  try {
-    familiar = await auth.getUserByEmail(email);
-  } catch (e) {
-    throw new functions.https.HttpsError('not-found',
-      'Ese email no está registrado en la app. Pedile a tu familiar que se registre primero.');
-  }
+  // `contacto` = email o celular (también se acepta `email` por compatibilidad).
+  const familiar = await buscarFamiliar(data && (data.contacto || data.email));
   const claims = familiar.customClaims || {};
   if (claims.role !== 'vecino' || familiar.disabled) {
     throw new functions.https.HttpsError('failed-precondition',
@@ -3446,7 +3501,7 @@ exports.compartirVehiculo = functions.https.onCall(async (data, context) => {
     tx.update(ref, { compartidoCon: admin.firestore.FieldValue.arrayUnion(familiar.uid) });
   });
 
-  return { ok: true, imei, uid: familiar.uid, email: familiar.email, nombre: familiar.displayName || familiar.email };
+  return { ok: true, imei, uid: familiar.uid, email: familiar.email || '', telefono: familiar.phoneNumber || '', nombre: await nombreDeVecino(familiar, true) };
 });
 
 exports.dejarDeCompartirVehiculo = functions.https.onCall(async (data, context) => {
@@ -3473,11 +3528,12 @@ exports.listarFamiliaresVehiculo = functions.https.onCall(async (data, context) 
   const uids = Array.isArray(vehiculo.compartidoCon) ? vehiculo.compartidoCon : [];
   if (uids.length === 0) return { imei, familiares: [] };
   const res = await auth.getUsers(uids.map((u) => ({ uid: u })));
-  const familiares = res.users.map((u) => ({
+  const familiares = await Promise.all(res.users.map(async (u) => ({
     uid: u.uid,
     email: u.email || '',
-    nombre: u.displayName || u.email || '',
-  }));
+    telefono: u.phoneNumber || '',
+    nombre: await nombreDeVecino(u, true),
+  })));
   return { imei, familiares };
 });
 
@@ -3488,7 +3544,7 @@ exports.misVehiculos = functions.https.onCall(async (data, context) => {
     db.collection('vehiculos').where('compartidoCon', 'array-contains', uid).get(),
   ]);
   const nombreDe = async (duenoUid) => {
-    try { const u = await auth.getUser(duenoUid); return u.displayName || ''; } catch (e) { return ''; }
+    try { const u = await auth.getUser(duenoUid); return await nombreDeVecino(u, false); } catch (e) { return ''; }
   };
   return {
     propios: propios.docs.map((d) => ({
