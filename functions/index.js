@@ -3561,3 +3561,113 @@ exports.misVehiculos = functions.https.onCall(async (data, context) => {
     }))),
   };
 });
+
+
+// ============================================================================
+// PEGAR AL FINAL de functions/index.js (usa admin, db, functions y crypto, que ya existen)
+//
+// WEBHOOK TRACCAR (EVENTOS) → PUSH FCM al dueño y a los familiares del vehículo
+// Traccar reenvía cada evento (alarma, geo-zona, exceso de velocidad, etc.) acá.
+// Usa la misma clave TRACCAR_SECRET que traccarWebhook (?key=...).
+// Los tokens son los mismos que ya guarda vecino-app.js en
+//   clientes/{clienteId}/vecinos/{uid}.fcm_token
+// ============================================================================
+
+// Qué eventos avisan y con qué texto. Lo que no esté acá se ignora (evita spam).
+function armarTextoEventoTraccar(event, device) {
+  const nombre = device.name || 'Tu vehículo';
+  const t = event.type;
+  const alarma = (event.attributes && event.attributes.alarm) || '';
+
+  if (t === 'alarm') {
+    const textos = {
+      sos: ['🆘 SOS activado', `${nombre} activó el botón SOS.`],
+      vibration: ['⚠️ Vibración detectada', `${nombre} detectó vibración o golpe.`],
+      movement: ['🚨 Movimiento no autorizado', `${nombre} se está moviendo.`],
+      powerCut: ['🚨 Corte de batería', `Desconectaron la batería de ${nombre}.`],
+      lowBattery: ['🔋 Batería baja', `${nombre} tiene la batería baja.`],
+      overspeed: ['⚡ Exceso de velocidad', `${nombre} superó el límite de velocidad.`],
+    };
+    const x = textos[alarma] || ['🚨 Alarma', `${nombre}: alarma ${alarma || 'del equipo'}.`];
+    return { title: x[0], body: x[1], critico: ['sos', 'movement', 'powerCut'].includes(alarma) };
+  }
+  if (t === 'geofenceExit') return { title: '📍 Salió de la zona', body: `${nombre} salió de una geo-zona.`, critico: true };
+  if (t === 'geofenceEnter') return { title: '📍 Entró a una zona', body: `${nombre} entró a una geo-zona.`, critico: false };
+  if (t === 'deviceOverspeed') return { title: '⚡ Exceso de velocidad', body: `${nombre} superó el límite de velocidad.`, critico: false };
+  if (t === 'ignitionOn') return { title: '🔑 Encendido', body: `${nombre} fue encendido.`, critico: false };
+  if (t === 'deviceMoving') return { title: '🚗 En movimiento', body: `${nombre} empezó a moverse.`, critico: false };
+  if (t === 'deviceOffline') return { title: '📡 Sin conexión', body: `${nombre} dejó de reportar.`, critico: false };
+  return null;
+}
+
+exports.traccarEvento = functions.https.onRequest(async (req, res) => {
+  try {
+    if (req.method !== 'POST') return res.status(405).send('Method not allowed');
+
+    const esperado = Buffer.from(process.env.TRACCAR_SECRET || '');
+    const recibido = Buffer.from(String(req.query.key || ''));
+    if (esperado.length === 0 || esperado.length !== recibido.length ||
+        !crypto.timingSafeEqual(esperado, recibido)) {
+      return res.status(403).send('Forbidden');
+    }
+
+    const { event, device, position } = req.body || {};
+    if (!event || !device) return res.status(400).send('Bad payload');
+
+    const texto = armarTextoEventoTraccar(event, device);
+    if (!texto) return res.status(200).send('ignorado');
+
+    // Vehículo → dueño y familiares con acceso
+    const vehiculoId = String(device.uniqueId || device.id);
+    const vSnap = await db.collection('vehiculos').doc(vehiculoId).get();
+    if (!vSnap.exists) return res.status(200).send('vehiculo sin registrar');
+    const veh = vSnap.data();
+    if (!veh.duenoUid || !veh.clienteId) return res.status(200).send('sin dueño');
+
+    const uids = [veh.duenoUid, ...(Array.isArray(veh.compartidoCon) ? veh.compartidoCon : [])];
+
+    // uid → token FCM
+    // Cada persona puede ser de un cliente (barrio) distinto al del vehículo:
+    // su token se busca en SU cliente (claim cliente_id) y, si no lo tiene,
+    // en el cliente del vehículo.
+    const clientePorUid = {};
+    try {
+      const r = await auth.getUsers(uids.map((uid) => ({ uid })));
+      r.users.forEach((u) => { clientePorUid[u.uid] = (u.customClaims || {}).cliente_id; });
+    } catch (e) {
+      console.warn('⚠️ No se pudieron leer los claims, se usa el cliente del vehículo:', e.message);
+    }
+    const refs = uids.map((u) =>
+      db.collection(`clientes/${clientePorUid[u] || veh.clienteId}/vecinos`).doc(u));
+    const docs = await db.getAll(...refs);
+    const tokens = [];
+    docs.forEach((d) => {
+      const tk = d.exists && d.data().fcm_token;
+      if (tk && !tokens.includes(tk)) tokens.push(tk);
+    });
+    if (tokens.length === 0) return res.status(200).send('sin tokens');
+
+    // Solo "data" (igual que onPanicoCreado) para que lo arme sw.js.
+    // Prioridad alta + Urgency high: ayuda a que llegue con el celular bloqueado (Doze).
+    const resp = await admin.messaging().sendEachForMulticast({
+      tokens,
+      data: {
+        tipo: 'vehiculo',
+        evento: String(event.type),
+        vehiculoId,
+        title: texto.title,
+        body: texto.body,
+        lat: position ? String(position.latitude) : '',
+        lng: position ? String(position.longitude) : '',
+      },
+      android: { priority: 'high' },
+      webpush: { headers: { Urgency: 'high', TTL: texto.critico ? '600' : '120' } },
+    });
+
+    console.log(`✅ Evento ${event.type} de ${vehiculoId}: ${resp.successCount} ok, ${resp.failureCount} fallidos`);
+    return res.status(200).send('ok');
+  } catch (error) {
+    console.error('❌ Error en traccarEvento:', error);
+    return res.status(500).send('Error');
+  }
+});
