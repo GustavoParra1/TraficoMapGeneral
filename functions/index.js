@@ -3600,6 +3600,21 @@ function armarTextoEventoTraccar(event, device) {
   return null;
 }
 
+// Espera mínima (en minutos) entre dos avisos iguales del mismo vehículo.
+// Evita el spam cuando el GPS "tiembla" y Traccar dispara el mismo evento una y otra vez.
+// Lo que no figura acá (SOS, corte de batería, movimiento no autorizado) avisa siempre.
+const ESPERA_AVISO_MIN = {
+  deviceMoving: 15,
+  ignitionOn: 15,
+  deviceOffline: 60,
+  deviceOverspeed: 10,
+  geofenceEnter: 3,
+  geofenceExit: 3,
+  'alarm:vibration': 5,
+  'alarm:lowBattery': 120,
+  'alarm:overspeed': 10,
+};
+
 exports.traccarEvento = functions.https.onRequest(async (req, res) => {
   try {
     if (req.method !== 'POST') return res.status(405).send('Method not allowed');
@@ -3623,6 +3638,27 @@ exports.traccarEvento = functions.https.onRequest(async (req, res) => {
     if (!vSnap.exists) return res.status(200).send('vehiculo sin registrar');
     const veh = vSnap.data();
     if (!veh.duenoUid || !veh.clienteId) return res.status(200).send('sin dueño');
+
+    // Anti-spam: si ya avisamos este mismo evento hace poco, se omite.
+    const claveAviso = event.type === 'alarm'
+      ? `alarm:${(event.attributes && event.attributes.alarm) || ''}`
+      : String(event.type);
+    const esperaMin = ESPERA_AVISO_MIN[claveAviso] || 0;
+    if (esperaMin > 0) {
+      const avisoRef = db.collection('avisos_vehiculos')
+        .doc(`${vehiculoId}__${claveAviso.replace(/[^A-Za-z0-9_-]/g, '_')}`);
+      const permitido = await db.runTransaction(async (tx) => {
+        const d = await tx.get(avisoRef);
+        const ultimo = d.exists ? Number(d.data().ultimo || 0) : 0;
+        if (Date.now() - ultimo < esperaMin * 60 * 1000) return false;
+        tx.set(avisoRef, { ultimo: Date.now(), evento: claveAviso, vehiculoId });
+        return true;
+      });
+      if (!permitido) {
+        console.log(`⏳ ${claveAviso} de ${vehiculoId} omitido (espera de ${esperaMin} min)`);
+        return res.status(200).send('omitido por espera');
+      }
+    }
 
     const uids = [veh.duenoUid, ...(Array.isArray(veh.compartidoCon) ? veh.compartidoCon : [])];
 
