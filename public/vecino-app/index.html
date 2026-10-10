@@ -7,6 +7,15 @@
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="icon" type="image/png" href="icon-512.png">
 <link rel="manifest" href="manifest.json">
+<script>
+  // El GPS ahora vive en rastreador.html: los avisos viejos (?vehiculo=IMEI) se redirigen ahí.
+  (function () {
+    try {
+      var v = new URLSearchParams(location.search).get('vehiculo');
+      if (v) location.replace('rastreador.html?vehiculo=' + encodeURIComponent(v));
+    } catch (e) {}
+  })();
+</script>
 <meta name="theme-color" content="#0f172a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -269,6 +278,7 @@ label[for="fecha-hecho"], .label-fecha-hecho {
   <button class="btn-panico" id="btn-panico" onclick="enviarPanico()">🚨 EMERGENCIA</button>
   <button class="btn-alerta-vecinal" id="btn-alerta-vecinal" onclick="enviarAlertaVecinal()">🔔 Alerta de movimiento sospechoso</button>
   <button class="btn btn-secondary" id="btn-ver-mapa" style="margin-bottom: 16px;">🗺️ Ver mapa de mi ciudad</button>
+  <a href="rastreador.html" class="btn" id="btn-rastreador" style="display:block;text-align:center;text-decoration:none;background:#0ea5e9;color:#fff;margin-bottom:16px;">🚗 Mi rastreador GPS</a>
   <div class="card">
     <h2>🚨 Alertas Cercanas</h2>
     <div id="lista-alertas-cercanas"><div class="empty">Buscando alertas cerca tuyo...</div></div>
@@ -334,8 +344,7 @@ label[for="fecha-hecho"], .label-fecha-hecho {
 <div class="debug-panel" id="debug-panel"></div>
 <button class="btn-debug" onclick="document.getElementById('debug-panel').classList.toggle('show')">🔧 Debug</button>
 <script src="../js/categories-taxonomy.js?v=20260821004"></script>
-<script src="../js/vehiculos-vecino.js?v=20261008001"></script>
-<script src="../js/vecino-app.js?v=20261007001"></script>
+<script src="../js/vecino-app.js?v=20261010003"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW no registrado:', e));

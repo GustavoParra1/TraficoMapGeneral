@@ -334,13 +334,15 @@ async function initFirebase() {
       const mesActual = new Date().toISOString().slice(0, 7); // "2026-06"
       const habilitado = datosVecino && datosVecino.habilitado === true && datosVecino.habilitado_hasta === mesActual;
       if (!habilitado) {
-        // 🆕 Familiar sin suscripción: puede ver los autos con GPS que le
+        // 🆕 Familiar sin suscripción: puede ver en "Mi rastreador" los autos con GPS que le
         // compartieron (pero nada más). Si no tiene ninguno, se bloquea igual.
-        let mostroCompartidos = false;
+        let tieneCompartidos = false;
         try {
-          if (typeof VehiculosGPS !== 'undefined') mostroCompartidos = await VehiculosGPS.mostrarSoloCompartidos();
+          const rv = await firebase.functions().httpsCallable('misVehiculos')();
+          tieneCompartidos = !!(rv.data && (rv.data.compartidosConmigo || []).length);
         } catch (e) { console.warn('Autos compartidos:', e); }
-        if (!mostroCompartidos) bloquearApp();
+        if (tieneCompartidos) { window.location.href = 'rastreador.html'; return; }
+        bloquearApp();
         esconderOverlayCarga();
         return;
       }
@@ -361,11 +363,6 @@ async function initFirebase() {
       cargarAlertasCercanas();
       cargarAlertasVecinalesCercanas();
       mostrarBannerInstalacion();
-
-      // 🆕 Autos con GPS (localizador): vincular, ver en vivo, compartir con
-      // familiares y marcar robo. Módulo aparte (vehiculos-vecino.js); si falla,
-      // el resto de la app sigue funcionando igual.
-      try { if (typeof VehiculosGPS !== 'undefined') VehiculosGPS.iniciar(); } catch (e) { console.warn('Autos GPS:', e); }
 
       // 🆕 NUEVO: Botón "Ver mapa de mi ciudad" — abre el mapa (mismo
       // map.html que usa el panel admin) en modo mobile simplificado
