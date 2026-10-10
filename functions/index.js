@@ -3222,6 +3222,63 @@ const crypto = require('crypto');
 
 const DIAS_HISTORIAL_RECORRIDO = 7;
 
+// ----------------------------------------------------------------------------
+// AVISOS DEL RASTREADOR (única fuente de notificaciones de vehículos)
+// Solo se avisa en dos casos:
+//   1) Modo robo activo (robado === true) y el auto sale de donde estaba estacionado.
+//   2) El rastreador sale de servicio (deja de reportar varios minutos).
+// En movimiento normal NO se manda nada; el mapa en vivo sale del documento
+// vehiculos/{imei} que el webhook actualiza en cada posición.
+// ----------------------------------------------------------------------------
+const RADIO_SALIDA_ESTACIONADO_M = 100;  // metros desde el punto donde quedó estacionado
+const VEL_MOVIMIENTO_KMH = 8;            // velocidad que cuenta como "en movimiento"
+const SIN_SENAL_MIN = 10;                // minutos sin posiciones => fuera de servicio
+const SIN_SENAL_MODO_ROBO_MIN = 4;       // idem, pero con modo robo activo
+// Aviso automático "salió de donde estaba estacionado" (SIN modo robo):
+const ESTACIONADO_MIN = 5;               // minutos quieto para considerarlo estacionado
+const RADIO_ESTACIONADO_M = 30;          // tolerancia del GPS estando quieto (metros)
+
+// Push a dueño + familiares con acceso. Devuelve cuántos se enviaron.
+// Cada persona puede ser de un cliente (barrio) distinto al del vehículo:
+// su token se busca en SU cliente (claim cliente_id) y, si no, en el del vehículo.
+async function avisarVehiculo(vehiculoId, veh, titulo, cuerpo, evento, lat, lng) {
+  const uids = [veh.duenoUid, ...(Array.isArray(veh.compartidoCon) ? veh.compartidoCon : [])];
+  const clientePorUid = {};
+  try {
+    const r = await auth.getUsers(uids.map((uid) => ({ uid })));
+    r.users.forEach((u) => { clientePorUid[u.uid] = (u.customClaims || {}).cliente_id; });
+  } catch (e) {
+    console.warn('⚠️ No se pudieron leer los claims, se usa el cliente del vehículo:', e.message);
+  }
+  const refs = uids.map((u) =>
+    db.collection(`clientes/${clientePorUid[u] || veh.clienteId}/vecinos`).doc(u));
+  const docs = await db.getAll(...refs);
+  const tokens = [];
+  docs.forEach((d) => {
+    const tk = d.exists && d.data().fcm_token;
+    if (tk && !tokens.includes(tk)) tokens.push(tk);
+  });
+  if (tokens.length === 0) return 0;
+
+  // Solo "data" (igual que onPanicoCreado) para que lo arme sw.js.
+  const resp = await admin.messaging().sendEachForMulticast({
+    tokens,
+    data: {
+      tipo: 'vehiculo',
+      evento: String(evento),
+      vehiculoId: String(vehiculoId),
+      title: titulo,
+      body: cuerpo,
+      lat: lat != null ? String(lat) : '',
+      lng: lng != null ? String(lng) : '',
+    },
+    android: { priority: 'high' },
+    webpush: { headers: { Urgency: 'high', TTL: '600' } },
+  });
+  console.log(`✅ Aviso ${evento} de ${vehiculoId}: ${resp.successCount} ok, ${resp.failureCount} fallidos`);
+  return resp.successCount;
+}
+
 exports.traccarWebhook = functions.https.onRequest(async (req, res) => {
   try {
     if (req.method !== 'POST') return res.status(405).send('Method not allowed');
@@ -3260,12 +3317,81 @@ exports.traccarWebhook = functions.https.onRequest(async (req, res) => {
     const ref = db.collection('vehiculos').doc(vehiculoId);
 
     // 1) Última posición (merge: no pisa duenoUid / robado / compartidoCon)
-    await ref.set({
-      ...punto,
-      nombre: device.name || '',
-      clienteId: String(clienteId),
-      actualizado: ahora,
-    }, { merge: true });
+    //    + detección de "salió de estar estacionado" cuando el modo robo está activo.
+    const D = admin.firestore.FieldValue;
+    const resultado = await db.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      const prev = snap.exists ? snap.data() : {};
+      const extra = { sinSenalAvisado: false }; // llegó una posición: ya está en servicio
+      let aviso = null;
+
+      if (prev.robado === true) {
+        if (!prev.anclaRobo) {
+          // Primera posición con modo robo activo: ese es el punto de estacionamiento.
+          extra.anclaRobo = { lat: punto.lat, lng: punto.lng };
+          extra.movimientoRoboSeguidos = 0;
+          extra.alertaRoboEnviada = false;
+        } else if (prev.alertaRoboEnviada !== true) {
+          const dist = turf.distance(
+            [prev.anclaRobo.lng, prev.anclaRobo.lat], [punto.lng, punto.lat], { units: 'meters' });
+          const seguidos = velocidadKmh >= VEL_MOVIMIENTO_KMH ? (prev.movimientoRoboSeguidos || 0) + 1 : 0;
+          extra.movimientoRoboSeguidos = seguidos;
+          if (dist >= RADIO_SALIDA_ESTACIONADO_M || seguidos >= 2) {
+            extra.alertaRoboEnviada = true; // un solo aviso por activación del modo robo
+            aviso = { metros: Math.round(dist) };
+          }
+        }
+      } else if (prev.anclaRobo || prev.alertaRoboEnviada) {
+        // Modo robo desactivado: se limpia para la próxima vez.
+        extra.anclaRobo = D.delete();
+        extra.alertaRoboEnviada = false;
+        extra.movimientoRoboSeguidos = 0;
+      }
+
+      // Aviso automático SIN modo robo:
+      //   quieto ESTACIONADO_MIN min dentro de RADIO_ESTACIONADO_M => "armado";
+      //   armado + se aleja RADIO_SALIDA_ESTACIONADO_M (o 2 posiciones en movimiento) => un aviso y se re-arma.
+      // Con modo robo activo manda la lógica de arriba y esto se limpia.
+      if (prev.robado === true) {
+        if (prev.estacionamiento) extra.estacionamiento = D.delete();
+      } else {
+        const ahoraMs = Date.now();
+        const est = prev.estacionamiento;
+        const nuevo = { lat: punto.lat, lng: punto.lng, desdeMs: ahoraMs, armado: false, movSeguidos: 0 };
+        if (!est) {
+          extra.estacionamiento = nuevo;
+        } else {
+          const dist = turf.distance(
+            [est.lng, est.lat], [punto.lng, punto.lat], { units: 'meters' });
+          if (!est.armado) {
+            if (dist > RADIO_ESTACIONADO_M) {
+              extra.estacionamiento = nuevo; // sigue en movimiento: el punto candidato se reinicia
+            } else if (ahoraMs - est.desdeMs >= ESTACIONADO_MIN * 60 * 1000) {
+              extra.estacionamiento = { ...est, armado: true, movSeguidos: 0 };
+            }
+          } else {
+            const seguidos = velocidadKmh >= VEL_MOVIMIENTO_KMH ? (est.movSeguidos || 0) + 1 : 0;
+            if (dist >= RADIO_SALIDA_ESTACIONADO_M || seguidos >= 2) {
+              extra.estacionamiento = nuevo; // se re-arma cuando vuelva a quedar quieto
+              // avisarSalida === false lo apaga; pausaSalidaHasta (ms) lo pausa ("voy a manejar yo")
+              const pausado = typeof prev.pausaSalidaHasta === 'number' && prev.pausaSalidaHasta > ahoraMs;
+              if (prev.avisarSalida !== false && !pausado) aviso = { metros: Math.round(dist) };
+            } else if (seguidos !== (est.movSeguidos || 0)) {
+              extra.estacionamiento = { ...est, movSeguidos: seguidos };
+            }
+          }
+        }
+      }
+
+      tx.set(ref, {
+        ...punto,
+        nombre: device.name || '',
+        clienteId: String(clienteId),
+        actualizado: ahora,
+        ...extra,
+      }, { merge: true });
+      return { aviso, veh: prev };
+    });
 
     // 2) Historial con vencimiento (TTL sobre el campo "expiraEn")
     await ref.collection('recorridos').add({
@@ -3275,6 +3401,23 @@ exports.traccarWebhook = functions.https.onRequest(async (req, res) => {
         Date.now() + DIAS_HISTORIAL_RECORRIDO * 24 * 60 * 60 * 1000
       ),
     });
+
+    // 3) Aviso de salida de estacionamiento (no debe romper la respuesta al webhook)
+    if (resultado.aviso && resultado.veh.duenoUid) {
+      try {
+        const v = resultado.veh;
+        const robo = v.robado === true;
+        await avisarVehiculo(
+          vehiculoId, { ...v, clienteId: v.clienteId || String(clienteId) },
+          robo ? '🚨 Tu auto se movió' : '🚗 Tu auto salió de donde estaba estacionado',
+          robo
+            ? `${device.name || 'Tu vehículo'} salió de donde estaba estacionado (modo robo activo).`
+            : `${device.name || 'Tu vehículo'} se movió ${resultado.aviso.metros} m. Si lo manejás vos, ignorá este aviso.`,
+          robo ? 'salioEstacionado' : 'salidaEstacionado', punto.lat, punto.lng);
+      } catch (e) {
+        console.error('❌ No se pudo avisar salida de estacionamiento:', e);
+      }
+    }
 
     return res.status(200).send('ok');
   } catch (error) {
@@ -3573,137 +3716,58 @@ exports.misVehiculos = functions.https.onCall(async (data, context) => {
 //   clientes/{clienteId}/vecinos/{uid}.fcm_token
 // ============================================================================
 
-// Qué eventos avisan y con qué texto. Lo que no esté acá se ignora (evita spam).
-function armarTextoEventoTraccar(event, device) {
-  const nombre = device.name || 'Tu vehículo';
-  const t = event.type;
-  const alarma = (event.attributes && event.attributes.alarm) || '';
-
-  if (t === 'alarm') {
-    const textos = {
-      sos: ['🆘 SOS activado', `${nombre} activó el botón SOS.`],
-      vibration: ['⚠️ Vibración detectada', `${nombre} detectó vibración o golpe.`],
-      movement: ['🚨 Movimiento no autorizado', `${nombre} se está moviendo.`],
-      powerCut: ['🚨 Corte de batería', `Desconectaron la batería de ${nombre}.`],
-      lowBattery: ['🔋 Batería baja', `${nombre} tiene la batería baja.`],
-      overspeed: ['⚡ Exceso de velocidad', `${nombre} superó el límite de velocidad.`],
-    };
-    const x = textos[alarma] || ['🚨 Alarma', `${nombre}: alarma ${alarma || 'del equipo'}.`];
-    return { title: x[0], body: x[1], critico: ['sos', 'movement', 'powerCut'].includes(alarma) };
-  }
-  if (t === 'geofenceExit') return { title: '📍 Salió de la zona', body: `${nombre} salió de una geo-zona.`, critico: true };
-  if (t === 'geofenceEnter') return { title: '📍 Entró a una zona', body: `${nombre} entró a una geo-zona.`, critico: false };
-  if (t === 'deviceOverspeed') return { title: '⚡ Exceso de velocidad', body: `${nombre} superó el límite de velocidad.`, critico: false };
-  if (t === 'ignitionOn') return { title: '🔑 Encendido', body: `${nombre} fue encendido.`, critico: false };
-  if (t === 'deviceMoving') return { title: '🚗 En movimiento', body: `${nombre} empezó a moverse.`, critico: false };
-  if (t === 'deviceOffline') return { title: '📡 Sin conexión', body: `${nombre} dejó de reportar.`, critico: false };
-  return null;
-}
-
-// Espera mínima (en minutos) entre dos avisos iguales del mismo vehículo.
-// Evita el spam cuando el GPS "tiembla" y Traccar dispara el mismo evento una y otra vez.
-// Lo que no figura acá (SOS, corte de batería, movimiento no autorizado) avisa siempre.
-const ESPERA_AVISO_MIN = {
-  deviceMoving: 15,
-  ignitionOn: 15,
-  deviceOffline: 60,
-  deviceOverspeed: 10,
-  geofenceEnter: 3,
-  geofenceExit: 3,
-  'alarm:vibration': 5,
-  'alarm:lowBattery': 120,
-  'alarm:overspeed': 10,
-};
-
+// Los avisos YA NO salen de los eventos de Traccar (deviceOffline salta con cortes de
+// segundos y deviceMoving avisaba en cada viaje). Ahora salen de:
+//   - traccarWebhook            -> salida de estacionamiento con modo robo
+//   - controlarSinSenalVehiculos -> rastreador fuera de servicio
+// Este endpoint se mantiene para que la configuración de Traccar no dé error.
 exports.traccarEvento = functions.https.onRequest(async (req, res) => {
-  try {
-    if (req.method !== 'POST') return res.status(405).send('Method not allowed');
+  if (req.method !== 'POST') return res.status(405).send('Method not allowed');
+  const esperado = Buffer.from(process.env.TRACCAR_SECRET || '');
+  const recibido = Buffer.from(String(req.query.key || ''));
+  if (esperado.length === 0 || esperado.length !== recibido.length ||
+      !crypto.timingSafeEqual(esperado, recibido)) {
+    return res.status(403).send('Forbidden');
+  }
+  return res.status(200).send('ignorado');
+});
 
-    const esperado = Buffer.from(process.env.TRACCAR_SECRET || '');
-    const recibido = Buffer.from(String(req.query.key || ''));
-    if (esperado.length === 0 || esperado.length !== recibido.length ||
-        !crypto.timingSafeEqual(esperado, recibido)) {
-      return res.status(403).send('Forbidden');
-    }
+// Fuera de servicio: sin posiciones nuevas por SIN_SENAL_MIN minutos
+// (SIN_SENAL_MODO_ROBO_MIN si está en modo robo). Un solo aviso por caída;
+// el webhook lo rearma al llegar la próxima posición.
+exports.controlarSinSenalVehiculos = functions.pubsub
+  .schedule('every 2 minutes')
+  .onRun(async () => {
+    const ahoraMs = Date.now();
+    const corte = admin.firestore.Timestamp.fromMillis(ahoraMs - SIN_SENAL_MODO_ROBO_MIN * 60 * 1000);
+    const snap = await db.collection('vehiculos').where('actualizado', '<', corte).get();
 
-    const { event, device, position } = req.body || {};
-    if (!event || !device) return res.status(400).send('Bad payload');
+    for (const doc of snap.docs) {
+      const v = doc.data();
+      if (!v.duenoUid || !v.clienteId || v.sinSenalAvisado === true || !v.actualizado) continue;
+      const limiteMs = (v.robado === true ? SIN_SENAL_MODO_ROBO_MIN : SIN_SENAL_MIN) * 60 * 1000;
+      if (ahoraMs - v.actualizado.toMillis() < limiteMs) continue;
 
-    const texto = armarTextoEventoTraccar(event, device);
-    if (!texto) return res.status(200).send('ignorado');
-
-    // Vehículo → dueño y familiares con acceso
-    const vehiculoId = String(device.uniqueId || device.id);
-    const vSnap = await db.collection('vehiculos').doc(vehiculoId).get();
-    if (!vSnap.exists) return res.status(200).send('vehiculo sin registrar');
-    const veh = vSnap.data();
-    if (!veh.duenoUid || !veh.clienteId) return res.status(200).send('sin dueño');
-
-    // Anti-spam: si ya avisamos este mismo evento hace poco, se omite.
-    const claveAviso = event.type === 'alarm'
-      ? `alarm:${(event.attributes && event.attributes.alarm) || ''}`
-      : String(event.type);
-    const esperaMin = ESPERA_AVISO_MIN[claveAviso] || 0;
-    if (esperaMin > 0) {
-      const avisoRef = db.collection('avisos_vehiculos')
-        .doc(`${vehiculoId}__${claveAviso.replace(/[^A-Za-z0-9_-]/g, '_')}`);
-      const permitido = await db.runTransaction(async (tx) => {
-        const d = await tx.get(avisoRef);
-        const ultimo = d.exists ? Number(d.data().ultimo || 0) : 0;
-        if (Date.now() - ultimo < esperaMin * 60 * 1000) return false;
-        tx.set(avisoRef, { ultimo: Date.now(), evento: claveAviso, vehiculoId });
+      const debeAvisar = await db.runTransaction(async (tx) => {
+        const d = (await tx.get(doc.ref)).data() || {};
+        if (d.sinSenalAvisado === true || !d.actualizado ||
+            ahoraMs - d.actualizado.toMillis() < limiteMs) return false;
+        tx.update(doc.ref, { sinSenalAvisado: true });
         return true;
       });
-      if (!permitido) {
-        console.log(`⏳ ${claveAviso} de ${vehiculoId} omitido (espera de ${esperaMin} min)`);
-        return res.status(200).send('omitido por espera');
+      if (!debeAvisar) continue;
+
+      const min = Math.round((ahoraMs - v.actualizado.toMillis()) / 60000);
+      const nombre = v.nombre || 'Tu vehículo';
+      try {
+        await avisarVehiculo(
+          doc.id, v,
+          v.robado === true ? '🚨 Sin señal con tu auto robado' : '📡 Sin señal',
+          `${nombre} dejó de reportar hace ${min} min.`,
+          'sinSenal', v.lat, v.lng);
+      } catch (e) {
+        console.error(`❌ No se pudo avisar sin señal de ${doc.id}:`, e);
       }
     }
-
-    const uids = [veh.duenoUid, ...(Array.isArray(veh.compartidoCon) ? veh.compartidoCon : [])];
-
-    // uid → token FCM
-    // Cada persona puede ser de un cliente (barrio) distinto al del vehículo:
-    // su token se busca en SU cliente (claim cliente_id) y, si no lo tiene,
-    // en el cliente del vehículo.
-    const clientePorUid = {};
-    try {
-      const r = await auth.getUsers(uids.map((uid) => ({ uid })));
-      r.users.forEach((u) => { clientePorUid[u.uid] = (u.customClaims || {}).cliente_id; });
-    } catch (e) {
-      console.warn('⚠️ No se pudieron leer los claims, se usa el cliente del vehículo:', e.message);
-    }
-    const refs = uids.map((u) =>
-      db.collection(`clientes/${clientePorUid[u] || veh.clienteId}/vecinos`).doc(u));
-    const docs = await db.getAll(...refs);
-    const tokens = [];
-    docs.forEach((d) => {
-      const tk = d.exists && d.data().fcm_token;
-      if (tk && !tokens.includes(tk)) tokens.push(tk);
-    });
-    if (tokens.length === 0) return res.status(200).send('sin tokens');
-
-    // Solo "data" (igual que onPanicoCreado) para que lo arme sw.js.
-    // Prioridad alta + Urgency high: ayuda a que llegue con el celular bloqueado (Doze).
-    const resp = await admin.messaging().sendEachForMulticast({
-      tokens,
-      data: {
-        tipo: 'vehiculo',
-        evento: String(event.type),
-        vehiculoId,
-        title: texto.title,
-        body: texto.body,
-        lat: position ? String(position.latitude) : '',
-        lng: position ? String(position.longitude) : '',
-      },
-      android: { priority: 'high' },
-      webpush: { headers: { Urgency: 'high', TTL: texto.critico ? '600' : '120' } },
-    });
-
-    console.log(`✅ Evento ${event.type} de ${vehiculoId}: ${resp.successCount} ok, ${resp.failureCount} fallidos`);
-    return res.status(200).send('ok');
-  } catch (error) {
-    console.error('❌ Error en traccarEvento:', error);
-    return res.status(500).send('Error');
-  }
-});
+    return null;
+  });

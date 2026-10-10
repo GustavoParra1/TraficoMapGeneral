@@ -44,7 +44,11 @@ messaging.setBackgroundMessageHandler((payload) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const denunciaId = (event.notification.data && event.notification.data.denunciaId) || null;
-  const targetPath = denunciaId ? `./index.html?panico=${denunciaId}` : './index.html';
+  // Avisos de vehículos (salió de estacionado, sin señal): abrir directo el mapa del auto.
+  const vehiculoId = (event.notification.data && event.notification.data.vehiculoId) || null;
+  const targetPath = denunciaId
+    ? `./index.html?panico=${denunciaId}`
+    : (vehiculoId ? `./index.html?vehiculo=${encodeURIComponent(vehiculoId)}` : './index.html');
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsArr) => {

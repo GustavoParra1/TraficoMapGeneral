@@ -26,6 +26,10 @@
   var mapa = null, marcador = null, linea = null, unsubVehiculo = null;
   var siguiendo = true, periodoHoras = 1;
   var root = null;
+  // Si la app se abrió desde un aviso del auto (?vehiculo=IMEI), al terminar de cargar
+  // la lista se abre directo el mapa de ese auto.
+  var listo = false, pendienteVer = null;
+  try { pendienteVer = new URLSearchParams(window.location.search).get('vehiculo'); } catch (e) { pendienteVer = null; }
 
   // ---------- utilidades ----------
   function esc(s) {
@@ -146,6 +150,21 @@
     html += '<div id="vgps-detalle"></div>';
     root.innerHTML = html;
     if (estado.seleccionado) abrirDetalle(estado.seleccionado, true);
+    listo = true;
+    verPendiente();
+  }
+
+  // Abre el mapa del auto pedido desde la notificación (solo si es propio o compartido conmigo).
+  function verPendiente() {
+    if (!pendienteVer || !listo || !root) return;
+    var imei = String(pendienteVer);
+    pendienteVer = null;
+    var existe = estado.propios.concat(estado.compartidos).some(function (v) { return v.imei === imei; });
+    if (!existe) return;
+    abrirDetalle(imei).then(function () {
+      var d = $('vgps-detalle');
+      if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   // ---------- mapa en vivo ----------
@@ -331,6 +350,9 @@
 
   // ---------- API pública ----------
   window.VehiculosGPS = {
+    // Abre el mapa de un auto por IMEI (también lo usa la notificación vía ?vehiculo=).
+    verAuto: function (imei) { pendienteVer = imei; verPendiente(); },
+
     // Usuario con suscripción activa: sección completa debajo de "Ver mapa de mi ciudad".
     iniciar: async function () {
       try {
