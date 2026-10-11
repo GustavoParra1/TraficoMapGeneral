@@ -754,7 +754,7 @@ function bloquearApp() {
           Tu suscripción al servicio de denuncias no está activa para este mes.
         </p>
         <p style="color:#64748b; font-size:14px;">
-          Por favor contactá al municipio para regularizar el pago y volver a usar la app.
+          Por favor contactá a tu administrador para regularizar el pago y volver a usar la app.
         </p>
       </div>
     `;

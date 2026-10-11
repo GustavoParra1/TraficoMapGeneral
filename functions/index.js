@@ -3656,6 +3656,60 @@ exports.dejarDeCompartirVehiculo = functions.https.onCall(async (data, context) 
   return { ok: true, imei };
 });
 
+// 🆕 (2026-10) Marcar auto robado / recuperado. Antes la app escribía "robado"
+// directo en Firestore y NADIE avisaba. Ahora pasa por acá: valida que sea el dueño,
+// cambia el flag y manda push (con la pantalla bloqueada) al dueño y a los familiares
+// con acceso (compartidoCon, máx. 5) vía avisarVehiculo.
+exports.marcarVehiculoRobado = functions.https.onCall(async (data, context) => {
+  const uid = exigirVecino(context);
+  const { imei, ref, vehiculo } = await cargarVehiculoDelDueno(uid, data && data.imei);
+  const robado = !!(data && data.robado === true);
+  if ((vehiculo.robado === true) === robado) return { ok: true, imei, cambio: false, enviados: 0 };
+
+  await ref.update({ robado });
+
+  const nombre = vehiculo.nombre || 'Tu vehículo';
+
+  // Historial (quién y cuándo): lo ve el admin/operarios del cliente en el centro de control.
+  // Vive en clientes/{clienteId}/historial_robos_vehiculos, que (a diferencia de vehiculos/{imei})
+  // sigue visible después de recuperar el auto. No debe romper la operación si falla.
+  try {
+    if (vehiculo.clienteId) {
+      let porNombre = '';
+      try { porNombre = await nombreDeVecino(await auth.getUser(uid), true); } catch (e) { /* sin nombre */ }
+      await db.collection(`clientes/${vehiculo.clienteId}/historial_robos_vehiculos`).add({
+        imei,
+        vehiculo: nombre,
+        accion: robado ? 'robado' : 'recuperado',
+        porUid: uid,
+        porNombre: porNombre || '',
+        lat: typeof vehiculo.lat === 'number' ? vehiculo.lat : null,
+        lng: typeof vehiculo.lng === 'number' ? vehiculo.lng : null,
+        fecha: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    } else {
+      console.warn(`⚠️ Vehículo ${imei} sin clienteId: no se registra en el historial`);
+    }
+  } catch (e) {
+    console.error('❌ No se pudo registrar el historial de robo:', e);
+  }
+  let enviados = 0;
+  try {
+    enviados = await avisarVehiculo(
+      imei, { ...vehiculo, robado },
+      robado ? `🚨 ${nombre}: marcado como ROBADO` : `✅ ${nombre}: recuperado`,
+      robado
+        ? 'Se activó el modo robo. Tocá para ver dónde está.'
+        : 'Se desactivó el modo robo: el auto fue recuperado.',
+      robado ? 'robado' : 'recuperado',
+      typeof vehiculo.lat === 'number' ? vehiculo.lat : null,
+      typeof vehiculo.lng === 'number' ? vehiculo.lng : null);
+  } catch (e) {
+    console.error('❌ No se pudo avisar robado/recuperado:', e); // el cambio ya quedó guardado
+  }
+  return { ok: true, imei, cambio: true, enviados };
+});
+
 exports.salirDeVehiculoCompartido = functions.https.onCall(async (data, context) => {
   const uid = exigirVecino(context);
   const imei = validarImeiVehiculo(data && data.imei);

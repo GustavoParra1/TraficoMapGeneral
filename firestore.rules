@@ -187,6 +187,14 @@ service cloud.firestore {
         allow write: if isClienteAdmin(clienteId) || isPatrullaDeCliente(clienteId);
       }
 
+      // 🆕 (2026-10) Historial de robos/recuperos de autos con tracker GPS (quién y cuándo).
+      // Lo escribe SOLO la Cloud Function marcarVehiculoRobado (Admin SDK).
+      // Lo leen admin y operarios del cliente (y superadmin). Las patrullas no.
+      match /historial_robos_vehiculos/{docId} {
+        allow read: if isSuperadmin() || isClienteAdmin(clienteId) || isOperarioDeCliente(clienteId);
+        allow write: if false;
+      }
+
       // Operarios: gestión exclusiva del admin (crear/editar vía Cloud Function
       // + el propio doc; no hace falta que el operario se escriba a sí mismo).
       match /operarios/{operarioId} {

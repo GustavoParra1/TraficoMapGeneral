@@ -491,6 +491,10 @@
       <!-- Aviso emergencias sin ubicación -->
       <div id="emergencias-sin-gps" style="display:none; background:#dc2626; color:#fff; border-radius:6px; padding:10px; margin-bottom:12px; font-size:12px; cursor:pointer;"></div>
 
+      <!-- Autos robados (modo robo activo) -->
+      <div id="autos-robados" style="display:none; background:#1f2937; border:2px solid #dc2626; border-radius:6px; padding:10px; margin-bottom:12px; font-size:12px; color:#fff;"></div>
+      <button id="btn-historial-robos" type="button" onclick="abrirHistorialRobos()" style="width:100%; background:#374151; color:#fff; border:1px solid #4b5563; border-radius:6px; padding:8px; margin-bottom:12px; font-size:12px; font-weight:700; cursor:pointer;">📜 Historial de autos robados</button>
+
       <!-- Unidades -->
       <div id="patrullas-list" class="patrullas-list">
         <div class="loading">Cargando unidades...</div>
@@ -501,6 +505,16 @@
   <!-- MAIN CONTENT -->
   <div class="main-content">
     <div id="map"></div>
+    <div id="modal-historial-robos" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:4000; align-items:center; justify-content:center;" onclick="if(event.target===this) cerrarHistorialRobos()">
+      <div style="background:#111827; color:#fff; border-radius:10px; width:min(720px,94vw); max-height:80vh; display:flex; flex-direction:column; box-shadow:0 10px 40px rgba(0,0,0,.6);">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid #374151;">
+          <b style="font-size:15px;">📜 Historial de autos robados</b>
+          <button type="button" onclick="cerrarHistorialRobos()" style="background:#374151; color:#fff; border:none; border-radius:6px; padding:6px 12px; cursor:pointer; font-weight:700;">Cerrar</button>
+        </div>
+        <div id="historial-robos-body" style="padding:12px 16px; overflow-y:auto; font-size:13px;"></div>
+      </div>
+    </div>
+    <div id="aviso-vehiculo" style="display:none; position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:3000; max-width:90vw; padding:14px 22px; border-radius:10px; color:#fff; font-weight:800; font-size:15px; box-shadow:0 6px 24px rgba(0,0,0,.45); cursor:pointer; text-align:center;"></div>
 
     <!-- CHAT MESSAGES -->
     <div class="chat-panel">
@@ -692,6 +706,7 @@
     initMap();
     listenToPatrullas();
     listenToEmergencias();
+    listenToVehiculosRobados();
     listenToMessages();
     setupUIControls();
   }
@@ -924,6 +939,210 @@
       setTimeout(() => { osc.frequency.value = 440; }, 250);
       setTimeout(() => { osc.stop(); ctx.close(); }, 600);
     } catch (e) { console.warn('No se pudo reproducir alerta'); }
+  }
+
+  // ========================================
+  // AUTOS ROBADOS (modo robo activo) - vehiculos con tracker GPS
+  // El dueño marca "Robo" / "Recuperé" en su app (function marcarVehiculoRobado).
+  // Las reglas de Firestore dejan leer estos autos SOLO al admin / operarios de
+  // este cliente (y superadmin) y SOLO mientras robado === true.
+  //   - aparece un punto rojo con la posición en vivo + panel lateral + aviso sonoro
+  //   - al recuperarlo, el punto desaparece y se avisa "recuperado"
+  // ========================================
+  let autosRobados = new Map();      // imei -> { d, marker }
+  let vehiculosPrimeraCarga = true;  // la primera carga lista sin hacer ruido
+  let unsubVehiculos = null;
+  let avisoVehiculoTimer = null;
+  const TITULO_ORIGINAL = document.title;
+
+  function escHtml(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, (ch) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  }
+
+  function listenToVehiculosRobados() {
+    if (unsubVehiculos) { unsubVehiculos(); unsubVehiculos = null; }
+    autosRobados.forEach((a) => { if (a.marker && map && map.hasLayer(a.marker)) map.removeLayer(a.marker); });
+    autosRobados.clear();
+    vehiculosPrimeraCarga = true;
+    actualizarPanelAutosRobados();
+
+    if (!clienteId || !auth || !auth.currentUser) {
+      console.warn('🚗 Autos robados: sin sesión de staff, no se escuchan.');
+      return;
+    }
+    console.log(`🚗 Escuchando autos robados del cliente ${clienteId}`);
+
+    unsubVehiculos = db.collection('vehiculos')
+      .where('clienteId', '==', clienteId)
+      .where('robado', '==', true)
+      .onSnapshot((snapshot) => {
+        snapshot.docChanges().forEach((ch) => {
+          const id = ch.doc.id;
+          const d = ch.doc.data();
+          if (ch.type === 'removed') {
+            const prev = autosRobados.get(id);
+            if (!prev) return;
+            if (prev.marker && map.hasLayer(prev.marker)) map.removeLayer(prev.marker);
+            autosRobados.delete(id);
+            if (!vehiculosPrimeraCarga) {
+              mostrarAvisoVehiculo(`✅ Auto recuperado: ${prev.d.nombre || id}`, 'ok');
+              sonarAvisoRecuperado();
+            }
+            return;
+          }
+          const existente = autosRobados.get(id);
+          pintarAutoRobado(id, d, existente);
+          if (!existente && !vehiculosPrimeraCarga) {
+            mostrarAvisoVehiculo(`🚨 AUTO ROBADO: ${d.nombre || id}`, 'robo', id);
+            sonarAlertaEmergencia();
+          }
+        });
+        vehiculosPrimeraCarga = false;
+        actualizarPanelAutosRobados();
+      }, (error) => {
+        console.error('❌ Error escuchando autos robados:', error);
+        const el = document.getElementById('autos-robados');
+        if (el) {
+          el.style.display = 'block';
+          el.innerHTML = '⚠️ No se pudieron leer los autos robados (' + escHtml(error.code || 'error') + ').';
+        }
+      });
+  }
+
+  function popupAutoRobado(id, d) {
+    const act = d.actualizado && d.actualizado.toDate ? d.actualizado.toDate().toLocaleString('es-AR') : '--';
+    const vel = typeof d.velocidadKmh === 'number' ? `${d.velocidadKmh} km/h` : '--';
+    const pos = (typeof d.lat === 'number' && typeof d.lng === 'number')
+      ? `${d.lat.toFixed(5)}, ${d.lng.toFixed(5)}` : '--';
+    return `
+      <div style="font-size:13px; font-family: Arial;">
+        <b style="font-size:14px; color:#dc2626;">🚗🚨 AUTO ROBADO</b><br>
+        <div style="margin: 6px 0; padding: 6px 0; border-top: 1px solid #e0e0e0;">
+          <b>${escHtml(d.nombre || ('Vehículo ' + id))}</b><br>
+          Velocidad: ${escHtml(vel)}<br>
+          Última posición: ${escHtml(act)}<br>
+          📍 ${escHtml(pos)}
+        </div>
+      </div>`;
+  }
+
+  function pintarAutoRobado(id, d, existente) {
+    const tienePos = typeof d.lat === 'number' && typeof d.lng === 'number';
+    let marker = existente ? existente.marker : null;
+    if (tienePos) {
+      if (!marker) {
+        const icon = L.divIcon({
+          html: `<div style="width:44px;height:44px;background:#dc2626;border:3px solid #fff;border-radius:50%;
+                   display:flex;align-items:center;justify-content:center;font-size:22px;
+                   box-shadow:0 0 0 4px rgba(220,38,38,0.4);animation:pulse 0.8s infinite;">🚗</div>`,
+          iconSize: [44, 44], iconAnchor: [22, 22], popupAnchor: [0, -22],
+          className: 'patrol-marker-icon'
+        });
+        marker = L.marker([d.lat, d.lng], { icon, title: 'AUTO ROBADO', zIndexOffset: 1000 })
+          .bindPopup(popupAutoRobado(id, d)).addTo(map);
+      } else {
+        marker.setLatLng([d.lat, d.lng]);
+        marker.setPopupContent(popupAutoRobado(id, d));
+      }
+    }
+    autosRobados.set(id, { d, marker });
+  }
+
+  function actualizarPanelAutosRobados() {
+    const n = autosRobados.size;
+    document.title = n > 0 ? `🚨(${n}) ${TITULO_ORIGINAL}` : TITULO_ORIGINAL;
+    const el = document.getElementById('autos-robados');
+    if (!el) return;
+    if (n === 0) { el.style.display = 'none'; el.innerHTML = ''; return; }
+    el.style.display = 'block';
+    let h = `<div style="font-weight:800;font-size:13px;margin-bottom:6px;">🚗🚨 ${n} auto${n > 1 ? 's' : ''} robado${n > 1 ? 's' : ''}</div>`;
+    autosRobados.forEach((a, id) => {
+      const act = a.d.actualizado && a.d.actualizado.toDate
+        ? a.d.actualizado.toDate().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : '--';
+      const vel = typeof a.d.velocidadKmh === 'number' ? `${a.d.velocidadKmh} km/h` : '--';
+      h += `<div data-imei="${escHtml(id)}" style="cursor:pointer;background:#111827;border-radius:6px;padding:8px;margin-top:6px;">
+              <b>${escHtml(a.d.nombre || ('Vehículo ' + id))}</b><br>
+              <span style="color:#9ca3af;">${escHtml(vel)} · últ. pos. ${escHtml(act)}</span>
+            </div>`;
+    });
+    el.innerHTML = h;
+    el.querySelectorAll('[data-imei]').forEach((c) => {
+      c.onclick = () => zoomAutoRobado(c.getAttribute('data-imei'));
+    });
+  }
+
+  function zoomAutoRobado(id) {
+    const a = autosRobados.get(id);
+    if (!a || !a.marker) return;
+    map.setView(a.marker.getLatLng(), 16);
+    a.marker.openPopup();
+  }
+
+  function mostrarAvisoVehiculo(texto, tipo, idParaZoom) {
+    const el = document.getElementById('aviso-vehiculo');
+    if (!el) return;
+    el.textContent = texto;
+    el.style.background = tipo === 'ok' ? '#16a34a' : '#dc2626';
+    el.style.display = 'block';
+    el.onclick = () => { el.style.display = 'none'; if (idParaZoom) zoomAutoRobado(idParaZoom); };
+    clearTimeout(avisoVehiculoTimer);
+    avisoVehiculoTimer = setTimeout(() => { el.style.display = 'none'; }, tipo === 'ok' ? 12000 : 30000);
+  }
+
+  // Historial de robos / recuperos (quién y cuándo). Lo escribe marcarVehiculoRobado.
+  async function abrirHistorialRobos() {
+    const modal = document.getElementById('modal-historial-robos');
+    const body = document.getElementById('historial-robos-body');
+    if (!modal || !body) return;
+    modal.style.display = 'flex';
+    body.innerHTML = '<div style="color:#9ca3af;">Cargando…</div>';
+    try {
+      const snap = await db.collection('clientes').doc(clienteId)
+        .collection('historial_robos_vehiculos')
+        .orderBy('fecha', 'desc').limit(50).get();
+      if (snap.empty) {
+        body.innerHTML = '<div style="color:#9ca3af;">Todavía no hay robos ni recuperos registrados.</div>';
+        return;
+      }
+      let h = '';
+      snap.forEach((doc) => {
+        const e = doc.data();
+        const robado = e.accion === 'robado';
+        const fecha = e.fecha && e.fecha.toDate ? e.fecha.toDate().toLocaleString('es-AR') : '--';
+        const mapa = (typeof e.lat === 'number' && typeof e.lng === 'number')
+          ? ` · <a href="https://www.google.com/maps?q=${e.lat},${e.lng}" target="_blank" rel="noopener" style="color:#60a5fa;">📍 ver ubicación</a>` : '';
+        h += `<div style="border-left:4px solid ${robado ? '#dc2626' : '#16a34a'}; background:#1f2937; border-radius:6px; padding:8px 10px; margin-bottom:8px;">
+                <b>${robado ? '🚨 ROBADO' : '✅ RECUPERADO'}</b> · ${escHtml(e.vehiculo || e.imei || '')}<br>
+                <span style="color:#9ca3af;">${escHtml(fecha)} · marcado por ${escHtml(e.porNombre || 'el dueño')}${mapa}</span>
+              </div>`;
+      });
+      body.innerHTML = h;
+    } catch (err) {
+      console.error('❌ Error leyendo historial de robos:', err);
+      body.innerHTML = '⚠️ No se pudo leer el historial (' + escHtml(err.code || 'error') + ').';
+    }
+  }
+
+  function cerrarHistorialRobos() {
+    const modal = document.getElementById('modal-historial-robos');
+    if (modal) modal.style.display = 'none';
+  }
+
+  // Dos tonos ascendentes (más suave que la alarma de emergencia)
+  function sonarAvisoRecuperado() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = 523;
+      gain.gain.value = 0.2;
+      osc.start();
+      setTimeout(() => { osc.frequency.value = 784; }, 200);
+      setTimeout(() => { osc.stop(); ctx.close(); }, 450);
+    } catch (e) { console.warn('No se pudo reproducir aviso'); }
   }
  
   // ========================================

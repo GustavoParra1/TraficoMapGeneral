@@ -245,7 +245,7 @@
         '<button class="btn cian" data-act="form-vincular">Vincular mi auto</button></div>';
     } else {
       $('vacio').innerHTML = '<div class="vacio"><h2>Suscripción no activa este mes</h2>' +
-        '<p>Por ahora solo podés ver los autos que tus familiares compartieron con vos, y todavía no hay ninguno. Para volver a usar tu rastreador, contactá al municipio.</p>' +
+        '<p>Por ahora solo podés ver los autos que tus familiares compartieron con vos, y todavía no hay ninguno. Para volver a usar tu rastreador, contactá a tu administrador.</p>' +
         '<a class="btn claro" href="index.html">Volver a denuncias</a></div>';
     }
   }
@@ -387,11 +387,11 @@
       }
       if (tipo === 'robado') {
         var okR = await confirmar('🚨 ¿Marcar tu auto como robado?',
-          'Se avisa al centro de control de tu municipio y tus familiares ven el aviso. Si es una emergencia, llamá también al 911.',
+          'Se activa el modo robo y se avisa con una notificación a tus familiares. Si es una emergencia, llamá también al 911.',
           'Sí, me lo robaron', true,
           '<a class="btn llamar" href="tel:911">📞 Llamar al 911</a>');
         if (!okR) return;
-        await firebase.firestore().collection('vehiculos').doc(estado.imei).update({ robado: true });
+        await fn('marcarVehiculoRobado')({ imei: estado.imei, robado: true });
         await recargar();
         toast('🚨 Auto marcado como robado.', 'ok');
         return;
@@ -399,7 +399,7 @@
       if (tipo === 'recuperado') {
         var okC = await confirmar('¿Recuperaste el auto?', 'Se quita el aviso de robo y tu auto vuelve a verse normal.', 'Sí, lo recuperé', false);
         if (!okC) return;
-        await firebase.firestore().collection('vehiculos').doc(estado.imei).update({ robado: false });
+        await fn('marcarVehiculoRobado')({ imei: estado.imei, robado: false });
         await recargar();
         toast('✅ Auto marcado como recuperado.', 'ok');
         return;

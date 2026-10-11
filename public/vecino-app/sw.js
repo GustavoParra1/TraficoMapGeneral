@@ -27,12 +27,21 @@ messaging.setBackgroundMessageHandler((payload) => {
   console.log('[sw.js] Notificación en background recibida:', payload);
   const title = (payload.data && payload.data.title) || '🚨 Alerta de emergencia';
   const body = (payload.data && payload.data.body) || 'Hay una alerta activa cerca tuyo';
-  return self.registration.showNotification(title, {
+  const d = payload.data || {};
+  // Avisos de robo (🚨 / evento robado o salioEstacionado) vibran más fuerte y largo.
+  const urgente = d.evento === 'robado' || d.evento === 'salioEstacionado' || title.indexOf('🚨') !== -1;
+  const opciones = {
     body,
     icon: 'icon-192.png',
     badge: 'icon-192.png',
-    data: payload.data || {}
-  });
+    vibrate: urgente ? [500, 200, 500, 200, 500, 200, 500] : [300, 150, 300],
+    requireInteraction: true, // queda en pantalla hasta que la toques
+    renotify: true,           // vuelve a sonar/vibrar si llega otro aviso igual
+    silent: false,
+    data: d
+  };
+  if (d.vehiculoId) opciones.tag = 'veh-' + d.vehiculoId + '-' + (d.evento || '');
+  return self.registration.showNotification(title, opciones);
 });
 
 // Al tocar la notificación, ir directo a la alerta correspondiente.
