@@ -337,12 +337,22 @@ async function initFirebase() {
         // 🆕 Familiar sin suscripción: puede ver en "Mi rastreador" los autos con GPS que le
         // compartieron (pero nada más). Si no tiene ninguno, se bloquea igual.
         let tieneCompartidos = false;
-        try {
-          const rv = await firebase.functions().httpsCallable('misVehiculos')();
-          tieneCompartidos = !!(rv.data && (rv.data.compartidosConmigo || []).length);
-        } catch (e) { console.warn('Autos compartidos:', e); }
-        if (tieneCompartidos) { window.location.href = 'rastreador.html'; return; }
-        bloquearApp();
+        let errorCompartidos = null; // si la consulta falla, NO es lo mismo que "no tiene autos compartidos"
+        for (let intento = 0; intento < 2; intento++) {
+          try {
+            const rv = await firebase.functions().httpsCallable('misVehiculos')();
+            tieneCompartidos = !!(rv.data && (rv.data.compartidosConmigo || []).length);
+            errorCompartidos = null;
+            break;
+          } catch (e) {
+            errorCompartidos = e;
+            console.warn('Autos compartidos (intento ' + (intento + 1) + '):', e);
+            await new Promise((r) => setTimeout(r, 1200));
+          }
+        }
+        // Se conserva ?vehiculo=IMEI (viene de la notificación) para abrir directo ese auto.
+        if (tieneCompartidos) { window.location.href = 'rastreador.html' + window.location.search; return; }
+        bloquearApp(errorCompartidos);
         esconderOverlayCarga();
         return;
       }
@@ -744,9 +754,17 @@ async function eliminarDenuncia(denunciaId) {
   }
 }
 
-function bloquearApp() {
+function bloquearApp(errorVerificacion) {
   const cont = document.querySelector('.container');
   if (cont) {
+    const extra = errorVerificacion
+      ? `<p style="color:#b45309; font-size:13px; margin-top:12px;">
+           No pudimos verificar si tenés autos compartidos (${String(errorVerificacion.code || 'error').replace(/[<>&]/g, '')}).
+           Recargá la página; si sigue igual, avisale a tu administrador.
+         </p>`
+      : `<p style="color:#64748b; font-size:13px; margin-top:12px;">
+           Si un familiar te compartió su auto y no lo ves, pedile que lo comparta con el mismo email o celular con el que te registraste.
+         </p>`;
     cont.innerHTML = `
       <div class="card" style="text-align:center; border-top:4px solid #ef4444;">
         <h2 style="color:#ef4444;">⛔ Suscripción vencida</h2>
@@ -756,6 +774,7 @@ function bloquearApp() {
         <p style="color:#64748b; font-size:14px;">
           Por favor contactá a tu administrador para regularizar el pago y volver a usar la app.
         </p>
+        ${extra}
       </div>
     `;
   }
